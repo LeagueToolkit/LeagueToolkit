@@ -44,6 +44,8 @@
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
     <Compile Include="Helpers\Structures.cs" />
+    <Compile Include="IO\MOB\MOBFile.cs" />
+    <Compile Include="IO\MOB\MOBObject.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
