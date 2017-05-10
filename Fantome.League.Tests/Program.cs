@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fantome.League.IO.WAD;
+using Fantome.League.IO.WGEO;
 
 namespace Fantome.League.Tests
 {
@@ -11,7 +11,8 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            WADFile wad = new WADFile("Aatrox.wad.client");
+            WGEOFile wgeo = new WGEOFile("room.wgeo");
+            wgeo.Write("roomWrite.wgeo");
         }
     }
 }
