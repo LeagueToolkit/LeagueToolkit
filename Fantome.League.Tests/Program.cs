@@ -7,6 +7,7 @@ using Fantome.League.IO.WGEO;
 using Fantome.League.IO.MOB;
 using Fantome.League.IO.SKN;
 using Fantome.League.IO.FX;
+using Fantome.League.Converters;
 
 namespace Fantome.League.Tests
 {
@@ -14,7 +15,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-
+            WGEOConverterTest();
         }
 
         static void WGEOTest()
@@ -35,6 +36,12 @@ namespace Fantome.League.Tests
         {
             FXFile fx = new FXFile("KalistaPChannel.fx");
             fx.Write("KalistaPChannelWrite.fx");
+        }
+        static void WGEOConverterTest()
+        {
+            WGEOFile wgeo = new WGEOFile("room.wgeo");
+            WGEOConverter converter = new WGEOConverter(wgeo);
+            converter.ExportModels("WGEO");
         }
     }
 }
