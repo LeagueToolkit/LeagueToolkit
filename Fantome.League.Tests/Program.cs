@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Fantome.League.IO.WGEO;
 using Fantome.League.IO.MOB;
+using Fantome.League.IO.SKN;
 
 namespace Fantome.League.Tests
 {
@@ -12,7 +13,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            
+            SKNTest();
         }
 
         static void WGEOTest()
@@ -24,6 +25,10 @@ namespace Fantome.League.Tests
         {
             MOBFile mob = new MOBFile("MapObjects.mob");
             mob.Write("MapObjectsWrite.mob");
+        }
+        static void SKNTest()
+        {
+            SKNFile skn = new SKNFile("Gangplank_Skin08.skn");
         }
     }
 }

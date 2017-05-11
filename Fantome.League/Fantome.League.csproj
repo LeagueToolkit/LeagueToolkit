@@ -48,6 +48,9 @@
     <Compile Include="IO\MOB\MOBObject.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
+    <Compile Include="IO\SKN\SKNFile.cs" />
+    <Compile Include="IO\SKN\SKNSubmesh.cs" />
+    <Compile Include="IO\SKN\SKNVertex.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
     <Compile Include="IO\WAD\WADFile.cs" />
     <Compile Include="IO\WGEO\WGEOBucket.cs" />
