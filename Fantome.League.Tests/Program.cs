@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Fantome.League.IO.WGEO;
 using Fantome.League.IO.MOB;
 using Fantome.League.IO.SKN;
+using Fantome.League.IO.FX;
 
 namespace Fantome.League.Tests
 {
@@ -13,7 +14,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            SKNTest();
+
         }
 
         static void WGEOTest()
@@ -29,6 +30,11 @@ namespace Fantome.League.Tests
         static void SKNTest()
         {
             SKNFile skn = new SKNFile("Gangplank_Skin08.skn");
+        }
+        static void FXTest()
+        {
+            FXFile fx = new FXFile("KalistaPChannel.fx");
+            fx.Write("KalistaPChannelWrite.fx");
         }
     }
 }
