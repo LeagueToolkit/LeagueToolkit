@@ -35,6 +35,17 @@ namespace Fantome.League.IO.OBJ
                 this.Faces.Add(new Face(FaceIndices, FaceIndices));
             }
         }
+        public OBJFile(List<Vector3> Vertices, List<Vector2> UVs, List<Vector3> Normals, List<UInt16> Indices)
+        {
+            this.Vertices = Vertices;
+            this.UVs = UVs;
+            this.Normals = Normals;
+            for (int i = 0; i < Indices.Count; i += 3)
+            {
+                UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
+                this.Faces.Add(new Face(FaceIndices, FaceIndices, FaceIndices));
+            }
+        }
         public OBJFile(string Location)
         {
             using (StreamReader sr = new StreamReader(Location))
