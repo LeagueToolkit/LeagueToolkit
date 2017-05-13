@@ -26,6 +26,14 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.X);
             bw.Write(this.Y);
         }
+        public static bool operator <(Vector2 x, Vector2 y)
+        {
+            return x.X < y.X && x.Y < y.Y;
+        }
+        public static bool operator >(Vector2 x, Vector2 y)
+        {
+            return x.X > y.X && x.Y > y.Y;
+        }
     }
     public struct Vector3
     {
@@ -49,6 +57,10 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.X);
             bw.Write(this.Y);
             bw.Write(this.Z);
+        }
+        public static Vector3 operator -(Vector3 x, Vector3 y)
+        {
+            return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
         }
     }
     public struct Vector4
@@ -131,28 +143,24 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.W);
         }
     }
-    public struct ColorRGB
+    public struct R3DBoundingBox
     {
-        public byte R;
-        public byte G;
-        public byte B;
-        public ColorRGB(byte R, byte G, byte B)
+        public Vector3 Org;
+        public Vector3 Size;
+        public R3DBoundingBox(Vector3 Org, Vector3 Size)
         {
-            this.R = R;
-            this.G = G;
-            this.B = B;
+            this.Org = Org;
+            this.Size = Size;
         }
-        public ColorRGB(BinaryReader br)
+        public R3DBoundingBox(BinaryReader br)
         {
-            this.R = br.ReadByte();
-            this.G = br.ReadByte();
-            this.B = br.ReadByte();
+            this.Org = new Vector3(br);
+            this.Size = new Vector3(br);
         }
         public void Write(BinaryWriter bw)
         {
-            bw.Write(this.R);
-            bw.Write(this.G);
-            bw.Write(this.B);
+            this.Org.Write(bw);
+            this.Size.Write(bw);
         }
     }
 }
