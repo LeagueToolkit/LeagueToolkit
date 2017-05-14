@@ -47,7 +47,7 @@ namespace Fantome.League.IO.SCO
                 }
                 else if (input[0] == "Verts=")
                 {
-                    VertexCount = uint.Parse(sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                    VertexCount = uint.Parse(input[1]);
                 }
 
                 for (int i = 0; i < VertexCount; i++)

@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\SKNConverter.cs" />
     <Compile Include="Converters\WGEOConverter.cs" />
     <Compile Include="Helpers\Compression.cs" />
     <Compile Include="Helpers\Cryptography.cs" />

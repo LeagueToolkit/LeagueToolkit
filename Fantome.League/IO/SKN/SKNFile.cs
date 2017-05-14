@@ -1,5 +1,7 @@
 ﻿using Fantome.League.Helpers.Exceptions;
 using Fantome.League.Helpers.Structures;
+using Fantome.League.IO.SCO;
+using Fantome.League.IO.WGT;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +13,29 @@ namespace Fantome.League.IO.SKN
         public List<SKNSubmesh> Submeshes { get; private set; } = new List<SKNSubmesh>();
         public List<UInt16> Indices { get; private set; } = new List<UInt16>();
         public List<SKNVertex> Vertices { get; private set; } = new List<SKNVertex>();
+        public SKNFile(WGTFile Weights, SCOFile Model)
+        {
+            this.Submeshes.Add(new SKNSubmesh(Model.Name, 0, (uint)Model.Vertices.Count, 0, (uint)Model.Faces.Count * 3));
+            foreach(Vector3 Vertex in Model.Vertices)
+            {
+                this.Vertices.Add(new SKNVertex(Vertex));
+            }
+            for(int i = 0; i < this.Vertices.Count; i++)
+            {
+                this.Vertices[i].AddWeight(Weights.Weights[i].Indices, Weights.Weights[i].Weights);
+            }
+            for(int i = 0; i < Model.Faces.Count; i++)
+            {
+                for(int j = 0; j < 3; j++)
+                {
+                    this.Vertices[Model.Faces[i].Indices[j]].AddUV(Model.Faces[i].UV[j]);
+                }
+                for(int j = 0; j < 3; j++)
+                {
+                    this.Indices.Add(Model.Faces[i].Indices[j]);
+                }
+            }
+        }
         public SKNFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -61,6 +86,37 @@ namespace Fantome.League.IO.SKN
                 {
                     this.Vertices.Add(new SKNVertex(br, IsTangent));
                 }
+            }
+        }
+        public void Write(string Location)
+        {
+            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            {
+                bw.Write(0x00112233);
+                bw.Write((UInt16)2);
+                bw.Write((UInt16)1);
+                bw.Write((UInt32)this.Submeshes.Count);
+
+                UInt32 IndexCount = 0;
+                UInt32 VertexCount = 0;
+                foreach(SKNSubmesh Submesh in this.Submeshes)
+                {
+                    Submesh.Write(bw);
+                    IndexCount += Submesh.IndexCount;
+                    VertexCount += Submesh.VertexCount;
+                }
+                bw.Write(IndexCount);
+                bw.Write(VertexCount);
+
+                foreach(UInt16 Index in this.Indices)
+                {
+                    bw.Write(Index);
+                }
+                foreach(SKNVertex Vertex in this.Vertices)
+                {
+                    Vertex.Write(bw);
+                }
+                bw.Write(new byte[12]);
             }
         }
     }

@@ -11,6 +11,7 @@ using Fantome.League.Converters;
 using Fantome.League.IO.AiMesh;
 using Fantome.League.IO.SCB;
 using Fantome.League.IO.SCO;
+using Fantome.League.IO.WGT;
 
 namespace Fantome.League.Tests
 {
@@ -18,7 +19,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            SCOTest(); 
+            SKNConverterTest();
         }
 
         static void WGEOTest()
@@ -33,7 +34,7 @@ namespace Fantome.League.Tests
         }
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Gangplank_Skin08.skn");
+            SKNFile skn = new SKNFile("Plantking.skn");
         }
         static void FXTest()
         {
@@ -59,6 +60,10 @@ namespace Fantome.League.Tests
         static void SCOTest()
         {
             SCOFile sco = new SCOFile("Aatrox_Basic_A_trail_01.sco");
+        }
+        static void SKNConverterTest()
+        {
+            SKNConverter.Convert(new SKNFile("Plantking.skn")).Write("Plantking.obj");
         }
     }
 }
