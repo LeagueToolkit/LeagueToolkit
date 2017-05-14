@@ -10,7 +10,7 @@ namespace Fantome.League.IO.WGEO
     {
         public string Texture { get; private set; }
         public string Material { get; private set; }
-        public WGEOSphere Sphere { get; private set; }
+        public R3DSphere Sphere { get; private set; }
         public Vector3 Min { get; private set; }
         public Vector3 Max { get; private set; }
         public List<WGEOVertex> Vertices { get; private set; } = new List<WGEOVertex>();
@@ -20,7 +20,7 @@ namespace Fantome.League.IO.WGEO
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(64));
             this.Material = this.Material.Remove(this.Material.IndexOf("\0"));
-            this.Sphere = new WGEOSphere(br);
+            this.Sphere = new R3DSphere(br);
             this.Min = new Vector3(br);
             this.Max = new Vector3(br);
 

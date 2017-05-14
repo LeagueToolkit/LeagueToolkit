@@ -54,6 +54,15 @@
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
     <Compile Include="IO\MOB\MOBFile.cs" />
     <Compile Include="IO\MOB\MOBObject.cs" />
+    <Compile Include="IO\NVR\NVRChannel.cs" />
+    <Compile Include="IO\NVR\NVRDrawIndexedPrimitive.cs" />
+    <Compile Include="IO\NVR\NVRFile.cs" />
+    <Compile Include="IO\NVR\NVRIndexBuffer.cs" />
+    <Compile Include="IO\NVR\NVRMaterial.cs" />
+    <Compile Include="IO\NVR\NVRMesh.cs" />
+    <Compile Include="IO\NVR\NVRNode.cs" />
+    <Compile Include="IO\NVR\NVRVertex.cs" />
+    <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
@@ -68,7 +77,6 @@
     <Compile Include="IO\WGEO\WGEOBucketGeometry.cs" />
     <Compile Include="IO\WGEO\WGEOFile.cs" />
     <Compile Include="IO\WGEO\WGEOModel.cs" />
-    <Compile Include="IO\WGEO\WGEOSphere.cs" />
     <Compile Include="IO\WGEO\WGEOVertex.cs" />
     <Compile Include="IO\WGT\WGTFile.cs" />
     <Compile Include="IO\WGT\WGTWeight.cs" />

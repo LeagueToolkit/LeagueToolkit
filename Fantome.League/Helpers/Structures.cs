@@ -171,4 +171,47 @@ namespace Fantome.League.Helpers.Structures
             this.Size.Write(bw);
         }
     }
+    public struct R3DBox
+    {
+        public Vector3 Min { get; private set; }
+        public Vector3 Max { get; private set; }
+
+        public R3DBox(BinaryReader br)
+        {
+            this.Min = new Vector3(br);
+            this.Max = new Vector3(br);
+        }
+
+        public R3DBox(Vector3 min, Vector3 max)
+        {
+            this.Min = min;
+            this.Max = max;
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            this.Min.Write(bw);
+            this.Max.Write(bw);
+        }
+    }
+    public struct R3DSphere
+    {
+        public Vector3 Position;
+        public float Radius;
+        public R3DSphere(Vector3 Position, float Radius)
+        {
+            this.Position = Position;
+            this.Radius = Radius;
+        }
+        public R3DSphere(BinaryReader br)
+        {
+            this.Position = new Vector3(br);
+            this.Radius = br.ReadSingle();
+        }
+        public void Write(BinaryWriter bw)
+        {
+            Position.Write(bw);
+            bw.Write(Radius);
+        }
+    }
 }
