@@ -67,6 +67,8 @@
     <Compile Include="IO\WGEO\WGEOModel.cs" />
     <Compile Include="IO\WGEO\WGEOSphere.cs" />
     <Compile Include="IO\WGEO\WGEOVertex.cs" />
+    <Compile Include="IO\WGT\WGTFile.cs" />
+    <Compile Include="IO\WGT\WGTWeight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

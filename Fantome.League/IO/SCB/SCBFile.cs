@@ -3,9 +3,7 @@ using Fantome.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Fantome.League.IO.SCB
 {
@@ -54,14 +52,11 @@ namespace Fantome.League.IO.SCB
                     {
                         this.Tangents.Add(new Vector4Byte(br));
                     }
-                    this.CentralPoint = new Vector3(br); //Tangent for Central Point or the central point itself
-                }
-                else
-                {
-                    this.CentralPoint = new Vector3(br);
                 }
 
-                for(int i = 0; i < FaceCount; i++)
+                this.CentralPoint = new Vector3(br);
+
+                for (int i = 0; i < FaceCount; i++)
                 {
                     this.Faces.Add(new SCBFace(br));
                 }
