@@ -1,11 +1,7 @@
 ﻿using Fantome.League.Helpers.Structures;
 using Fantome.League.IO.OBJ;
 using Fantome.League.IO.WGEO;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fantome.League.Converters
 {

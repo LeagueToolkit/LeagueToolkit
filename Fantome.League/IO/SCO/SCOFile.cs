@@ -1,0 +1,66 @@
+﻿using Fantome.League.Helpers.Structures;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+
+namespace Fantome.League.IO.SCO
+{
+    public class SCOFile
+    {
+        public string Name { get; private set; }
+        public Vector3 CentralPoint { get; private set; }
+        public Vector3 PivotPoint { get; private set; }
+        public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
+        public List<SCOFace> Faces { get; private set; } = new List<SCOFace>();
+        public SCOFile(string Location)
+        {
+            using (StreamReader sr = new StreamReader(Location))
+            {
+                char[] SplittingArray = new char[] { ' ' };
+                string[] input = null;
+
+                if (sr.ReadLine() != "[ObjectBegin]")
+                    throw new Exception("File is either not an SCO file or is corrupted");
+
+                this.Name = sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1];
+
+                input = sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries);
+                this.CentralPoint = new Vector3()
+                {
+                    X = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                    Y = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
+                    Z = float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
+                };
+
+                input = sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries);
+                UInt32 VertexCount = 0;
+                if (input[0] == "PivotPoint=")
+                {
+                    this.PivotPoint = new Vector3()
+                    {
+                        X = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                        Y = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
+                        Z = float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
+                    };
+                    VertexCount = uint.Parse(sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                }
+                else if (input[0] == "Verts=")
+                {
+                    VertexCount = uint.Parse(sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                }
+
+                for (int i = 0; i < VertexCount; i++)
+                {
+                    this.Vertices.Add(new Vector3(sr));
+                }
+
+                UInt32 FaceCount = uint.Parse(sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                for (int i = 0; i < FaceCount; i++)
+                {
+                    this.Faces.Add(new SCOFace(sr));
+                }
+            }
+        }
+    }
+}

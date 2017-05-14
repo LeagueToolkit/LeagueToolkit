@@ -10,6 +10,7 @@ using Fantome.League.IO.FX;
 using Fantome.League.Converters;
 using Fantome.League.IO.AiMesh;
 using Fantome.League.IO.SCB;
+using Fantome.League.IO.SCO;
 
 namespace Fantome.League.Tests
 {
@@ -17,7 +18,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            SCBTest();
+            SCOTest(); 
         }
 
         static void WGEOTest()
@@ -54,6 +55,10 @@ namespace Fantome.League.Tests
         {
             SCBFile scb = new SCBFile("aatrox_skin02_q_pulse_01.scb");
             scb.Write("aatrox_skin02_q_pulse_01Write.scb");
+        }
+        static void SCOTest()
+        {
+            SCOFile sco = new SCOFile("Aatrox_Basic_A_trail_01.sco");
         }
     }
 }

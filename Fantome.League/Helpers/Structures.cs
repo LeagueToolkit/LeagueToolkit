@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Fantome.League.Helpers.Structures
 {
@@ -52,11 +49,22 @@ namespace Fantome.League.Helpers.Structures
             this.Y = br.ReadSingle();
             this.Z = br.ReadSingle();
         }
+        public Vector3(StreamReader sr)
+        {
+            string[] input = sr.ReadLine().Split(new char[] { ' '}, StringSplitOptions.RemoveEmptyEntries);
+            this.X = float.Parse(input[0], CultureInfo.InvariantCulture.NumberFormat);
+            this.Y = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat);
+            this.Z = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat);
+        }
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.X);
             bw.Write(this.Y);
             bw.Write(this.Z);
+        }
+        public void Write(StreamWriter sw)
+        {
+            sw.WriteLine(string.Format("{0} {1} {2}", this.X, this.Y, this.Z));
         }
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {

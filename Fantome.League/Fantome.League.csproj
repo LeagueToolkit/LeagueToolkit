@@ -56,6 +56,8 @@
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
+    <Compile Include="IO\SCO\SCOFace.cs" />
+    <Compile Include="IO\SCO\SCOFile.cs" />
     <Compile Include="IO\SKN\SKNFile.cs" />
     <Compile Include="IO\SKN\SKNSubmesh.cs" />
     <Compile Include="IO\SKN\SKNVertex.cs" />
