@@ -114,8 +114,9 @@ namespace Fantome.League.IO.NVR
             }
         }
 
-        public NVRDrawIndexedPrimitive(List<NVRVertex> vertices, List<int> indices, bool complex)
+        public NVRDrawIndexedPrimitive(NVRMesh mesh, List<NVRVertex> vertices, List<int> indices, bool complex)
         {
+            this.Parent = mesh;
             this.Indices.AddRange(indices);
             if (complex)
             {

@@ -34,7 +34,7 @@ namespace Fantome.League.IO.NVR
     {
         public Vector3 Normal { get; private set; }
         public Vector2 UV { get; private set; }
-        public Vector4Byte DiffuseColor { get; private set; }
+        public ColorVector4Byte DiffuseColor { get; private set; }
         public override int Size { get; protected set; } = 36;
 
         public NVRVertex4(BinaryReader br) : base(br)
@@ -42,10 +42,10 @@ namespace Fantome.League.IO.NVR
             base.Type = NVRVertexType.NVRVERTEX_4;
             this.Normal = new Vector3(br);
             this.UV = new Vector2(br);
-            this.DiffuseColor = new Vector4Byte(br);
+            this.DiffuseColor = new ColorVector4Byte(br);
         }
 
-        public NVRVertex4(Vector3 position, Vector3 normal, Vector2 UV, Vector4Byte diffuseColor) : base(position)
+        public NVRVertex4(Vector3 position, Vector3 normal, Vector2 UV, ColorVector4Byte diffuseColor) : base(position)
         {
             this.Normal = normal;
             this.UV = UV;
@@ -65,8 +65,8 @@ namespace Fantome.League.IO.NVR
     {
         public Vector3 Normal { get; private set; }
         public Vector2 UV { get; private set; }
-        public Vector4Byte DiffuseColor { get; private set; }
-        public Vector4Byte EmissiveColor { get; private set; }
+        public ColorVector4Byte DiffuseColor { get; private set; }
+        public ColorVector4Byte EmissiveColor { get; private set; }
         public override int Size { get; protected set; } = 40;
 
         public NVRVertex8(BinaryReader br) : base(br)
@@ -74,11 +74,11 @@ namespace Fantome.League.IO.NVR
             base.Type = NVRVertexType.NVRVERTEX_8;
             this.Normal = new Vector3(br);
             this.UV = new Vector2(br);
-            this.DiffuseColor = new Vector4Byte(br);
-            this.EmissiveColor = new Vector4Byte(br);
+            this.DiffuseColor = new ColorVector4Byte(br);
+            this.EmissiveColor = new ColorVector4Byte(br);
         }
 
-        public NVRVertex8(Vector3 position, Vector3 normal, Vector2 UV, Vector4Byte diffuseColor, Vector4Byte emissiveColor) : base(position)
+        public NVRVertex8(Vector3 position, Vector3 normal, Vector2 UV, ColorVector4Byte diffuseColor, ColorVector4Byte emissiveColor) : base(position)
         {
             this.Normal = normal;
             this.UV = UV;
@@ -100,8 +100,8 @@ namespace Fantome.League.IO.NVR
     {
         public Vector3 Normal { get; private set; }
         public Vector2 Unknown { get; private set; }
-        public Vector4Byte DiffuseColor { get; private set; }
-        public Vector4Byte EmissiveColor { get; private set; }
+        public ColorVector4Byte DiffuseColor { get; private set; }
+        public ColorVector4Byte EmissiveColor { get; private set; }
         public override int Size { get; protected set; } = 40;
 
         public NVRVertexGround8(BinaryReader br) : base(br)
@@ -109,11 +109,11 @@ namespace Fantome.League.IO.NVR
             base.Type = NVRVertexType.NVRVERTEX_GROUND_8;
             this.Normal = new Vector3(br);
             this.Unknown = new Vector2(br);
-            this.DiffuseColor = new Vector4Byte(br);
-            this.EmissiveColor = new Vector4Byte(br);
+            this.DiffuseColor = new ColorVector4Byte(br);
+            this.EmissiveColor = new ColorVector4Byte(br);
         }
 
-        public NVRVertexGround8(Vector3 position, Vector3 normal, Vector2 unknown, Vector4Byte diffuseColor, Vector4Byte emissiveColor) : base(position)
+        public NVRVertexGround8(Vector3 position, Vector3 normal, Vector2 unknown, ColorVector4Byte diffuseColor, ColorVector4Byte emissiveColor) : base(position)
         {
             this.Normal = normal;
             this.Unknown = unknown;
@@ -136,7 +136,7 @@ namespace Fantome.League.IO.NVR
         public Vector3 Normal { get; private set; }
         public Vector2 Unknown { get; private set; }
         public Vector2 UV { get; private set; }
-        public Vector4Byte DiffuseColor { get; private set; }
+        public ColorVector4Byte DiffuseColor { get; private set; }
         public override int Size { get; protected set; } = 44;
 
         public NVRVertex12(BinaryReader br) : base(br)
@@ -145,10 +145,10 @@ namespace Fantome.League.IO.NVR
             this.Normal = new Vector3(br);
             this.Unknown = new Vector2(br);
             this.UV = new Vector2(br);
-            this.DiffuseColor = new Vector4Byte(br);
+            this.DiffuseColor = new ColorVector4Byte(br);
         }
 
-        public NVRVertex12(Vector3 position, Vector3 normal, Vector2 unknown, Vector2 UV, Vector4Byte diffuseColor) : base(position)
+        public NVRVertex12(Vector3 position, Vector3 normal, Vector2 unknown, Vector2 UV, ColorVector4Byte diffuseColor) : base(position)
         {
             this.Normal = normal;
             this.Unknown = unknown;

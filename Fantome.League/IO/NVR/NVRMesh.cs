@@ -37,8 +37,8 @@ namespace Fantome.League.IO.NVR
             this.QualityLevel = meshQualityLevel;
             this.Flag = flag;
             this.Material = material;
-            this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(vertices, indices, true);
-            this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(vertices, indices, false);
+            this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(this, vertices, indices, true);
+            this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(this, vertices, indices, false);
 
             float[] min = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
             float[] max = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
