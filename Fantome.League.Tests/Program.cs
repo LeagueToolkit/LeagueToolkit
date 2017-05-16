@@ -13,6 +13,7 @@ using Fantome.League.IO.SCB;
 using Fantome.League.IO.SCO;
 using Fantome.League.IO.WGT;
 using Fantome.League.IO.NVR;
+using Fantome.League.IO.ParticlesDat;
 
 namespace Fantome.League.Tests
 {
@@ -20,7 +21,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            NVRTest();
+            ParticlesDatTest();
         }
 
         static void WGEOTest()
@@ -70,6 +71,11 @@ namespace Fantome.League.Tests
         {
             NVRFile nvr = new NVRFile("roomWrite.nvr");
             nvr.Save("roomWrite.nvr");
+        }
+        static void ParticlesDatTest()
+        {
+            ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
+            particlefile.Write("ParticlesWrite.dat");
         }
     }
 }
