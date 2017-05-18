@@ -66,6 +66,17 @@ namespace Fantome.League.Helpers.Structures
         {
             sw.WriteLine(string.Format("{0} {1} {2}", this.X, this.Y, this.Z));
         }
+        public static Vector3 Cross(Vector3 x, Vector3 y)
+        {
+            return new Vector3(
+                (x.Y * y.Z) - (x.Z * y.Y),
+                (x.Z * y.X) - (x.X * y.Z),
+                (x.X * y.Y) - (x.Y * y.X));
+        }
+        public static Vector3 operator +(Vector3 x, Vector3 y)
+        {
+            return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
+        }
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);

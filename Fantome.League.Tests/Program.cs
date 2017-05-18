@@ -21,7 +21,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            ParticlesDatTest();
+            SKNConverterTest();
         }
 
         static void WGEOTest()
@@ -65,7 +65,7 @@ namespace Fantome.League.Tests
         }
         static void SKNConverterTest()
         {
-            SKNConverter.Convert(new SKNFile("Plantking.skn")).Write("Plantking.obj");
+            SKNConverter.Convert(SKNConverter.Convert(new WGTFile("Plantking.wgt"), new SCOFile("Plantking.sco")), true).Write("Plantking.obj");
         }
         static void NVRTest()
         {

@@ -41,12 +41,16 @@ namespace Fantome.League.IO.SKN
             if (this.IsTangent)
                 this.Tangent.Write(bw);
         }
-        public void AddWeight(Vector4Byte BoneIndices, Vector4 Weights)
+        public void SetWeight(Vector4Byte BoneIndices, Vector4 Weights)
         {
             this.BoneIndices = BoneIndices;
             this.Weights = Weights;
         }
-        public void AddUV(Vector2 UV)
+        public void SetNormal(Vector3 Normal)
+        {
+            this.Normal = Normal;
+        }
+        public void SetUV(Vector2 UV)
         {
             this.UV = UV;
         }

@@ -22,13 +22,13 @@ namespace Fantome.League.IO.SKN
             }
             for(int i = 0; i < this.Vertices.Count; i++)
             {
-                this.Vertices[i].AddWeight(Weights.Weights[i].Indices, Weights.Weights[i].Weights);
+                this.Vertices[i].SetWeight(Weights.Weights[i].Indices, Weights.Weights[i].Weights);
             }
             for(int i = 0; i < Model.Faces.Count; i++)
             {
                 for(int j = 0; j < 3; j++)
                 {
-                    this.Vertices[Model.Faces[i].Indices[j]].AddUV(Model.Faces[i].UV[j]);
+                    this.Vertices[Model.Faces[i].Indices[j]].SetUV(Model.Faces[i].UV[j]);
                 }
                 for(int j = 0; j < 3; j++)
                 {
