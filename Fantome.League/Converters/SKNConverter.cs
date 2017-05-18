@@ -23,19 +23,19 @@ namespace Fantome.League.Converters
             List<Vector2> UV = new List<Vector2>();
             List<Vector3> Normals = new List<Vector3>();
 
-            if(RecalculateNormals)
+            if (RecalculateNormals)
             {
                 for (int i = 0; i < Model.Indices.Count; i += 3)
                 {
                     Vector3 cp = Vector3.Cross(
-                        Model.Vertices[Model.Indices[i] + 1].Position - Model.Vertices[Model.Indices[i]].Position,
-                        Model.Vertices[Model.Indices[i] + 2].Position - Model.Vertices[Model.Indices[i]].Position);
+                        Model.Vertices[Model.Indices[i + 1]].Position - Model.Vertices[Model.Indices[i]].Position,
+                        Model.Vertices[Model.Indices[i + 2]].Position - Model.Vertices[Model.Indices[i]].Position);
 
                     Model.Vertices[Model.Indices[i]].SetNormal(Model.Vertices[Model.Indices[i]].Normal + cp);
-                    Model.Vertices[Model.Indices[i] + 1].SetNormal(Model.Vertices[Model.Indices[i] + 1].Normal + cp);
-                    Model.Vertices[Model.Indices[i] + 2].SetNormal(Model.Vertices[Model.Indices[i] + 1].Normal + cp);
+                    Model.Vertices[Model.Indices[i + 1]].SetNormal(Model.Vertices[Model.Indices[i + 1]].Normal + cp);
+                    Model.Vertices[Model.Indices[i + 2]].SetNormal(Model.Vertices[Model.Indices[i + 1]].Normal + cp);
                 }
-                foreach(SKNVertex Vertex in Model.Vertices)
+                foreach (SKNVertex Vertex in Model.Vertices)
                 {
                     float s = Vertex.Normal.X + Vertex.Normal.Y + Vertex.Normal.Z;
                     Vertex.SetNormal(new Vector3(
@@ -46,7 +46,7 @@ namespace Fantome.League.Converters
                         );
                 }
             }
-            foreach(SKNVertex Vertex in Model.Vertices)
+            foreach (SKNVertex Vertex in Model.Vertices)
             {
                 Vertices.Add(Vertex.Position);
                 UV.Add(Vertex.UV);
