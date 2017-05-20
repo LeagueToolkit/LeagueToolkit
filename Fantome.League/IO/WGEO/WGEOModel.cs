@@ -15,6 +15,7 @@ namespace Fantome.League.IO.WGEO
         public Vector3 Max { get; private set; }
         public List<WGEOVertex> Vertices { get; private set; } = new List<WGEOVertex>();
         public List<UInt16> Indices { get; private set; } = new List<UInt16>();
+
         public WGEOModel(BinaryReader br)
         {
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
@@ -27,15 +28,16 @@ namespace Fantome.League.IO.WGEO
             UInt32 VertexCount = br.ReadUInt32();
             UInt32 IndexCount = br.ReadUInt32();
 
-            for(int i = 0; i < VertexCount; i++)
+            for (int i = 0; i < VertexCount; i++)
             {
                 this.Vertices.Add(new WGEOVertex(br));
             }
-            for(int i = 0; i < IndexCount; i++)
+            for (int i = 0; i < IndexCount; i++)
             {
                 this.Indices.Add(br.ReadUInt16());
             }
         }
+
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.Texture.PadRight(260, '\u0000').ToCharArray());
@@ -47,11 +49,11 @@ namespace Fantome.League.IO.WGEO
             bw.Write((UInt32)this.Vertices.Count);
             bw.Write((UInt32)this.Indices.Count);
 
-            foreach(WGEOVertex Vertex in this.Vertices)
+            foreach (WGEOVertex Vertex in this.Vertices)
             {
                 Vertex.Write(bw);
             }
-            foreach(UInt16 Index in Indices)
+            foreach (UInt16 Index in Indices)
             {
                 bw.Write(Index);
             }

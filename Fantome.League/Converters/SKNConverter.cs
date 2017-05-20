@@ -17,6 +17,7 @@ namespace Fantome.League.Converters
         {
             return new SKNFile(Weights, Model);
         }
+
         public static OBJFile Convert(SKNFile Model, bool RecalculateNormals)
         {
             List<Vector3> Vertices = new List<Vector3>();

@@ -10,6 +10,7 @@ namespace Fantome.League.IO.WGEO
     {
         public List<WGEOModel> Models { get; private set; } = new List<WGEOModel>();
         public WGEOBucketGeometry BucketGeometry { get; private set; }
+
         public WGEOFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -33,6 +34,7 @@ namespace Fantome.League.IO.WGEO
                 BucketGeometry = new WGEOBucketGeometry(br);
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))

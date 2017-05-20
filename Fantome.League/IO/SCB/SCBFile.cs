@@ -16,6 +16,7 @@ namespace Fantome.League.IO.SCB
         public List<Vector4Byte> Tangents { get; private set; } = new List<Vector4Byte>();
         public List<SCBFace> Faces { get; private set; } = new List<SCBFace>();
         public List<Vector3Byte> VertexColors { get; private set; } = new List<Vector3Byte>();
+
         public SCBFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -36,19 +37,19 @@ namespace Fantome.League.IO.SCB
                 this.BoundingBox = new R3DBoundingBox(br);
 
                 bool HasTangents = false;
-                if(Major == 3 && Minor == 2)
+                if (Major == 3 && Minor == 2)
                 {
                     HasTangents = br.ReadUInt32() == 1;
                 }
 
-                for(int i = 0; i < VertexCount; i++)
+                for (int i = 0; i < VertexCount; i++)
                 {
                     this.Vertices.Add(new Vector3(br));
                 }
 
-                if(Major == 3 && Minor == 2 && Flags.HasFlag(SCBFlags.Tangents) && HasTangents)
+                if (Major == 3 && Minor == 2 && Flags.HasFlag(SCBFlags.Tangents) && HasTangents)
                 {
-                    for(int i = 0; i < VertexCount; i++)
+                    for (int i = 0; i < VertexCount; i++)
                     {
                         this.Tangents.Add(new Vector4Byte(br));
                     }
@@ -61,12 +62,13 @@ namespace Fantome.League.IO.SCB
                     this.Faces.Add(new SCBFace(br));
                 }
 
-                if(Flags.HasFlag(SCBFlags.VertexColors))
+                if (Flags.HasFlag(SCBFlags.VertexColors))
                 {
                     this.VertexColors.Add(new Vector3Byte(br));
                 }
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
@@ -91,31 +93,32 @@ namespace Fantome.League.IO.SCB
                 CalculateBoundingBox().Write(bw);
                 bw.Write(HasTangent);
 
-                foreach(Vector3 Vertex in this.Vertices)
+                foreach (Vector3 Vertex in this.Vertices)
                 {
                     Vertex.Write(bw);
                 }
-                foreach(Vector4Byte Tangent in this.Tangents)
+                foreach (Vector4Byte Tangent in this.Tangents)
                 {
                     Tangent.Write(bw);
                 }
                 this.CentralPoint.Write(bw);
-                foreach(SCBFace Face in this.Faces)
+                foreach (SCBFace Face in this.Faces)
                 {
                     Face.Write(bw);
                 }
-                foreach(Vector3Byte Color in this.VertexColors)
+                foreach (Vector3Byte Color in this.VertexColors)
                 {
                     Color.Write(bw);
                 }
             }
         }
+
         public R3DBoundingBox CalculateBoundingBox()
         {
             Vector3 Min = this.Vertices[0];
             Vector3 Max = this.Vertices[0];
 
-            foreach(Vector3 Vertex in this.Vertices)
+            foreach (Vector3 Vertex in this.Vertices)
             {
                 if (Min.X > Vertex.X) Min.X = Vertex.X;
                 if (Min.Y > Vertex.Y) Min.Y = Vertex.Y;

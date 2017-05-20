@@ -10,16 +10,17 @@ namespace Fantome.League.IO.FX
     {
         public List<FXTrack> Tracks { get; private set; } = new List<FXTrack>();
         public List<string> TargetBones { get; private set; } = new List<string>();
+
         public FXFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
             {
-                for(int i = 0; i < 8; i++)
+                for (int i = 0; i < 8; i++)
                 {
                     this.Tracks.Add(new FXTrack(br));
                 }
 
-                if(br.BaseStream.Position != br.BaseStream.Length)
+                if (br.BaseStream.Position != br.BaseStream.Length)
                 {
                     UInt32 Version = br.ReadUInt32();
                     if (Version != 1)
@@ -39,18 +40,19 @@ namespace Fantome.League.IO.FX
                 }
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
             {
-                foreach(FXTrack Track in this.Tracks)
+                foreach (FXTrack Track in this.Tracks)
                 {
                     Track.Write(bw);
                 }
                 bw.Write((UInt32)1);
                 bw.Write((UInt32)1);
                 bw.Write((UInt32)this.Tracks.Count);
-                foreach(string TargetBone in this.TargetBones)
+                foreach (string TargetBone in this.TargetBones)
                 {
                     bw.Write(TargetBone.PadRight(64, '\u0000').ToCharArray());
                 }

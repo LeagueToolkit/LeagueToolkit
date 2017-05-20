@@ -13,6 +13,7 @@ namespace Fantome.League.IO.SCO
         public Vector3 PivotPoint { get; private set; }
         public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
         public List<SCOFace> Faces { get; private set; } = new List<SCOFace>();
+
         public SCOFile(string Location)
         {
             using (StreamReader sr = new StreamReader(Location))

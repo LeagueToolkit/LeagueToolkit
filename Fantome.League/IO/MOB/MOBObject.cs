@@ -14,6 +14,7 @@ namespace Fantome.League.IO.MOB
         public Vector3 Scale { get; private set; }
         public Vector3 HealthbarPosition { get; private set; }
         private Vector3 Unknown { get; set; }
+
         public MOBObject(BinaryReader br)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(60)).Replace("\0", "");
@@ -26,6 +27,7 @@ namespace Fantome.League.IO.MOB
             this.Unknown = new Vector3(br);
             br.ReadUInt32();
         }
+
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.Name.PadRight(60, '\u0000').ToCharArray());
@@ -39,6 +41,7 @@ namespace Fantome.League.IO.MOB
             bw.Write((UInt32)0);
         }
     }
+
     public enum ObjectType : UInt16
     {
         BarrackSpawn,

@@ -10,6 +10,7 @@ namespace Fantome.League.IO.WGT
     {
         public UInt32 SkeletonID { get; private set; }
         public List<WGTWeight> Weights { get; private set; } = new List<WGTWeight>();
+
         public WGTFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -24,13 +25,14 @@ namespace Fantome.League.IO.WGT
 
                 this.SkeletonID = br.ReadUInt32();
                 UInt32 WeightCount = br.ReadUInt32();
-                
-                for(int i = 0; i < WeightCount; i++)
+
+                for (int i = 0; i < WeightCount; i++)
                 {
                     this.Weights.Add(new WGTWeight(br));
                 }
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
@@ -40,7 +42,7 @@ namespace Fantome.League.IO.WGT
                 bw.Write(this.SkeletonID);
                 bw.Write((UInt32)this.Weights.Count);
 
-                foreach(WGTWeight Weight in this.Weights)
+                foreach (WGTWeight Weight in this.Weights)
                 {
                     Weight.Write(bw);
                 }

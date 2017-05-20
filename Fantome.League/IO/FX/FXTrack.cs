@@ -15,6 +15,7 @@ namespace Fantome.League.IO.FX
         public string Bone { get; private set; }
         public Vector3 SpawnOffset { get; private set; }
         public FXWeaponStreakInfo StreakInfo { get; private set; }
+
         public FXTrack(BinaryReader br)
         {
             this.Flag = br.ReadUInt32();
@@ -34,6 +35,7 @@ namespace Fantome.League.IO.FX
             this.SpawnOffset = new Vector3(br);
             this.StreakInfo = new FXWeaponStreakInfo(br);
         }
+
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.Flag);
@@ -46,7 +48,7 @@ namespace Fantome.League.IO.FX
             StreakInfo.Write(bw);
         }
     }
-    
+
     public enum TrackType : UInt32
     {
         None,

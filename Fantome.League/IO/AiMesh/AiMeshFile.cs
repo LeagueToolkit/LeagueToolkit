@@ -9,6 +9,7 @@ namespace Fantome.League.IO.AiMesh
     public class AiMeshFile
     {
         public List<AiMeshFace> Faces = new List<AiMeshFace>();
+
         public AiMeshFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -25,12 +26,13 @@ namespace Fantome.League.IO.AiMesh
                 UInt32 Flags = br.ReadUInt32();
                 UInt32 UnknownFlagConstant = br.ReadUInt32(); // If set to [1] then Flags is [1]
 
-                for(int i = 0; i < FaceCount; i++)
+                for (int i = 0; i < FaceCount; i++)
                 {
                     this.Faces.Add(new AiMeshFace(br));
                 }
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
@@ -40,8 +42,8 @@ namespace Fantome.League.IO.AiMesh
                 bw.Write((UInt32)this.Faces.Count);
                 bw.Write((UInt32)0);
                 bw.Write((UInt32)0);
-                
-                foreach(AiMeshFace Face in this.Faces)
+
+                foreach (AiMeshFace Face in this.Faces)
                 {
                     Face.Write(bw);
                 }

@@ -11,6 +11,7 @@ namespace Fantome.League.IO.WGEO
         public UInt32 Vertex { get; private set; }
         public UInt16 InsideFaceCount { get; private set; }
         public UInt16 StickingOutFaceCount { get; private set; }
+
         public WGEOBucket(BinaryReader br)
         {
             MaxStickOutX = br.ReadSingle();
@@ -20,6 +21,7 @@ namespace Fantome.League.IO.WGEO
             InsideFaceCount = br.ReadUInt16();
             StickingOutFaceCount = br.ReadUInt16();
         }
+
         public void Write(BinaryWriter bw)
         {
             bw.Write(MaxStickOutX);

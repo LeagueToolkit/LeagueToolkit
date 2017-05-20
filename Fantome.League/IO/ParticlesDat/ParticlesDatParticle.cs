@@ -14,13 +14,14 @@ namespace Fantome.League.IO.ParticlesDat
         public Int32 Quality { get; private set; }
         public Vector3 Rotation { get; private set; }
         public List<string> Tags { get; private set; } = new List<string>();
+
         public ParticlesDatParticle(StreamReader sr)
         {
-            string[] input = sr.ReadLine().Split(new char[] { ' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             this.Name = input[0];
             this.Position = new Vector3(
-                float.Parse(input[1], CultureInfo.InvariantCulture), 
-                float.Parse(input[2], CultureInfo.InvariantCulture), 
+                float.Parse(input[1], CultureInfo.InvariantCulture),
+                float.Parse(input[2], CultureInfo.InvariantCulture),
                 float.Parse(input[3], CultureInfo.InvariantCulture));
             this.Quality = Int32.Parse(input[4]);
             this.Rotation = new Vector3(
@@ -29,6 +30,7 @@ namespace Fantome.League.IO.ParticlesDat
                 float.Parse(input[7], CultureInfo.InvariantCulture));
             this.Tags.AddRange(input.ToList().GetRange(8, input.Length - 8));
         }
+
         public void Write(StreamWriter sw)
         {
             string write = string.Format
@@ -43,7 +45,7 @@ namespace Fantome.League.IO.ParticlesDat
                 this.Rotation.Z
                 );
 
-            foreach(string Tag in this.Tags)
+            foreach (string Tag in this.Tags)
             {
                 write += " " + Tag;
             }

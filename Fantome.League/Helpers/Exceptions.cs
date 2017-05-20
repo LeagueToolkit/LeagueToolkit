@@ -10,6 +10,7 @@ namespace Fantome.League.Helpers.Exceptions
     {
         public InvalidFileMagicException() : base("Invalid file Magic") { }
     }
+
     public class UnsupportedFileVersionException : Exception
     {
         public UnsupportedFileVersionException() : base("Unsupported file Version") { }

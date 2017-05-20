@@ -9,6 +9,7 @@ namespace Fantome.League.IO.MOB
     public class MOBFile
     {
         public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
+
         public MOBFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -24,12 +25,13 @@ namespace Fantome.League.IO.MOB
                 UInt32 ObjectCount = br.ReadUInt32();
                 br.ReadUInt32();
 
-                for(int i = 0; i < ObjectCount; i++)
+                for (int i = 0; i < ObjectCount; i++)
                 {
                     this.Objects.Add(new MOBObject(br));
                 }
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
@@ -39,7 +41,7 @@ namespace Fantome.League.IO.MOB
                 bw.Write((UInt32)this.Objects.Count);
                 bw.Write((UInt32)0);
 
-                foreach(MOBObject Object in this.Objects)
+                foreach (MOBObject Object in this.Objects)
                 {
                     Object.Write(bw);
                 }

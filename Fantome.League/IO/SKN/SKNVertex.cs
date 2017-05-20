@@ -12,11 +12,13 @@ namespace Fantome.League.IO.SKN
         public Vector3 Normal { get; private set; }
         public Vector2 UV { get; private set; }
         public Vector4Byte Tangent { get; private set; }
+
         public SKNVertex(Vector3 Position)
         {
             this.IsTangent = false;
             this.Position = Position;
         }
+
         public SKNVertex(BinaryReader br, bool IsTangent)
         {
             this.Position = new Vector3(br);
@@ -29,8 +31,8 @@ namespace Fantome.League.IO.SKN
                 this.Tangent = new Vector4Byte(br);
                 this.IsTangent = IsTangent;
             }
-
         }
+
         public void Write(BinaryWriter bw)
         {
             this.Position.Write(bw);
@@ -41,15 +43,18 @@ namespace Fantome.League.IO.SKN
             if (this.IsTangent)
                 this.Tangent.Write(bw);
         }
+
         public void SetWeight(Vector4Byte BoneIndices, Vector4 Weights)
         {
             this.BoneIndices = BoneIndices;
             this.Weights = Weights;
         }
+
         public void SetNormal(Vector3 Normal)
         {
             this.Normal = Normal;
         }
+
         public void SetUV(Vector2 UV)
         {
             this.UV = UV;

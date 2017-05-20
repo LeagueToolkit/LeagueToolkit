@@ -19,6 +19,7 @@ namespace Fantome.League.IO.WGEO
         public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
         public List<UInt16> Indices { get; private set; } = new List<UInt16>();
         public WGEOBucket[,] Buckets { get; private set; }
+
         public WGEOBucketGeometry(BinaryReader br)
         {
             this.MinX = br.ReadSingle();
@@ -55,6 +56,7 @@ namespace Fantome.League.IO.WGEO
                 }
             }
         }
+
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.MinX);
@@ -73,11 +75,11 @@ namespace Fantome.League.IO.WGEO
             bw.Write((UInt32)this.Vertices.Count);
             bw.Write((UInt32)this.Indices.Count);
 
-            foreach(Vector3 Vertex in Vertices)
+            foreach (Vector3 Vertex in Vertices)
             {
                 Vertex.Write(bw);
             }
-            foreach(UInt16 Index in Indices)
+            foreach (UInt16 Index in Indices)
             {
                 bw.Write(Index);
             }

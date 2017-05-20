@@ -10,6 +10,7 @@ namespace Fantome.League.IO.WAD
     {
         public byte[] ECDSA { get; private set; }
         public List<WADEntry> Files { get; private set; } = new List<WADEntry>();
+
         public WADFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -22,7 +23,7 @@ namespace Fantome.League.IO.WAD
                 byte Minor = br.ReadByte();
                 if (Major > 2 || Minor > 0)
                     throw new UnsupportedFileVersionException();
-                if(Major == 2 && Minor == 00)
+                if (Major == 2 && Minor == 00)
                 {
                     byte EcdsaLength = br.ReadByte();
                     this.ECDSA = br.ReadBytes(EcdsaLength);
@@ -37,11 +38,11 @@ namespace Fantome.League.IO.WAD
 
                 br.BaseStream.Seek(TOCStartOffset, SeekOrigin.Begin);
 
-                for(int i = 0; i < FileCount; i++)
+                for (int i = 0; i < FileCount; i++)
                 {
                     Files.Add(new WADEntry(br, Major, Minor));
                 }
-                foreach(WADEntry Entry in Files)
+                foreach (WADEntry Entry in Files)
                 {
                     Entry.ReadData(br);
                 }

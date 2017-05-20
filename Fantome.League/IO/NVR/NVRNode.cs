@@ -10,7 +10,7 @@ namespace Fantome.League.IO.NVR
 {
     public class NVRNode
     {
-        public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255,127, 255 }, 0);
+        public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255, 127, 255 }, 0);
         public R3DBox BoundingBox { get; private set; }
         public List<NVRNode> Children { get; private set; } = new List<NVRNode>();
         public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();
@@ -29,7 +29,7 @@ namespace Fantome.League.IO.NVR
             this.FirstChildNode = br.ReadInt32();
             this.ChildNodeCount = br.ReadInt32();
 
-            if(this.FirstChildNode == -1)
+            if (this.FirstChildNode == -1)
             {
                 for (int i = this.FirstMesh; i < this.FirstMesh + this.MeshCount; i++)
                 {
@@ -37,7 +37,7 @@ namespace Fantome.League.IO.NVR
                     buffers.Meshes[i].ParentNode = this;
                 }
             }
-           
+
         }
 
         public int CalculateMeshCount()

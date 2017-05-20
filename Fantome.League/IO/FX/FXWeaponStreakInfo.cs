@@ -17,6 +17,7 @@ namespace Fantome.League.IO.FX
         public string Texture { get; private set; }
         public FXTimeGradient ColorOverTime { get; private set; }
         public FXTimeGradient WidthOverTime { get; private set; }
+
         public FXWeaponStreakInfo(BinaryReader br)
         {
             this.LinkType = br.ReadInt32();
@@ -36,6 +37,7 @@ namespace Fantome.League.IO.FX
             this.ColorOverTime = new FXTimeGradient(br);
             this.WidthOverTime = new FXTimeGradient(br);
         }
+
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.LinkType);

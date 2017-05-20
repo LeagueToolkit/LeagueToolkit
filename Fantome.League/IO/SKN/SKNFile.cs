@@ -13,29 +13,31 @@ namespace Fantome.League.IO.SKN
         public List<SKNSubmesh> Submeshes { get; private set; } = new List<SKNSubmesh>();
         public List<UInt16> Indices { get; private set; } = new List<UInt16>();
         public List<SKNVertex> Vertices { get; private set; } = new List<SKNVertex>();
+
         public SKNFile(WGTFile Weights, SCOFile Model)
         {
             this.Submeshes.Add(new SKNSubmesh(Model.Name, 0, (uint)Model.Vertices.Count, 0, (uint)Model.Faces.Count * 3));
-            foreach(Vector3 Vertex in Model.Vertices)
+            foreach (Vector3 Vertex in Model.Vertices)
             {
                 this.Vertices.Add(new SKNVertex(Vertex));
             }
-            for(int i = 0; i < this.Vertices.Count; i++)
+            for (int i = 0; i < this.Vertices.Count; i++)
             {
                 this.Vertices[i].SetWeight(Weights.Weights[i].Indices, Weights.Weights[i].Weights);
             }
-            for(int i = 0; i < Model.Faces.Count; i++)
+            for (int i = 0; i < Model.Faces.Count; i++)
             {
-                for(int j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
                     this.Vertices[Model.Faces[i].Indices[j]].SetUV(Model.Faces[i].UV[j]);
                 }
-                for(int j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
                     this.Indices.Add(Model.Faces[i].Indices[j]);
                 }
             }
         }
+
         public SKNFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -51,7 +53,7 @@ namespace Fantome.League.IO.SKN
                 UInt16 ObjectCount = br.ReadUInt16();
                 UInt32 SubmeshCount = br.ReadUInt32();
 
-                for(int i = 0; i < SubmeshCount; i++)
+                for (int i = 0; i < SubmeshCount; i++)
                 {
                     this.Submeshes.Add(new SKNSubmesh(br));
                 }
@@ -78,16 +80,17 @@ namespace Fantome.League.IO.SKN
                     Radius = br.ReadSingle();
                 }
 
-                for(int i = 0; i < IndexCount; i++)
+                for (int i = 0; i < IndexCount; i++)
                 {
                     this.Indices.Add(br.ReadUInt16());
                 }
-                for(int i = 0; i < VertexCount; i++)
+                for (int i = 0; i < VertexCount; i++)
                 {
                     this.Vertices.Add(new SKNVertex(br, IsTangent));
                 }
             }
         }
+
         public void Write(string Location)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
@@ -99,7 +102,7 @@ namespace Fantome.League.IO.SKN
 
                 UInt32 IndexCount = 0;
                 UInt32 VertexCount = 0;
-                foreach(SKNSubmesh Submesh in this.Submeshes)
+                foreach (SKNSubmesh Submesh in this.Submeshes)
                 {
                     Submesh.Write(bw);
                     IndexCount += Submesh.IndexCount;
@@ -108,11 +111,11 @@ namespace Fantome.League.IO.SKN
                 bw.Write(IndexCount);
                 bw.Write(VertexCount);
 
-                foreach(UInt16 Index in this.Indices)
+                foreach (UInt16 Index in this.Indices)
                 {
                     bw.Write(Index);
                 }
-                foreach(SKNVertex Vertex in this.Vertices)
+                foreach (SKNVertex Vertex in this.Vertices)
                 {
                     Vertex.Write(bw);
                 }

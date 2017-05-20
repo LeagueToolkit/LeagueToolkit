@@ -10,20 +10,22 @@ namespace Fantome.League.IO.SCB
         public UInt32[] Indices { get; private set; } = new UInt32[3];
         public string Material { get; private set; }
         public Vector2[] UV { get; private set; } = new Vector2[3];
+
         public SCBFace(BinaryReader br)
         {
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 this.Indices[i] = br.ReadUInt32();
             }
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(64));
-            float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
-            for(int i = 0; i < 3; i++)
+            float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
+            for (int i = 0; i < 3; i++)
             {
                 this.UV[i].X = uvs[i];
                 this.UV[i].Y = uvs[i + 3];
             }
         }
+
         public void Write(BinaryWriter bw)
         {
             for (int i = 0; i < 3; i++)

@@ -27,7 +27,7 @@ namespace Fantome.League.IO.NVR
         {
             int bufferLength = this.Vertices[0].Size * this.Vertices.Count;
             bw.Write(bufferLength);
-            foreach(NVRVertex vertex in this.Vertices)
+            foreach (NVRVertex vertex in this.Vertices)
             {
                 vertex.Write(bw);
             }

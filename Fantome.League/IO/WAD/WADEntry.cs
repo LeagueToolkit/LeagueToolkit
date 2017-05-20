@@ -17,6 +17,7 @@ namespace Fantome.League.IO.WAD
         private byte Unknown2 { get; set; }
         public byte[] SHA256 { get; private set; }
         public byte[] Data { get; private set; }
+
         public WADEntry(BinaryReader br, byte Major, byte Minor)
         {
             this.XXHash = br.ReadBytes(8);
@@ -30,10 +31,11 @@ namespace Fantome.League.IO.WAD
             if (Major == 2 && Minor == 0)
                 this.SHA256 = br.ReadBytes(8);
         }
+
         public void ReadData(BinaryReader br)
         {
             br.BaseStream.Seek((int)this.Offset, SeekOrigin.Begin);
-            if(this.Type == EntryType.String)
+            if (this.Type == EntryType.String)
             {
                 this.Name = Encoding.ASCII.GetString(br.ReadBytes((int)br.ReadUInt32()));
             }
