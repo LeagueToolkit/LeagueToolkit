@@ -1,10 +1,13 @@
 ﻿using Fantome.League.Helpers.Structures;
 using Fantome.League.IO.NVR;
 using Fantome.League.IO.OBJ;
+using Fantome.League.IO.SCB;
+using Fantome.League.IO.SCO;
 using Fantome.League.IO.SKN;
 using Fantome.League.IO.WGEO;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Fantome.League.Converters
 {
@@ -28,7 +31,7 @@ namespace Fantome.League.Converters
         {
             return new OBJFile(WGEO.BucketGeometry.Vertices, WGEO.BucketGeometry.Indices);
         }
-        public static OBJFile VisualiseNVRNodes(NVRFile Nvr)
+        public static OBJFile VisualiseNVRNodes(NVRFile NVR)
         {
             List<UInt16> Indices = new List<UInt16>();
             List<UInt16> BaseIndices = new List<UInt16>()
@@ -52,7 +55,7 @@ namespace Fantome.League.Converters
                 0, 4, 5
             };
             List<Vector3> Vertices = new List<Vector3>();
-            List<NVRNode> Nodes = Nvr.GetNodes();
+            List<NVRNode> Nodes = NVR.GetNodes();
             foreach (NVRNode Node in Nodes)
             {
                 /* 0 Vector3 minLeftUp = Node.BoundingBox.Min;
@@ -87,20 +90,42 @@ namespace Fantome.League.Converters
             }
             return new OBJFile(Vertices, Indices);
         }
-        public static OBJFile ConvertSKN(SKNFile Model)
+        public static OBJFile ConvertSKN(SKNFile SKN)
         {
             List<Vector3> Vertices = new List<Vector3>();
             List<Vector2> UV = new List<Vector2>();
             List<Vector3> Normals = new List<Vector3>();
 
-            foreach (SKNVertex Vertex in Model.Vertices)
+            foreach (SKNVertex Vertex in SKN.Vertices)
             {
                 Vertices.Add(Vertex.Position);
                 UV.Add(Vertex.UV);
                 Normals.Add(Vertex.Normal);
             }
 
-            return new OBJFile(Vertices, UV, Normals, Model.Indices);
+            return new OBJFile(Vertices, UV, Normals, SKN.Indices);
+        }
+        public static OBJFile ConvertSCB(SCBFile SCB)
+        {
+            List<UInt16> Indices = new List<UInt16>();
+            List<Vector2> UV = new List<Vector2>();
+            foreach(SCBFace Face in SCB.Faces)
+            {
+                Indices.AddRange(Face.Indices.AsEnumerable().Cast<UInt16>());
+                UV.AddRange(Face.UV);
+            }
+            return new OBJFile(SCB.Vertices, UV, Indices);
+        }
+        public static OBJFile ConvertSCO(SCOFile SCO)
+        {
+            List<UInt16> Indices = new List<UInt16>();
+            List<Vector2> UV = new List<Vector2>();
+            foreach (SCOFace Face in SCO.Faces)
+            {
+                Indices.AddRange(Face.Indices);
+                UV.AddRange(Face.UV);
+            }
+            return new OBJFile(SCO.Vertices, UV, Indices);
         }
     }
 }

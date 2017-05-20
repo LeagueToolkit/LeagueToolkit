@@ -8,6 +8,11 @@ namespace Fantome.League.IO.WGT
         public Vector4Byte Indices { get; private set; }
         public Vector4 Weights { get; private set; }
 
+        public WGTWeight(Vector4 Weights, Vector4Byte BoneIndices)
+        {
+            this.Weights = Weights;
+            this.Indices = BoneIndices;
+        }
         public WGTWeight(BinaryReader br)
         {
             this.Indices = new Vector4Byte(br);

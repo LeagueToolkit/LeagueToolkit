@@ -14,6 +14,14 @@ namespace Fantome.League.IO.SCO
         public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
         public List<SCOFace> Faces { get; private set; } = new List<SCOFace>();
 
+        public SCOFile(List<UInt16> Indices, List<Vector3> Vertices, List<Vector2> UV)
+        {
+            this.Vertices = Vertices;
+            for(int i = 0; i < Indices.Count; i += 3)
+            {
+                this.Faces.Add(new SCOFace(new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] }, "lambert1", new Vector2[] { UV[i], UV[i + 1], UV[i + 2]}));
+            }
+        }
         public SCOFile(string Location)
         {
             using (StreamReader sr = new StreamReader(Location))

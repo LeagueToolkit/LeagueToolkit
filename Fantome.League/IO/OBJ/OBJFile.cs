@@ -12,7 +12,7 @@ namespace Fantome.League.IO.OBJ
         public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
         public List<Vector2> UVs { get; private set; } = new List<Vector2>();
         public List<Vector3> Normals { get; private set; } = new List<Vector3>();
-        public List<Face> Faces { get; private set; } = new List<Face>();
+        public List<OBJFace> Faces { get; private set; } = new List<OBJFace>();
 
         public OBJFile(List<Vector3> Vertices, List<UInt16> Indices)
         {
@@ -20,7 +20,7 @@ namespace Fantome.League.IO.OBJ
             for (int i = 0; i < Indices.Count; i += 3)
             {
                 UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
-                this.Faces.Add(new Face(FaceIndices));
+                this.Faces.Add(new OBJFace(FaceIndices));
             }
         }
 
@@ -31,7 +31,7 @@ namespace Fantome.League.IO.OBJ
             for (int i = 0; i < Indices.Count; i += 3)
             {
                 UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
-                this.Faces.Add(new Face(FaceIndices, FaceIndices));
+                this.Faces.Add(new OBJFace(FaceIndices, FaceIndices));
             }
         }
 
@@ -43,7 +43,7 @@ namespace Fantome.League.IO.OBJ
             for (int i = 0; i < Indices.Count; i += 3)
             {
                 UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
-                this.Faces.Add(new Face(FaceIndices, FaceIndices, FaceIndices));
+                this.Faces.Add(new OBJFace(FaceIndices, FaceIndices, FaceIndices));
             }
         }
 
@@ -78,7 +78,7 @@ namespace Fantome.League.IO.OBJ
                 {
                     sw.WriteLine(string.Format("vn {0} {1} {2}", Normal.X, Normal.Y, Normal.Z));
                 }
-                foreach (Face Face in this.Faces)
+                foreach (OBJFace Face in this.Faces)
                 {
                     Face.Write(sw);
                 }
@@ -129,7 +129,7 @@ namespace Fantome.League.IO.OBJ
 
                 if (Vertex1.Length == 1)
                 {
-                    this.Faces.Add(new Face
+                    this.Faces.Add(new OBJFace
                         (
                             new UInt16[]
                             {
@@ -142,7 +142,7 @@ namespace Fantome.League.IO.OBJ
                 }
                 else if (Vertex1.Length == 2)
                 {
-                    this.Faces.Add(new Face
+                    this.Faces.Add(new OBJFace
                         (
                             new UInt16[]
                             {
@@ -161,7 +161,7 @@ namespace Fantome.League.IO.OBJ
                 }
                 else if (Vertex1.Length == 3)
                 {
-                    this.Faces.Add(new Face
+                    this.Faces.Add(new OBJFace
                         (
                             new UInt16[]
                             {
@@ -188,7 +188,7 @@ namespace Fantome.League.IO.OBJ
         }
     }
 
-    public struct Face
+    public struct OBJFace
     {
         private bool IsUVSet { get; set; }
         private bool IsNormalSet { get; set; }
@@ -196,7 +196,7 @@ namespace Fantome.League.IO.OBJ
         public UInt16[] UVIndices { get; private set; }
         public UInt16[] NormalIndices { get; private set; }
 
-        public Face(UInt16[] VertexIndices)
+        public OBJFace(UInt16[] VertexIndices)
         {
             this.VertexIndices = VertexIndices;
             this.IsUVSet = false;
@@ -205,7 +205,7 @@ namespace Fantome.League.IO.OBJ
             this.NormalIndices = new UInt16[3];
         }
 
-        public Face(UInt16[] VertexIndices, UInt16[] UVIndices)
+        public OBJFace(UInt16[] VertexIndices, UInt16[] UVIndices)
         {
             this.VertexIndices = VertexIndices;
             this.UVIndices = UVIndices;
@@ -214,7 +214,7 @@ namespace Fantome.League.IO.OBJ
             this.NormalIndices = new UInt16[3];
         }
 
-        public Face(UInt16[] VertexIndices, UInt16[] UVIndices, UInt16[] NormalIndices)
+        public OBJFace(UInt16[] VertexIndices, UInt16[] UVIndices, UInt16[] NormalIndices)
         {
             this.VertexIndices = VertexIndices;
             this.UVIndices = UVIndices;

@@ -17,6 +17,14 @@ namespace Fantome.League.IO.SCB
         public List<SCBFace> Faces { get; private set; } = new List<SCBFace>();
         public List<Vector3Byte> VertexColors { get; private set; } = new List<Vector3Byte>();
 
+        public SCBFile(List<UInt32> Indices, List<Vector3> Vertices, List<Vector2> UV)
+        {
+            this.Vertices = Vertices;
+            for (int i = 0; i < Indices.Count; i += 3)
+            {
+                this.Faces.Add(new SCBFace(new UInt32[] { Indices[i], Indices[i + 1], Indices[i + 2] }, "lambert1", new Vector2[] { UV[i], UV[i + 1], UV[i + 2] }));
+            }
+        }
         public SCBFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -90,7 +98,7 @@ namespace Fantome.League.IO.SCB
                 if (this.VertexColors.Count != 0)
                     Flags |= (UInt32)SCBFlags.VertexColors;
                 bw.Write(Flags);
-                CalculateBoundingBox().Write(bw);
+                this.CalculateBoundingBox().Write(bw);
                 bw.Write(HasTangent);
 
                 foreach (Vector3 Vertex in this.Vertices)
@@ -101,7 +109,7 @@ namespace Fantome.League.IO.SCB
                 {
                     Tangent.Write(bw);
                 }
-                this.CentralPoint.Write(bw);
+                this.CalculateCentralPoint().Write(bw);
                 foreach (SCBFace Face in this.Faces)
                 {
                     Face.Write(bw);
@@ -129,6 +137,15 @@ namespace Fantome.League.IO.SCB
             }
 
             return new R3DBoundingBox(Min, new Vector3(Math.Abs(Max.X - Min.X), Math.Abs(Max.Y - Min.Y), Math.Abs(Max.Z - Min.Z)));
+        }
+        public Vector3 CalculateCentralPoint()
+        {
+            R3DBoundingBox BoundingBox = CalculateBoundingBox();
+            return new Vector3(
+                0.5f * BoundingBox.Size.X - BoundingBox.Org.X,
+                0.5f * BoundingBox.Size.Y - BoundingBox.Org.Y,
+                0.5f * BoundingBox.Size.Z - BoundingBox.Org.Z
+                );
         }
     }
 

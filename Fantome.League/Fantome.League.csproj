@@ -41,6 +41,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters\OBJConverter.cs" />
+    <Compile Include="Converters\SCBConverter.cs" />
+    <Compile Include="Converters\SCOConverter.cs" />
     <Compile Include="Converters\SKNConverter.cs" />
     <Compile Include="Helpers\Compression.cs" />
     <Compile Include="Helpers\Cryptography.cs" />

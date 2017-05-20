@@ -11,6 +11,12 @@ namespace Fantome.League.IO.SCO
         public string Material { get; private set; }
         public Vector2[] UV { get; private set; } = new Vector2[3];
 
+        public SCOFace(UInt16[] Indices, string Material, Vector2[] UV)
+        {
+            this.Indices = Indices;
+            this.Material = Material;
+            this.UV = UV;
+        }
         public SCOFace(StreamReader sr)
         {
             string[] input = sr.ReadLine().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);

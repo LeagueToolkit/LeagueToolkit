@@ -1,4 +1,5 @@
 ﻿using Fantome.League.Helpers.Exceptions;
+using Fantome.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +12,13 @@ namespace Fantome.League.IO.WGT
         public UInt32 SkeletonID { get; private set; }
         public List<WGTWeight> Weights { get; private set; } = new List<WGTWeight>();
 
+        public WGTFile(List<Vector4> Weights, List<Vector4Byte> BoneIndices)
+        {
+            for(int i = 0; i < Weights.Count; i++)
+            {
+                this.Weights.Add(new WGTWeight(Weights[i], BoneIndices[i]));
+            }
+        }
         public WGTFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))

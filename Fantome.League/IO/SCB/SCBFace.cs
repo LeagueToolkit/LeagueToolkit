@@ -1,6 +1,7 @@
 ﻿using Fantome.League.Helpers.Structures;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Fantome.League.IO.SCB
@@ -11,6 +12,12 @@ namespace Fantome.League.IO.SCB
         public string Material { get; private set; }
         public Vector2[] UV { get; private set; } = new Vector2[3];
 
+        public SCBFace(UInt32[] Indices, string Material, Vector2[] UV)
+        {
+            this.Indices = Indices;
+            this.Material = Material;
+            this.UV = UV;
+        }
         public SCBFace(BinaryReader br)
         {
             for (int i = 0; i < 3; i++)
