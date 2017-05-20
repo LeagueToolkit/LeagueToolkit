@@ -277,7 +277,9 @@ namespace Fantome.League.IO.NVR
 
         public void GenerateNodes()
         {
-            var test = NVRMesh.GetBoudingBoxFromList(this.Meshes);
+            // Calculate the bounding box of the entire map
+            NVRNode parentNode = new NVRNode(NVRMesh.GetBoudingBoxFromList(this.Meshes));
+            parentNode.Meshes.AddRange(this.Meshes);
         }
 
         // Generate a mesh buffer
