@@ -10,7 +10,7 @@ namespace Fantome.League.IO.NVR
 {
     public class NVRNode
     {
-        public static float NullCoordinate { get; private set; } = BitConverter.ToSingle(new byte[4] { 255, 255,127, 255 }, 0);
+        public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255,127, 255 }, 0);
         public R3DBox BoundingBox { get; private set; }
         public List<NVRNode> Children { get; private set; } = new List<NVRNode>();
         public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();

@@ -131,6 +131,14 @@ namespace Fantome.League.IO.NVR
             return newList;
         }
 
+        public List<NVRNode> GetNodes()
+        {
+            List<NVRNode> nodes = new List<NVRNode>();
+            EnumerateNodes(this.Geometry, nodes);
+            return nodes;
+        }
+
+
         public void RemoveMesh(NVRMesh mesh)
         {
             mesh.ParentNode.Meshes.Remove(mesh);
@@ -166,6 +174,18 @@ namespace Fantome.League.IO.NVR
             else
             {
                 list.AddRange(node.Meshes);
+            }
+        }
+
+        private void EnumerateNodes(NVRNode node, List<NVRNode> nodes)
+        {
+            if (node.Children.Count > 0)
+            {
+                foreach (NVRNode Node in node.Children)
+                {
+                    EnumerateNodes(Node, nodes);
+                }
+                nodes.AddRange(node.Children);
             }
         }
 

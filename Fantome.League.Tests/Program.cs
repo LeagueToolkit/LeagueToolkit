@@ -21,7 +21,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            SKNConverterTest();
+            NVRTest();
         }
 
         static void WGEOTest()
@@ -69,9 +69,10 @@ namespace Fantome.League.Tests
         }
         static void NVRTest()
         {
-            NVRFile nvr = new NVRFile("roomWrite.nvr");
-            nvr.Save("roomWrite.nvr");
+            NVRFile nvr = new NVRFile("room.nvr");
+            OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
         }
+
         static void ParticlesDatTest()
         {
             ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
