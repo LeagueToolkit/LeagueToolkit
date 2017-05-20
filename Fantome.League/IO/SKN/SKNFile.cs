@@ -36,6 +36,26 @@ namespace Fantome.League.IO.SKN
                     this.Indices.Add(Model.Faces[i].Indices[j]);
                 }
             }
+            for (int i = 0; i < Indices.Count; i += 3)
+            {
+                Vector3 cp = Vector3.Cross(
+                    Vertices[Indices[i + 1]].Position - Vertices[Indices[i]].Position,
+                    Vertices[Indices[i + 2]].Position - Vertices[Indices[i]].Position);
+
+                Vertices[Indices[i]].SetNormal(Vertices[Indices[i]].Normal + cp);
+                Vertices[Indices[i + 1]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
+                Vertices[Indices[i + 2]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
+            }
+            foreach (SKNVertex Vertex in Vertices)
+            {
+                float s = Vertex.Normal.X + Vertex.Normal.Y + Vertex.Normal.Z;
+                Vertex.SetNormal(new Vector3(
+                    Vertex.Normal.X / s,
+                    Vertex.Normal.Y / s,
+                    Vertex.Normal.Z / s
+                    )
+                    );
+            }
         }
 
         public SKNFile(string Location)

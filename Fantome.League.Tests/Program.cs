@@ -65,7 +65,7 @@ namespace Fantome.League.Tests
         }
         static void SKNConverterTest()
         {
-            SKNConverter.Convert(SKNConverter.Convert(new WGTFile("Plantking.wgt"), new SCOFile("Plantking.sco")), true).Write("Plantking.obj");
+            SKNConverter.Convert(SKNConverter.Convert(new WGTFile("Plantking.wgt"), new SCOFile("Plantking.sco"))).Write("Plantking.obj");
         }
         static void NVRTest()
         {

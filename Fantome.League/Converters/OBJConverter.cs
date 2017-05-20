@@ -1,16 +1,33 @@
 ﻿using Fantome.League.Helpers.Structures;
 using Fantome.League.IO.NVR;
 using Fantome.League.IO.OBJ;
+using Fantome.League.IO.SKN;
+using Fantome.League.IO.WGEO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fantome.League.Converters
 {
-    public class OBJConverter
+    public static class OBJConverter
     {
+        public static IEnumerable<OBJFile> ConvertWGEOModels(WGEOFile WGEO)
+        {
+            foreach (WGEOModel Model in WGEO.Models)
+            {
+                List<Vector3> Vertices = new List<Vector3>();
+                List<Vector2> UVs = new List<Vector2>();
+                foreach (WGEOVertex Vertex in Model.Vertices)
+                {
+                    Vertices.Add(Vertex.Position);
+                    UVs.Add(Vertex.UV);
+                }
+                yield return new OBJFile(Vertices, UVs, Model.Indices);
+            }
+        }
+        public static OBJFile VisualiseWGEOBucketGeometry(WGEOFile WGEO)
+        {
+            return new OBJFile(WGEO.BucketGeometry.Vertices, WGEO.BucketGeometry.Indices);
+        }
         public static OBJFile VisualiseNVRNodes(NVRFile Nvr)
         {
             List<UInt16> Indices = new List<UInt16>();
@@ -36,7 +53,7 @@ namespace Fantome.League.Converters
             };
             List<Vector3> Vertices = new List<Vector3>();
             List<NVRNode> Nodes = Nvr.GetNodes();
-            foreach(NVRNode Node in Nodes)
+            foreach (NVRNode Node in Nodes)
             {
                 /* 0 Vector3 minLeftUp = Node.BoundingBox.Min;
                    1 Vector3 minRightUp = new Vector3(Node.BoundingBox.Min.X, Node.BoundingBox.Min.Y, Node.BoundingBox.Max.Z);
@@ -48,7 +65,7 @@ namespace Fantome.League.Converters
                    4 Vector3 maaxLeftUp = new Vector3(Node.BoundingBox.Min.X, Node.BoundingBox.Max.Y, Node.BoundingBox.Min.Z);
                    5 Vector3 maxRightUp = new Vector3(Node.BoundingBox.Max.X, Node.BoundingBox.Min.Y, Node.BoundingBox.Max.Z);*/
 
-                Vertices.AddRange(new Vector3[] 
+                Vertices.AddRange(new Vector3[]
                 {
                     Node.BoundingBox.Min,
                     new Vector3(Node.BoundingBox.Min.X, Node.BoundingBox.Min.Y, Node.BoundingBox.Max.Z),
@@ -60,15 +77,30 @@ namespace Fantome.League.Converters
                     new Vector3(Node.BoundingBox.Max.X, Node.BoundingBox.Max.Y, Node.BoundingBox.Min.Z),
             });
             }
-            for(int i = 0; i * 8 < Vertices.Count; i++)
+            for (int i = 0; i * 8 < Vertices.Count; i++)
             {
                 Indices.AddRange(BaseIndices);
-                for(int j = 0; j < BaseIndices.Count; j++)
+                for (int j = 0; j < BaseIndices.Count; j++)
                 {
                     BaseIndices[j] += 8;
                 }
             }
             return new OBJFile(Vertices, Indices);
+        }
+        public static OBJFile ConvertSKN(SKNFile Model)
+        {
+            List<Vector3> Vertices = new List<Vector3>();
+            List<Vector2> UV = new List<Vector2>();
+            List<Vector3> Normals = new List<Vector3>();
+
+            foreach (SKNVertex Vertex in Model.Vertices)
+            {
+                Vertices.Add(Vertex.Position);
+                UV.Add(Vertex.UV);
+                Normals.Add(Vertex.Normal);
+            }
+
+            return new OBJFile(Vertices, UV, Normals, Model.Indices);
         }
     }
 }
