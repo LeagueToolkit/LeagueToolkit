@@ -29,44 +29,41 @@ namespace Fantome.League.Tests
             WGEOFile wgeo = new WGEOFile("room.wgeo");
             wgeo.Write("roomWrite.wgeo");
         }
+
         static void MOBTest()
         {
             MOBFile mob = new MOBFile("MapObjects.mob");
             mob.Write("MapObjectsWrite.mob");
         }
+
         static void SKNTest()
         {
             SKNFile skn = new SKNFile("Plantking.skn");
         }
+
         static void FXTest()
         {
             FXFile fx = new FXFile("KalistaPChannel.fx");
             fx.Write("KalistaPChannelWrite.fx");
         }
-        static void WGEOConverterTest()
-        {
-            WGEOFile wgeo = new WGEOFile("room.wgeo");
-            WGEOConverter converter = new WGEOConverter(wgeo);
-            converter.ExportModels("WGEO");
-        }
+
         static void AiMeshTest()
         {
             AiMeshFile aimesh = new AiMeshFile("AIPath.aimesh");
             aimesh.Write("AIPathWrite.aimesh");
         }
+
         static void SCBTest()
         {
             SCBFile scb = new SCBFile("aatrox_skin02_q_pulse_01.scb");
             scb.Write("aatrox_skin02_q_pulse_01Write.scb");
         }
+
         static void SCOTest()
         {
             SCOFile sco = new SCOFile("Aatrox_Basic_A_trail_01.sco");
         }
-        static void SKNConverterTest()
-        {
-            SKNConverter.Convert(SKNConverter.Convert(new WGTFile("Plantking.wgt"), new SCOFile("Plantking.sco"))).Write("Plantking.obj");
-        }
+
         static void NVRTest()
         {
             NVRFile nvr = new NVRFile("room.nvr");
