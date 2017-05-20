@@ -184,14 +184,14 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.W);
         }
     }
-    public struct ColorVector4
+    public struct ColorRGBAVector4
     {
         public float R;
         public float G;
         public float B;
         public float A;
 
-        public ColorVector4(float R, float G, float B, float A)
+        public ColorRGBAVector4(float R, float G, float B, float A)
         {
             this.R = R;
             this.G = G;
@@ -199,7 +199,7 @@ namespace Fantome.League.Helpers.Structures
             this.A = A;
         }
 
-        public ColorVector4(BinaryReader br)
+        public ColorRGBAVector4(BinaryReader br)
         {
             this.R = br.ReadSingle();
             this.G = br.ReadSingle();
@@ -214,46 +214,36 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.B);
             bw.Write(this.A);
         }
-
-        public static ColorVector4Byte Denormalize(ColorVector4Byte Color)
-        {
-            return new ColorVector4Byte((byte)(Color.R * 255), (byte)(Color.G * 255), (byte)(Color.B * 255), (byte)(Color.A * 255));
-        }
     }
-    public struct ColorVector4Byte
+    public struct ColorBGRAVector4Byte
     {
-        public byte R;
-        public byte G;
         public byte B;
+        public byte G;
+        public byte R;
         public byte A;
 
-        public ColorVector4Byte(byte R, byte G, byte B, byte A)
+        public ColorBGRAVector4Byte(byte B, byte G, byte R, byte A)
         {
-            this.R = R;
-            this.G = G;
             this.B = B;
+            this.G = G;
+            this.R = R;
             this.A = A;
         }
 
-        public ColorVector4Byte(BinaryReader br)
+        public ColorBGRAVector4Byte(BinaryReader br)
         {
-            this.R = br.ReadByte();
-            this.G = br.ReadByte();
             this.B = br.ReadByte();
+            this.G = br.ReadByte();
+            this.R = br.ReadByte();
             this.A = br.ReadByte();
         }
 
         public void Write(BinaryWriter bw)
         {
-            bw.Write(this.R);
-            bw.Write(this.G);
             bw.Write(this.B);
+            bw.Write(this.G);
+            bw.Write(this.R);
             bw.Write(this.A);
-        }
-
-        public static ColorVector4 Normalize(ColorVector4Byte Color)
-        {
-            return new ColorVector4(Color.R / 255, Color.G / 255, Color.B / 255, Color.A / 255);
         }
     }
     public struct R3DBoundingBox

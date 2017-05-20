@@ -6,18 +6,18 @@ namespace Fantome.League.IO.NVR
 {
     public class NVRChannel
     {
-        public ColorVector4 Color { get; private set; }
+        public ColorRGBAVector4 Color { get; private set; }
         public string Name { get; private set; }
         public D3DMATRIX Matrix { get; private set; }
 
         public NVRChannel(BinaryReader br)
         {
-            this.Color = new ColorVector4(br);
+            this.Color = new ColorRGBAVector4(br);
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
             this.Matrix = new D3DMATRIX(br);
         }
 
-        public NVRChannel(string name, ColorVector4 color, D3DMATRIX matrix)
+        public NVRChannel(string name, ColorRGBAVector4 color, D3DMATRIX matrix)
         {
             this.Name = name;
             this.Color = color;

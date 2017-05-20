@@ -150,13 +150,13 @@ namespace Fantome.League.IO.NVR
         }
 
         // Easy way to create a material with working values
-        public NVRMaterial CreateMaterial(string materialName, string textureName, ColorVector4 color)
+        public NVRMaterial CreateMaterial(string materialName, string textureName, ColorRGBAVector4 color)
         {
             List<NVRChannel> channels = new List<NVRChannel>();
             channels.Add(new NVRChannel(textureName, color, new D3DMATRIX()));
             for (int i = 0; i < 7; i++)
             {
-                channels.Add(new NVRChannel("", new ColorVector4(0, 0, 0, 0), new D3DMATRIX()));
+                channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new D3DMATRIX()));
             }
             NVRMaterial newMat = new NVRMaterial(materialName, NVRMaterialType.MATERIAL_TYPE_DEFAULT, 16, channels);
             return newMat;
