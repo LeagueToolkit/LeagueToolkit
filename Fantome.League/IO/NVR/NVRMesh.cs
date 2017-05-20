@@ -70,6 +70,27 @@ namespace Fantome.League.IO.NVR
             this.IndexedPrimitives[0].Write(bw);
             this.IndexedPrimitives[1].Write(bw);
         }
+
+        public static R3DBox GetBoudingBoxFromList(List<NVRMesh> meshes)
+        {
+            if (meshes.Count > 0)
+            {
+                Vector3 min = new Vector3(meshes[0].BoundingBox.Min.X, meshes[0].BoundingBox.Min.Y, meshes[0].BoundingBox.Min.Z);
+                Vector3 max = new Vector3(meshes[0].BoundingBox.Max.X, meshes[0].BoundingBox.Max.Y, meshes[0].BoundingBox.Max.Z);
+                for (int i = 1; i < meshes.Count; i++)
+                {
+                    R3DBox box = meshes[i].BoundingBox;
+                    if (box.Min.X < min.X) { min.X = box.Min.X; }
+                    if (box.Min.Y < min.Y) { min.Y = box.Min.Y; }
+                    if (box.Min.Z < min.Z) { min.Z = box.Min.Z; }
+                    if (box.Max.X > max.X) { max.X = box.Max.X; }
+                    if (box.Max.Y > max.Y) { max.Y = box.Max.Y; }
+                    if (box.Max.Z > max.Z) { max.Z = box.Max.Z; }
+                }
+                return new R3DBox(min, max);
+            }
+            return null;
+        }
     }
 
     public enum NVRMeshQuality : int

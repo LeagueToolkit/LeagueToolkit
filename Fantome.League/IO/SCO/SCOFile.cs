@@ -27,23 +27,23 @@ namespace Fantome.League.IO.SCO
                 this.Name = sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1];
 
                 input = sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries);
-                this.CentralPoint = new Vector3()
-                {
-                    X = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
-                    Y = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
-                    Z = float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
-                };
+                this.CentralPoint = new Vector3
+                (
+                    float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
+                    float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
+                );
 
                 input = sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries);
                 UInt32 VertexCount = 0;
                 if (input[0] == "PivotPoint=")
                 {
-                    this.PivotPoint = new Vector3()
-                    {
-                        X = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
-                        Y = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
-                        Z = float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
-                    };
+                    this.PivotPoint = new Vector3
+                    (
+                        float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
+                    );
                     VertexCount = uint.Parse(sr.ReadLine().Split(SplittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
                 }
                 else if (input[0] == "Verts=")

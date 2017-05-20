@@ -37,7 +37,11 @@ namespace Fantome.League.IO.NVR
                     buffers.Meshes[i].ParentNode = this;
                 }
             }
+        }
 
+        public NVRNode(R3DBox box)
+        {
+            this.BoundingBox = box;
         }
 
         public int CalculateMeshCount()

@@ -66,8 +66,10 @@ namespace Fantome.League.Tests
 
         static void NVRTest()
         {
-            NVRFile nvr = new NVRFile("room.nvr");
-            OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
+            NVRFile nvr = new NVRFile("Map12/scene/roomOR.nvr");
+            nvr.GenerateNodes();
+            nvr.Save("Map12/scene/room.nvr");
+            //OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
         }
 
         static void ParticlesDatTest()
