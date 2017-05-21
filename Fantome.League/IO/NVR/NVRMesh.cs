@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Fantome.League.Helpers.Structures;
+using Fantome.League.IO.OBJ;
 
 namespace Fantome.League.IO.NVR
 {
     public class NVRMesh
     {
-        public NVRNode ParentNode { get; set; }
         public NVRMeshQuality QualityLevel { get; set; }
         public int Flag { get; private set; }
         public R3DSphere BoundingSphere { get; private set; }
@@ -71,31 +71,60 @@ namespace Fantome.League.IO.NVR
             this.IndexedPrimitives[1].Write(bw);
         }
 
-        public static R3DBox GetBoudingBoxFromList(List<NVRMesh> meshes)
+        public static Tuple<List<NVRVertex>, List<int>> GetGeometryFromOBJ(OBJFile objFile)
         {
-            if (meshes.Count > 0)
+            List<NVRVertex> vertices = new List<NVRVertex>();
+            List<int> indices = new List<int>();
+
+            // We first add all the vertices in a list.
+            List<NVRVertex> objVertices = new List<NVRVertex>();
+            foreach (Vector3 position in objFile.Vertices)
             {
-                Vector3 min = new Vector3(meshes[0].BoundingBox.Min.X, meshes[0].BoundingBox.Min.Y, meshes[0].BoundingBox.Min.Z);
-                Vector3 max = new Vector3(meshes[0].BoundingBox.Max.X, meshes[0].BoundingBox.Max.Y, meshes[0].BoundingBox.Max.Z);
-                for (int i = 1; i < meshes.Count; i++)
-                {
-                    R3DBox box = meshes[i].BoundingBox;
-                    if (box.Min.X < min.X) { min.X = box.Min.X; }
-                    if (box.Min.Y < min.Y) { min.Y = box.Min.Y; }
-                    if (box.Min.Z < min.Z) { min.Z = box.Min.Z; }
-                    if (box.Max.X > max.X) { max.X = box.Max.X; }
-                    if (box.Max.Y > max.Y) { max.Y = box.Max.Y; }
-                    if (box.Max.Z > max.Z) { max.Z = box.Max.Z; }
-                }
-                return new R3DBox(min, max);
+                objVertices.Add(new NVRVertex8(position));
             }
-            return null;
+            foreach (OBJ.Face face in objFile.Faces)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    NVRVertex8 position = (NVRVertex8)objVertices[face.VertexIndices[i] - 1];
+                    Vector2 UV = new Vector2(0, 0);
+                    if (objFile.UVs.Count > 0)
+                    {
+                        UV = objFile.UVs[face.UVIndices[i] - 1];
+                    }
+                    Vector3 normal = new Vector3(0, 0, 0);
+                    if (objFile.Normals.Count > 0)
+                    {
+                        normal = objFile.Normals[face.NormalIndices[i] - 1];
+                    }
+
+                    if ((position.UV != null && position.Normal != null) && (!position.UV.Equals(UV) || !position.Normal.Equals(normal)))
+                    {
+                        // Needs to replicate
+                        position = new NVRVertex8(position.Position);
+                    }
+                    position.UV = UV;
+                    position.Normal = normal;
+                    position.DiffuseColor = new ColorBGRAVector4Byte(0, 0, 0, 255);
+                    position.EmissiveColor = new ColorBGRAVector4Byte(127, 127, 127, 255);
+
+                    int vertexIndex = vertices.IndexOf(position);
+                    if (vertexIndex == -1)
+                    {
+                        vertexIndex = vertices.Count;
+                        vertices.Add(position);
+                    }
+                    indices.Add(vertexIndex);
+                }
+            }
+            return new Tuple<List<NVRVertex>, List<int>>(vertices, indices);
         }
     }
 
     public enum NVRMeshQuality : int
     {
         VERY_LOW = -100,
+        // -1 should mean something
         LOW = 0,
         MEDIUM = 1,
         HIGH = 2,

@@ -188,7 +188,7 @@ namespace Fantome.League.IO.OBJ
         }
     }
 
-    public struct Face
+    public class Face
     {
         private bool IsUVSet { get; set; }
         private bool IsNormalSet { get; set; }

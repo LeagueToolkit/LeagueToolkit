@@ -10,7 +10,7 @@ namespace Fantome.League.IO.NVR
     public class NVRDrawIndexedPrimitive
     {
         public NVRMesh Parent;
-        public NVRVertexType vertexType { get; private set; }
+        public NVRVertexType VertexType { get; private set; }
         public List<NVRVertex> Vertices { get; private set; } = new List<NVRVertex>();
         public List<int> Indices { get; private set; } = new List<int>();
 
@@ -42,29 +42,29 @@ namespace Fantome.League.IO.NVR
                     {
                         if (meshMaterial.Flags.HasFlag(NVRMaterialFlags.GroundVertex) && ContainsGroundKeyword(meshMaterial.Channels[0].Name))
                         {
-                            vertexType = NVRVertexType.NVRVERTEX_GROUND_8;
+                            VertexType = NVRVertexType.NVRVERTEX_GROUND_8;
                             vertexSize = 40;
                         }
                         else
                         {
-                            vertexType = NVRVertexType.NVRVERTEX_8;
+                            VertexType = NVRVertexType.NVRVERTEX_8;
                             vertexSize = 40;
                         }
                     }
                     else
                     {
-                        vertexType = NVRVertexType.NVRVERTEX_4;
+                        VertexType = NVRVertexType.NVRVERTEX_4;
                         vertexSize = 36;
                     }
                 }
                 else if (meshMaterial.Type == NVRMaterialType.MATERIAL_TYPE_FOUR_BLEND)
                 {
-                    vertexType = NVRVertexType.NVRVERTEX_12;
+                    VertexType = NVRVertexType.NVRVERTEX_12;
                     vertexSize = 44;
                 }
                 else
                 {
-                    vertexType = NVRVertexType.NVRVERTEX_4;
+                    VertexType = NVRVertexType.NVRVERTEX_4;
                     vertexSize = 36;
                 }
             }
@@ -74,7 +74,7 @@ namespace Fantome.League.IO.NVR
             for (int i = 0; i < VertexCount; i++)
             {
                 NVRVertex newVertex;
-                switch (vertexType)
+                switch (VertexType)
                 {
                     case NVRVertexType.NVRVERTEX_4:
                         newVertex = new NVRVertex4(br);
@@ -121,9 +121,14 @@ namespace Fantome.League.IO.NVR
             if (complex)
             {
                 this.Vertices.AddRange(vertices);
+                if (vertices.Count > 0)
+                {
+                    this.VertexType = vertices[0].Type;
+                }
             }
             else
             {
+                this.VertexType = NVRVertexType.NVRVERTEX;
                 // Conversion to simple vertex
                 foreach (NVRVertex vertex in vertices)
                 {

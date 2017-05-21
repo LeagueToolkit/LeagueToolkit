@@ -66,9 +66,19 @@ namespace Fantome.League.Tests
 
         static void NVRTest()
         {
-            NVRFile nvr = new NVRFile("Map12/scene/roomOR.nvr");
-            nvr.GenerateNodes();
-            nvr.Save("Map12/scene/room.nvr");
+            IO.OBJ.OBJFile obj = new IO.OBJ.OBJFile("zed.obj");
+
+            var test = NVRMesh.GetGeometryFromOBJ(obj);
+            foreach (NVRVertex vert in test.Item1)
+            {
+                vert.Position.X += 2500;
+                vert.Position.Y += 250;
+                vert.Position.Z += 2500;
+            }
+            NVRMaterial mat = NVRMaterial.CreateMaterial("Zed", "Zed.dds", new Helpers.Structures.ColorRGBAVector4(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f));
+            NVRFile nvr = new NVRFile("Map1/scene/roomOR.nvr");
+            nvr.AddMesh(NVRMeshQuality.VERY_LOW, mat, test.Item1, test.Item2);
+            nvr.Save("Map1/scene/room.nvr");
             //OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
         }
 
