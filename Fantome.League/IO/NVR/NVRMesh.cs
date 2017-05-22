@@ -86,16 +86,17 @@ namespace Fantome.League.IO.NVR
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    NVRVertex8 position = (NVRVertex8)objVertices[face.VertexIndices[i] - 1];
+                    NVRVertex8 position = (NVRVertex8)objVertices[face.VertexIndices[i]];
                     Vector2 UV = new Vector2(0, 0);
                     if (objFile.UVs.Count > 0)
                     {
-                        UV = objFile.UVs[face.UVIndices[i] - 1];
+                        UV = objFile.UVs[face.UVIndices[i]];
                     }
                     Vector3 normal = new Vector3(0, 0, 0);
                     if (objFile.Normals.Count > 0)
                     {
-                        normal = objFile.Normals[face.NormalIndices[i] - 1];
+                        normal = objFile.Normals[face.NormalIndices[i]];
+                        //normal = new Vector3(0, 0, 0);
                     }
 
                     if ((position.UV != null && position.Normal != null) && (!position.UV.Equals(UV) || !position.Normal.Equals(normal)))
@@ -117,7 +118,38 @@ namespace Fantome.League.IO.NVR
                     indices.Add(vertexIndex);
                 }
             }
+
+            //for (int i = 0; i < indices.Count; i += 3)
+            //{
+            //    NVRVertex8 v1 = (NVRVertex8)vertices[indices[i]];
+            //    NVRVertex8 v2 = (NVRVertex8)vertices[indices[i + 1]];
+            //    NVRVertex8 v3 = (NVRVertex8)vertices[indices[i + 2]];
+            //    Vector3 faceNormal = CalcNormal(v1.Position, v2.Position, v3.Position);
+            //    v1.Normal = v1.Normal + faceNormal;
+            //    v2.Normal = v2.Normal + faceNormal;
+            //    v3.Normal = v3.Normal + faceNormal;
+            //}
+            //foreach (NVRVertex8 vert in vertices)
+            //{
+            //    float length = (float)Math.Sqrt(Math.Pow(vert.Normal.X, 2) + Math.Pow(vert.Normal.Y, 2) + Math.Pow(vert.Normal.Z, 2));
+            //    vert.Normal.X = vert.Normal.X / length;
+            //    vert.Normal.Y = vert.Normal.Y / length;
+            //    vert.Normal.Z = vert.Normal.Z / length;
+            //}
+
             return new Tuple<List<NVRVertex>, List<int>>(vertices, indices);
+        }
+
+        private static Vector3 CalcNormal(Vector3 v1, Vector3 v2, Vector3 v3)
+        {
+            // Calculate two vectors from the three points
+            Vector3 vector1 = new Vector3(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+            Vector3 vector2 = new Vector3(v2.X - v3.X, v2.Y - v3.Y, v2.Z - v3.Z);
+
+            // Take the cross product of the two vectors to get
+            // the normal vector which will be stored in out
+            Vector3 norm = new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
+            return norm;
         }
     }
 

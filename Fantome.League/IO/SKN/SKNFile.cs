@@ -44,7 +44,7 @@ namespace Fantome.League.IO.SKN
 
                 Vertices[Indices[i]].SetNormal(Vertices[Indices[i]].Normal + cp);
                 Vertices[Indices[i + 1]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
-                Vertices[Indices[i + 2]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
+                Vertices[Indices[i + 2]].SetNormal(Vertices[Indices[i + 2]].Normal + cp);
             }
             foreach (SKNVertex Vertex in Vertices)
             {

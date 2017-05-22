@@ -72,7 +72,7 @@ namespace Fantome.League.IO.OBJ
                 }
                 foreach (Vector2 UV in this.UVs)
                 {
-                    sw.WriteLine(string.Format("vt {0} {1}", UV.X, UV.Y));
+                    sw.WriteLine(string.Format("vt {0} {1}", UV.X, 1 - UV.Y));
                 }
                 foreach (Vector3 Normal in this.Normals)
                 {
@@ -88,6 +88,10 @@ namespace Fantome.League.IO.OBJ
         private void ReadLine(StreamReader sr)
         {
             string[] Input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (Input.Length == 0)
+            {
+                return;
+            }
             if (Input[0] == "#")
             {
                 this.Comments.Add(String.Join(" ", Input).Remove(0, 1));
@@ -107,7 +111,7 @@ namespace Fantome.League.IO.OBJ
                 this.UVs.Add(new Vector2
                     (
                         float.Parse(Input[1], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(Input[2], CultureInfo.InvariantCulture.NumberFormat)
+                        1 - float.Parse(Input[2], CultureInfo.InvariantCulture.NumberFormat)
                     )
                     );
             }
@@ -133,9 +137,9 @@ namespace Fantome.League.IO.OBJ
                         (
                             new UInt16[]
                             {
-                                UInt16.Parse(Vertex1[0]),
-                                UInt16.Parse(Vertex2[0]),
-                                UInt16.Parse(Vertex3[0])
+                                (ushort)(UInt16.Parse(Vertex1[0])-1),
+                                (ushort)(UInt16.Parse(Vertex2[0])-1),
+                                (ushort)(UInt16.Parse(Vertex3[0])-1)
                             }
                         )
                         );
@@ -146,15 +150,15 @@ namespace Fantome.League.IO.OBJ
                         (
                             new UInt16[]
                             {
-                                UInt16.Parse(Vertex1[0]),
-                                UInt16.Parse(Vertex2[0]),
-                                UInt16.Parse(Vertex3[0])
+                                (ushort)(UInt16.Parse(Vertex1[0])-1),
+                                (ushort)(UInt16.Parse(Vertex2[0])-1),
+                                (ushort)(UInt16.Parse(Vertex3[0])-1)
                             },
                             new UInt16[]
                             {
-                                UInt16.Parse(Vertex1[1]),
-                                UInt16.Parse(Vertex2[1]),
-                                UInt16.Parse(Vertex3[1])
+                                (ushort)(UInt16.Parse(Vertex1[1])-1),
+                                (ushort)(UInt16.Parse(Vertex2[1])-1),
+                                (ushort)(UInt16.Parse(Vertex3[1])-1)
                             }
                         )
                         );
@@ -165,21 +169,21 @@ namespace Fantome.League.IO.OBJ
                         (
                             new UInt16[]
                             {
-                                UInt16.Parse(Vertex1[0]),
-                                UInt16.Parse(Vertex2[0]),
-                                UInt16.Parse(Vertex3[0])
+                                (ushort)(UInt16.Parse(Vertex1[0])-1),
+                                (ushort)(UInt16.Parse(Vertex2[0])-1),
+                                (ushort)(UInt16.Parse(Vertex3[0])-1)
                             },
                             new UInt16[]
                             {
-                                UInt16.Parse(Vertex1[1]),
-                                UInt16.Parse(Vertex2[1]),
-                                UInt16.Parse(Vertex3[1])
+                                (ushort)(UInt16.Parse(Vertex1[1])-1),
+                                (ushort)(UInt16.Parse(Vertex2[1])-1),
+                                (ushort)(UInt16.Parse(Vertex3[1])-1)
                             },
                             new UInt16[]
                             {
-                                UInt16.Parse(Vertex1[2]),
-                                UInt16.Parse(Vertex2[2]),
-                                UInt16.Parse(Vertex3[2])
+                                (ushort)(UInt16.Parse(Vertex1[2])-1),
+                                (ushort)(UInt16.Parse(Vertex2[2])-1),
+                                (ushort)(UInt16.Parse(Vertex3[2])-1)
                             }
                         )
                         );
