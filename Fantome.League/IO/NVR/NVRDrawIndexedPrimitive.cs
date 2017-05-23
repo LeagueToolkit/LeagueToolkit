@@ -123,7 +123,7 @@ namespace Fantome.League.IO.NVR
                 this.Vertices.AddRange(vertices);
                 if (vertices.Count > 0)
                 {
-                    this.VertexType = vertices[0].Type;
+                    this.VertexType = vertices[0].GetVertexType();
                 }
             }
             else

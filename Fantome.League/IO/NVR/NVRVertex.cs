@@ -11,8 +11,8 @@ namespace Fantome.League.IO.NVR
     public class NVRVertex
     {
         public Vector3 Position { get; private set; }
-        public virtual int Size { get; protected set; } = 12;
-        public NVRVertexType Type { get; protected set; } = NVRVertexType.NVRVERTEX;
+        public const int Size = 12;
+        public const NVRVertexType Type = NVRVertexType.NVRVERTEX;
 
         public NVRVertex(BinaryReader br)
         {
@@ -28,6 +28,16 @@ namespace Fantome.League.IO.NVR
         {
             this.Position.Write(bw);
         }
+
+        public virtual NVRVertexType GetVertexType()
+        {
+            return Type;
+        }
+
+        public virtual int GetSize()
+        {
+            return Size;
+        }
     }
 
     public class NVRVertex4 : NVRVertex
@@ -35,11 +45,11 @@ namespace Fantome.League.IO.NVR
         public Vector3 Normal { get; set; }
         public Vector2 UV { get; set; }
         public ColorBGRAVector4Byte DiffuseColor { get; set; }
-        public override int Size { get; protected set; } = 36;
+        public new const int Size = 36;
+        public new const NVRVertexType Type = NVRVertexType.NVRVERTEX_4;
 
         public NVRVertex4(BinaryReader br) : base(br)
         {
-            base.Type = NVRVertexType.NVRVERTEX_4;
             this.Normal = new Vector3(br);
             this.UV = new Vector2(br);
             this.DiffuseColor = new ColorBGRAVector4Byte(br);
@@ -47,12 +57,10 @@ namespace Fantome.League.IO.NVR
 
         public NVRVertex4(Vector3 position) : base(position)
         {
-            base.Type = NVRVertexType.NVRVERTEX_4;
         }
 
         public NVRVertex4(Vector3 position, Vector3 normal, Vector2 UV, ColorBGRAVector4Byte diffuseColor) : base(position)
         {
-            base.Type = NVRVertexType.NVRVERTEX_4;
             this.Normal = normal;
             this.UV = UV;
             this.DiffuseColor = diffuseColor;
@@ -64,6 +72,16 @@ namespace Fantome.League.IO.NVR
             this.Normal.Write(bw);
             this.UV.Write(bw);
             this.DiffuseColor.Write(bw);
+        }
+
+        public override NVRVertexType GetVertexType()
+        {
+            return Type;
+        }
+
+        public override int GetSize()
+        {
+            return Size;
         }
     }
 
@@ -73,11 +91,11 @@ namespace Fantome.League.IO.NVR
         public Vector2 UV { get; set; }
         public ColorBGRAVector4Byte DiffuseColor { get; set; }
         public ColorBGRAVector4Byte EmissiveColor { get; set; }
-        public override int Size { get; protected set; } = 40;
+        public new const int Size  = 40;
+        public new const NVRVertexType Type = NVRVertexType.NVRVERTEX_8;
 
         public NVRVertex8(BinaryReader br) : base(br)
         {
-            base.Type = NVRVertexType.NVRVERTEX_8;
             this.Normal = new Vector3(br);
             this.UV = new Vector2(br);
             this.DiffuseColor = new ColorBGRAVector4Byte(br);
@@ -86,12 +104,10 @@ namespace Fantome.League.IO.NVR
 
         public NVRVertex8(Vector3 position) : base(position)
         {
-            base.Type = NVRVertexType.NVRVERTEX_8;
         }
 
         public NVRVertex8(Vector3 position, Vector3 normal, Vector2 UV, ColorBGRAVector4Byte diffuseColor, ColorBGRAVector4Byte emissiveColor) : base(position)
         {
-            base.Type = NVRVertexType.NVRVERTEX_8;
             this.Normal = normal;
             this.UV = UV;
             this.DiffuseColor = diffuseColor;
@@ -105,6 +121,16 @@ namespace Fantome.League.IO.NVR
             this.UV.Write(bw);
             this.DiffuseColor.Write(bw);
             this.EmissiveColor.Write(bw);
+        }
+
+        public override NVRVertexType GetVertexType()
+        {
+            return Type;
+        }
+
+        public override int GetSize()
+        {
+            return Size;
         }
     }
 
@@ -114,11 +140,11 @@ namespace Fantome.League.IO.NVR
         public Vector2 Unknown { get; set; }
         public ColorBGRAVector4Byte DiffuseColor { get; set; }
         public ColorBGRAVector4Byte EmissiveColor { get; set; }
-        public override int Size { get; protected set; } = 40;
+        public new const int Size = 40;
+        public new const NVRVertexType Type = NVRVertexType.NVRVERTEX_GROUND_8;
 
         public NVRVertexGround8(BinaryReader br) : base(br)
         {
-            base.Type = NVRVertexType.NVRVERTEX_GROUND_8;
             this.Normal = new Vector3(br);
             this.Unknown = new Vector2(br);
             this.DiffuseColor = new ColorBGRAVector4Byte(br);
@@ -127,7 +153,6 @@ namespace Fantome.League.IO.NVR
 
         public NVRVertexGround8(Vector3 position, Vector3 normal, Vector2 unknown, ColorBGRAVector4Byte diffuseColor, ColorBGRAVector4Byte emissiveColor) : base(position)
         {
-            base.Type = NVRVertexType.NVRVERTEX_GROUND_8;
             this.Normal = normal;
             this.Unknown = unknown;
             this.DiffuseColor = diffuseColor;
@@ -142,6 +167,16 @@ namespace Fantome.League.IO.NVR
             this.DiffuseColor.Write(bw);
             this.EmissiveColor.Write(bw);
         }
+
+        public override NVRVertexType GetVertexType()
+        {
+            return Type;
+        }
+
+        public override int GetSize()
+        {
+            return Size;
+        }
     }
 
     public class NVRVertex12 : NVRVertex
@@ -150,11 +185,11 @@ namespace Fantome.League.IO.NVR
         public Vector2 Unknown { get; set; }
         public Vector2 UV { get; set; }
         public ColorBGRAVector4Byte DiffuseColor { get; set; }
-        public override int Size { get; protected set; } = 44;
+        public new const int Size  = 44;
+        public new const NVRVertexType Type = NVRVertexType.NVRVERTEX_12;
 
         public NVRVertex12(BinaryReader br) : base(br)
         {
-            base.Type = NVRVertexType.NVRVERTEX_12;
             this.Normal = new Vector3(br);
             this.Unknown = new Vector2(br);
             this.UV = new Vector2(br);
@@ -163,7 +198,6 @@ namespace Fantome.League.IO.NVR
 
         public NVRVertex12(Vector3 position, Vector3 normal, Vector2 unknown, Vector2 UV, ColorBGRAVector4Byte diffuseColor) : base(position)
         {
-            base.Type = NVRVertexType.NVRVERTEX_12;
             this.Normal = normal;
             this.Unknown = unknown;
             this.UV = UV;
@@ -177,6 +211,16 @@ namespace Fantome.League.IO.NVR
             this.Unknown.Write(bw);
             this.UV.Write(bw);
             this.DiffuseColor.Write(bw);
+        }
+
+        public override NVRVertexType GetVertexType()
+        {
+            return Type;
+        }
+
+        public override int GetSize()
+        {
+            return Size;
         }
     }
 

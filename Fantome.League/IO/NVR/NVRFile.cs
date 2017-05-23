@@ -132,7 +132,7 @@ namespace Fantome.League.IO.NVR
             foreach (NVRMesh mesh in Meshes)
             {
                 NVRDrawIndexedPrimitive complexMesh = mesh.IndexedPrimitives[0];
-                NVRVertexType type = complexMesh.Vertices[0].Type;
+                NVRVertexType type = complexMesh.Vertices[0].GetVertexType();
                 NVRVertexBuffer vertBuffer = buffers.GetVertexBuffer(complexMesh.Vertices.Count, type);
                 int bufferIndex = buffers.VertexBuffers.IndexOf(vertBuffer);
                 NVRIndexBuffer indBuffer = buffers.GetIndexBuffer(bufferIndex);
@@ -156,7 +156,7 @@ namespace Fantome.League.IO.NVR
             foreach (NVRMesh mesh in Meshes)
             {
                 NVRDrawIndexedPrimitive simpleMesh = mesh.IndexedPrimitives[1];
-                NVRVertexType type = simpleMesh.Vertices[0].Type;
+                NVRVertexType type = simpleMesh.Vertices[0].GetVertexType();
                 NVRVertexBuffer vertBuffer = buffers.GetVertexBuffer(simpleMesh.Vertices.Count, type);
                 int bufferIndex = buffers.VertexBuffers.IndexOf(vertBuffer);
                 NVRIndexBuffer indBuffer = buffers.GetIndexBuffer(bufferIndex);

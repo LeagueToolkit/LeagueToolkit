@@ -39,7 +39,12 @@ namespace Fantome.League.IO.NVR
         }
 
         // Easy way to create a material with working values. Needs to be used with vertex 8
-        public static NVRMaterial CreateMaterial(string materialName, string textureName, ColorRGBAVector4 color)
+        public static NVRMaterial CreateMaterial(string materialName, string textureName)
+        {
+            return CreateMaterial(materialName, textureName, new ColorRGBAVector4(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f), NVRMaterialType.MATERIAL_TYPE_DEFAULT, NVRMaterialFlags.ColoredVertex);
+        }
+
+        public static NVRMaterial CreateMaterial(string materialName, string textureName, ColorRGBAVector4 color, NVRMaterialType matType, NVRMaterialFlags matFlags)
         {
             List<NVRChannel> channels = new List<NVRChannel>();
             channels.Add(new NVRChannel(textureName, color, new D3DMATRIX()));
@@ -47,7 +52,7 @@ namespace Fantome.League.IO.NVR
             {
                 channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new D3DMATRIX()));
             }
-            NVRMaterial newMat = new NVRMaterial(materialName, NVRMaterialType.MATERIAL_TYPE_DEFAULT, NVRMaterialFlags.ColoredVertex, channels);
+            NVRMaterial newMat = new NVRMaterial(materialName, matType, matFlags, channels);
             return newMat;
         }
 

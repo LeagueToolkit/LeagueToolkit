@@ -96,7 +96,6 @@ namespace Fantome.League.IO.NVR
                     if (objFile.Normals.Count > 0)
                     {
                         normal = objFile.Normals[face.NormalIndices[i]];
-                        //normal = new Vector3(0, 0, 0);
                     }
 
                     if ((position.UV != null && position.Normal != null) && (!position.UV.Equals(UV) || !position.Normal.Equals(normal)))
