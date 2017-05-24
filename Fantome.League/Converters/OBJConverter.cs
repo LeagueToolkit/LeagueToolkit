@@ -99,14 +99,14 @@ namespace Fantome.League.Converters
             List<Vector2> UV = new List<Vector2>();
             List<Vector3> Normals = new List<Vector3>();
 
-            foreach (SKNVertex Vertex in SKN.Vertices)
+            foreach (SKNVertex Vertex in Model.Vertices)
             {
                 Vertices.Add(Vertex.Position);
                 UV.Add(Vertex.UV);
                 Normals.Add(Vertex.Normal);
             }
 
-            return new OBJFile(Vertices, UV, Normals, SKN.Indices);
+            return new OBJFile(Vertices, UV, Normals, Model.Indices);
         }
         public static OBJFile ConvertSCB(SCBFile SCB)
         {

@@ -82,7 +82,7 @@ namespace Fantome.League.IO.NVR
             {
                 objVertices.Add(new NVRVertex8(position));
             }
-            foreach (OBJ.Face face in objFile.Faces)
+            foreach (OBJFace face in objFile.Faces)
             {
                 for (int i = 0; i < 3; i++)
                 {
