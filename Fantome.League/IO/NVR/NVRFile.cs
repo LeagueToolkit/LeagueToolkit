@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Fantome.League.Helpers.Structures;
+using Fantome.League.Helpers.Exceptions;
 
 namespace Fantome.League.IO.NVR
 {
@@ -28,7 +29,7 @@ namespace Fantome.League.IO.NVR
             string magic = ASCIIEncoding.ASCII.GetString(br.ReadBytes(4));
             if (magic != "NVR\0")
             {
-                throw new Exception("Invalid NVR file");
+                throw new InvalidFileMagicException();
             }
             this.MajorVersion = br.ReadInt16();
             this.MinorVersion = br.ReadInt16();
@@ -433,4 +434,6 @@ namespace Fantome.League.IO.NVR
         D3DFMT_BINARYBUFFER = 0xC7,
         D3DFMT_FORCE_DWORD = 0x7FFFFFFF,
     }
+
+
 }

@@ -38,6 +38,41 @@ namespace Fantome.League.IO.NVR
         {
             return Size;
         }
+
+        private static bool ContainsGroundKeyword(string texture)
+        {
+            return texture.Contains("_floor") || texture.Contains("_dirt") || texture.Contains("grass") || texture.Contains("RiverBed") || texture.Contains("_project") || texture.Contains("tile_");
+        }
+
+        public static NVRVertexType GetVertexTypeFromMaterial(NVRMaterial mat)
+        {
+            if (mat.Type == NVRMaterialType.MATERIAL_TYPE_DEFAULT)
+            {
+                if (mat.Flags.HasFlag(NVRMaterialFlags.ColoredVertex) || mat.Flags.HasFlag(NVRMaterialFlags.GroundVertex))
+                {
+                    if (mat.Flags.HasFlag(NVRMaterialFlags.GroundVertex) && ContainsGroundKeyword(mat.Channels[0].Name))
+                    {
+                        return NVRVertexType.NVRVERTEX_GROUND_8;
+                    }
+                    else
+                    {
+                        return NVRVertexType.NVRVERTEX_8;
+                    }
+                }
+                else
+                {
+                    return NVRVertexType.NVRVERTEX_4;
+                }
+            }
+            else if (mat.Type == NVRMaterialType.MATERIAL_TYPE_FOUR_BLEND)
+            {
+                return NVRVertexType.NVRVERTEX_12;
+            }
+            else
+            {
+                return NVRVertexType.NVRVERTEX_4;
+            }
+        }
     }
 
     public class NVRVertex4 : NVRVertex
@@ -91,7 +126,7 @@ namespace Fantome.League.IO.NVR
         public Vector2 UV { get; set; }
         public ColorBGRAVector4Byte DiffuseColor { get; set; }
         public ColorBGRAVector4Byte EmissiveColor { get; set; }
-        public new const int Size  = 40;
+        public new const int Size = 40;
         public new const NVRVertexType Type = NVRVertexType.NVRVERTEX_8;
 
         public NVRVertex8(BinaryReader br) : base(br)
@@ -185,7 +220,7 @@ namespace Fantome.League.IO.NVR
         public Vector2 Unknown { get; set; }
         public Vector2 UV { get; set; }
         public ColorBGRAVector4Byte DiffuseColor { get; set; }
-        public new const int Size  = 44;
+        public new const int Size = 44;
         public new const NVRVertexType Type = NVRVertexType.NVRVERTEX_12;
 
         public NVRVertex12(BinaryReader br) : base(br)

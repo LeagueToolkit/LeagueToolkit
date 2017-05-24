@@ -33,7 +33,7 @@ namespace Fantome.League.IO.NVR
             this.Flags = flag;
             if (channels.Count != 8)
             {
-                throw new Exception("There have to be exactly 8 channels in a material!");
+                throw new MaterialInvalidChannelCountException(channels.Count);
             }
             this.Channels.AddRange(channels);
         }
@@ -82,5 +82,10 @@ namespace Fantome.League.IO.NVR
     {
         GroundVertex = 1,
         ColoredVertex = 16
+    }
+
+    public class MaterialInvalidChannelCountException : Exception
+    {
+        public MaterialInvalidChannelCountException(int actual) : base(String.Format("There have to be exactly 8 channels in a material ({0} channel(s) specified).", actual)) { }
     }
 }
