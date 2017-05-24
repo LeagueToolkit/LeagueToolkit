@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace Fantome.League.Helpers.Structures
 {
-    public struct Vector2
+    public class Vector2 : IEquatable<Vector2>
     {
         public float X;
         public float Y;
@@ -27,6 +27,11 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Y);
         }
 
+        public bool Equals(Vector2 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y);
+        }
+
         public static bool operator <(Vector2 x, Vector2 y)
         {
             return x.X < y.X && x.Y < y.Y;
@@ -37,7 +42,8 @@ namespace Fantome.League.Helpers.Structures
             return x.X > y.X && x.Y > y.Y;
         }
     }
-    public struct Vector3
+
+    public class Vector3 : IEquatable<Vector3>
     {
         public float X;
         public float Y;
@@ -59,7 +65,7 @@ namespace Fantome.League.Helpers.Structures
 
         public Vector3(StreamReader sr)
         {
-            string[] input = sr.ReadLine().Split(new char[] { ' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             this.X = float.Parse(input[0], CultureInfo.InvariantCulture.NumberFormat);
             this.Y = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat);
             this.Z = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat);
@@ -75,6 +81,11 @@ namespace Fantome.League.Helpers.Structures
         public void Write(StreamWriter sw)
         {
             sw.WriteLine(string.Format("{0} {1} {2}", this.X, this.Y, this.Z));
+        }
+
+        public bool Equals(Vector3 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
         }
 
         public static Vector3 Cross(Vector3 x, Vector3 y)
@@ -95,7 +106,8 @@ namespace Fantome.League.Helpers.Structures
             return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
         }
     }
-    public struct Vector4
+
+    public class Vector4
     {
         public float X;
         public float Y;
@@ -126,7 +138,8 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.W);
         }
     }
-    public struct Vector3Byte
+
+    public class Vector3Byte
     {
         public byte X;
         public byte Y;
@@ -153,7 +166,8 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Z);
         }
     }
-    public struct Vector4Byte
+
+    public class Vector4Byte
     {
         public byte X;
         public byte Y;
@@ -184,7 +198,8 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.W);
         }
     }
-    public struct ColorRGBAVector4
+
+    public class ColorRGBAVector4
     {
         public float R;
         public float G;
@@ -215,7 +230,8 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.A);
         }
     }
-    public struct ColorBGRAVector4Byte
+
+    public class ColorBGRAVector4Byte
     {
         public byte B;
         public byte G;
@@ -246,7 +262,8 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.A);
         }
     }
-    public struct R3DBoundingBox
+
+    public class R3DBoundingBox
     {
         public Vector3 Org;
         public Vector3 Size;
@@ -269,7 +286,8 @@ namespace Fantome.League.Helpers.Structures
             this.Size.Write(bw);
         }
     }
-    public struct R3DBox
+
+    public class R3DBox
     {
         public Vector3 Min { get; private set; }
         public Vector3 Max { get; private set; }
@@ -291,8 +309,19 @@ namespace Fantome.League.Helpers.Structures
             this.Min.Write(bw);
             this.Max.Write(bw);
         }
+
+        public Vector3 GetProportions()
+        {
+            return this.Max - this.Min;
+        }
+
+        public bool ContainsPoint(Vector3 point)
+        {
+            return ((point.X >= Min.X) && (point.X <= Max.X) && (point.Y >= Min.Y) && (point.Y <= Max.Y) && (point.Z >= Min.Z) && (point.Z <= Max.Z));
+        }
     }
-    public struct R3DSphere
+
+    public class R3DSphere
     {
         public Vector3 Position;
         public float Radius;

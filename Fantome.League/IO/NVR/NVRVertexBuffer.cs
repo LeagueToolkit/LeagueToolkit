@@ -25,7 +25,7 @@ namespace Fantome.League.IO.NVR
 
         public void Write(BinaryWriter bw)
         {
-            int bufferLength = this.Vertices[0].Size * this.Vertices.Count;
+            int bufferLength = this.Vertices[0].GetSize() * this.Vertices.Count;
             bw.Write(bufferLength);
             foreach (NVRVertex vertex in this.Vertices)
             {
