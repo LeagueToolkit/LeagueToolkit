@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.League.IO.FX
 {
+    [DebuggerDisplay("[ {Texture}, Link Type: {LinkType}, Blend Type: {BlendType} ]")]
     public class FXWeaponStreakInfo
     {
         public Int32 LinkType { get; private set; }

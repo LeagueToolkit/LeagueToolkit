@@ -1,10 +1,12 @@
 ﻿using Fantome.League.Helpers.Structures;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.League.IO.MOB
 {
+    [DebuggerDisplay("[ Type: {Type}, {Name} ]")]
     public class MOBObject
     {
         public string Name { get; private set; }

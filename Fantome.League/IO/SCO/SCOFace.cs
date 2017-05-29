@@ -1,10 +1,12 @@
 ﻿using Fantome.League.Helpers.Structures;
 using System;
-using System.IO;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 
 namespace Fantome.League.IO.SCO
 {
+    [DebuggerDisplay("[ {Material} ]")]
     public class SCOFace
     {
         public UInt16[] Indices { get; private set; } = new UInt16[3];

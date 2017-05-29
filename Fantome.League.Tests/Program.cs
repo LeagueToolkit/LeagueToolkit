@@ -21,7 +21,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            NVRTest();
+            SCBTest();
         }
 
         static void WGEOTest()

@@ -1,8 +1,10 @@
 ﻿using Fantome.League.Helpers.Structures;
+using System.Diagnostics;
 using System.IO;
 
 namespace Fantome.League.IO.WGEO
 {
+    [DebuggerDisplay("[ {Position.X}, {Position.Y}, {Position.Z} ]")]
     public struct WGEOVertex
     {
         public Vector3 Position;

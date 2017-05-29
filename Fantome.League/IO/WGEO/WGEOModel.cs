@@ -3,16 +3,17 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
 
 namespace Fantome.League.IO.WGEO
 {
+    [DebuggerDisplay("[ Texture: {Texture}, Material: {Material} ]")]
     public class WGEOModel
     {
         public string Texture { get; private set; }
         public string Material { get; private set; }
         public R3DSphere Sphere { get; private set; }
-        public Vector3 Min { get; private set; }
-        public Vector3 Max { get; private set; }
+        public R3DBox BoundingBox { get; private set; }
         public List<WGEOVertex> Vertices { get; private set; } = new List<WGEOVertex>();
         public List<UInt16> Indices { get; private set; } = new List<UInt16>();
 
@@ -22,8 +23,7 @@ namespace Fantome.League.IO.WGEO
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(64));
             this.Material = this.Material.Remove(this.Material.IndexOf("\0"));
             this.Sphere = new R3DSphere(br);
-            this.Min = new Vector3(br);
-            this.Max = new Vector3(br);
+            this.BoundingBox = new R3DBox(br);
 
             UInt32 VertexCount = br.ReadUInt32();
             UInt32 IndexCount = br.ReadUInt32();
@@ -43,8 +43,7 @@ namespace Fantome.League.IO.WGEO
             bw.Write(this.Texture.PadRight(260, '\u0000').ToCharArray());
             bw.Write(this.Material.PadRight(64, '\u0000').ToCharArray());
             this.Sphere.Write(bw);
-            this.Min.Write(bw);
-            this.Max.Write(bw);
+            this.BoundingBox.Write(bw);
 
             bw.Write((UInt32)this.Vertices.Count);
             bw.Write((UInt32)this.Indices.Count);

@@ -2,13 +2,16 @@
 using Fantome.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.League.IO.WGT
 {
+    [DebuggerDisplay("[ Version: {Version} ]")]
     public class WGTFile
     {
+        public UInt32 Version { get; private set; }
         public UInt32 SkeletonID { get; private set; }
         public List<WGTWeight> Weights { get; private set; } = new List<WGTWeight>();
 
@@ -27,8 +30,8 @@ namespace Fantome.League.IO.WGT
                 if (Magic != "r3d2wght")
                     throw new InvalidFileMagicException();
 
-                UInt32 Version = br.ReadUInt32();
-                if (Version != 1)
+                this.Version = br.ReadUInt32();
+                if (this.Version != 1)
                     throw new UnsupportedFileVersionException();
 
                 this.SkeletonID = br.ReadUInt32();

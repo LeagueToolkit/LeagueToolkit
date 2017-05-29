@@ -2,11 +2,13 @@
 using Fantome.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.League.IO.SCB
 {
+    [DebuggerDisplay("[ {Name} ]")]
     public class SCBFile
     {
         public string Name { get; private set; }

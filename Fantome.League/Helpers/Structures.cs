@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace Fantome.League.Helpers.Structures
 {
+    [DebuggerDisplay("[ {X}, {Y} ]")]
     public class Vector2 : IEquatable<Vector2>
     {
         public float X;
@@ -43,6 +45,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {X}, {Y}, {Z} ]")]
     public class Vector3 : IEquatable<Vector3>
     {
         public float X;
@@ -107,6 +110,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {X}, {Y}, {Z}, {W} ]")]
     public class Vector4
     {
         public float X;
@@ -139,6 +143,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {X}, {Y}, {Z} ]")]
     public class Vector3Byte
     {
         public byte X;
@@ -167,6 +172,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {X}, {Y}, {Z}, {W} ]")]
     public class Vector4Byte
     {
         public byte X;
@@ -199,6 +205,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
     public class ColorRGBAVector4
     {
         public float R;
@@ -231,6 +238,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {B}, {G}, {R}, {A} ]")]
     public class ColorBGRAVector4Byte
     {
         public byte B;
@@ -321,6 +329,7 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {Radius} ]")]
     public class R3DSphere
     {
         public Vector3 Position;

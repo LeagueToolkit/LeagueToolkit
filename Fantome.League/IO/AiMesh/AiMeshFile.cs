@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Fantome.League.Helpers.Exceptions;
+using System.Diagnostics;
 
 namespace Fantome.League.IO.AiMesh
 {
+    [DebuggerDisplay("[ Version: {Version}]")]
     public class AiMeshFile
     {
+        public UInt32 Version { get; private set; }
         public List<AiMeshFace> Faces = new List<AiMeshFace>();
 
         public AiMeshFile(string Location)
@@ -18,8 +21,8 @@ namespace Fantome.League.IO.AiMesh
                 if (Magic != "r3d2aims")
                     throw new InvalidFileMagicException();
 
-                UInt32 Version = br.ReadUInt32();
-                if (Version != 2)
+                this.Version = br.ReadUInt32();
+                if (this.Version != 2)
                     throw new UnsupportedFileVersionException();
 
                 UInt32 FaceCount = br.ReadUInt32();
