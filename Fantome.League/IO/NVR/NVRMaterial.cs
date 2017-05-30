@@ -47,10 +47,10 @@ namespace Fantome.League.IO.NVR
         public static NVRMaterial CreateMaterial(string materialName, string textureName, ColorRGBAVector4 color, NVRMaterialType matType, NVRMaterialFlags matFlags)
         {
             List<NVRChannel> channels = new List<NVRChannel>();
-            channels.Add(new NVRChannel(textureName, color, new D3DMATRIX()));
+            channels.Add(new NVRChannel(textureName, color, new R3DMatrix44()));
             for (int i = 0; i < 7; i++)
             {
-                channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new D3DMATRIX()));
+                channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
             }
             NVRMaterial newMat = new NVRMaterial(materialName, matType, matFlags, channels);
             return newMat;

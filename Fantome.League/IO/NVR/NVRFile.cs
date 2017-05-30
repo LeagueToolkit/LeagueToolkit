@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Fantome.League.Helpers.Exceptions;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
-using Fantome.League.Helpers.Exceptions;
+using System.Text;
 
 namespace Fantome.League.IO.NVR
 {
@@ -277,91 +274,6 @@ namespace Fantome.League.IO.NVR
             {
                 GenerateNodeBuffer(node.Children[i]);
             }
-        }
-    }
-
-    public class D3DMATRIX
-    {
-        public float _11 { get; private set; }
-        public float _12 { get; private set; }
-        public float _13 { get; private set; }
-        public float _14 { get; private set; }
-        public float _21 { get; private set; }
-        public float _22 { get; private set; }
-        public float _23 { get; private set; }
-        public float _24 { get; private set; }
-        public float _31 { get; private set; }
-        public float _32 { get; private set; }
-        public float _33 { get; private set; }
-        public float _34 { get; private set; }
-        public float _41 { get; private set; }
-        public float _42 { get; private set; }
-        public float _43 { get; private set; }
-        public float _44 { get; private set; }
-
-        public D3DMATRIX(BinaryReader br)
-        {
-            this._11 = br.ReadSingle();
-            this._12 = br.ReadSingle();
-            this._13 = br.ReadSingle();
-            this._14 = br.ReadSingle();
-            this._21 = br.ReadSingle();
-            this._22 = br.ReadSingle();
-            this._23 = br.ReadSingle();
-            this._24 = br.ReadSingle();
-            this._31 = br.ReadSingle();
-            this._32 = br.ReadSingle();
-            this._33 = br.ReadSingle();
-            this._34 = br.ReadSingle();
-            this._41 = br.ReadSingle();
-            this._42 = br.ReadSingle();
-            this._43 = br.ReadSingle();
-            this._44 = br.ReadSingle();
-        }
-
-        public D3DMATRIX()
-        {
-            this.Clear();
-        }
-
-        public void Clear()
-        {
-            this._11 = 0;
-            this._12 = 0;
-            this._13 = 0;
-            this._14 = 0;
-            this._21 = 0;
-            this._22 = 0;
-            this._23 = 0;
-            this._24 = 0;
-            this._31 = 0;
-            this._32 = 0;
-            this._33 = 0;
-            this._34 = 0;
-            this._41 = 0;
-            this._42 = 0;
-            this._43 = 0;
-            this._44 = 0;
-        }
-
-        public void Write(BinaryWriter bw)
-        {
-            bw.Write(this._11);
-            bw.Write(this._12);
-            bw.Write(this._13);
-            bw.Write(this._14);
-            bw.Write(this._21);
-            bw.Write(this._22);
-            bw.Write(this._23);
-            bw.Write(this._24);
-            bw.Write(this._31);
-            bw.Write(this._32);
-            bw.Write(this._33);
-            bw.Write(this._34);
-            bw.Write(this._41);
-            bw.Write(this._42);
-            bw.Write(this._43);
-            bw.Write(this._44);
         }
     }
 

@@ -353,4 +353,89 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(Radius);
         }
     }
+
+    public class R3DMatrix44
+    {
+        public float m11 { get; private set; }
+        public float m12 { get; private set; }
+        public float m13 { get; private set; }
+        public float m14 { get; private set; }
+        public float m21 { get; private set; }
+        public float m22 { get; private set; }
+        public float m23 { get; private set; }
+        public float m24 { get; private set; }
+        public float m31 { get; private set; }
+        public float m32 { get; private set; }
+        public float m33 { get; private set; }
+        public float m34 { get; private set; }
+        public float m41 { get; private set; }
+        public float m42 { get; private set; }
+        public float m43 { get; private set; }
+        public float m44 { get; private set; }
+
+        public R3DMatrix44(BinaryReader br)
+        {
+            this.m11 = br.ReadSingle();
+            this.m12 = br.ReadSingle();
+            this.m13 = br.ReadSingle();
+            this.m14 = br.ReadSingle();
+            this.m21 = br.ReadSingle();
+            this.m22 = br.ReadSingle();
+            this.m23 = br.ReadSingle();
+            this.m24 = br.ReadSingle();
+            this.m31 = br.ReadSingle();
+            this.m32 = br.ReadSingle();
+            this.m33 = br.ReadSingle();
+            this.m34 = br.ReadSingle();
+            this.m41 = br.ReadSingle();
+            this.m42 = br.ReadSingle();
+            this.m43 = br.ReadSingle();
+            this.m44 = br.ReadSingle();
+        }
+
+        public R3DMatrix44()
+        {
+            this.Clear();
+        }
+
+        public void Clear()
+        {
+            this.m11 = 0;
+            this.m12 = 0;
+            this.m13 = 0;
+            this.m14 = 0;
+            this.m21 = 0;
+            this.m22 = 0;
+            this.m23 = 0;
+            this.m24 = 0;
+            this.m31 = 0;
+            this.m32 = 0;
+            this.m33 = 0;
+            this.m34 = 0;
+            this.m41 = 0;
+            this.m42 = 0;
+            this.m43 = 0;
+            this.m44 = 0;
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.m11);
+            bw.Write(this.m12);
+            bw.Write(this.m13);
+            bw.Write(this.m14);
+            bw.Write(this.m21);
+            bw.Write(this.m22);
+            bw.Write(this.m23);
+            bw.Write(this.m24);
+            bw.Write(this.m31);
+            bw.Write(this.m32);
+            bw.Write(this.m33);
+            bw.Write(this.m34);
+            bw.Write(this.m41);
+            bw.Write(this.m42);
+            bw.Write(this.m43);
+            bw.Write(this.m44);
+        }
+    }
 }
