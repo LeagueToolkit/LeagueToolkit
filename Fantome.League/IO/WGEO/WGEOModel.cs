@@ -98,9 +98,9 @@ namespace Fantome.League.IO.WGEO
             R3DBox box = CalculateBoundingBox();
             Vector3 centralPoint = new Vector3
                 (
-                0.5f * BoundingBox.Max.X - BoundingBox.Min.X,
-                0.5f * BoundingBox.Max.Y - BoundingBox.Min.Y,
-                0.5f * BoundingBox.Max.Z - BoundingBox.Min.Z
+                0.5f * (BoundingBox.Max.X + BoundingBox.Min.X),
+                0.5f * (BoundingBox.Max.Y + BoundingBox.Min.Y),
+                0.5f * (BoundingBox.Max.Z + BoundingBox.Min.Z)
                 );
 
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
@@ -110,9 +110,9 @@ namespace Fantome.League.IO.WGEO
         {
             Vector3 centralPoint = new Vector3
                 (
-                0.5f * BoundingBox.Max.X - BoundingBox.Min.X,
-                0.5f * BoundingBox.Max.Y - BoundingBox.Min.Y,
-                0.5f * BoundingBox.Max.Z - BoundingBox.Min.Z
+                0.5f * (BoundingBox.Max.X + BoundingBox.Min.X),
+                0.5f * (BoundingBox.Max.Y + BoundingBox.Min.Y),
+                0.5f * (BoundingBox.Max.Z + BoundingBox.Min.Z)
                 );
 
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));

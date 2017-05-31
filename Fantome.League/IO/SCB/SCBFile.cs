@@ -144,9 +144,9 @@ namespace Fantome.League.IO.SCB
         {
             R3DBoundingBox BoundingBox = CalculateBoundingBox();
             return new Vector3(
-                0.5f * BoundingBox.Size.X - BoundingBox.Org.X,
-                0.5f * BoundingBox.Size.Y - BoundingBox.Org.Y,
-                0.5f * BoundingBox.Size.Z - BoundingBox.Org.Z
+                0.5f * (BoundingBox.Size.X + BoundingBox.Org.X),
+                0.5f * (BoundingBox.Size.Y + BoundingBox.Org.Y),
+                0.5f * (BoundingBox.Size.Z + BoundingBox.Org.Z)
                 );
         }
     }
