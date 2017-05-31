@@ -99,6 +99,11 @@ namespace Fantome.League.Helpers.Structures
                 (x.X * y.Y) - (x.Y * y.X));
         }
 
+        public static float Distance(Vector3 x, Vector3 y)
+        {
+            return (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) - Math.Pow(x.Y - y.Y, 2) - Math.Pow(x.Z - y.Z, 2));
+        }
+
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
