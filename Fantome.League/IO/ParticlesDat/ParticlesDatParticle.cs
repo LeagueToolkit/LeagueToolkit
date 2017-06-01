@@ -17,6 +17,15 @@ namespace Fantome.League.IO.ParticlesDat
         public Vector3 Rotation { get; private set; }
         public List<string> Tags { get; private set; } = new List<string>();
 
+        public ParticlesDatParticle(string Name, Vector3 Position, Int32 Quality, Vector3 Rotation, List<string> Tags)
+        {
+            this.Name = Name;
+            this.Position = Position;
+            this.Quality = Quality;
+            this.Rotation = Rotation;
+            this.Tags = Tags;
+        }
+
         public ParticlesDatParticle(StreamReader sr)
         {
             string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);

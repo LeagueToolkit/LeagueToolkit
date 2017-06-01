@@ -17,6 +17,17 @@ namespace Fantome.League.IO.MOB
         public Vector3 HealthbarPosition { get; private set; }
         private Vector3 Unknown { get; set; }
 
+        public MOBObject(string Name, ObjectType Type, Vector3 Position, Vector3 Rotation, Vector3 Scale, Vector3 HealthbarPosition, Vector3 Unknown)
+        {
+            this.Name = Name;
+            this.Type = Type;
+            this.Position = Position;
+            this.Rotation = Rotation;
+            this.Scale = Scale;
+            this.HealthbarPosition = HealthbarPosition;
+            this.Unknown = Unknown;
+        }
+
         public MOBObject(BinaryReader br)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(60)).Replace("\0", "");
