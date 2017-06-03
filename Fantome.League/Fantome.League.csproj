@@ -50,6 +50,7 @@
     <Compile Include="Helpers\Structures.cs" />
     <Compile Include="IO\AiMesh\AiMeshFace.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
+    <Compile Include="IO\BIN\BINFile.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
     <Compile Include="IO\FX\FXTimeGradient.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
