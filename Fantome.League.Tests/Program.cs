@@ -14,6 +14,7 @@ using Fantome.League.IO.SCO;
 using Fantome.League.IO.WGT;
 using Fantome.League.IO.NVR;
 using Fantome.League.IO.ParticlesDat;
+using Fantome.League.IO.Inibin;
 
 namespace Fantome.League.Tests
 {
@@ -21,7 +22,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            SCBTest();
+            InibinTest();
         }
 
         static void WGEOTest()
@@ -80,6 +81,11 @@ namespace Fantome.League.Tests
         {
             ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
             particlefile.Write("ParticlesWrite.dat");
+        }
+        static void InibinTest()
+        {
+            InibinFile inibin = new InibinFile("48thSlave.inibin");
+            
         }
     }
 }
