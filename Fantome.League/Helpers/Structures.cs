@@ -243,6 +243,39 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBAVector4Byte
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+        public byte A;
+
+        public ColorRGBAVector4Byte(byte R, byte G, byte B, byte A)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+            this.A = A;
+        }
+
+        public ColorRGBAVector4Byte(BinaryReader br)
+        {
+            this.R = br.ReadByte();
+            this.G = br.ReadByte();
+            this.B = br.ReadByte();
+            this.A = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+            bw.Write(this.A);
+        }
+    }
+
     [DebuggerDisplay("[ {B}, {G}, {R}, {A} ]")]
     public class ColorBGRAVector4Byte
     {

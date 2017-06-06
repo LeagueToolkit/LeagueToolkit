@@ -54,6 +54,8 @@
     <Compile Include="IO\FX\FXTimeGradient.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
+    <Compile Include="IO\LightGrid\LightGridFile.cs" />
+    <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MOB\MOBFile.cs" />
     <Compile Include="IO\MOB\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
