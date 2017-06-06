@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 namespace Fantome.League.Helpers.Structures
 {
+    #region DataTypes
     [DebuggerDisplay("[ {X}, {Y} ]")]
     public class Vector2 : IEquatable<Vector2>
     {
@@ -81,9 +82,9 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Z);
         }
 
-        public void Write(StreamWriter sw)
+        public void Write(StreamWriter sw, string format)
         {
-            sw.WriteLine(string.Format("{0} {1} {2}", this.X, this.Y, this.Z));
+            sw.Write(string.Format(format, this.X, this.Y, this.Z));
         }
 
         public bool Equals(Vector3 other)
@@ -210,6 +211,41 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    #region Colors
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBVector3Byte
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+
+        public ColorRGBVector3Byte(byte R, byte G, byte B)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+        }
+
+        public ColorRGBVector3Byte(BinaryReader br)
+        {
+            this.R = br.ReadByte();
+            this.G = br.ReadByte();
+            this.B = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B));
+        }
+    }
+
     [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
     public class ColorRGBAVector4
     {
@@ -308,7 +344,9 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.A);
         }
     }
-
+    #endregion
+    #endregion
+    #region Structures
     public class R3DBoundingBox
     {
         public Vector3 Org;
@@ -476,4 +514,5 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.m44);
         }
     }
+    #endregion
 }
