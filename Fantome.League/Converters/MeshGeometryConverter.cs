@@ -16,6 +16,11 @@ namespace Fantome.League.Converters
 {
     public class MeshGeometryConverter
     {
+        /// <summary>
+        /// Converts the specified OBJ File to a <see cref="MeshGeometry3D"/> without normals
+        /// </summary>
+        /// <param name="obj">The OBJ File which should get converted</param>
+        /// <returns>The converted OBJ File</returns>
         public static MeshGeometry3D ConvertOBJ(OBJFile obj)
         {
             MeshGeometry3D mesh = new MeshGeometry3D();
@@ -46,7 +51,12 @@ namespace Fantome.League.Converters
 
             return mesh;
         }
-        
+
+        /// <summary>
+        /// Converts the specified SKN File to a <see cref="MeshGeometry3D"/>
+        /// </summary>
+        /// <param name="skn">The SKN File which should get converted</param>
+        /// <returns>The list of converted SKN Submeshes in a Tuple(SubmeshName, MeshGeometry3D)</returns>
         public static IEnumerable<Tuple<string, MeshGeometry3D>> ConvertSKN(SKNFile skn)
         {
             foreach(SKNSubmesh Submesh in skn.Submeshes)
@@ -79,6 +89,11 @@ namespace Fantome.League.Converters
             }
         }
 
+        /// <summary>
+        /// Converts the specified WGEO File to a list of <see cref="MeshGeometry3D"/> 
+        /// </summary>
+        /// <param name="skn">The WGEO File which should get converted</param>
+        /// <returns>The list of converted SKN Submeshes in a Tuple(MaterialName, TextureName, MeshGeometry3D)</returns>
         public static IEnumerable<Tuple<string, string, MeshGeometry3D>> ConvertWGEO(WGEOFile wgeo)
         {
             foreach(WGEOModel Model in wgeo.Models)
