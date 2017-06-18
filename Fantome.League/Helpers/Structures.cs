@@ -35,14 +35,14 @@ namespace Fantome.League.Helpers.Structures
             return (this.X == other.X) && (this.Y == other.Y);
         }
 
-        public static bool operator <(Vector2 x, Vector2 y)
+        public static Vector2 operator +(Vector2 x, Vector2 y)
         {
-            return x.X < y.X && x.Y < y.Y;
+            return new Vector2(x.X + y.X, x.Y + y.Y);
         }
 
-        public static bool operator >(Vector2 x, Vector2 y)
+        public static Vector2 operator -(Vector2 x, Vector2 y)
         {
-            return x.X > y.X && x.Y > y.Y;
+            return new Vector2(x.X - y.X, x.Y - y.Y);
         }
     }
 
@@ -87,11 +87,6 @@ namespace Fantome.League.Helpers.Structures
             sw.Write(string.Format(format, this.X, this.Y, this.Z));
         }
 
-        public bool Equals(Vector3 other)
-        {
-            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
-        }
-
         public static Vector3 Cross(Vector3 x, Vector3 y)
         {
             return new Vector3(
@@ -103,6 +98,11 @@ namespace Fantome.League.Helpers.Structures
         public static float Distance(Vector3 x, Vector3 y)
         {
             return (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) - Math.Pow(x.Y - y.Y, 2) - Math.Pow(x.Z - y.Z, 2));
+        }
+
+        public bool Equals(Vector3 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
         }
 
         public static Vector3 operator +(Vector3 x, Vector3 y)
@@ -117,7 +117,7 @@ namespace Fantome.League.Helpers.Structures
     }
 
     [DebuggerDisplay("[ {X}, {Y}, {Z}, {W} ]")]
-    public class Vector4
+    public class Vector4 : IEquatable<Vector4>
     {
         public float X;
         public float Y;
@@ -146,6 +146,21 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Y);
             bw.Write(this.Z);
             bw.Write(this.W);
+        }
+
+        public bool Equals(Vector4 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z) && (this.W == other.W);
+        }
+
+        public static Vector4 operator +(Vector4 x, Vector4 y)
+        {
+            return new Vector4(x.X + y.X, x.Y + y.Y, x.Z + y.Z, x.W + y.W);
+        }
+
+        public static Vector4 operator -(Vector4 x, Vector4 y)
+        {
+            return new Vector4(x.X - y.X, x.Y - y.Y, x.Z - y.Z, x.W - y.W);
         }
     }
 
@@ -277,6 +292,11 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.B);
             bw.Write(this.A);
         }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
+        }
     }
 
     [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
@@ -310,6 +330,11 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.B);
             bw.Write(this.A);
         }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
+        }
     }
 
     [DebuggerDisplay("[ {B}, {G}, {R}, {A} ]")]
@@ -342,6 +367,11 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.G);
             bw.Write(this.R);
             bw.Write(this.A);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.B, this.G, this.R, this.A));
         }
     }
     #endregion
