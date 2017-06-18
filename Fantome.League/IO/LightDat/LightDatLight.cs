@@ -23,7 +23,7 @@ namespace Fantome.League.IO.LightDat
                 float.Parse(Line[2], CultureInfo.InvariantCulture)
                 );
             this.Color = new ColorRGBVector3Byte(byte.Parse(Line[3]), byte.Parse(Line[4]), byte.Parse(Line[5]));
-            this.Radius = float.Parse(Line[6]);
+            this.Radius = float.Parse(Line[6], CultureInfo.InvariantCulture);
         }
         public void Write(StreamWriter sw)
         {
