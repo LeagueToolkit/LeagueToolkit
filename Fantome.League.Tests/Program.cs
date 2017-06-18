@@ -14,6 +14,7 @@ using Fantome.League.IO.SCO;
 using Fantome.League.IO.WGT;
 using Fantome.League.IO.NVR;
 using Fantome.League.IO.ParticlesDat;
+using Fantome.League.IO.LightGrid;
 
 namespace Fantome.League.Tests
 {
@@ -21,7 +22,7 @@ namespace Fantome.League.Tests
     {
         static void Main(string[] args)
         {
-            SCBTest();
+            LightGridTest();
         }
 
         static void WGEOTest()
@@ -80,6 +81,11 @@ namespace Fantome.League.Tests
         {
             ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
             particlefile.Write("ParticlesWrite.dat");
+        }
+
+        static void LightGridTest()
+        {
+            LightGridFile grid = new LightGridFile("LightGrid.dat");
         }
     }
 }

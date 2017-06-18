@@ -5,6 +5,7 @@ using System.Diagnostics;
 
 namespace Fantome.League.Helpers.Structures
 {
+    #region DataTypes
     [DebuggerDisplay("[ {X}, {Y} ]")]
     public class Vector2 : IEquatable<Vector2>
     {
@@ -34,14 +35,14 @@ namespace Fantome.League.Helpers.Structures
             return (this.X == other.X) && (this.Y == other.Y);
         }
 
-        public static bool operator <(Vector2 x, Vector2 y)
+        public static Vector2 operator +(Vector2 x, Vector2 y)
         {
-            return x.X < y.X && x.Y < y.Y;
+            return new Vector2(x.X + y.X, x.Y + y.Y);
         }
 
-        public static bool operator >(Vector2 x, Vector2 y)
+        public static Vector2 operator -(Vector2 x, Vector2 y)
         {
-            return x.X > y.X && x.Y > y.Y;
+            return new Vector2(x.X - y.X, x.Y - y.Y);
         }
     }
 
@@ -81,14 +82,9 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Z);
         }
 
-        public void Write(StreamWriter sw)
+        public void Write(StreamWriter sw, string format)
         {
-            sw.WriteLine(string.Format("{0} {1} {2}", this.X, this.Y, this.Z));
-        }
-
-        public bool Equals(Vector3 other)
-        {
-            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
+            sw.Write(string.Format(format, this.X, this.Y, this.Z));
         }
 
         public static Vector3 Cross(Vector3 x, Vector3 y)
@@ -104,6 +100,11 @@ namespace Fantome.League.Helpers.Structures
             return (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) - Math.Pow(x.Y - y.Y, 2) - Math.Pow(x.Z - y.Z, 2));
         }
 
+        public bool Equals(Vector3 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
+        }
+
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
@@ -116,7 +117,7 @@ namespace Fantome.League.Helpers.Structures
     }
 
     [DebuggerDisplay("[ {X}, {Y}, {Z}, {W} ]")]
-    public class Vector4
+    public class Vector4 : IEquatable<Vector4>
     {
         public float X;
         public float Y;
@@ -145,6 +146,21 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Y);
             bw.Write(this.Z);
             bw.Write(this.W);
+        }
+
+        public bool Equals(Vector4 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z) && (this.W == other.W);
+        }
+
+        public static Vector4 operator +(Vector4 x, Vector4 y)
+        {
+            return new Vector4(x.X + y.X, x.Y + y.Y, x.Z + y.Z, x.W + y.W);
+        }
+
+        public static Vector4 operator -(Vector4 x, Vector4 y)
+        {
+            return new Vector4(x.X - y.X, x.Y - y.Y, x.Z - y.Z, x.W - y.W);
         }
     }
 
@@ -210,6 +226,41 @@ namespace Fantome.League.Helpers.Structures
         }
     }
 
+    #region Colors
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBVector3Byte
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+
+        public ColorRGBVector3Byte(byte R, byte G, byte B)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+        }
+
+        public ColorRGBVector3Byte(BinaryReader br)
+        {
+            this.R = br.ReadByte();
+            this.G = br.ReadByte();
+            this.B = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B));
+        }
+    }
+
     [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
     public class ColorRGBAVector4
     {
@@ -240,6 +291,49 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.G);
             bw.Write(this.B);
             bw.Write(this.A);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
+        }
+    }
+
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBAVector4Byte
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+        public byte A;
+
+        public ColorRGBAVector4Byte(byte R, byte G, byte B, byte A)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+            this.A = A;
+        }
+
+        public ColorRGBAVector4Byte(BinaryReader br)
+        {
+            this.R = br.ReadByte();
+            this.G = br.ReadByte();
+            this.B = br.ReadByte();
+            this.A = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+            bw.Write(this.A);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
         }
     }
 
@@ -274,8 +368,15 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.R);
             bw.Write(this.A);
         }
-    }
 
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.B, this.G, this.R, this.A));
+        }
+    }
+    #endregion
+    #endregion
+    #region Structures
     public class R3DBoundingBox
     {
         public Vector3 Org;
@@ -443,4 +544,5 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.m44);
         }
     }
+    #endregion
 }
