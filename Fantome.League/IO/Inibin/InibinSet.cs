@@ -13,7 +13,7 @@ namespace Fantome.League.IO.Inibin
     public class InibinSet
     {
         public InibinFlags Type { get; private set; }
-        public Dictionary<uint, object> Properities = new Dictionary<uint, object>();
+        public Dictionary<uint, object> Properities { get; private set; } = new Dictionary<uint, object>();
         public InibinSet(BinaryReader br, InibinFlags type)
         {
             this.Type = type;
