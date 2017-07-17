@@ -1,11 +1,11 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 
-namespace Fantome.League.IO.WGEO
+namespace Fantome.Libraries.League.IO.WGEO
 {
     [DebuggerDisplay("[ Texture: {Texture}, Material: {Material} ]")]
     public class WGEOModel

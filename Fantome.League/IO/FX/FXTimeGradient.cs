@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.FX
+namespace Fantome.Libraries.League.IO.FX
 {
     [DebuggerDisplay("[ Type: {Type} ]")]
     public class FXTimeGradient

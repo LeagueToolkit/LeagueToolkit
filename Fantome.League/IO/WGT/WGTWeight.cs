@@ -1,7 +1,7 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
 
-namespace Fantome.League.IO.WGT
+namespace Fantome.Libraries.League.IO.WGT
 {
     public class WGTWeight
     {

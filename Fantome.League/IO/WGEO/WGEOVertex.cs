@@ -1,8 +1,8 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.WGEO
+namespace Fantome.Libraries.League.IO.WGEO
 {
     [DebuggerDisplay("[ {Position.X}, {Position.Y}, {Position.Z} ]")]
     public struct WGEOVertex

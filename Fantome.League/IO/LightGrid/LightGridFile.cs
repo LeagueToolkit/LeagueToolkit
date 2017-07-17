@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fantome.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures;
 
-namespace Fantome.League.IO.LightGrid
+namespace Fantome.Libraries.League.IO.LightGrid
 {
     public class LightGridFile
     {

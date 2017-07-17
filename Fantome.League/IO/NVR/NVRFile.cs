@@ -1,10 +1,10 @@
-﻿using Fantome.League.Helpers.Exceptions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRFile
     {

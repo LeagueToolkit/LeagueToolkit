@@ -1,7 +1,7 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
 
-namespace Fantome.League.IO.LightGrid
+namespace Fantome.Libraries.League.IO.LightGrid
 {
     public class LightGridSun
     {

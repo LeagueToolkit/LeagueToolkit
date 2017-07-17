@@ -3,7 +3,7 @@ using System.IO;
 using System.Globalization;
 using System.Diagnostics;
 
-namespace Fantome.League.Helpers.Structures
+namespace Fantome.Libraries.League.Helpers.Structures
 {
     #region DataTypes
     [DebuggerDisplay("[ {X}, {Y} ]")]

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures;
 using System.Globalization;
 
-namespace Fantome.League.IO.LightDat
+namespace Fantome.Libraries.League.IO.LightDat
 {
     public class LightDatLight
     {

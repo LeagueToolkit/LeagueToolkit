@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Fantome.League.IO.WGEO
+namespace Fantome.Libraries.League.IO.WGEO
 {
     public class WGEOBucket
     {

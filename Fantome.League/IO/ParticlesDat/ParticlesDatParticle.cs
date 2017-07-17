@@ -1,4 +1,4 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace Fantome.League.IO.ParticlesDat
+namespace Fantome.Libraries.League.IO.ParticlesDat
 {
     [DebuggerDisplay("[ {Name} ]")]
     public class ParticlesDatParticle

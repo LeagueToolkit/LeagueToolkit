@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.SKN
+namespace Fantome.Libraries.League.IO.SKN
 {
     [DebuggerDisplay("[ {Name} ]")]
     public class SKNSubmesh

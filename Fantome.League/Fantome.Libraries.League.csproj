@@ -7,8 +7,8 @@
     <ProjectGuid>{80F5DF93-19A2-4731-8CD1-982F165D7361}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fantome.League</RootNamespace>
-    <AssemblyName>Fantome.League</AssemblyName>
+    <RootNamespace>Fantome.Libraries.League</RootNamespace>
+    <AssemblyName>Fantome.Libraries.League</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
