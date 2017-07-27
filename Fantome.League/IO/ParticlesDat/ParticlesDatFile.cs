@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Fantome.League.IO.ParticlesDat
+namespace Fantome.Libraries.League.IO.ParticlesDat
 {
     public class ParticlesDatFile
     {

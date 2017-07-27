@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
-using Fantome.League.IO.OBJ;
+using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.OBJ;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRMesh
     {

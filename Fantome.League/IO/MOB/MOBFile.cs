@@ -1,11 +1,11 @@
-﻿using Fantome.League.Helpers.Exceptions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.MOB
+namespace Fantome.Libraries.League.IO.MOB
 {
     [DebuggerDisplay("[ Version: {Version} ]")]
     public class MOBFile

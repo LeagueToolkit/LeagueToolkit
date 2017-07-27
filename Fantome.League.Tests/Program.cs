@@ -3,25 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fantome.League.IO.WGEO;
-using Fantome.League.IO.MOB;
-using Fantome.League.IO.SKN;
-using Fantome.League.IO.FX;
-using Fantome.League.Converters;
-using Fantome.League.IO.AiMesh;
-using Fantome.League.IO.SCB;
-using Fantome.League.IO.SCO;
-using Fantome.League.IO.WGT;
-using Fantome.League.IO.NVR;
-using Fantome.League.IO.ParticlesDat;
+using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.IO.MOB;
+using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.FX;
+using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.IO.AiMesh;
+using Fantome.Libraries.League.IO.SCB;
+using Fantome.Libraries.League.IO.SCO;
+using Fantome.Libraries.League.IO.WGT;
+using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.ParticlesDat;
+using Fantome.Libraries.League.IO.LightGrid;
 
-namespace Fantome.League.Tests
+namespace Fantome.Libraries.League.Tests
 {
     class Program
     {
         static void Main(string[] args)
         {
-            SCBTest();
+            LightGridTest();
         }
 
         static void WGEOTest()
@@ -80,6 +81,11 @@ namespace Fantome.League.Tests
         {
             ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
             particlefile.Write("ParticlesWrite.dat");
+        }
+
+        static void LightGridTest()
+        {
+            LightGridFile grid = new LightGridFile("LightGrid.dat");
         }
     }
 }

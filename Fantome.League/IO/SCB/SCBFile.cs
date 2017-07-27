@@ -1,12 +1,12 @@
-﻿using Fantome.League.Helpers.Exceptions;
-using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.SCB
+namespace Fantome.Libraries.League.IO.SCB
 {
     [DebuggerDisplay("[ {Name} ]")]
     public class SCBFile
@@ -27,6 +27,7 @@ namespace Fantome.League.IO.SCB
                 this.Faces.Add(new SCBFace(new UInt32[] { Indices[i], Indices[i + 1], Indices[i + 2] }, "lambert1", new Vector2[] { UV[i], UV[i + 1], UV[i + 2] }));
             }
         }
+
         public SCBFile(string Location)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
@@ -140,6 +141,7 @@ namespace Fantome.League.IO.SCB
 
             return new R3DBoundingBox(Min, new Vector3(Math.Abs(Max.X - Min.X), Math.Abs(Max.Y - Min.Y), Math.Abs(Max.Z - Min.Z)));
         }
+
         public Vector3 CalculateCentralPoint()
         {
             R3DBoundingBox BoundingBox = CalculateBoundingBox();

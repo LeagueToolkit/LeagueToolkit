@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.IO;
-using Fantome.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRChannel
     {
