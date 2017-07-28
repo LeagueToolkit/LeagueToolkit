@@ -24,5 +24,27 @@ namespace Fantome.Libraries.League.IO.BIN
                 this.Values.Add(new BINFileValue(br, this));
             }
         }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(GetSize());
+            bw.Write(this.Property);
+            bw.Write(this.Values.Count);
+            foreach(BINFileValue value in this.Values)
+            {
+                value.Write(bw);
+            }
+        }
+
+        public int GetSize()
+        {
+            int size = 0;
+            foreach(BINFileValue value in this.Values)
+            {
+                value.GetSize();
+            }
+
+            return size + 4 + 2;
+        }
     }
 }

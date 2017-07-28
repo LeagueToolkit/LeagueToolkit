@@ -40,5 +40,30 @@ namespace Fantome.Libraries.League.IO.BIN
                 }
             }
         }
+
+        public void Write(string fileLocation)
+        {
+            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            {
+                bw.Write(Encoding.ASCII.GetBytes("PROP"));
+                bw.Write((uint)2);
+                bw.Write((uint)this.LinkedFiles.Count);
+                foreach(string linkedFile in this.LinkedFiles)
+                {
+                    bw.Write((ushort)linkedFile.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(linkedFile));
+                }
+
+                bw.Write((uint)this.Entries.Count);
+                foreach(BINFileEntry entry in this.Entries)
+                {
+                    bw.Write(entry.Type);
+                }
+                foreach(BINFileEntry entry in this.Entries)
+                {
+                    entry.Write(bw);
+                }
+            }
+        }
     }
 }
