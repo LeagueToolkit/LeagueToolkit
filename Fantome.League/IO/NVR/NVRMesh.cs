@@ -21,10 +21,13 @@ namespace Fantome.Libraries.League.IO.NVR
         //Used for writing
         public int MaterialIndex;
 
-        public NVRMesh(BinaryReader br, NVRBuffers buffers)
+        public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
         {
             this.QualityLevel = (NVRMeshQuality)br.ReadInt32();
-            this.Flag = br.ReadInt32();
+            if(!readOld)
+            {
+                this.Flag = br.ReadInt32();
+            }
             this.BoundingSphere = new R3DSphere(br);
             this.BoundingBox = new R3DBox(br);
             this.Material = buffers.Materials[br.ReadInt32()];

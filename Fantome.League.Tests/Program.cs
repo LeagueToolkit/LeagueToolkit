@@ -23,7 +23,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            NVRTest();
         }
 
         static void WGEOTest()
@@ -68,13 +68,15 @@ namespace Fantome.Libraries.League.Tests
 
         static void NVRTest()
         {
-            IO.OBJ.OBJFile obj = new IO.OBJ.OBJFile("zed.obj");
+            NVRFile nve = new NVRFile("room.nvr");
 
-            var test = NVRMesh.GetGeometryFromOBJ(obj);
-            NVRMaterial mat = NVRMaterial.CreateMaterial("Zed", "zed.dds");
-            NVRFile nvr = new NVRFile("Map1/scene/roomOR.nvr");
-            nvr.AddMesh(NVRMeshQuality.VERY_LOW, mat, test.Item1, test.Item2);
-            nvr.Save("Map1/scene/room.nvr");
+            //IO.OBJ.OBJFile obj = new IO.OBJ.OBJFile("zed.obj");
+
+            //var test = NVRMesh.GetGeometryFromOBJ(obj);
+            //NVRMaterial mat = NVRMaterial.CreateMaterial("Zed", "zed.dds");
+            //NVRFile nvr = new NVRFile("Map1/scene/roomOR.nvr");
+            //nvr.AddMesh(NVRMeshQuality.VERY_LOW, mat, test.Item1, test.Item2);
+            //nvr.Save("Map1/scene/room.nvr");
             //OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
         }
 
