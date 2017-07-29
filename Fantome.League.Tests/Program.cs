@@ -16,6 +16,8 @@ using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.BIN;
+using Fantome.Libraries.League.IO.LightDat;
+using Fantome.Libraries.League.IO.LightEnvironment;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -23,7 +25,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            NVRTest();
+            LightGridTest();
         }
 
         static void WGEOTest()
@@ -87,15 +89,28 @@ namespace Fantome.Libraries.League.Tests
             particlefile.Write("ParticlesWrite.dat");
         }
 
-        static void LightGridTest()
-        {
-            LightGridFile grid = new LightGridFile("LightGrid.dat");
-        }
-
         static void BINTest()
         {
             BINFile bin = new BINFile("1A95B85AAA53A9.bin");
             bin.Write("test.bin");
+        }
+
+        static void LightDatTest()
+        {
+            LightDatFile lightdat = new LightDatFile("Light.dat");
+            lightdat.Write("LightWrite.dat");
+        }
+
+        static void LightEnvironmentTest()
+        {
+            LightEnvironmentFile lightenv = new LightEnvironmentFile("Light_env.dat");
+            lightenv.Write("Light_envWrite.dat");
+        }
+
+        static void LightGridTest()
+        {
+            LightGridFile lightgrid = new LightGridFile("LightGrid.dat");
+            lightgrid.Write("LightGridWrite.dat");
         }
     }
 }

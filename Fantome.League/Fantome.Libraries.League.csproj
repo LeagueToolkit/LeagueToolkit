@@ -66,6 +66,8 @@
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
     <Compile Include="IO\LightDat\LightDatFile.cs" />
     <Compile Include="IO\LightDat\LightDatLight.cs" />
+    <Compile Include="IO\LightEnvironment\LightEnvironmentFile.cs" />
+    <Compile Include="IO\LightEnvironment\LightEnvironmentLight.cs" />
     <Compile Include="IO\LightGrid\LightGridFile.cs" />
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MOB\MOBFile.cs" />

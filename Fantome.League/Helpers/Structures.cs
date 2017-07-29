@@ -3,7 +3,7 @@ using System.IO;
 using System.Globalization;
 using System.Diagnostics;
 
-namespace Fantome.League.Helpers.Structures
+namespace Fantome.Libraries.League.Helpers.Structures
 {
     [DebuggerDisplay("[ {X}, {Y} ]")]
     public class Vector2 : IEquatable<Vector2>
@@ -374,7 +374,6 @@ namespace Fantome.League.Helpers.Structures
         }
     }
     #endregion
-    #endregion
     #region Structures
     public class R3DBoundingBox
     {
@@ -545,7 +544,3 @@ namespace Fantome.League.Helpers.Structures
     }
     #endregion
 }
-
-namespace Fantome.Libraries.League.Helpers.Structures
-{
-    #region DataTypes
