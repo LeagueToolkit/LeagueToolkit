@@ -7,8 +7,8 @@
     <ProjectGuid>{80F5DF93-19A2-4731-8CD1-982F165D7361}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fantome.Libraries.League</RootNamespace>
-    <AssemblyName>Fantome.Libraries.League</AssemblyName>
+    <RootNamespace>Fantome.League</RootNamespace>
+    <AssemblyName>Fantome.League</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,7 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,10 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Converters\MeshGeometryConverter.cs" />
     <Compile Include="Converters\OBJConverter.cs" />
     <Compile Include="Converters\SCBConverter.cs" />
     <Compile Include="Converters\SCOConverter.cs" />
@@ -56,17 +51,10 @@
     <Compile Include="IO\AiMesh\AiMeshFace.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
-    <Compile Include="IO\BIN\BINFileEntry.cs" />
-    <Compile Include="IO\BIN\BINFileValue.cs" />
-    <Compile Include="IO\BIN\BINFileValueList.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
     <Compile Include="IO\FX\FXTimeGradient.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
-    <Compile Include="IO\LightDat\LightDatFile.cs" />
-    <Compile Include="IO\LightDat\LightDatLight.cs" />
-    <Compile Include="IO\LightGrid\LightGridFile.cs" />
-    <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MOB\MOBFile.cs" />
     <Compile Include="IO\MOB\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />

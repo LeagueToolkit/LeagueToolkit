@@ -15,6 +15,7 @@ using Fantome.Libraries.League.IO.WGT;
 using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.ParticlesDat;
 using Fantome.Libraries.League.IO.LightGrid;
+using Fantome.Libraries.League.IO.BIN;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -22,7 +23,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            LightGridTest();
+            BINTest();
         }
 
         static void WGEOTest()
@@ -86,6 +87,12 @@ namespace Fantome.Libraries.League.Tests
         static void LightGridTest()
         {
             LightGridFile grid = new LightGridFile("LightGrid.dat");
+        }
+
+        static void BINTest()
+        {
+            BINFile bin = new BINFile("1A95B85AAA53A9.bin");
+            bin.Write("test.bin");
         }
     }
 }
