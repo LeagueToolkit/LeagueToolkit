@@ -13,12 +13,12 @@ namespace Fantome.Libraries.League.IO.BIN
         public BINFileValueList(BinaryReader br, BINFileValueType type)
         {
             this.Type = type;
-            if(this.Type == BINFileValueType.LargeStaticTypeList)
+            if (this.Type == BINFileValueType.LargeStaticTypeList)
             {
                 this.EntryTypes = new BINFileValueType[] { (BINFileValueType)br.ReadByte() };
                 uint entrySize = br.ReadUInt32();
                 uint entryCount = br.ReadUInt32();
-                for(int i = 0; i < entryCount; i++)
+                for (int i = 0; i < entryCount; i++)
                 {
                     this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[0]));
                 }
@@ -42,12 +42,12 @@ namespace Fantome.Libraries.League.IO.BIN
                     this.Entries.Add(new BINFileValue(br, this));
                 }
             }
-            else if(this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.DoubleTypeList)
             {
                 this.EntryTypes = new BINFileValueType[] { (BINFileValueType)br.ReadByte(), (BINFileValueType)br.ReadByte() };
                 uint entrySize = br.ReadUInt32();
                 uint entryCount = br.ReadUInt32();
-                for(int i = 0; i < entryCount; i++)
+                for (int i = 0; i < entryCount; i++)
                 {
                     this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[0]));
                     this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[1]));
@@ -60,41 +60,77 @@ namespace Fantome.Libraries.League.IO.BIN
             if (this.Type == BINFileValueType.LargeStaticTypeList)
             {
                 bw.Write((byte)this.EntryTypes[0]);
-                bw.Write(GetSize());
+                bw.Write(GetEntriesSize());
                 bw.Write(this.Entries.Count);
+                foreach (BINFileValue value in this.Entries)
+                {
+                    value.Write(bw, false);
+                }
             }
             else if (this.Type == BINFileValueType.SmallStaticTypeList)
             {
                 bw.Write((byte)this.EntryTypes[0]);
-                bw.Write((ushort)this.Entries.Count);
+                bw.Write((byte)this.Entries.Count);
+                foreach (BINFileValue value in this.Entries)
+                {
+                    value.Write(bw, false);
+                }
             }
             else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
             {
                 bw.Write(this.Property);
-                bw.Write(GetSize());
-                bw.Write(this.Entries.Count);
+                bw.Write(GetEntriesSize());
+                bw.Write((ushort)this.Entries.Count);
+                foreach (BINFileValue value in this.Entries)
+                {
+                    value.Write(bw, true);
+                }
             }
             else if (this.Type == BINFileValueType.DoubleTypeList)
             {
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write((byte)this.EntryTypes[1]);
-                bw.Write(GetSize());
+                bw.Write(GetEntriesSize());
                 bw.Write(this.Entries.Count);
-            }
-
-            foreach (BINFileValue value in this.Entries)
-            {
-                value.Write(bw);
+                foreach (BINFileValue value in this.Entries)
+                {
+                    value.Write(bw, false);
+                }
             }
         }
 
-        public int GetSize()
+        private int GetEntriesSize()
         {
             int size = 0;
 
             if (this.Type == BINFileValueType.LargeStaticTypeList)
             {
-                size += 1 + 4 + 4;
+                size += 4;
+            }
+            else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
+            {
+                size += 2;
+            }
+            else if (this.Type == BINFileValueType.DoubleTypeList)
+            {
+                size += 4;
+            }
+
+            foreach (BINFileValue value in this.Entries)
+            {
+                size += value.GetSize();
+            }
+
+            return size;
+        }
+
+        public int GetSize()
+        {
+            int size = this.GetEntriesSize();
+
+            if (this.Type == BINFileValueType.LargeStaticTypeList)
+            {
+                size += 1 + 4;
             }
             else if (this.Type == BINFileValueType.SmallStaticTypeList)
             {
@@ -102,16 +138,11 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
             {
-                size += 4 + 4 + 2;
+                size += 4 + 4;
             }
             else if (this.Type == BINFileValueType.DoubleTypeList)
             {
-                size += 1 + 1 + 4 + 4;
-            }
-
-            foreach (BINFileValue value in this.Entries)
-            {
-                size += value.GetSize();
+                size += 1 + 1 + 4;
             }
 
             return size;

@@ -11,21 +11,24 @@ namespace Fantome.Libraries.League.IO.BIN
         public BINFileValueType? Type { get; private set; }
         public Object Value { get; private set; }
         public Object Parent { get; private set; }
+        private bool _typeRead = false;
+
         public BINFileValue(BinaryReader br, Object parent, BINFileValueType? type = null)
         {
             this.Parent = parent;
             this.Type = type;
-            if(type == null)
+            if (type == null)
             {
                 this.Property = br.ReadUInt32();
                 this.Type = (BINFileValueType)br.ReadByte();
+                this._typeRead = true;
             }
 
-            if(this.Type == BINFileValueType.String)
+            if (this.Type == BINFileValueType.String)
             {
                 this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16()));
             }
-            else if(this.Type == BINFileValueType.SmallStaticTypeList)
+            else if (this.Type == BINFileValueType.SmallStaticTypeList)
             {
                 this.Value = new BINFileValueList(br, this.Type.Value);
             }
@@ -49,11 +52,11 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadUInt32();
             }
-            else if(this.Type == BINFileValueType.UInt16)
+            else if (this.Type == BINFileValueType.UInt16)
             {
                 this.Value = br.ReadUInt16();
             }
-            else if(this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
             {
                 this.Value = br.ReadByte();
             }
@@ -81,7 +84,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             }
-            else if(this.Type == BINFileValueType.UInt16Vector3)
+            else if (this.Type == BINFileValueType.UInt16Vector3)
             {
                 this.Value = new ushort[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
             }
@@ -91,9 +94,9 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
-        public void Write(BinaryWriter bw)
+        public void Write(BinaryWriter bw, bool writeType)
         {
-            if(this.Type == null)
+            if (writeType)
             {
                 bw.Write(this.Property);
                 bw.Write((byte)this.Type);
@@ -105,10 +108,10 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((ushort)value.Length);
                 bw.Write(Encoding.ASCII.GetBytes(value));
             }
-            else if (this.Type == BINFileValueType.SmallStaticTypeList || 
-                this.Type == BINFileValueType.LargeStaticTypeList || 
-                this.Type == BINFileValueType.List || 
-                this.Type == BINFileValueType.List2 || 
+            else if (this.Type == BINFileValueType.SmallStaticTypeList ||
+                this.Type == BINFileValueType.LargeStaticTypeList ||
+                this.Type == BINFileValueType.List ||
+                this.Type == BINFileValueType.List2 ||
                 this.Type == BINFileValueType.DoubleTypeList)
             {
                 (this.Value as BINFileValueList).Write(bw);
@@ -179,7 +182,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public int GetSize()
         {
-            int size = this.Type.HasValue ? 5 : 0;
+            int size = this._typeRead ? 5 : 0;
 
             if (this.Type == BINFileValueType.SmallStaticTypeList ||
                 this.Type == BINFileValueType.LargeStaticTypeList ||
@@ -222,7 +225,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 size += 16;
             }
-            else if(this.Type == BINFileValueType.UInt16Vector3)
+            else if (this.Type == BINFileValueType.UInt16Vector3)
             {
                 size += 6;
             }
