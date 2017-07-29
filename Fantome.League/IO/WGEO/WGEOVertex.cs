@@ -4,11 +4,10 @@ using System.IO;
 
 namespace Fantome.Libraries.League.IO.WGEO
 {
-    [DebuggerDisplay("[ {Position.X}, {Position.Y}, {Position.Z} ]")]
-    public struct WGEOVertex
+    public class WGEOVertex
     {
-        public Vector3 Position;
-        public Vector2 UV;
+        public Vector3 Position { get; private set; }
+        public Vector2 UV { get; private set; }
 
         public WGEOVertex(Vector3 Position, Vector2 UV)
         {

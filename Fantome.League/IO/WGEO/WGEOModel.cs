@@ -7,7 +7,6 @@ using System.Diagnostics;
 
 namespace Fantome.Libraries.League.IO.WGEO
 {
-    [DebuggerDisplay("[ Texture: {Texture}, Material: {Material} ]")]
     public class WGEOModel
     {
         public string Texture { get; private set; }
@@ -23,6 +22,8 @@ namespace Fantome.Libraries.League.IO.WGEO
             this.Material = Material;
             this.Vertices = Vertices;
             this.Indices = Indices;
+            this.BoundingBox = CalculateBoundingBox();
+            this.Sphere = CalculateSphere();
         }
 
         public WGEOModel(BinaryReader br)
@@ -77,20 +78,20 @@ namespace Fantome.Libraries.League.IO.WGEO
 
         public R3DBox CalculateBoundingBox()
         {
-            Vector3 Min = this.Vertices[0].Position;
-            Vector3 Max = this.Vertices[0].Position;
+            Vector3 min = this.Vertices[0].Position;
+            Vector3 max = this.Vertices[0].Position;
 
             foreach (WGEOVertex Vertex in this.Vertices)
             {
-                if (Min.X > Vertex.Position.X) Min.X = Vertex.Position.X;
-                if (Min.Y > Vertex.Position.Y) Min.Y = Vertex.Position.Y;
-                if (Min.Z > Vertex.Position.Z) Min.Z = Vertex.Position.Z;
-                if (Max.X < Vertex.Position.X) Max.X = Vertex.Position.X;
-                if (Max.Y < Vertex.Position.Y) Max.Y = Vertex.Position.Y;
-                if (Max.Z < Vertex.Position.Z) Max.Z = Vertex.Position.Z;
+                if (min.X > Vertex.Position.X) min.X = Vertex.Position.X;
+                if (min.Y > Vertex.Position.Y) min.Y = Vertex.Position.Y;
+                if (min.Z > Vertex.Position.Z) min.Z = Vertex.Position.Z;
+                if (max.X < Vertex.Position.X) max.X = Vertex.Position.X;
+                if (max.Y < Vertex.Position.Y) max.Y = Vertex.Position.Y;
+                if (max.Z < Vertex.Position.Z) max.Z = Vertex.Position.Z;
             }
 
-            return new R3DBox(Min, Max);
+            return new R3DBox(min, max);
         }
 
         public R3DSphere CalculateSphere()
@@ -98,9 +99,9 @@ namespace Fantome.Libraries.League.IO.WGEO
             R3DBox box = CalculateBoundingBox();
             Vector3 centralPoint = new Vector3
                 (
-                0.5f * (BoundingBox.Max.X + BoundingBox.Min.X),
-                0.5f * (BoundingBox.Max.Y + BoundingBox.Min.Y),
-                0.5f * (BoundingBox.Max.Z + BoundingBox.Min.Z)
+                0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
+                0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
+                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z)
                 );
 
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
@@ -110,9 +111,9 @@ namespace Fantome.Libraries.League.IO.WGEO
         {
             Vector3 centralPoint = new Vector3
                 (
-                0.5f * (BoundingBox.Max.X + BoundingBox.Min.X),
-                0.5f * (BoundingBox.Max.Y + BoundingBox.Min.Y),
-                0.5f * (BoundingBox.Max.Z + BoundingBox.Min.Z)
+                0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
+                0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
+                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z)
                 );
 
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));

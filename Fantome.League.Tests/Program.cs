@@ -68,8 +68,9 @@ namespace Fantome.Libraries.League.Tests
 
         static void NVRTest()
         {
-            NVRFile nve = new NVRFile("room.nvr");
+            NVRFile nvr = new NVRFile("room.nvr");
 
+            WGEOConverter.ConvertNVR(nvr, new WGEOFile("room.wgeo").BucketGeometry).Write("roomNVR.wgeo");
             //IO.OBJ.OBJFile obj = new IO.OBJ.OBJFile("zed.obj");
 
             //var test = NVRMesh.GetGeometryFromOBJ(obj);

@@ -49,6 +49,7 @@
     <Compile Include="Converters\SCBConverter.cs" />
     <Compile Include="Converters\SCOConverter.cs" />
     <Compile Include="Converters\SKNConverter.cs" />
+    <Compile Include="Converters\WGEOConverter.cs" />
     <Compile Include="Helpers\Compression.cs" />
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
