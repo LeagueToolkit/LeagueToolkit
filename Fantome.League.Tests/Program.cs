@@ -84,7 +84,7 @@ namespace Fantome.League.Tests
         }
         static void InibinTest()
         {
-            InibinFile inibin = new InibinFile("48thSlave.inibin");
+            InibinFile inibin = new InibinFile("Amumu_Base_P_Shred_Hit.troybin");
             
         }
     }

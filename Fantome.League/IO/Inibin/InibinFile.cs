@@ -8,7 +8,6 @@ using System.Diagnostics;
 
 namespace Fantome.League.IO.Inibin
 {
-    [DebuggerDisplay("[ Version: {Version} ]")]
     public class InibinFile
     {
         public byte Version { get; private set; }
