@@ -5,7 +5,6 @@ using System.Diagnostics;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
-    #region DataTypes
     [DebuggerDisplay("[ {X}, {Y} ]")]
     public class Vector2 : IEquatable<Vector2>
     {
@@ -374,7 +373,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
             sw.Write(string.Format(format, this.B, this.G, this.R, this.A));
         }
     }
-    #endregion
     #endregion
     #region Structures
     public class R3DBoundingBox

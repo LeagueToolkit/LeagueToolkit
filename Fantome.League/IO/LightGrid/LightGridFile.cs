@@ -1,26 +1,24 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Fantome.Libraries.League.Helpers.Structures;
 
 namespace Fantome.Libraries.League.IO.LightGrid
 {
     public class LightGridFile
     {
-        public UInt32 Version { get; private set; }
-        public UInt32 Width { get; private set; }
-        public UInt32 Heigth { get; private set; }
+        public uint Version { get; private set; }
+        private uint _gridOffset;
+        public uint Width { get; private set; }
+        public uint Heigth { get; private set; }
         public LightGridSun Sun { get; private set; }
         public List<ColorRGBAVector4Byte> Grid { get; private set; } = new List<ColorRGBAVector4Byte>();
-        public LightGridFile(string location)
+
+        public LightGridFile(string fileLocation)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(location)))
+            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
             {
                 this.Version = br.ReadUInt32();
-                UInt32 GridOffset = br.ReadUInt32();
+                this._gridOffset = br.ReadUInt32();
                 this.Width = br.ReadUInt32();
                 this.Heigth = br.ReadUInt32();
                 this.Sun = new LightGridSun(br);
@@ -28,6 +26,23 @@ namespace Fantome.Libraries.League.IO.LightGrid
                 while (br.BaseStream.Position != br.BaseStream.Length)
                 {
                     this.Grid.Add(new ColorRGBAVector4Byte(br));
+                }
+            }
+        }
+
+        public void Write(string fileLocation)
+        {
+            using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation, FileMode.Create)))
+            {
+                bw.Write(this.Version);
+                bw.Write(this._gridOffset);
+                bw.Write(this.Width);
+                bw.Write(this.Heigth);
+                this.Sun.Write(bw);
+
+                foreach(ColorRGBAVector4Byte color in this.Grid)
+                {
+                    color.Write(bw);
                 }
             }
         }

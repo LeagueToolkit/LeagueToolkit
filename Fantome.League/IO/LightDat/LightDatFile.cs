@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Fantome.Libraries.League.IO.LightDat
@@ -10,15 +6,32 @@ namespace Fantome.Libraries.League.IO.LightDat
     public class LightDatFile
     {
         public List<LightDatLight> Lights { get; private set; } = new List<LightDatLight>();
-        public LightDatFile(string location)
+
+        public LightDatFile(List<LightDatLight> lights)
         {
-            using (StreamReader sr = new StreamReader(File.OpenRead(location)))
+            this.Lights = lights;
+        }
+
+        public LightDatFile(string fileLocation)
+        {
+            using (StreamReader sr = new StreamReader(fileLocation))
             {
-                while(sr.BaseStream.Position != sr.BaseStream.Length)
+                while(!sr.EndOfStream)
                 {
                     this.Lights.Add(new LightDatLight(sr));
                 }
             }        
+        }
+
+        public void Write(string fileLocation)
+        {
+            using (StreamWriter sw = new StreamWriter(fileLocation))
+            {
+                foreach(LightDatLight light in this.Lights)
+                {
+                    light.Write(sw);
+                }
+            }
         }
     }
 }
