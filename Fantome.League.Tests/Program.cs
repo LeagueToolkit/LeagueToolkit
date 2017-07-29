@@ -13,7 +13,7 @@ using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.WGT;
 using Fantome.Libraries.League.IO.NVR;
-using Fantome.Libraries.League.IO.ParticlesDat;
+using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.BIN;
 
@@ -78,9 +78,9 @@ namespace Fantome.Libraries.League.Tests
             //OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
         }
 
-        static void ParticlesDatTest()
+        static void MapParticlesTest()
         {
-            ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
+            MapParticlesFile particlefile = new MapParticlesFile("Particles.dat");
             particlefile.Write("ParticlesWrite.dat");
         }
 
