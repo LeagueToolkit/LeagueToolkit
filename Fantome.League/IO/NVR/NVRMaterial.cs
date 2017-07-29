@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRMaterial
     {
@@ -15,14 +15,34 @@ namespace Fantome.League.IO.NVR
         public NVRMaterialFlags Flags { get; private set; }
         public List<NVRChannel> Channels { get; private set; } = new List<NVRChannel>();
 
-        public NVRMaterial(BinaryReader br)
+        public NVRMaterial(BinaryReader br, bool readOld)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
             this.Type = (NVRMaterialType)br.ReadInt32();
-            this.Flags = (NVRMaterialFlags)br.ReadUInt32();
-            for (int i = 0; i < 8; i++)
+            if(readOld)
             {
-                this.Channels.Add(new NVRChannel(br));
+                ColorRGBAVector4 diffuseColor = new ColorRGBAVector4(br);
+                string diffuseName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
+                this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, new R3DMatrix44()));
+
+                ColorRGBAVector4 emmisiveColor = new ColorRGBAVector4(br);
+                string emissiveName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
+                this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, new R3DMatrix44()));
+
+                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+            }
+            else
+            {
+                this.Flags = (NVRMaterialFlags)br.ReadUInt32();
+                for (int i = 0; i < 8; i++)
+                {
+                    this.Channels.Add(new NVRChannel(br));
+                }
             }
         }
 

@@ -5,7 +5,6 @@ using System.Diagnostics;
 
 namespace Fantome.League.Helpers.Structures
 {
-    #region DataTypes
     [DebuggerDisplay("[ {X}, {Y} ]")]
     public class Vector2 : IEquatable<Vector2>
     {
@@ -546,3 +545,7 @@ namespace Fantome.League.Helpers.Structures
     }
     #endregion
 }
+
+namespace Fantome.Libraries.League.Helpers.Structures
+{
+    #region DataTypes

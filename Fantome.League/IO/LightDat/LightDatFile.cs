@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Fantome.League.IO.LightDat
+namespace Fantome.Libraries.League.IO.LightDat
 {
     public class LightDatFile
     {

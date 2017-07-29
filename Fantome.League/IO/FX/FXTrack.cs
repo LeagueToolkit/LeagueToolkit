@@ -1,10 +1,10 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.FX
+namespace Fantome.Libraries.League.IO.FX
 {
     [DebuggerDisplay("[ Flag: {Flag}, Particle: {Particle}, Bone: {Bone}, Frames: [ {StartFrame}, {EndFrame} ] ]")]
     public class FXTrack

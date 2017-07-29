@@ -1,8 +1,8 @@
-﻿using Fantome.League.IO.SCO;
-using Fantome.League.IO.SKN;
-using Fantome.League.IO.WGT;
+﻿using Fantome.Libraries.League.IO.SCO;
+using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.WGT;
 
-namespace Fantome.League.Converters
+namespace Fantome.Libraries.League.Converters
 {
     public static class SKNConverter
     {

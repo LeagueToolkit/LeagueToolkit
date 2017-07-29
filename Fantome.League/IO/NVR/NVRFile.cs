@@ -1,10 +1,10 @@
-﻿using Fantome.League.Helpers.Exceptions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRFile
     {
@@ -42,7 +42,7 @@ namespace Fantome.League.IO.NVR
             NVRBuffers buffers = new NVRBuffers();
             for (int i = 0; i < materialsCount; i++)
             {
-                buffers.Materials.Add(new NVRMaterial(br));
+                buffers.Materials.Add(new NVRMaterial(br, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
             }
             for (int i = 0; i < vertexBufferCount; i++)
             {
@@ -54,7 +54,7 @@ namespace Fantome.League.IO.NVR
             }
             for (int i = 0; i < meshesCount; i++)
             {
-                buffers.Meshes.Add(new NVRMesh(br, buffers));
+                buffers.Meshes.Add(new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
             }
             // Unused
             for (int i = 0; i < nodesCount; i++)

@@ -1,15 +1,13 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 
-namespace Fantome.League.IO.ParticlesDat
+namespace Fantome.Libraries.League.IO.MapParticles
 {
-    [DebuggerDisplay("[ {Name} ]")]
-    public class ParticlesDatParticle
+    public class MapParticlesParticle
     {
         public string Name { get; private set; }
         public Vector3 Position { get; private set; }
@@ -17,7 +15,7 @@ namespace Fantome.League.IO.ParticlesDat
         public Vector3 Rotation { get; private set; }
         public List<string> Tags { get; private set; } = new List<string>();
 
-        public ParticlesDatParticle(string Name, Vector3 Position, Int32 Quality, Vector3 Rotation, List<string> Tags)
+        public MapParticlesParticle(string Name, Vector3 Position, Int32 Quality, Vector3 Rotation, List<string> Tags)
         {
             this.Name = Name;
             this.Position = Position;
@@ -26,7 +24,7 @@ namespace Fantome.League.IO.ParticlesDat
             this.Tags = Tags;
         }
 
-        public ParticlesDatParticle(StreamReader sr)
+        public MapParticlesParticle(StreamReader sr)
         {
             string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             this.Name = input[0];

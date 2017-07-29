@@ -1,12 +1,12 @@
-﻿using Fantome.League.Helpers.Exceptions;
-using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.SCB
+namespace Fantome.Libraries.League.IO.SCB
 {
     [DebuggerDisplay("[ {Name} ]")]
     public class SCBFile

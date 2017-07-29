@@ -1,12 +1,12 @@
-﻿using Fantome.League.Helpers.Exceptions;
-using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.WGT
+namespace Fantome.Libraries.League.IO.WGT
 {
     [DebuggerDisplay("[ Version: {Version} ]")]
     public class WGTFile

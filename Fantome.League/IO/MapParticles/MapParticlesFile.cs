@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Fantome.League.IO.ParticlesDat
+namespace Fantome.Libraries.League.IO.MapParticles
 {
-    public class ParticlesDatFile
+    public class MapParticlesFile
     {
-        public List<ParticlesDatParticle> Particles { get; private set; } = new List<ParticlesDatParticle>();
+        public List<MapParticlesParticle> Particles { get; private set; } = new List<MapParticlesParticle>();
 
-        public ParticlesDatFile(string Location)
+        public MapParticlesFile(string Location)
         {
             using (StreamReader sr = new StreamReader(Location))
             {
                 while (sr.BaseStream.Position < sr.BaseStream.Length)
                 {
-                    this.Particles.Add(new ParticlesDatParticle(sr));
+                    this.Particles.Add(new MapParticlesParticle(sr));
                 }
             }
         }
@@ -22,7 +22,7 @@ namespace Fantome.League.IO.ParticlesDat
         {
             using (StreamWriter sw = new StreamWriter(Location))
             {
-                foreach (ParticlesDatParticle Particle in this.Particles)
+                foreach (MapParticlesParticle Particle in this.Particles)
                 {
                     Particle.Write(sw);
                 }

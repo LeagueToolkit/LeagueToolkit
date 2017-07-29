@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Fantome.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Exceptions;
 
-namespace Fantome.League.IO.FX
+namespace Fantome.Libraries.League.IO.FX
 {
     public class FXFile
     {

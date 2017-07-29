@@ -1,10 +1,10 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace Fantome.League.IO.OBJ
+namespace Fantome.Libraries.League.IO.OBJ
 {
     public class OBJFile
     {

@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Fantome.League.IO.WGEO;
-using Fantome.League.IO.MOB;
-using Fantome.League.IO.SKN;
-using Fantome.League.IO.FX;
-using Fantome.League.Converters;
-using Fantome.League.IO.AiMesh;
-using Fantome.League.IO.SCB;
-using Fantome.League.IO.SCO;
-using Fantome.League.IO.WGT;
-using Fantome.League.IO.NVR;
-using Fantome.League.IO.ParticlesDat;
-using Fantome.League.IO.LightGrid;
+using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.IO.MOB;
+using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.FX;
+using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.IO.AiMesh;
+using Fantome.Libraries.League.IO.SCB;
+using Fantome.Libraries.League.IO.SCO;
+using Fantome.Libraries.League.IO.WGT;
+using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.MapParticles;
+using Fantome.Libraries.League.IO.LightGrid;
+using Fantome.Libraries.League.IO.BIN;
 
-namespace Fantome.League.Tests
+namespace Fantome.Libraries.League.Tests
 {
     class Program
     {
         static void Main(string[] args)
         {
-            LightGridTest();
+            NVRTest();
         }
 
         static void WGEOTest()
@@ -67,25 +68,34 @@ namespace Fantome.League.Tests
 
         static void NVRTest()
         {
-            IO.OBJ.OBJFile obj = new IO.OBJ.OBJFile("zed.obj");
+            NVRFile nvr = new NVRFile("room.nvr");
 
-            var test = NVRMesh.GetGeometryFromOBJ(obj);
-            NVRMaterial mat = NVRMaterial.CreateMaterial("Zed", "zed.dds");
-            NVRFile nvr = new NVRFile("Map1/scene/roomOR.nvr");
-            nvr.AddMesh(NVRMeshQuality.VERY_LOW, mat, test.Item1, test.Item2);
-            nvr.Save("Map1/scene/room.nvr");
+            WGEOConverter.ConvertNVR(nvr, new WGEOFile("room.wgeo").BucketGeometry).Write("roomNVR.wgeo");
+            //IO.OBJ.OBJFile obj = new IO.OBJ.OBJFile("zed.obj");
+
+            //var test = NVRMesh.GetGeometryFromOBJ(obj);
+            //NVRMaterial mat = NVRMaterial.CreateMaterial("Zed", "zed.dds");
+            //NVRFile nvr = new NVRFile("Map1/scene/roomOR.nvr");
+            //nvr.AddMesh(NVRMeshQuality.VERY_LOW, mat, test.Item1, test.Item2);
+            //nvr.Save("Map1/scene/room.nvr");
             //OBJConverter.VisualiseNVRNodes(nvr).Write("nodes.obj");
         }
 
-        static void ParticlesDatTest()
+        static void MapParticlesTest()
         {
-            ParticlesDatFile particlefile = new ParticlesDatFile("Particles.dat");
+            MapParticlesFile particlefile = new MapParticlesFile("Particles.dat");
             particlefile.Write("ParticlesWrite.dat");
         }
 
         static void LightGridTest()
         {
             LightGridFile grid = new LightGridFile("LightGrid.dat");
+        }
+
+        static void BINTest()
+        {
+            BINFile bin = new BINFile("1A95B85AAA53A9.bin");
+            bin.Write("test.bin");
         }
     }
 }

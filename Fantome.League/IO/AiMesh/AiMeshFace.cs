@@ -1,9 +1,9 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.AiMesh
+namespace Fantome.Libraries.League.IO.AiMesh
 {
     [DebuggerDisplay("[ {Indices[0]}, {Indices[1]},  {Indices[2]} ]")]
     public class AiMeshFace

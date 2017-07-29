@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.WAD
+namespace Fantome.Libraries.League.IO.WAD
 {
     [DebuggerDisplay("[ Type: {EntryType}, Duplicated: {IsDuplicated}, {BitConverter.ToString(XXHash)}, {Name} ]")]
     public class WADEntry
