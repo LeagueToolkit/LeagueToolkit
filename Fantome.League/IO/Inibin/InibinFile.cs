@@ -92,7 +92,7 @@ namespace Fantome.League.IO.Inibin
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
-                bw.Write();
+                //bw.Write();
             }
         }
     }
