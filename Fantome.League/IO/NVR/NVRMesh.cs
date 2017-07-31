@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
-using Fantome.League.IO.OBJ;
+using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.OBJ;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRMesh
     {
@@ -21,10 +21,13 @@ namespace Fantome.League.IO.NVR
         //Used for writing
         public int MaterialIndex;
 
-        public NVRMesh(BinaryReader br, NVRBuffers buffers)
+        public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
         {
             this.QualityLevel = (NVRMeshQuality)br.ReadInt32();
-            this.Flag = br.ReadInt32();
+            if(!readOld)
+            {
+                this.Flag = br.ReadInt32();
+            }
             this.BoundingSphere = new R3DSphere(br);
             this.BoundingBox = new R3DBox(br);
             this.Material = buffers.Materials[br.ReadInt32()];

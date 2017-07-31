@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using Fantome.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Exceptions;
 using System.Diagnostics;
 
-namespace Fantome.League.IO.AiMesh
+namespace Fantome.Libraries.League.IO.AiMesh
 {
     [DebuggerDisplay("[ Version: {Version}]")]
     public class AiMeshFile

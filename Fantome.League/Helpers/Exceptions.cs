@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fantome.League.Helpers.Exceptions
+namespace Fantome.Libraries.League.Helpers.Exceptions
 {
     public class InvalidFileMagicException : Exception
     {
