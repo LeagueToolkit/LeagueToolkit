@@ -18,6 +18,7 @@ using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
+using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.Inibin;
 
 namespace Fantome.Libraries.League.Tests
@@ -26,7 +27,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            InibinTest();
+            MaterialLibraryTest();
         }
 
         static void WGEOTest()
@@ -114,6 +115,12 @@ namespace Fantome.Libraries.League.Tests
             lightgrid.Write("LightGridWrite.dat");
         }
 
+        static void MaterialLibraryTest()
+        {
+            MaterialLibraryFile materialLibrary = new MaterialLibraryFile("room.mat");
+            materialLibrary.Write("kek.txt");
+        }
+      
         static void InibinTest()
         {
             InibinFile inibin = new InibinFile("kek.troybin");

@@ -72,6 +72,8 @@
     <Compile Include="IO\LightEnvironment\LightEnvironmentLight.cs" />
     <Compile Include="IO\LightGrid\LightGridFile.cs" />
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
+    <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
+    <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
     <Compile Include="IO\MOB\MOBFile.cs" />
     <Compile Include="IO\MOB\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
