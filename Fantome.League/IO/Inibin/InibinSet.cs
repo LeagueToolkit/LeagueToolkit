@@ -5,14 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
-using Fantome.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures;
+using System.Collections;
 
-namespace Fantome.League.IO.Inibin
+namespace Fantome.Libraries.League.IO.Inibin
 {
     public class InibinSet
     {
         public InibinFlags Type { get; private set; }
         public Dictionary<uint, object> Properties { get; private set; } = new Dictionary<uint, object>();
+
         public InibinSet(BinaryReader br, InibinFlags type)
         {
             this.Type = type;
@@ -80,33 +82,154 @@ namespace Fantome.League.IO.Inibin
                 }
             }
         }
+
         public InibinSet(BinaryReader br, InibinFlags type, uint stringOffset, uint? valueCount = null)
         {
             this.Type = type;
-            if(valueCount == null)
+            List<uint> hashes = new List<uint>();
+            if (valueCount == null)
             {
                 valueCount = br.ReadUInt16();
+
+                for (int i = 0; i < valueCount; i++)
+                {
+                    uint hash = br.ReadUInt32();
+                    this.Properties.Add(hash, null);
+                    hashes.Add(hash);
+                }
             }
-            List<uint> Hashes = new List<uint>();
 
             for (int i = 0; i < valueCount; i++)
             {
-                uint hash = br.ReadUInt32();
-                this.Properties.Add(hash, null);
-                Hashes.Add(hash);
-
-                uint offset = br.ReadUInt32();
+                uint offset = br.ReadUInt16();
                 long oldPos = br.BaseStream.Position;
                 br.BaseStream.Seek(offset + stringOffset, SeekOrigin.Begin);
                 string s = "";
-                char c = (char)0xff;
-                while (c != '\u0000')
+                char c;
+                while ((c = br.ReadChar()) != '\u0000')
                 {
-                    c = br.ReadChar();
                     s += c;
                 }
-                this.Properties[Hashes[i]] = s;
+                this.Properties[hashes[i]] = s;
                 br.BaseStream.Seek(oldPos, SeekOrigin.Begin);
+            }
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write((ushort)this.Properties.Count);
+
+            foreach(uint hash in this.Properties.Keys)
+            {
+                bw.Write(hash);
+            }
+
+            if(this.Type == InibinFlags.BitList)
+            {
+                bool[] booleans = this.Properties.Values.Cast<bool>().ToArray();
+                byte value = 0;
+                for(int i = 0, j = 0; i < this.Properties.Count; i++)
+                {
+                    if(booleans[i])
+                    {
+                        value |= (byte)(1 << j);
+                    }
+                    j++;
+
+                    if(j == 8)
+                    {
+                        bw.Write(value);
+                        j = value = 0;
+                    }
+                }
+            }
+            else if(this.Type == InibinFlags.StringList)
+            {
+                ushort offset = 0;
+                foreach(string value in this.Properties.Values)
+                {
+                    bw.Write(offset);
+                    offset += (ushort)(value.Length + 1);
+                }
+                foreach (string value in this.Properties.Values)
+                {
+                    bw.Write(Encoding.ASCII.GetBytes(value));
+                    bw.Write((byte)0);
+                }
+            }
+            else
+            {
+                foreach(object value in this.Properties.Values)
+                {
+                    if (this.Type == InibinFlags.Int32List)
+                    {
+                        bw.Write((int)value);
+                    }
+                    else if (this.Type == InibinFlags.Float32List)
+                    {
+                        bw.Write((float)value);
+                    }
+                    else if (this.Type == InibinFlags.FixedPointFloatList)
+                    {
+                        bw.Write(Convert.ToByte((double)value * 10));
+                    }
+                    else if (this.Type == InibinFlags.Int16List)
+                    {
+                        bw.Write((short)value);
+                    }
+                    else if (this.Type == InibinFlags.Int8List)
+                    {
+                        bw.Write((byte)value);
+                    }
+                    else if (this.Type == InibinFlags.FixedPointFloatListVec3)
+                    {
+                        byte[] valueList = (byte[])value;
+
+                        bw.Write(valueList[0]);
+                        bw.Write(valueList[1]);
+                        bw.Write(valueList[2]);
+                    }
+                    else if (this.Type == InibinFlags.Float32ListVec3)
+                    {
+                        float[] valueList = (float[])value;
+
+                        bw.Write(valueList[0]);
+                        bw.Write(valueList[1]);
+                        bw.Write(valueList[2]);
+                    }
+                    else if (this.Type == InibinFlags.FixedPointFloatListVec2)
+                    {
+                        byte[] valueList = (byte[])value;
+
+                        bw.Write(valueList[0]);
+                        bw.Write(valueList[1]);
+                    }
+                    else if (this.Type == InibinFlags.Float32ListVec2)
+                    {
+                        float[] valueList = (float[])value;
+
+                        bw.Write(valueList[0]);
+                        bw.Write(valueList[1]);
+                    }
+                    else if (this.Type == InibinFlags.FixedPointFloatListVec4)
+                    {
+                        byte[] valueList = (byte[])value;
+
+                        bw.Write(valueList[0]);
+                        bw.Write(valueList[1]);
+                        bw.Write(valueList[2]);
+                        bw.Write(valueList[3]);
+                    }
+                    else if (this.Type == InibinFlags.Float32ListVec4)
+                    {
+                        float[] valueList = (float[])value;
+
+                        bw.Write(valueList[0]);
+                        bw.Write(valueList[1]);
+                        bw.Write(valueList[2]);
+                        bw.Write(valueList[3]);
+                    }
+                }
             }
         }
     }

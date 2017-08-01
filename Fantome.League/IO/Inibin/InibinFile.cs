@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 
-namespace Fantome.League.IO.Inibin
+namespace Fantome.Libraries.League.IO.Inibin
 {
     public class InibinFile
     {
@@ -92,13 +92,82 @@ namespace Fantome.League.IO.Inibin
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
-                //bw.Write();
+                ushort stringDataLength = 0;
+                InibinFlags flags = 0;
+
+                foreach(string dataString in this.Sets.Find(x => x.Type == InibinFlags.StringList).Properties.Values)
+                {
+                    stringDataLength += (ushort)(dataString.Length + 1);
+                }
+
+                if (this.Sets.Exists(x => x.Type == InibinFlags.BitList))
+                {
+                    flags |= InibinFlags.BitList;
+                }
+                if(this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatList))
+                {
+                    flags |= InibinFlags.FixedPointFloatList;
+                }
+                if(this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec2))
+                {
+                    flags |= InibinFlags.FixedPointFloatListVec2;
+                }
+                if(this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec3))
+                {
+                    flags |= InibinFlags.FixedPointFloatListVec3;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec4))
+                {
+                    flags |= InibinFlags.FixedPointFloatListVec4;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Float32List))
+                {
+                    flags |= InibinFlags.Float32List;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Float32ListVec2))
+                {
+                    flags |= InibinFlags.Float32ListVec2;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Float32ListVec3))
+                {
+                    flags |= InibinFlags.Float32ListVec3;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Float32ListVec4))
+                {
+                    flags |= InibinFlags.Float32ListVec4;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Int16List))
+                {
+                    flags |= InibinFlags.Int16List;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Int32List))
+                {
+                    flags |= InibinFlags.Int32List;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.Int8List))
+                {
+                    flags |= InibinFlags.Int8List;
+                }
+                if (this.Sets.Exists(x => x.Type == InibinFlags.StringList))
+                {
+                    flags |= InibinFlags.StringList;
+                }
+
+
+                bw.Write((byte)2);
+                bw.Write(stringDataLength);
+                bw.Write((ushort)flags);
+
+                foreach(InibinSet set in this.Sets)
+                {
+                    set.Write(bw);
+                }
             }
         }
     }
 
     [Flags]
-    public enum InibinFlags : UInt16
+    public enum InibinFlags : ushort
     {
         Int32List = 1,
         Float32List = 1 << 1,
