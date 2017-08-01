@@ -163,6 +163,31 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
     }
 
+    [DebuggerDisplay("[ {X}, {Y} ]")]
+    public class Vector2Byte
+    {
+        public byte X;
+        public byte Y;
+
+        public Vector2Byte(byte X, byte Y)
+        {
+            this.X = X;
+            this.Y = Y;
+        }
+
+        public Vector2Byte(BinaryReader br)
+        {
+            this.X = br.ReadByte();
+            this.Y = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.X);
+            bw.Write(this.Y);
+        }
+    }
+
     [DebuggerDisplay("[ {X}, {Y}, {Z} ]")]
     public class Vector3Byte
     {
