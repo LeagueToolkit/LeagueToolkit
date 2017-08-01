@@ -24,90 +24,87 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
 
         public MaterialLibraryMaterial(StreamReader sr)
         {
-            if (sr.ReadLine() == "[MaterialBegin]")
+            string[] line;
+            while ((line = sr.ReadLine().Split(new char[] { ' ', '=' }, StringSplitOptions.RemoveEmptyEntries))[0] != "[MaterialEnd]")
             {
-                string[] line;
-                while ((line = sr.ReadLine().Split(new char[] { ' ', '='}, StringSplitOptions.RemoveEmptyEntries))[0] != "[MaterialEnd]")
+                if (line[0] == "Name")
                 {
-                    if (line[0] == "Name")
+                    this.Name = line[1];
+                }
+                else if (line[0] == "Flags")
+                {
+                    if (line.Contains("addop"))
                     {
-                        this.Name = line[1];
+                        this.Flags |= MaterialFlags.AddOp;
                     }
-                    else if (line[0] == "Flags")
+                    if (line.Contains("subop"))
                     {
-                        if (line.Contains("addop"))
-                        {
-                            this.Flags |= MaterialFlags.AddOp;
-                        }
-                        if (line.Contains("subop"))
-                        {
-                            this.Flags |= MaterialFlags.SubOp;
-                        }
-                        if (line.Contains("alphaop"))
-                        {
-                            this.Flags |= MaterialFlags.AlphaOp;
-                        }
-                        if (line.Contains("uvclamp"))
-                        {
-                            this.Flags |= MaterialFlags.UVClamp;
-                        }
-                        if (line.Contains("texture_gouraud_"))
-                        {
-                            this.Flags |= MaterialFlags.GroundTexture;
-                        }
+                        this.Flags |= MaterialFlags.SubOp;
                     }
-                    else if (line[0] == "EmissiveColor")
+                    if (line.Contains("alphaop"))
                     {
-                        int r = int.Parse(line[1]);
-                        int g = int.Parse(line[2]);
-                        int b = int.Parse(line[3]);
-                        this.EmissiveColor = new ColorRGBVector3Byte
-                            (
-                            (r == int.MinValue) ? (byte)~r : (byte)r,
-                            (g == int.MinValue) ? (byte)~g : (byte)g,
-                            (b == int.MinValue) ? (byte)~b : (byte)b
-                            );
+                        this.Flags |= MaterialFlags.AlphaOp;
                     }
-                    else if (line[0] == "UVScroll")
+                    if (line.Contains("uvclamp"))
                     {
-                        this.UVScroll = new float[] 
-                        {
+                        this.Flags |= MaterialFlags.UVClamp;
+                    }
+                    if (line.Contains("texture_gouraud_"))
+                    {
+                        this.Flags |= MaterialFlags.GroundTexture;
+                    }
+                }
+                else if (line[0] == "EmissiveColor")
+                {
+                    int r = int.Parse(line[1]);
+                    int g = int.Parse(line[2]);
+                    int b = int.Parse(line[3]);
+                    this.EmissiveColor = new ColorRGBVector3Byte
+                        (
+                        (r == int.MinValue) ? (byte)~r : (byte)r,
+                        (g == int.MinValue) ? (byte)~g : (byte)g,
+                        (b == int.MinValue) ? (byte)~b : (byte)b
+                        );
+                }
+                else if (line[0] == "UVScroll")
+                {
+                    this.UVScroll = new float[]
+                    {
                             float.Parse(line[1], CultureInfo.InvariantCulture),
                             float.Parse(line[2], CultureInfo.InvariantCulture)
-                        };
-                    }
-                    else if (line[0] == "DisableBackfaceCulling")
-                    {
-                        this.IsBackfaceCullingDisabled = (line[1] == "1");
-                    }
-                    else if (line[0] == "ShaderName")
-                    {
-                        this.ShaderName = line[1];
-                    }
-                    else if (line[0] == "IsSimpleShader")
-                    {
-                        this.IsSimpleShader = (line[1] == "1");
-                    }
-                    else if (line[0] == "Opacity")
-                    {
-                        this.Opacity = byte.Parse(line[1]);
-                    }
-                    else if (line[0] == "Texture")
-                    {
-                        this.Texture = line[1];
-                    }
-                    else if (line[0] == "Color24")
-                    {
-                        int r = int.Parse(line[1]);
-                        int g = int.Parse(line[2]);
-                        int b = int.Parse(line[3]);
-                        this.Color = new ColorRGBVector3Byte
-                            (
-                            (r == int.MinValue) ? (byte)~r : (byte)r,
-                            (g == int.MinValue) ? (byte)~g : (byte)g,
-                            (b == int.MinValue) ? (byte)~b : (byte)b
-                            );
-                    }
+                    };
+                }
+                else if (line[0] == "DisableBackfaceCulling")
+                {
+                    this.IsBackfaceCullingDisabled = (line[1] == "1");
+                }
+                else if (line[0] == "ShaderName")
+                {
+                    this.ShaderName = line[1];
+                }
+                else if (line[0] == "IsSimpleShader")
+                {
+                    this.IsSimpleShader = (line[1] == "1");
+                }
+                else if (line[0] == "Opacity")
+                {
+                    this.Opacity = byte.Parse(line[1]);
+                }
+                else if (line[0] == "Texture")
+                {
+                    this.Texture = line[1];
+                }
+                else if (line[0] == "Color24")
+                {
+                    int r = int.Parse(line[1]);
+                    int g = int.Parse(line[2]);
+                    int b = int.Parse(line[3]);
+                    this.Color = new ColorRGBVector3Byte
+                        (
+                        (r == int.MinValue) ? (byte)~r : (byte)r,
+                        (g == int.MinValue) ? (byte)~g : (byte)g,
+                        (b == int.MinValue) ? (byte)~b : (byte)b
+                        );
                 }
             }
         }
@@ -119,15 +116,15 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
             {
                 flags += "texture_gouraud_ ";
             }
-            if(this.Flags.HasFlag(MaterialFlags.AddOp))
+            if (this.Flags.HasFlag(MaterialFlags.AddOp))
             {
                 flags += "addop ";
             }
-            if(this.Flags.HasFlag(MaterialFlags.SubOp))
+            if (this.Flags.HasFlag(MaterialFlags.SubOp))
             {
                 flags += "subop";
             }
-            if(this.Flags.HasFlag(MaterialFlags.AlphaOp))
+            if (this.Flags.HasFlag(MaterialFlags.AlphaOp))
             {
                 flags += "alphaop";
             }
@@ -145,7 +142,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
             sw.WriteLine("ShaderName = " + this.ShaderName);
             sw.WriteLine("SimpleShader = " + (this.IsSimpleShader == true ? "1" : "0"));
             sw.WriteLine("Opacity= " + this.Opacity);
-            if(this.Texture != "")
+            if (this.Texture != "")
             {
                 sw.WriteLine("Texture= " + this.Texture);
             }

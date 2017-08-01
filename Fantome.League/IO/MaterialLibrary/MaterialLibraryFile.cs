@@ -12,15 +12,12 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
         {
             using (StreamReader sr = new StreamReader(fileLocation))
             {
-                if(sr.ReadLine() != "[MaterialBegin]")
+                while (!sr.EndOfStream)
                 {
-                    throw new Exception("Not a valid Material Library file");
-                }
-                sr.BaseStream.Seek(0, SeekOrigin.Begin);
-
-                while(!sr.EndOfStream)
-                {
-                    this.Materials.Add(new MaterialLibraryMaterial(sr));
+                    if (sr.ReadLine() == "[MaterialBegin]")
+                    {
+                        this.Materials.Add(new MaterialLibraryMaterial(sr));
+                    }
                 }
             }
         }
@@ -29,7 +26,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
         {
             using (StreamWriter sw = new StreamWriter(fileLocation))
             {
-                foreach(MaterialLibraryMaterial material in this.Materials)
+                foreach (MaterialLibraryMaterial material in this.Materials)
                 {
                     material.Write(sw);
                     sw.WriteLine();
