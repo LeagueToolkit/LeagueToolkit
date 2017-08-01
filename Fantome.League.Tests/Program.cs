@@ -117,6 +117,7 @@ namespace Fantome.Libraries.League.Tests
         static void MaterialLibraryTest()
         {
             MaterialLibraryFile materialLibrary = new MaterialLibraryFile("room.mat");
+            materialLibrary.Write("kek.txt");
         }
     }
 }

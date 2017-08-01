@@ -82,7 +82,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
                 {
                     this.ShaderName = line[1];
                 }
-                else if (line[0] == "IsSimpleShader")
+                else if (line[0] == "SimpleShader")
                 {
                     this.IsSimpleShader = (line[1] == "1");
                 }
@@ -142,7 +142,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
             sw.WriteLine("ShaderName = " + this.ShaderName);
             sw.WriteLine("SimpleShader = " + (this.IsSimpleShader == true ? "1" : "0"));
             sw.WriteLine("Opacity= " + this.Opacity);
-            if (this.Texture != "")
+            if (this.Texture != null)
             {
                 sw.WriteLine("Texture= " + this.Texture);
             }
