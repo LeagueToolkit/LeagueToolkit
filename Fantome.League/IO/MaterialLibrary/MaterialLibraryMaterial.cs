@@ -22,6 +22,35 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
         public string Texture { get; private set; }
         public ColorRGBVector3Byte Color { get; private set; }
 
+        public MaterialLibraryMaterial(string name, MaterialFlags flags, ColorRGBVector3Byte emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
+            string shaderName, bool isSimpleShader, byte opacity, ColorRGBVector3Byte color)
+        {
+            this.Name = name;
+            this.Flags = flags;
+            this.EmissiveColor = emissiveColor;
+            this.UVScroll = uvScroll;
+            this.IsBackfaceCullingDisabled = isBackfaceCullingDisabled;
+            this.ShaderName = shaderName;
+            this.IsSimpleShader = isSimpleShader;
+            this.Opacity = opacity;
+            this.Color = color;
+        }
+
+        public MaterialLibraryMaterial(string name, MaterialFlags flags, ColorRGBVector3Byte emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
+            string shaderName, bool isSimpleShader, byte opacity, ColorRGBVector3Byte color, string texture)
+        {
+            this.Name = name;
+            this.Flags = flags;
+            this.EmissiveColor = emissiveColor;
+            this.UVScroll = uvScroll;
+            this.IsBackfaceCullingDisabled = isBackfaceCullingDisabled;
+            this.ShaderName = shaderName;
+            this.IsSimpleShader = isSimpleShader;
+            this.Opacity = opacity;
+            this.Texture = texture;
+            this.Color = color;
+        }
+
         public MaterialLibraryMaterial(StreamReader sr)
         {
             string[] line;

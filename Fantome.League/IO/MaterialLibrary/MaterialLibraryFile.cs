@@ -8,6 +8,8 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
     {
         public List<MaterialLibraryMaterial> Materials = new List<MaterialLibraryMaterial>();
 
+        public MaterialLibraryFile() { }
+
         public MaterialLibraryFile(string fileLocation)
         {
             using (StreamReader sr = new StreamReader(fileLocation))
