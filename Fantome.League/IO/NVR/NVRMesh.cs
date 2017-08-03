@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.OBJ;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRMesh
     {
-        public NVRNode ParentNode { get; set; }
         public NVRMeshQuality QualityLevel { get; set; }
         public int Flag { get; private set; }
         public R3DSphere BoundingSphere { get; private set; }
@@ -21,10 +21,13 @@ namespace Fantome.League.IO.NVR
         //Used for writing
         public int MaterialIndex;
 
-        public NVRMesh(BinaryReader br, NVRBuffers buffers)
+        public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
         {
             this.QualityLevel = (NVRMeshQuality)br.ReadInt32();
-            this.Flag = br.ReadInt32();
+            if(!readOld)
+            {
+                this.Flag = br.ReadInt32();
+            }
             this.BoundingSphere = new R3DSphere(br);
             this.BoundingBox = new R3DBox(br);
             this.Material = buffers.Materials[br.ReadInt32()];
@@ -70,11 +73,92 @@ namespace Fantome.League.IO.NVR
             this.IndexedPrimitives[0].Write(bw);
             this.IndexedPrimitives[1].Write(bw);
         }
+
+        public static Tuple<List<NVRVertex>, List<int>> GetGeometryFromOBJ(OBJFile objFile)
+        {
+            List<NVRVertex> vertices = new List<NVRVertex>();
+            List<int> indices = new List<int>();
+
+            // We first add all the vertices in a list.
+            List<NVRVertex> objVertices = new List<NVRVertex>();
+            foreach (Vector3 position in objFile.Vertices)
+            {
+                objVertices.Add(new NVRVertex8(position));
+            }
+            foreach (OBJFace face in objFile.Faces)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    NVRVertex8 position = (NVRVertex8)objVertices[face.VertexIndices[i]];
+                    Vector2 UV = new Vector2(0, 0);
+                    if (objFile.UVs.Count > 0)
+                    {
+                        UV = objFile.UVs[face.UVIndices[i]];
+                    }
+                    Vector3 normal = new Vector3(0, 0, 0);
+                    if (objFile.Normals.Count > 0)
+                    {
+                        normal = objFile.Normals[face.NormalIndices[i]];
+                    }
+
+                    if ((position.UV != null && position.Normal != null) && (!position.UV.Equals(UV) || !position.Normal.Equals(normal)))
+                    {
+                        // Needs to replicate
+                        position = new NVRVertex8(position.Position);
+                    }
+                    position.UV = UV;
+                    position.Normal = normal;
+                    position.DiffuseColor = new ColorBGRAVector4Byte(0, 0, 0, 255);
+                    position.EmissiveColor = new ColorBGRAVector4Byte(127, 127, 127, 255);
+
+                    int vertexIndex = vertices.IndexOf(position);
+                    if (vertexIndex == -1)
+                    {
+                        vertexIndex = vertices.Count;
+                        vertices.Add(position);
+                    }
+                    indices.Add(vertexIndex);
+                }
+            }
+
+            //for (int i = 0; i < indices.Count; i += 3)
+            //{
+            //    NVRVertex8 v1 = (NVRVertex8)vertices[indices[i]];
+            //    NVRVertex8 v2 = (NVRVertex8)vertices[indices[i + 1]];
+            //    NVRVertex8 v3 = (NVRVertex8)vertices[indices[i + 2]];
+            //    Vector3 faceNormal = CalcNormal(v1.Position, v2.Position, v3.Position);
+            //    v1.Normal = v1.Normal + faceNormal;
+            //    v2.Normal = v2.Normal + faceNormal;
+            //    v3.Normal = v3.Normal + faceNormal;
+            //}
+            //foreach (NVRVertex8 vert in vertices)
+            //{
+            //    float length = (float)Math.Sqrt(Math.Pow(vert.Normal.X, 2) + Math.Pow(vert.Normal.Y, 2) + Math.Pow(vert.Normal.Z, 2));
+            //    vert.Normal.X = vert.Normal.X / length;
+            //    vert.Normal.Y = vert.Normal.Y / length;
+            //    vert.Normal.Z = vert.Normal.Z / length;
+            //}
+
+            return new Tuple<List<NVRVertex>, List<int>>(vertices, indices);
+        }
+
+        private static Vector3 CalcNormal(Vector3 v1, Vector3 v2, Vector3 v3)
+        {
+            // Calculate two vectors from the three points
+            Vector3 vector1 = new Vector3(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+            Vector3 vector2 = new Vector3(v2.X - v3.X, v2.Y - v3.Y, v2.Z - v3.Z);
+
+            // Take the cross product of the two vectors to get
+            // the normal vector which will be stored in out
+            Vector3 norm = new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
+            return norm;
+        }
     }
 
     public enum NVRMeshQuality : int
     {
         VERY_LOW = -100,
+        // -1 should mean something
         LOW = 0,
         MEDIUM = 1,
         HIGH = 2,

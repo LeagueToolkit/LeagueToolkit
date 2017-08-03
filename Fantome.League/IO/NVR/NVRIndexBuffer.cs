@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRIndexBuffer
     {
@@ -70,8 +70,13 @@ namespace Fantome.League.IO.NVR
             }
             else
             {
-                throw new Exception("Unsupported D3DFORMAT : " + this.Format.ToString());
+                throw new UnsupportedD3DFORMATException(this.Format);
             }
         }
+    }
+
+    public class UnsupportedD3DFORMATException : Exception
+    {
+        public UnsupportedD3DFORMATException(D3DFORMAT actual) : base(String.Format("This D3DFORMAT ({0}) is not supported.", actual)) { }
     }
 }

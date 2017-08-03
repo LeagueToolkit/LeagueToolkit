@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.FX
+namespace Fantome.Libraries.League.IO.FX
 {
+    [DebuggerDisplay("[ Type: {Type} ]")]
     public class FXTimeGradient
     {
         public Int32 Type { get; private set; }
@@ -29,7 +31,7 @@ namespace Fantome.League.IO.FX
                 Value.Write(bw);
             }
         }
-
+        [DebuggerDisplay("[ {Time}, [ {Values[0]}, {Values[1]}, {Values[2]}, {Values[3]} ] ]")]
         public struct Value
         {
             public float Time;

@@ -1,13 +1,16 @@
-﻿using Fantome.League.Helpers.Exceptions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.MOB
+namespace Fantome.Libraries.League.IO.MOB
 {
+    [DebuggerDisplay("[ Version: {Version} ]")]
     public class MOBFile
     {
+        public UInt32 Version { get; private set; }
         public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
 
         public MOBFile(string Location)
@@ -18,8 +21,8 @@ namespace Fantome.League.IO.MOB
                 if (Magic != "OPAM")
                     throw new InvalidFileMagicException();
 
-                UInt32 Version = br.ReadUInt32();
-                if (Version != 2)
+                this.Version = br.ReadUInt32();
+                if (this.Version != 2)
                     throw new UnsupportedFileVersionException();
 
                 UInt32 ObjectCount = br.ReadUInt32();

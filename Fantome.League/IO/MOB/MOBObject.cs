@@ -1,10 +1,12 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.MOB
+namespace Fantome.Libraries.League.IO.MOB
 {
+    [DebuggerDisplay("[ Type: {Type}, {Name} ]")]
     public class MOBObject
     {
         public string Name { get; private set; }
@@ -14,6 +16,17 @@ namespace Fantome.League.IO.MOB
         public Vector3 Scale { get; private set; }
         public Vector3 HealthbarPosition { get; private set; }
         private Vector3 Unknown { get; set; }
+
+        public MOBObject(string Name, ObjectType Type, Vector3 Position, Vector3 Rotation, Vector3 Scale, Vector3 HealthbarPosition, Vector3 Unknown)
+        {
+            this.Name = Name;
+            this.Type = Type;
+            this.Position = Position;
+            this.Rotation = Rotation;
+            this.Scale = Scale;
+            this.HealthbarPosition = HealthbarPosition;
+            this.Unknown = Unknown;
+        }
 
         public MOBObject(BinaryReader br)
         {

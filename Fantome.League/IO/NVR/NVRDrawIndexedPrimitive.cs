@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRDrawIndexedPrimitive
     {
         public NVRMesh Parent;
-        public NVRVertexType vertexType { get; private set; }
+        public NVRVertexType VertexType { get; private set; }
         public List<NVRVertex> Vertices { get; private set; } = new List<NVRVertex>();
         public List<int> Indices { get; private set; } = new List<int>();
 
@@ -35,37 +35,21 @@ namespace Fantome.League.IO.NVR
             int vertexSize = 12;
             if (isComplex)
             {
-                NVRMaterial meshMaterial = mesh.Material;
-                if (meshMaterial.Type == NVRMaterialType.MATERIAL_TYPE_DEFAULT)
+                this.VertexType = NVRVertex.GetVertexTypeFromMaterial(mesh.Material);
+                switch (VertexType)
                 {
-                    if (meshMaterial.Flags.HasFlag(NVRMaterialFlags.ColoredVertex) || meshMaterial.Flags.HasFlag(NVRMaterialFlags.GroundVertex))
-                    {
-                        if (meshMaterial.Flags.HasFlag(NVRMaterialFlags.GroundVertex) && ContainsGroundKeyword(meshMaterial.Channels[0].Name))
-                        {
-                            vertexType = NVRVertexType.NVRVERTEX_GROUND_8;
-                            vertexSize = 40;
-                        }
-                        else
-                        {
-                            vertexType = NVRVertexType.NVRVERTEX_8;
-                            vertexSize = 40;
-                        }
-                    }
-                    else
-                    {
-                        vertexType = NVRVertexType.NVRVERTEX_4;
-                        vertexSize = 36;
-                    }
-                }
-                else if (meshMaterial.Type == NVRMaterialType.MATERIAL_TYPE_FOUR_BLEND)
-                {
-                    vertexType = NVRVertexType.NVRVERTEX_12;
-                    vertexSize = 44;
-                }
-                else
-                {
-                    vertexType = NVRVertexType.NVRVERTEX_4;
-                    vertexSize = 36;
+                    case NVRVertexType.NVRVERTEX_4:
+                        vertexSize = NVRVertex4.Size;
+                        break;
+                    case NVRVertexType.NVRVERTEX_8:
+                        vertexSize = NVRVertex8.Size;
+                        break;
+                    case NVRVertexType.NVRVERTEX_GROUND_8:
+                        vertexSize = NVRVertexGround8.Size;
+                        break;
+                    case NVRVertexType.NVRVERTEX_12:
+                        vertexSize = NVRVertex12.Size;
+                        break;
                 }
             }
 
@@ -74,7 +58,7 @@ namespace Fantome.League.IO.NVR
             for (int i = 0; i < VertexCount; i++)
             {
                 NVRVertex newVertex;
-                switch (vertexType)
+                switch (VertexType)
                 {
                     case NVRVertexType.NVRVERTEX_4:
                         newVertex = new NVRVertex4(br);
@@ -121,9 +105,19 @@ namespace Fantome.League.IO.NVR
             if (complex)
             {
                 this.Vertices.AddRange(vertices);
+                if (vertices.Count > 0)
+                {
+                    this.VertexType = vertices[0].GetVertexType();
+                    NVRVertexType expectedType = NVRVertex.GetVertexTypeFromMaterial(mesh.Material);
+                    if (expectedType != this.VertexType)
+                    {
+                        throw new InvalidVertexTypeException(mesh.Material.Type, expectedType);
+                    }
+                }
             }
             else
             {
+                this.VertexType = NVRVertexType.NVRVERTEX;
                 // Conversion to simple vertex
                 foreach (NVRVertex vertex in vertices)
                 {
@@ -145,11 +139,6 @@ namespace Fantome.League.IO.NVR
             return min;
         }
 
-        public static bool ContainsGroundKeyword(string texture)
-        {
-            return texture.Contains("_floor") || texture.Contains("_dirt") || texture.Contains("grass") || texture.Contains("RiverBed") || texture.Contains("_project") || texture.Contains("tile_");
-        }
-
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.VertexBuffer);
@@ -159,5 +148,10 @@ namespace Fantome.League.IO.NVR
             bw.Write(this.FirstIndex);
             bw.Write(this.IndexCount);
         }
+    }
+
+    public class InvalidVertexTypeException : Exception
+    {
+        public InvalidVertexTypeException(NVRMaterialType matType, NVRVertexType expected) : base(String.Format("Invalid vertex type for the specified material ({0}), expected type: {1}.", matType, expected)) { }
     }
 }

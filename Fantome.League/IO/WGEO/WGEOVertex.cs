@@ -1,12 +1,13 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.WGEO
+namespace Fantome.Libraries.League.IO.WGEO
 {
-    public struct WGEOVertex
+    public class WGEOVertex
     {
-        public Vector3 Position;
-        public Vector2 UV;
+        public Vector3 Position { get; private set; }
+        public Vector2 UV { get; private set; }
 
         public WGEOVertex(Vector3 Position, Vector2 UV)
         {

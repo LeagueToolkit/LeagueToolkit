@@ -1,18 +1,16 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using Fantome.League.Helpers.Structures;
+using System.Text;
 
-namespace Fantome.League.IO.NVR
+namespace Fantome.Libraries.League.IO.NVR
 {
     public class NVRFile
     {
         public short MajorVersion { get; private set; }
         public short MinorVersion { get; private set; }
-        public NVRNode Geometry { get; private set; }
+        public List<NVRMesh> Meshes { get; private set; }
 
         public NVRFile(string fileLocation)
         {
@@ -28,7 +26,7 @@ namespace Fantome.League.IO.NVR
             string magic = ASCIIEncoding.ASCII.GetString(br.ReadBytes(4));
             if (magic != "NVR\0")
             {
-                throw new Exception("Invalid NVR file");
+                throw new InvalidFileMagicException();
             }
             this.MajorVersion = br.ReadInt16();
             this.MinorVersion = br.ReadInt16();
@@ -44,7 +42,7 @@ namespace Fantome.League.IO.NVR
             NVRBuffers buffers = new NVRBuffers();
             for (int i = 0; i < materialsCount; i++)
             {
-                buffers.Materials.Add(new NVRMaterial(br));
+                buffers.Materials.Add(new NVRMaterial(br, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
             }
             for (int i = 0; i < vertexBufferCount; i++)
             {
@@ -56,31 +54,15 @@ namespace Fantome.League.IO.NVR
             }
             for (int i = 0; i < meshesCount; i++)
             {
-                buffers.Meshes.Add(new NVRMesh(br, buffers));
+                buffers.Meshes.Add(new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
             }
+            // Unused
             for (int i = 0; i < nodesCount; i++)
             {
                 buffers.Nodes.Add(new NVRNode(br, buffers));
             }
 
-            // Store data
-            if (buffers.Nodes.Count > 0)
-            {
-                NVRNode masterNode = buffers.Nodes.Last();
-                SortNodes(masterNode, buffers.Nodes);
-                this.Geometry = masterNode;
-            }
-
-        }
-
-        private static void SortNodes(NVRNode node, List<NVRNode> nodeBuffer)
-        {
-            for (int i = node.FirstChildNode; i < node.FirstChildNode + node.ChildNodeCount; i++)
-            {
-                NVRNode child = nodeBuffer[i];
-                node.Children.Add(child);
-                SortNodes(child, nodeBuffer);
-            }
+            this.Meshes = buffers.Meshes;
         }
 
         public void Save(string fileLocation)
@@ -124,78 +106,19 @@ namespace Fantome.League.IO.NVR
             }
         }
 
-        public List<NVRMesh> GetMeshes()
+        public NVRMesh AddMesh(NVRMeshQuality meshQualityLevel, NVRMaterial material, List<NVRVertex> vertices, List<int> indices)
         {
-            List<NVRMesh> newList = new List<NVRMesh>();
-            EnumerateMeshes(this.Geometry, newList);
-            return newList;
-        }
-
-        public List<NVRNode> GetNodes()
-        {
-            List<NVRNode> nodes = new List<NVRNode>();
-            EnumerateNodes(this.Geometry, nodes);
-            return nodes;
-        }
-
-
-        public void RemoveMesh(NVRMesh mesh)
-        {
-            mesh.ParentNode.Meshes.Remove(mesh);
-        }
-
-        public void AddMesh(NVRMesh mesh)
-        {
-
-        }
-
-        // Easy way to create a material with working values
-        public NVRMaterial CreateMaterial(string materialName, string textureName, ColorRGBAVector4 color)
-        {
-            List<NVRChannel> channels = new List<NVRChannel>();
-            channels.Add(new NVRChannel(textureName, color, new D3DMATRIX()));
-            for (int i = 0; i < 7; i++)
-            {
-                channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new D3DMATRIX()));
-            }
-            NVRMaterial newMat = new NVRMaterial(materialName, NVRMaterialType.MATERIAL_TYPE_DEFAULT, 16, channels);
-            return newMat;
-        }
-
-        private void EnumerateMeshes(NVRNode node, List<NVRMesh> list)
-        {
-            if (node.Children.Count > 0)
-            {
-                foreach (NVRNode child in node.Children)
-                {
-                    EnumerateMeshes(child, list);
-                }
-            }
-            else
-            {
-                list.AddRange(node.Meshes);
-            }
-        }
-
-        private void EnumerateNodes(NVRNode node, List<NVRNode> nodes)
-        {
-            if (node.Children.Count > 0)
-            {
-                foreach (NVRNode Node in node.Children)
-                {
-                    EnumerateNodes(Node, nodes);
-                }
-                nodes.AddRange(node.Children);
-            }
+            NVRMesh newMesh = new NVRMesh(meshQualityLevel, 0, material, vertices, indices);
+            this.Meshes.Add(newMesh);
+            return newMesh;
         }
 
         // Generate buffers for writing
         private NVRBuffers GenerateBuffers()
         {
             NVRBuffers buffers = new NVRBuffers();
-            List<NVRMesh> meshes = this.GetMeshes();
             // Material buffer
-            foreach (NVRMesh mesh in meshes)
+            foreach (NVRMesh mesh in Meshes)
             {
                 if (!buffers.Materials.Contains(mesh.Material))
                 {
@@ -204,13 +127,13 @@ namespace Fantome.League.IO.NVR
             }
 
             // Creating complex buffers first
-            foreach (NVRMesh mesh in meshes)
+            foreach (NVRMesh mesh in Meshes)
             {
                 NVRDrawIndexedPrimitive complexMesh = mesh.IndexedPrimitives[0];
-                NVRVertexType type = complexMesh.Vertices[0].Type;
-                NVRVertexBuffer vertBuffer = GetVertexBuffer(buffers, complexMesh.Vertices.Count, type);
+                NVRVertexType type = complexMesh.Vertices[0].GetVertexType();
+                NVRVertexBuffer vertBuffer = buffers.GetVertexBuffer(complexMesh.Vertices.Count, type);
                 int bufferIndex = buffers.VertexBuffers.IndexOf(vertBuffer);
-                NVRIndexBuffer indBuffer = GetIndexBuffer(buffers, bufferIndex);
+                NVRIndexBuffer indBuffer = buffers.GetIndexBuffer(bufferIndex);
 
                 complexMesh.IndexBuffer = bufferIndex;
                 complexMesh.VertexBuffer = bufferIndex;
@@ -228,13 +151,13 @@ namespace Fantome.League.IO.NVR
             }
 
             // Then do simple ones
-            foreach (NVRMesh mesh in meshes)
+            foreach (NVRMesh mesh in Meshes)
             {
                 NVRDrawIndexedPrimitive simpleMesh = mesh.IndexedPrimitives[1];
-                NVRVertexType type = simpleMesh.Vertices[0].Type;
-                NVRVertexBuffer vertBuffer = GetVertexBuffer(buffers, simpleMesh.Vertices.Count, type);
+                NVRVertexType type = simpleMesh.Vertices[0].GetVertexType();
+                NVRVertexBuffer vertBuffer = buffers.GetVertexBuffer(simpleMesh.Vertices.Count, type);
                 int bufferIndex = buffers.VertexBuffers.IndexOf(vertBuffer);
-                NVRIndexBuffer indBuffer = GetIndexBuffer(buffers, bufferIndex);
+                NVRIndexBuffer indBuffer = buffers.GetIndexBuffer(bufferIndex);
 
                 simpleMesh.IndexBuffer = bufferIndex;
                 simpleMesh.VertexBuffer = bufferIndex;
@@ -251,16 +174,17 @@ namespace Fantome.League.IO.NVR
                 }
             }
 
+            NVRNode parentNode = this.CreateRootNode();
             // Making mesh buffer
-            GenerateMeshBuffer(buffers.Meshes, this.Geometry);
+            buffers.GenerateMeshBuffer(parentNode);
             foreach (NVRMesh mesh in buffers.Meshes)
             {
                 mesh.MaterialIndex = buffers.Materials.IndexOf(mesh.Material);
             }
 
             // Making node buffer
-            buffers.Nodes.Add(this.Geometry);
-            GenerateNodeBuffer(buffers.Nodes, this.Geometry);
+            buffers.Nodes.Add(parentNode);
+            buffers.GenerateNodeBuffer(parentNode);
             foreach (NVRNode node in buffers.Nodes)
             {
                 if (node.Children.Count > 0)
@@ -275,66 +199,14 @@ namespace Fantome.League.IO.NVR
             return buffers;
         }
 
-        // Generate a mesh buffer
-        private void GenerateMeshBuffer(List<NVRMesh> meshBuffer, NVRNode node)
+        private NVRNode CreateRootNode()
         {
-            node.FirstMesh = meshBuffer.Count;
-            node.MeshCount = node.CalculateMeshCount();
-            if (node.Children.Count == 0)
-            {
-                meshBuffer.AddRange(node.Meshes);
-            }
-            else
-            {
-                foreach (NVRNode child in node.Children)
-                {
-                    GenerateMeshBuffer(meshBuffer, child);
-                }
-            }
+            // Calculate the bounding box of the entire map + bouding box of the central points of the meshes (used to split nodes).
+            NVRNode rootNode = new NVRNode(this.Meshes);
+            // Create children for root node and all of its children and children and children
+            rootNode.Split();
+            return rootNode;
         }
-
-        // Generate a node buffer
-        private void GenerateNodeBuffer(List<NVRNode> nodeBuffer, NVRNode node)
-        {
-            node.ChildNodeCount = node.Children.Count;
-            nodeBuffer.InsertRange(0, node.Children);
-            for (int i = node.Children.Count - 1; i >= 0; i--)
-            {
-                GenerateNodeBuffer(nodeBuffer, node.Children[i]);
-            }
-        }
-
-        // Find apropriate vertex buffer and create it if doesn't exist
-        private NVRVertexBuffer GetVertexBuffer(NVRBuffers buffers, int vertexToAddCount, NVRVertexType type)
-        {
-            foreach (NVRVertexBuffer buffer in buffers.VertexBuffers)
-            {
-                if (buffer.Type == type && buffer.Vertices.Count < (UInt16.MaxValue - vertexToAddCount))
-                {
-                    return buffer;
-                }
-            }
-            NVRVertexBuffer created = new NVRVertexBuffer(type);
-            buffers.VertexBuffers.Add(created);
-            return created;
-        }
-
-        // Find index buffer with its position (for a given model, it has to be the same as its vertex buffer position)
-        private NVRIndexBuffer GetIndexBuffer(NVRBuffers buffers, int position)
-        {
-            if (buffers.IndexBuffers.Count > position)
-            {
-                return buffers.IndexBuffers[position];
-            }
-            else
-            {
-                NVRIndexBuffer newBuffer = new NVRIndexBuffer(D3DFORMAT.D3DFMT_INDEX16);
-                buffers.IndexBuffers.Add(newBuffer);
-                return newBuffer;
-            }
-
-        }
-
     }
 
     public class NVRBuffers
@@ -344,90 +216,64 @@ namespace Fantome.League.IO.NVR
         public List<NVRIndexBuffer> IndexBuffers { get; private set; } = new List<NVRIndexBuffer>();
         public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();
         public List<NVRNode> Nodes { get; private set; } = new List<NVRNode>();
-    }
 
-    public class D3DMATRIX
-    {
-        public float _11 { get; private set; }
-        public float _12 { get; private set; }
-        public float _13 { get; private set; }
-        public float _14 { get; private set; }
-        public float _21 { get; private set; }
-        public float _22 { get; private set; }
-        public float _23 { get; private set; }
-        public float _24 { get; private set; }
-        public float _31 { get; private set; }
-        public float _32 { get; private set; }
-        public float _33 { get; private set; }
-        public float _34 { get; private set; }
-        public float _41 { get; private set; }
-        public float _42 { get; private set; }
-        public float _43 { get; private set; }
-        public float _44 { get; private set; }
-
-        public D3DMATRIX(BinaryReader br)
+        // Find index buffer with its position (for a given model, it has to be the same as its vertex buffer position)
+        public NVRIndexBuffer GetIndexBuffer(int position)
         {
-            this._11 = br.ReadSingle();
-            this._12 = br.ReadSingle();
-            this._13 = br.ReadSingle();
-            this._14 = br.ReadSingle();
-            this._21 = br.ReadSingle();
-            this._22 = br.ReadSingle();
-            this._23 = br.ReadSingle();
-            this._24 = br.ReadSingle();
-            this._31 = br.ReadSingle();
-            this._32 = br.ReadSingle();
-            this._33 = br.ReadSingle();
-            this._34 = br.ReadSingle();
-            this._41 = br.ReadSingle();
-            this._42 = br.ReadSingle();
-            this._43 = br.ReadSingle();
-            this._44 = br.ReadSingle();
+            if (IndexBuffers.Count > position)
+            {
+                return IndexBuffers[position];
+            }
+            else
+            {
+                NVRIndexBuffer newBuffer = new NVRIndexBuffer(D3DFORMAT.D3DFMT_INDEX16);
+                IndexBuffers.Add(newBuffer);
+                return newBuffer;
+            }
         }
 
-        public D3DMATRIX()
+        // Find apropriate vertex buffer and create it if doesn't exist
+        public NVRVertexBuffer GetVertexBuffer(int vertexToAddCount, NVRVertexType type)
         {
-            this.Clear();
+            foreach (NVRVertexBuffer buffer in VertexBuffers)
+            {
+                if (buffer.Type == type && buffer.Vertices.Count < (UInt16.MaxValue - vertexToAddCount))
+                {
+                    return buffer;
+                }
+            }
+            NVRVertexBuffer created = new NVRVertexBuffer(type);
+            VertexBuffers.Add(created);
+            return created;
         }
 
-        public void Clear()
+        // Generate a mesh buffer
+        public void GenerateMeshBuffer(NVRNode node)
         {
-            this._11 = 0;
-            this._12 = 0;
-            this._13 = 0;
-            this._14 = 0;
-            this._21 = 0;
-            this._22 = 0;
-            this._23 = 0;
-            this._24 = 0;
-            this._31 = 0;
-            this._32 = 0;
-            this._33 = 0;
-            this._34 = 0;
-            this._41 = 0;
-            this._42 = 0;
-            this._43 = 0;
-            this._44 = 0;
+            node.FirstMesh = Meshes.Count;
+            node.MeshCount = node.Meshes.Count;
+            if (node.Children.Count == 0)
+            {
+                Meshes.AddRange(node.Meshes);
+            }
+            else
+            {
+                foreach (NVRNode child in node.Children)
+                {
+                    GenerateMeshBuffer(child);
+                }
+            }
         }
 
-        public void Write(BinaryWriter bw)
+        // Generate a node buffer
+        public void GenerateNodeBuffer(NVRNode node)
         {
-            bw.Write(this._11);
-            bw.Write(this._12);
-            bw.Write(this._13);
-            bw.Write(this._14);
-            bw.Write(this._21);
-            bw.Write(this._22);
-            bw.Write(this._23);
-            bw.Write(this._24);
-            bw.Write(this._31);
-            bw.Write(this._32);
-            bw.Write(this._33);
-            bw.Write(this._34);
-            bw.Write(this._41);
-            bw.Write(this._42);
-            bw.Write(this._43);
-            bw.Write(this._44);
+            node.ChildNodeCount = node.Children.Count;
+            Nodes.InsertRange(0, node.Children);
+            for (int i = node.Children.Count - 1; i >= 0; i--)
+            {
+                GenerateNodeBuffer(node.Children[i]);
+            }
         }
     }
 
@@ -500,4 +346,6 @@ namespace Fantome.League.IO.NVR
         D3DFMT_BINARYBUFFER = 0xC7,
         D3DFMT_FORCE_DWORD = 0x7FFFFFFF,
     }
+
+
 }

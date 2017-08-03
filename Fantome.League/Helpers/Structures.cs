@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Globalization;
+using System.Diagnostics;
 
-namespace Fantome.League.Helpers.Structures
+namespace Fantome.Libraries.League.Helpers.Structures
 {
-    public struct Vector2
+    [DebuggerDisplay("[ {X}, {Y} ]")]
+    public class Vector2 : IEquatable<Vector2>
     {
         public float X;
         public float Y;
@@ -27,17 +29,24 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Y);
         }
 
-        public static bool operator <(Vector2 x, Vector2 y)
+        public bool Equals(Vector2 other)
         {
-            return x.X < y.X && x.Y < y.Y;
+            return (this.X == other.X) && (this.Y == other.Y);
         }
 
-        public static bool operator >(Vector2 x, Vector2 y)
+        public static Vector2 operator +(Vector2 x, Vector2 y)
         {
-            return x.X > y.X && x.Y > y.Y;
+            return new Vector2(x.X + y.X, x.Y + y.Y);
+        }
+
+        public static Vector2 operator -(Vector2 x, Vector2 y)
+        {
+            return new Vector2(x.X - y.X, x.Y - y.Y);
         }
     }
-    public struct Vector3
+
+    [DebuggerDisplay("[ {X}, {Y}, {Z} ]")]
+    public class Vector3 : IEquatable<Vector3>
     {
         public float X;
         public float Y;
@@ -59,7 +68,7 @@ namespace Fantome.League.Helpers.Structures
 
         public Vector3(StreamReader sr)
         {
-            string[] input = sr.ReadLine().Split(new char[] { ' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             this.X = float.Parse(input[0], CultureInfo.InvariantCulture.NumberFormat);
             this.Y = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat);
             this.Z = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat);
@@ -72,9 +81,9 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Z);
         }
 
-        public void Write(StreamWriter sw)
+        public void Write(StreamWriter sw, string format)
         {
-            sw.WriteLine(string.Format("{0} {1} {2}", this.X, this.Y, this.Z));
+            sw.Write(string.Format(format, this.X, this.Y, this.Z));
         }
 
         public static Vector3 Cross(Vector3 x, Vector3 y)
@@ -83,6 +92,16 @@ namespace Fantome.League.Helpers.Structures
                 (x.Y * y.Z) - (x.Z * y.Y),
                 (x.Z * y.X) - (x.X * y.Z),
                 (x.X * y.Y) - (x.Y * y.X));
+        }
+
+        public static float Distance(Vector3 x, Vector3 y)
+        {
+            return (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) - Math.Pow(x.Y - y.Y, 2) - Math.Pow(x.Z - y.Z, 2));
+        }
+
+        public bool Equals(Vector3 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
         }
 
         public static Vector3 operator +(Vector3 x, Vector3 y)
@@ -95,7 +114,9 @@ namespace Fantome.League.Helpers.Structures
             return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
         }
     }
-    public struct Vector4
+
+    [DebuggerDisplay("[ {X}, {Y}, {Z}, {W} ]")]
+    public class Vector4 : IEquatable<Vector4>
     {
         public float X;
         public float Y;
@@ -125,8 +146,50 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Z);
             bw.Write(this.W);
         }
+
+        public bool Equals(Vector4 other)
+        {
+            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z) && (this.W == other.W);
+        }
+
+        public static Vector4 operator +(Vector4 x, Vector4 y)
+        {
+            return new Vector4(x.X + y.X, x.Y + y.Y, x.Z + y.Z, x.W + y.W);
+        }
+
+        public static Vector4 operator -(Vector4 x, Vector4 y)
+        {
+            return new Vector4(x.X - y.X, x.Y - y.Y, x.Z - y.Z, x.W - y.W);
+        }
     }
-    public struct Vector3Byte
+
+    [DebuggerDisplay("[ {X}, {Y} ]")]
+    public class Vector2Byte
+    {
+        public byte X;
+        public byte Y;
+
+        public Vector2Byte(byte X, byte Y)
+        {
+            this.X = X;
+            this.Y = Y;
+        }
+
+        public Vector2Byte(BinaryReader br)
+        {
+            this.X = br.ReadByte();
+            this.Y = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.X);
+            bw.Write(this.Y);
+        }
+    }
+
+    [DebuggerDisplay("[ {X}, {Y}, {Z} ]")]
+    public class Vector3Byte
     {
         public byte X;
         public byte Y;
@@ -153,7 +216,9 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.Z);
         }
     }
-    public struct Vector4Byte
+
+    [DebuggerDisplay("[ {X}, {Y}, {Z}, {W} ]")]
+    public class Vector4Byte
     {
         public byte X;
         public byte Y;
@@ -184,7 +249,44 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.W);
         }
     }
-    public struct ColorRGBAVector4
+
+    #region Colors
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBVector3Byte
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+
+        public ColorRGBVector3Byte(byte R, byte G, byte B)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+        }
+
+        public ColorRGBVector3Byte(BinaryReader br)
+        {
+            this.R = br.ReadByte();
+            this.G = br.ReadByte();
+            this.B = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B));
+        }
+    }
+
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBAVector4
     {
         public float R;
         public float G;
@@ -214,8 +316,53 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.B);
             bw.Write(this.A);
         }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
+        }
     }
-    public struct ColorBGRAVector4Byte
+
+    [DebuggerDisplay("[ {R}, {G}, {B}, {A} ]")]
+    public class ColorRGBAVector4Byte
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+        public byte A;
+
+        public ColorRGBAVector4Byte(byte R, byte G, byte B, byte A)
+        {
+            this.R = R;
+            this.G = G;
+            this.B = B;
+            this.A = A;
+        }
+
+        public ColorRGBAVector4Byte(BinaryReader br)
+        {
+            this.R = br.ReadByte();
+            this.G = br.ReadByte();
+            this.B = br.ReadByte();
+            this.A = br.ReadByte();
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.R);
+            bw.Write(this.G);
+            bw.Write(this.B);
+            bw.Write(this.A);
+        }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
+        }
+    }
+
+    [DebuggerDisplay("[ {B}, {G}, {R}, {A} ]")]
+    public class ColorBGRAVector4Byte
     {
         public byte B;
         public byte G;
@@ -245,8 +392,15 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(this.R);
             bw.Write(this.A);
         }
+
+        public void Write(StreamWriter sw, string format)
+        {
+            sw.Write(string.Format(format, this.B, this.G, this.R, this.A));
+        }
     }
-    public struct R3DBoundingBox
+    #endregion
+    #region Structures
+    public class R3DBoundingBox
     {
         public Vector3 Org;
         public Vector3 Size;
@@ -269,7 +423,8 @@ namespace Fantome.League.Helpers.Structures
             this.Size.Write(bw);
         }
     }
-    public struct R3DBox
+
+    public class R3DBox
     {
         public Vector3 Min { get; private set; }
         public Vector3 Max { get; private set; }
@@ -291,8 +446,20 @@ namespace Fantome.League.Helpers.Structures
             this.Min.Write(bw);
             this.Max.Write(bw);
         }
+
+        public Vector3 GetProportions()
+        {
+            return this.Max - this.Min;
+        }
+
+        public bool ContainsPoint(Vector3 point)
+        {
+            return ((point.X >= Min.X) && (point.X <= Max.X) && (point.Y >= Min.Y) && (point.Y <= Max.Y) && (point.Z >= Min.Z) && (point.Z <= Max.Z));
+        }
     }
-    public struct R3DSphere
+
+    [DebuggerDisplay("[ {Radius} ]")]
+    public class R3DSphere
     {
         public Vector3 Position;
         public float Radius;
@@ -315,4 +482,90 @@ namespace Fantome.League.Helpers.Structures
             bw.Write(Radius);
         }
     }
+
+    public class R3DMatrix44
+    {
+        public float m11 { get; private set; }
+        public float m12 { get; private set; }
+        public float m13 { get; private set; }
+        public float m14 { get; private set; }
+        public float m21 { get; private set; }
+        public float m22 { get; private set; }
+        public float m23 { get; private set; }
+        public float m24 { get; private set; }
+        public float m31 { get; private set; }
+        public float m32 { get; private set; }
+        public float m33 { get; private set; }
+        public float m34 { get; private set; }
+        public float m41 { get; private set; }
+        public float m42 { get; private set; }
+        public float m43 { get; private set; }
+        public float m44 { get; private set; }
+
+        public R3DMatrix44(BinaryReader br)
+        {
+            this.m11 = br.ReadSingle();
+            this.m12 = br.ReadSingle();
+            this.m13 = br.ReadSingle();
+            this.m14 = br.ReadSingle();
+            this.m21 = br.ReadSingle();
+            this.m22 = br.ReadSingle();
+            this.m23 = br.ReadSingle();
+            this.m24 = br.ReadSingle();
+            this.m31 = br.ReadSingle();
+            this.m32 = br.ReadSingle();
+            this.m33 = br.ReadSingle();
+            this.m34 = br.ReadSingle();
+            this.m41 = br.ReadSingle();
+            this.m42 = br.ReadSingle();
+            this.m43 = br.ReadSingle();
+            this.m44 = br.ReadSingle();
+        }
+
+        public R3DMatrix44()
+        {
+            this.Clear();
+        }
+
+        public void Clear()
+        {
+            this.m11 = 0;
+            this.m12 = 0;
+            this.m13 = 0;
+            this.m14 = 0;
+            this.m21 = 0;
+            this.m22 = 0;
+            this.m23 = 0;
+            this.m24 = 0;
+            this.m31 = 0;
+            this.m32 = 0;
+            this.m33 = 0;
+            this.m34 = 0;
+            this.m41 = 0;
+            this.m42 = 0;
+            this.m43 = 0;
+            this.m44 = 0;
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.m11);
+            bw.Write(this.m12);
+            bw.Write(this.m13);
+            bw.Write(this.m14);
+            bw.Write(this.m21);
+            bw.Write(this.m22);
+            bw.Write(this.m23);
+            bw.Write(this.m24);
+            bw.Write(this.m31);
+            bw.Write(this.m32);
+            bw.Write(this.m33);
+            bw.Write(this.m34);
+            bw.Write(this.m41);
+            bw.Write(this.m42);
+            bw.Write(this.m43);
+            bw.Write(this.m44);
+        }
+    }
+    #endregion
 }

@@ -1,8 +1,10 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.SKN
+namespace Fantome.Libraries.League.IO.SKN
 {
+    [DebuggerDisplay("[ {Position.X}, {Position.Y}, {Position.Z} ]")]
     public class SKNVertex
     {
         private bool IsTangent { get; set; }

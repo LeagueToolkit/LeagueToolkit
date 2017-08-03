@@ -1,11 +1,12 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 
-namespace Fantome.League.IO.SCB
+namespace Fantome.Libraries.League.IO.SCB
 {
+    [DebuggerDisplay("[ {Material} ]")]
     public class SCBFace
     {
         public UInt32[] Indices { get; private set; } = new UInt32[3];
@@ -24,12 +25,11 @@ namespace Fantome.League.IO.SCB
             {
                 this.Indices[i] = br.ReadUInt32();
             }
-            this.Material = Encoding.ASCII.GetString(br.ReadBytes(64));
+            this.Material = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
             float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             for (int i = 0; i < 3; i++)
             {
-                this.UV[i].X = uvs[i];
-                this.UV[i].Y = uvs[i + 3];
+                this.UV[i] = new Vector2(uvs[i], uvs[i + 3]);
             }
         }
 

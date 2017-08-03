@@ -1,15 +1,18 @@
-﻿using Fantome.League.Helpers.Exceptions;
-using Fantome.League.Helpers.Structures;
-using Fantome.League.IO.SCO;
-using Fantome.League.IO.WGT;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.SCO;
+using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.SKN
+namespace Fantome.Libraries.League.IO.SKN
 {
+    [DebuggerDisplay("[ Version: {Version} ]")]
     public class SKNFile
     {
+        public UInt32 Version { get; private set; }
         public List<SKNSubmesh> Submeshes { get; private set; } = new List<SKNSubmesh>();
         public List<UInt16> Indices { get; private set; } = new List<UInt16>();
         public List<SKNVertex> Vertices { get; private set; } = new List<SKNVertex>();
@@ -44,7 +47,7 @@ namespace Fantome.League.IO.SKN
 
                 Vertices[Indices[i]].SetNormal(Vertices[Indices[i]].Normal + cp);
                 Vertices[Indices[i + 1]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
-                Vertices[Indices[i + 2]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
+                Vertices[Indices[i + 2]].SetNormal(Vertices[Indices[i + 2]].Normal + cp);
             }
             foreach (SKNVertex Vertex in Vertices)
             {
@@ -66,8 +69,8 @@ namespace Fantome.League.IO.SKN
                 if (Magic != 0x00112233)
                     throw new InvalidFileMagicException();
 
-                UInt16 Version = br.ReadUInt16();
-                if (Version != 2 && Version != 4)
+                this.Version = br.ReadUInt16();
+                if (this.Version != 2 && this.Version != 4)
                     throw new UnsupportedFileVersionException();
 
                 UInt16 ObjectCount = br.ReadUInt16();
@@ -77,7 +80,7 @@ namespace Fantome.League.IO.SKN
                 {
                     this.Submeshes.Add(new SKNSubmesh(br));
                 }
-                if (Version == 4)
+                if (this.Version == 4)
                     br.ReadUInt32();
 
                 UInt32 IndexCount = br.ReadUInt32();
@@ -90,7 +93,7 @@ namespace Fantome.League.IO.SKN
                 Vector3 CentralPoint;
                 float Radius;
 
-                if (Version == 4)
+                if (this.Version == 4)
                 {
                     VertexSize = br.ReadUInt32();
                     IsTangent = br.ReadUInt32() == 1;
