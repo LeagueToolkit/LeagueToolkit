@@ -5,11 +5,25 @@ using System.Text;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
+    /// <summary>
+    /// Represents a WAD File
+    /// </summary>
+    /// <remarks>WAD Files can only be read</remarks>
     public class WADFile
     {
+        /// <summary>
+        /// ECDSA Signatue contained in the header of the file
+        /// </summary>
         public byte[] ECDSA { get; private set; }
+        /// <summary>
+        /// A collection of <see cref="WADEntry"/>
+        /// </summary>
         public List<WADEntry> Entries { get; private set; } = new List<WADEntry>();
 
+        /// <summary>
+        /// Reads a <see cref="WADFile"/> from the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to read from</param>
         public WADFile(string fileLocation)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
