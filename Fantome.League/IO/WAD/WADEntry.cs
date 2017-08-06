@@ -4,7 +4,7 @@ using System.Text;
 namespace Fantome.Libraries.League.IO.WAD
 {
     /// <summary>
-    /// Represents an entry in <see cref="WADFile"/>
+    /// Represents an entry in a <see cref="WADFile"/>
     /// </summary> 
     public class WADEntry
     {
