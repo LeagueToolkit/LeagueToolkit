@@ -12,7 +12,7 @@ namespace Fantome.Libraries.League.IO.WAD
     public class WADFile
     {
         /// <summary>
-        /// ECDSA Signatue contained in the header of the file
+        /// ECDSA Signature contained in the header of the file
         /// </summary>
         public byte[] ECDSA { get; private set; }
         /// <summary>
