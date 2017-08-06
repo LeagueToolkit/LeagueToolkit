@@ -27,7 +27,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            MaterialLibraryTest();
+            InibinTest();
         }
 
         static void WGEOTest()
@@ -123,8 +123,8 @@ namespace Fantome.Libraries.League.Tests
       
         static void InibinTest()
         {
-            InibinFile inibin = new InibinFile("kek.troybin");
-            inibin.Write("lul.troybin");
+            InibinFile inibin = new InibinFile("Dragon_BALine.troybin");
+            //inibin.Write("lul.troybin");
         }
     }
 }

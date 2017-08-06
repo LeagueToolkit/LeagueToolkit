@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Diagnostics;
-using Fantome.Libraries.League.Helpers.Structures;
-using System.Collections;
 
 namespace Fantome.Libraries.League.IO.Inibin
 {
@@ -21,7 +17,7 @@ namespace Fantome.Libraries.League.IO.Inibin
             ushort valueCount = br.ReadUInt16();
             List<uint> hashes = new List<uint>();
 
-            for(int i = 0; i < valueCount; i++)
+            for (int i = 0; i < valueCount; i++)
             {
                 uint hash = br.ReadUInt32();
                 this.Properties.Add(hash, null);
@@ -30,11 +26,11 @@ namespace Fantome.Libraries.League.IO.Inibin
 
             for (int i = 0; i < valueCount; i++)
             {
-                if(this.Type == InibinFlags.Int32List)
+                if (this.Type == InibinFlags.Int32List)
                 {
                     this.Properties[hashes[i]] = br.ReadInt32();
                 }
-                else if(this.Type == InibinFlags.Float32List)
+                else if (this.Type == InibinFlags.Float32List)
                 {
                     this.Properties[hashes[i]] = br.ReadSingle();
                 }
@@ -50,19 +46,19 @@ namespace Fantome.Libraries.League.IO.Inibin
                 {
                     this.Properties[hashes[i]] = br.ReadByte();
                 }
-                else if(this.Type == InibinFlags.BitList)
+                else if (this.Type == InibinFlags.BitList)
                 {
                     byte boolean = 0;
                     boolean = (i % 8) == 0 ? br.ReadByte() : (byte)(boolean >> 1);
                     this.Properties[hashes[i]] = Convert.ToBoolean(0x1 & boolean);
                 }
-                else if(this.Type == InibinFlags.FixedPointFloatListVec3)
+                else if (this.Type == InibinFlags.FixedPointFloatListVec3)
                 {
-                    this.Properties[hashes[i]] = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte()};
+                    this.Properties[hashes[i]] = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte() };
                 }
                 else if (this.Type == InibinFlags.Float32ListVec3)
                 {
-                    this.Properties[hashes[i]] = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle()};
+                    this.Properties[hashes[i]] = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
                 }
                 else if (this.Type == InibinFlags.FixedPointFloatListVec2)
                 {
@@ -104,12 +100,14 @@ namespace Fantome.Libraries.League.IO.Inibin
                 uint offset = br.ReadUInt16();
                 long oldPos = br.BaseStream.Position;
                 br.BaseStream.Seek(offset + stringOffset, SeekOrigin.Begin);
+
                 string s = "";
                 char c;
                 while ((c = br.ReadChar()) != '\u0000')
                 {
                     s += c;
                 }
+
                 this.Properties[hashes[i]] = s;
                 br.BaseStream.Seek(oldPos, SeekOrigin.Begin);
             }
@@ -119,34 +117,34 @@ namespace Fantome.Libraries.League.IO.Inibin
         {
             bw.Write((ushort)this.Properties.Count);
 
-            foreach(uint hash in this.Properties.Keys)
+            foreach (uint hash in this.Properties.Keys)
             {
                 bw.Write(hash);
             }
 
-            if(this.Type == InibinFlags.BitList)
+            if (this.Type == InibinFlags.BitList)
             {
                 bool[] booleans = this.Properties.Values.Cast<bool>().ToArray();
                 byte value = 0;
-                for(int i = 0, j = 0; i < this.Properties.Count; i++)
+                for (int i = 0, j = 0; i < this.Properties.Count; i++)
                 {
-                    if(booleans[i])
+                    if (booleans[i])
                     {
                         value |= (byte)(1 << j);
                     }
                     j++;
 
-                    if(j == 8)
+                    if (j == 8)
                     {
                         bw.Write(value);
                         j = value = 0;
                     }
                 }
             }
-            else if(this.Type == InibinFlags.StringList)
+            else if (this.Type == InibinFlags.StringList)
             {
                 ushort offset = 0;
-                foreach(string value in this.Properties.Values)
+                foreach (string value in this.Properties.Values)
                 {
                     bw.Write(offset);
                     offset += (ushort)(value.Length + 1);
@@ -159,7 +157,7 @@ namespace Fantome.Libraries.League.IO.Inibin
             }
             else
             {
-                foreach(object value in this.Properties.Values)
+                foreach (object value in this.Properties.Values)
                 {
                     if (this.Type == InibinFlags.Int32List)
                     {
