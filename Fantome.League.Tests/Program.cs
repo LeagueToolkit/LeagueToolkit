@@ -20,6 +20,7 @@ using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.Inibin;
+using Fantome.League.IO.BLND;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -27,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            MaterialLibraryTest();
+            BLNDTest();
         }
 
         static void WGEOTest()
@@ -125,6 +126,11 @@ namespace Fantome.Libraries.League.Tests
         {
             InibinFile inibin = new InibinFile("kek.troybin");
             inibin.Write("lul.troybin");
+        }
+
+        static void BLNDTest()
+        {
+            BLNDFile blnd = new BLNDFile("Aatrox.blnd");
         }
     }
 }
