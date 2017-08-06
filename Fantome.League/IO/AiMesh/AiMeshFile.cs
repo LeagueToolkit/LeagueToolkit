@@ -9,9 +9,9 @@ namespace Fantome.Libraries.League.IO.AiMesh
     {
         public List<AiMeshFace> Faces = new List<AiMeshFace>();
 
-        public AiMeshFile(string Location)
+        public AiMeshFile(string fileLocation)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
                 if (magic != "r3d2aims")
@@ -36,9 +36,9 @@ namespace Fantome.Libraries.League.IO.AiMesh
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
                 bw.Write(Encoding.ASCII.GetBytes("r3d2aims"));
                 bw.Write((uint)2);
