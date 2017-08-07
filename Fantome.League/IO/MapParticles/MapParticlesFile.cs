@@ -5,7 +5,7 @@ namespace Fantome.Libraries.League.IO.MapParticles
 {
     public class MapParticlesFile
     {
-        public List<MapParticlesParticle> Particles { get; private set; } = new List<MapParticlesParticle>();
+        public List<MapParticlesParticle> Particles { get; private set; }
 
         public MapParticlesFile(List<MapParticlesParticle> particles)
         {
@@ -14,6 +14,7 @@ namespace Fantome.Libraries.League.IO.MapParticles
 
         public MapParticlesFile(string fileLocation)
         {
+            this.Particles = new List<MapParticlesParticle>();
             using (StreamReader sr = new StreamReader(fileLocation))
             {
                 while (!sr.EndOfStream)
