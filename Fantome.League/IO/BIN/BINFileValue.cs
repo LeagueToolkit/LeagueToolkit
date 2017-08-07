@@ -7,13 +7,13 @@ namespace Fantome.Libraries.League.IO.BIN
 {
     public class BINFileValue
     {
-        public UInt32 Property { get; private set; }
+        public uint Property { get; private set; }
         public BINFileValueType? Type { get; private set; }
-        public Object Value { get; private set; }
-        public Object Parent { get; private set; }
+        public object Value { get; private set; }
+        public object Parent { get; private set; }
         private bool _typeRead = false;
 
-        public BINFileValue(BinaryReader br, Object parent, BINFileValueType? type = null)
+        public BINFileValue(BinaryReader br, object parent, BINFileValueType? type = null)
         {
             this.Parent = parent;
             this.Type = type;
@@ -104,7 +104,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
             if (this.Type == BINFileValueType.String)
             {
-                string value = this.Value as String;
+                string value = this.Value as string;
                 bw.Write((ushort)value.Length);
                 bw.Write(Encoding.ASCII.GetBytes(value));
             }
