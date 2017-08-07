@@ -1,54 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Fantome.Libraries.League.Helpers.Exceptions;
-using System.Diagnostics;
+using System.Text;
 
 namespace Fantome.Libraries.League.IO.AiMesh
 {
-    [DebuggerDisplay("[ Version: {Version}]")]
     public class AiMeshFile
     {
-        public UInt32 Version { get; private set; }
         public List<AiMeshFace> Faces = new List<AiMeshFace>();
 
-        public AiMeshFile(string Location)
+        public AiMeshFile(string fileLocation)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
             {
-                string Magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-                if (Magic != "r3d2aims")
-                    throw new InvalidFileMagicException();
+                string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+                if (magic != "r3d2aims")
+                {
+                    throw new Exception("This is not a valid AiMesh file");
+                }
 
-                this.Version = br.ReadUInt32();
-                if (this.Version != 2)
-                    throw new UnsupportedFileVersionException();
+                uint version = br.ReadUInt32();
+                if (version != 2)
+                {
+                    throw new Exception("This version is not supported");
+                }
 
-                UInt32 FaceCount = br.ReadUInt32();
-                UInt32 Flags = br.ReadUInt32();
-                UInt32 UnknownFlagConstant = br.ReadUInt32(); // If set to [1] then Flags is [1]
+                uint faceCount = br.ReadUInt32();
+                uint flags = br.ReadUInt32();
+                uint unknownFlagConstant = br.ReadUInt32(); // If set to [1] then Flags is [1]
 
-                for (int i = 0; i < FaceCount; i++)
+                for (int i = 0; i < faceCount; i++)
                 {
                     this.Faces.Add(new AiMeshFace(br));
                 }
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
-                bw.Write("r3d2aims".ToCharArray());
-                bw.Write((UInt32)2);
-                bw.Write((UInt32)this.Faces.Count);
-                bw.Write((UInt32)0);
-                bw.Write((UInt32)0);
+                bw.Write(Encoding.ASCII.GetBytes("r3d2aims"));
+                bw.Write((uint)2);
+                bw.Write(this.Faces.Count);
+                bw.Write((uint)0);
+                bw.Write((uint)0);
 
-                foreach (AiMeshFace Face in this.Faces)
+                foreach (AiMeshFace face in this.Faces)
                 {
-                    Face.Write(bw);
+                    face.Write(bw);
                 }
             }
         }
