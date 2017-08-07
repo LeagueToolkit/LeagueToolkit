@@ -11,11 +11,11 @@ namespace Fantome.Libraries.League.IO.MapParticles
     {
         public string Name { get; private set; }
         public Vector3 Position { get; private set; }
-        public Int32 Quality { get; private set; }
+        public int Quality { get; private set; }
         public Vector3 Rotation { get; private set; }
         public List<string> Tags { get; private set; } = new List<string>();
 
-        public MapParticlesParticle(string Name, Vector3 Position, Int32 Quality, Vector3 Rotation, List<string> Tags)
+        public MapParticlesParticle(string Name, Vector3 Position, int Quality, Vector3 Rotation, List<string> Tags)
         {
             this.Name = Name;
             this.Position = Position;
@@ -54,9 +54,9 @@ namespace Fantome.Libraries.League.IO.MapParticles
                 this.Rotation.Z
                 );
 
-            foreach (string Tag in this.Tags)
+            foreach (string tag in this.Tags)
             {
-                write += " " + Tag;
+                write += " " + tag;
             }
 
             sw.WriteLine(write);
