@@ -7,7 +7,12 @@ namespace Fantome.Libraries.League.IO.MOB
 {
     public class MOBFile
     {
-        public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
+        public List<MOBObject> Objects { get; private set; }
+
+        public MOBFile(List<MOBObject> objects)
+        {
+            this.Objects = objects;
+        }
 
         public MOBFile(string fileLocation)
         {
