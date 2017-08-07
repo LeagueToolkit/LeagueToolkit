@@ -1,50 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Fantome.Libraries.League.Helpers.Exceptions;
+using System.Text;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
     public class WADFile
     {
         public byte[] ECDSA { get; private set; }
-        public List<WADEntry> Files { get; private set; } = new List<WADEntry>();
+        public List<WADEntry> Entries { get; private set; } = new List<WADEntry>();
 
-        public WADFile(string Location)
+        public WADFile(string fileLocation)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
             {
-                string Magic = Encoding.ASCII.GetString(br.ReadBytes(2));
-                if (Magic != "RW")
-                    throw new InvalidFileMagicException();
-
-                byte Major = br.ReadByte();
-                byte Minor = br.ReadByte();
-                if (Major > 2 || Minor > 0)
-                    throw new UnsupportedFileVersionException();
-                if (Major == 2 && Minor == 00)
+                string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
+                if (magic != "RW")
                 {
-                    byte EcdsaLength = br.ReadByte();
-                    this.ECDSA = br.ReadBytes(EcdsaLength);
-                    br.ReadBytes(83 - EcdsaLength);
+                    throw new Exception("This is not a valid WAD file");
                 }
 
-                UInt64 Checksum = br.ReadUInt64();
-
-                UInt16 TOCStartOffset = br.ReadUInt16();
-                UInt16 TOCFileEntrySize = br.ReadUInt16();
-                UInt32 FileCount = br.ReadUInt32();
-
-                br.BaseStream.Seek(TOCStartOffset, SeekOrigin.Begin);
-
-                for (int i = 0; i < FileCount; i++)
+                byte major = br.ReadByte();
+                byte minor = br.ReadByte();
+                if (major > 2 || minor > 0)
                 {
-                    Files.Add(new WADEntry(br, Major, Minor));
+                    throw new Exception("This version is not supported");
                 }
-                foreach (WADEntry Entry in Files)
+                if (major == 2 && minor == 0)
                 {
-                    Entry.ReadData(br);
+                    byte ecdsaLength = br.ReadByte();
+                    this.ECDSA = br.ReadBytes(ecdsaLength);
+                    br.ReadBytes(83 - ecdsaLength);
+                }
+
+                ulong unknown = br.ReadUInt64();
+
+                ushort tocStartOffset = br.ReadUInt16();
+                ushort tocFileEntrySize = br.ReadUInt16();
+                uint fileCount = br.ReadUInt32();
+
+                br.BaseStream.Seek(tocStartOffset, SeekOrigin.Begin);
+
+                for (int i = 0; i < fileCount; i++)
+                {
+                    Entries.Add(new WADEntry(br, major, minor));
+                }
+                foreach (WADEntry entry in Entries)
+                {
+                    entry.ReadData(br);
                 }
             }
         }
