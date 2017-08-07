@@ -109,7 +109,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         Compressed,
         /// <summary>
-        /// The Data of this <see cref="WADEntry"/> is a string and it's Name
+        /// The Data of this <see cref="WADEntry"/> is a string and is it's Name
         /// </summary>
         String
     }
