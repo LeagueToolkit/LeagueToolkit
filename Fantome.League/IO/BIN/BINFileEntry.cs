@@ -6,8 +6,8 @@ namespace Fantome.Libraries.League.IO.BIN
 {
     public class BINFileEntry
     {
-        public UInt32 Type { get; private set; }
-        public UInt32 Property { get; private set; }
+        public uint Type { get; private set; }
+        public uint Property { get; private set; }
         public List<BINFileValue> Values { get; private set; } = new List<BINFileValue>();
         public BINFileEntry(BinaryReader br)
         {

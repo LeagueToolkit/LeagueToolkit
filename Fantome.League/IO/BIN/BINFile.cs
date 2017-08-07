@@ -7,7 +7,7 @@ namespace Fantome.Libraries.League.IO.BIN
 {
     public class BINFile
     {
-        public List<String> LinkedFiles { get; private set; } = new List<String>();
+        public List<string> LinkedFiles { get; private set; } = new List<string>();
         public List<BINFileEntry> Entries { get; private set; } = new List<BINFileEntry>();
         public BINFile(string fileLocation)
         {
