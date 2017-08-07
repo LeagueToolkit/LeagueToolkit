@@ -30,7 +30,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         public EntryType Type { get; private set; }
         /// <summary>
-        /// Wheter this <see cref="WADEntry"/> is contained in a <see cref="WADFile"/> more than one time
+        /// Whether this <see cref="WADEntry"/> is contained in a <see cref="WADFile"/> more than one time
         /// </summary>
         public bool IsDuplicated { get; private set; }
         public byte Unknown1 { get; set; }
