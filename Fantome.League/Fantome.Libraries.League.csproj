@@ -55,7 +55,7 @@
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
     <Compile Include="Helpers\Structures.cs" />
-    <Compile Include="IO\AiMesh\AiMeshFace.cs" />
+    <Compile Include="IO\AiMesh\AiMeshCell.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
     <Compile Include="IO\BIN\BINFileEntry.cs" />

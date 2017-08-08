@@ -5,10 +5,28 @@ using System.Text;
 
 namespace Fantome.Libraries.League.IO.AiMesh
 {
+    /// <summary>
+    /// Represents an AiMesh Navigation mesh
+    /// </summary>
     public class AiMeshFile
     {
-        public List<AiMeshFace> Faces = new List<AiMeshFace>();
+        /// <summary>
+        /// A collection of <see cref="AiMeshCell"/>
+        /// </summary>
+        public List<AiMeshCell> Cells { get; private set; }
 
+        /// <summary>
+        /// Initializes a new <see cref="AiMeshFile"/> with cells
+        /// </summary>
+        public AiMeshFile(List<AiMeshCell> cells)
+        {
+            this.Cells = cells;
+        }
+
+        /// <summary>
+        /// Reads an <see cref="AiMeshFile"/> from the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to read from</param>
         public AiMeshFile(string fileLocation)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
@@ -25,30 +43,34 @@ namespace Fantome.Libraries.League.IO.AiMesh
                     throw new Exception("This version is not supported");
                 }
 
-                uint faceCount = br.ReadUInt32();
+                uint cellCount = br.ReadUInt32();
                 uint flags = br.ReadUInt32();
                 uint unknownFlagConstant = br.ReadUInt32(); // If set to [1] then Flags is [1]
 
-                for (int i = 0; i < faceCount; i++)
+                for (int i = 0; i < cellCount; i++)
                 {
-                    this.Faces.Add(new AiMeshFace(br));
+                    this.Cells.Add(new AiMeshCell(br));
                 }
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="AiMeshFile"/> to the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
             using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
                 bw.Write(Encoding.ASCII.GetBytes("r3d2aims"));
                 bw.Write((uint)2);
-                bw.Write(this.Faces.Count);
+                bw.Write(this.Cells.Count);
                 bw.Write((uint)0);
                 bw.Write((uint)0);
 
-                foreach (AiMeshFace face in this.Faces)
+                foreach (AiMeshCell cell in this.Cells)
                 {
-                    face.Write(bw);
+                    cell.Write(bw);
                 }
             }
         }
