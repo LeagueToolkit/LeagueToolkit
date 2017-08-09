@@ -11,7 +11,7 @@ namespace Fantome.Libraries.League.IO.BIN
     public class BINFile
     {
         /// <summary>
-        /// <see cref="BINFile"/> that should get loaded togeather with this one
+        /// <see cref="BINFile"/> that should get loaded together with this one
         /// </summary>
         public List<string> LinkedFiles { get; private set; } = new List<string>();
         /// <summary>
