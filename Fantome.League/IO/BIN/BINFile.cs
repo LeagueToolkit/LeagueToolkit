@@ -5,10 +5,24 @@ using System.Text;
 
 namespace Fantome.Libraries.League.IO.BIN
 {
+    /// <summary>
+    /// Represents a <see cref="BINFile"/>
+    /// </summary>
     public class BINFile
     {
+        /// <summary>
+        /// <see cref="BINFile"/> that should get loaded together with this one
+        /// </summary>
         public List<string> LinkedFiles { get; private set; } = new List<string>();
+        /// <summary>
+        /// A Collection of <see cref="BINFileEntry"/>
+        /// </summary>
         public List<BINFileEntry> Entries { get; private set; } = new List<BINFileEntry>();
+
+        /// <summary>
+        /// Initializes a new <see cref="BINFile"/> from the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to read from</param>
         public BINFile(string fileLocation)
         {
             using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
@@ -41,6 +55,10 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="BINFile"/> to the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
             using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation, FileMode.Create)))
