@@ -1,52 +1,57 @@
-﻿using Fantome.League.Helpers.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.MOB
+namespace Fantome.Libraries.League.IO.MOB
 {
-    [DebuggerDisplay("[ Version: {Version} ]")]
     public class MOBFile
     {
-        public UInt32 Version { get; private set; }
-        public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
+        public List<MOBObject> Objects { get; private set; }
 
-        public MOBFile(string Location)
+        public MOBFile(List<MOBObject> objects)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+            this.Objects = objects;
+        }
+
+        public MOBFile(string fileLocation)
+        {
+            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
             {
-                string Magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                if (Magic != "OPAM")
-                    throw new InvalidFileMagicException();
+                string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+                if (magic != "OPAM")
+                {
+                    throw new Exception("This is not a valid MOB file");
+                }
 
-                this.Version = br.ReadUInt32();
-                if (this.Version != 2)
-                    throw new UnsupportedFileVersionException();
+                uint version = br.ReadUInt32();
+                if (version != 2)
+                {
+                    throw new Exception("This version is not supported");
+                }
 
-                UInt32 ObjectCount = br.ReadUInt32();
+                uint objectCount = br.ReadUInt32();
                 br.ReadUInt32();
 
-                for (int i = 0; i < ObjectCount; i++)
+                for (int i = 0; i < objectCount; i++)
                 {
                     this.Objects.Add(new MOBObject(br));
                 }
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
-                bw.Write("OPAM".ToCharArray());
-                bw.Write((UInt32)2);
-                bw.Write((UInt32)this.Objects.Count);
-                bw.Write((UInt32)0);
+                bw.Write(Encoding.ASCII.GetBytes("OPAM"));
+                bw.Write((uint)2);
+                bw.Write(this.Objects.Count);
+                bw.Write((uint)0);
 
-                foreach (MOBObject Object in this.Objects)
+                foreach (MOBObject mobObject in this.Objects)
                 {
-                    Object.Write(bw);
+                    mobObject.Write(bw);
                 }
             }
         }

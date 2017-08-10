@@ -1,12 +1,10 @@
-﻿using Fantome.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.MOB
+namespace Fantome.Libraries.League.IO.MOB
 {
-    [DebuggerDisplay("[ Type: {Type}, {Name} ]")]
     public class MOBObject
     {
         public string Name { get; private set; }
@@ -15,17 +13,17 @@ namespace Fantome.League.IO.MOB
         public Vector3 Rotation { get; private set; }
         public Vector3 Scale { get; private set; }
         public Vector3 HealthbarPosition { get; private set; }
-        private Vector3 Unknown { get; set; }
+        public Vector3 Unknown { get; set; }
 
-        public MOBObject(string Name, ObjectType Type, Vector3 Position, Vector3 Rotation, Vector3 Scale, Vector3 HealthbarPosition, Vector3 Unknown)
+        public MOBObject(string name, ObjectType type, Vector3 position, Vector3 rotation, Vector3 scale, Vector3 healthbarPosition, Vector3 unknown)
         {
-            this.Name = Name;
-            this.Type = Type;
-            this.Position = Position;
-            this.Rotation = Rotation;
-            this.Scale = Scale;
-            this.HealthbarPosition = HealthbarPosition;
-            this.Unknown = Unknown;
+            this.Name = name;
+            this.Type = type;
+            this.Position = position;
+            this.Rotation = rotation;
+            this.Scale = scale;
+            this.HealthbarPosition = healthbarPosition;
+            this.Unknown = unknown;
         }
 
         public MOBObject(BinaryReader br)
@@ -43,15 +41,15 @@ namespace Fantome.League.IO.MOB
 
         public void Write(BinaryWriter bw)
         {
-            bw.Write(this.Name.PadRight(60, '\u0000').ToCharArray());
-            bw.Write((UInt16)0);
-            bw.Write((UInt16)this.Type);
+            bw.Write(Encoding.ASCII.GetBytes(this.Name.PadRight(60, '\u0000')));
+            bw.Write((ushort)0);
+            bw.Write((ushort)this.Type);
             this.Position.Write(bw);
             this.Rotation.Write(bw);
             this.Scale.Write(bw);
             this.HealthbarPosition.Write(bw);
             this.Unknown.Write(bw);
-            bw.Write((UInt32)0);
+            bw.Write((uint)0);
         }
     }
 

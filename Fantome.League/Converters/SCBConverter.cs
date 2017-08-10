@@ -1,60 +1,71 @@
-﻿using Fantome.League.Helpers.Structures;
-using Fantome.League.IO.OBJ;
-using Fantome.League.IO.SCB;
-using Fantome.League.IO.SCO;
-using System;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.OBJ;
+using Fantome.Libraries.League.IO.SCB;
+using Fantome.Libraries.League.IO.SCO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Fantome.League.Converters
+namespace Fantome.Libraries.League.Converters
 {
     public static class SCBConverter
     {
-        public static SCBFile ConvertSCO(SCOFile SCO)
+        /// <summary>
+        /// Converts <paramref name="sco"/> to an <see cref="SCBFile"/>
+        /// </summary>
+        /// <param name="sco">The <see cref="SCOFile"/> to convert to an <see cref="SCBFile"/></param>
+        /// <returns>An <see cref="SCBFile"/> converted from <paramref name="sco"/></returns>
+        public static SCBFile ConvertSCO(SCOFile sco)
         {
-            List<UInt32> Indices = new List<UInt32>();
-            List<Vector2> UV = new List<Vector2>();
-            foreach (SCOFace Face in SCO.Faces)
+            List<uint> indices = new List<uint>();
+            List<Vector2> uv = new List<Vector2>();
+            foreach (SCOFace face in sco.Faces)
             {
-                Indices.AddRange(Face.Indices.Cast<UInt32>());
-                UV.AddRange(Face.UV);
+                indices.AddRange(face.Indices.Cast<uint>());
+                uv.AddRange(face.UV);
             }
-            return new SCBFile(Indices, SCO.Vertices, UV);
+            return new SCBFile(indices, sco.Vertices, uv);
         }
-        public static SCBFile ConvertOBJ(OBJFile OBJ)
+
+        /// <summary>
+        /// Converts <paramref name="obj"/> to an <see cref="SCBFile"/>
+        /// </summary>
+        /// <param name="obj">The <see cref="OBJFile"/> to convert to an <see cref="SCBFile"/></param>
+        /// <returns>An <see cref="SCBFile"/> converted from <paramref name="obj"/></returns>
+        public static SCBFile ConvertOBJ(OBJFile obj)
         {
-            List<UInt32> Indices = new List<UInt32>();
-            bool ZeroPointIndex = false;
-            foreach (OBJFace Face in OBJ.Faces)
+            List<uint> indices = new List<uint>();
+            bool zeroPointIndex = false;
+            foreach (OBJFace face in obj.Faces)
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    if (Face.VertexIndices[i] == 0)
+                    if (face.VertexIndices[i] == 0)
                     {
-                        ZeroPointIndex = true;
+                        zeroPointIndex = true;
                         break;
                     }
                 }
-                if (ZeroPointIndex) break;
+                if (zeroPointIndex)
+                {
+                    break;
+                }
             }
-            if (ZeroPointIndex == false)
+            if (!zeroPointIndex)
             {
-                foreach (OBJFace Face in OBJ.Faces)
+                foreach (OBJFace face in obj.Faces)
                 {
                     for (int i = 0; i < 3; i++)
                     {
-                        Face.VertexIndices[i] -= 1;
-                        Face.UVIndices[i] -= 1;
+                        face.VertexIndices[i] -= 1;
+                        face.UVIndices[i] -= 1;
                     }
                 }
             }
-            foreach (OBJFace Face in OBJ.Faces)
+            foreach (OBJFace Face in obj.Faces)
             {
-                Indices.AddRange(Face.VertexIndices.Cast<UInt32>());
+                indices.AddRange(Face.VertexIndices.Cast<uint>());
             }
-            return new SCBFile(Indices, OBJ.Vertices, OBJ.UVs);
+            return new SCBFile(indices, obj.Vertices, obj.UVs);
         }
     }
 }

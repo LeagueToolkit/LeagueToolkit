@@ -1,13 +1,13 @@
-﻿using Fantome.League.Helpers.Exceptions;
-using Fantome.League.Helpers.Structures;
-using Fantome.League.IO.SCO;
-using Fantome.League.IO.WGT;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.SCO;
+using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Fantome.League.IO.SKN
+namespace Fantome.Libraries.League.IO.SKN
 {
     [DebuggerDisplay("[ Version: {Version} ]")]
     public class SKNFile

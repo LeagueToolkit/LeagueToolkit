@@ -1,18 +1,22 @@
-﻿using Fantome.League.Helpers.Exceptions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace Fantome.League.IO.WGEO
+namespace Fantome.Libraries.League.IO.WGEO
 {
-    [DebuggerDisplay("[ Version: {Version} ]")]
     public class WGEOFile
     {
-        public UInt32 Version { get; private set; }
         public List<WGEOModel> Models { get; private set; } = new List<WGEOModel>();
         public WGEOBucketGeometry BucketGeometry { get; private set; }
+
+        public WGEOFile(List<WGEOModel> models, WGEOBucketGeometry bucketGeometry)
+        {
+            this.Models = models;
+            this.BucketGeometry = bucketGeometry;
+        } 
 
         public WGEOFile(string Location)
         {
@@ -22,8 +26,8 @@ namespace Fantome.League.IO.WGEO
                 if (Magic != "WGEO")
                     throw new InvalidFileMagicException();
 
-                this.Version = br.ReadUInt32();
-                if (this.Version != 5)
+                uint version = br.ReadUInt32();
+                if (version != 5)
                     throw new UnsupportedFileVersionException();
 
                 UInt32 ModelCount = br.ReadUInt32();
