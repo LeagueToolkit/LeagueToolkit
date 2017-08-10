@@ -39,7 +39,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     uint linkedFileCount = br.ReadUInt32();
                     for (int i = 0; i < linkedFileCount; i++)
                     {
-                        this.LinkedFiles.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32())));
+                        this.LinkedFiles.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
                     }
                 }
 
