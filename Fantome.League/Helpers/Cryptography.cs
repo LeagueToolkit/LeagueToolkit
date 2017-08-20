@@ -12,12 +12,12 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         /// Hashes a string
         /// </summary>
         /// <param name="toHash">String to hash</param>
-        /// <returns>A hash generated from <paramref name="toHash"/></returns>
+        /// <returns>Hash generated from <paramref name="toHash"/></returns>
         /// <remarks>Used in BIN, BNK and WPK</remarks>
-        public static UInt32 FNV32Hash(string toHash)
+        public static uint FNV32Hash(string toHash)
         {
             toHash = toHash.ToLower();
-            UInt32 hash = 2166136261;
+            uint hash = 2166136261;
             for (int i = 0; i < toHash.Length; i++)
             {
                 hash = hash ^ toHash[i];
@@ -32,11 +32,11 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         /// </summary>
         /// <param name="section">The section of the hash</param>
         /// <param name="property">The property of the hash</param>
-        /// <returns>A hash generated from <paramref name="section"/> and <paramref name="property"/></returns>
+        /// <returns>Hash generated from <paramref name="section"/> and <paramref name="property"/></returns>
         /// <remarks>Used in Inibin</remarks>
-        public static UInt32 SectionHash(string section, string property)
+        public static uint SectionHash(string section, string property)
         {
-            UInt32 hash = 0;
+            uint hash = 0;
             section = section.ToLower();
             property = property.ToLower();
             for(int i = 0; i < section.Length; i++)
@@ -55,9 +55,9 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         /// Hashes a string
         /// </summary>
         /// <param name="toHash">The string to hash</param>
-        /// <returns>A hash generated from <paramref name="toHash"/></returns>
+        /// <returns>Hash generated from <paramref name="toHash"/></returns>
         /// <remarks>Used in RAF, SKL and ANM</remarks>
-        public static UInt32 LeagueHash(string toHash)
+        public static uint LeagueHash(string toHash)
         {
             uint hash = 0;
             uint temp = 0;
@@ -72,6 +72,23 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
                     hash = hash ^ temp;
                 }
             }
+            return hash;
+        }
+
+        /// <summary>
+        /// Hashes a string
+        /// </summary>
+        /// <param name="toHash">String to hash</param>
+        /// <returns>Hash generated from <paramref name="toHash"/></returns>
+        public static uint SAXHash(string toHash)
+        {
+            uint hash = 0;
+
+            for(int i = 0; i < toHash.Length; i++)
+            {
+                hash ^= (hash >> 2) + 32 * hash + toHash[i];
+            }
+
             return hash;
         }
     }
