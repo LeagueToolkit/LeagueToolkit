@@ -47,7 +47,8 @@ namespace Fantome.Libraries.League.IO.WAD
                     br.ReadBytes(83 - ecdsaLength);
                 }
 
-                ulong unknown = br.ReadUInt64();
+                //XXHash Checksum of WAD Data (everything after TOC).
+                ulong dataChecksum = br.ReadUInt64();
 
                 ushort tocStartOffset = br.ReadUInt16();
                 ushort tocFileEntrySize = br.ReadUInt16();
