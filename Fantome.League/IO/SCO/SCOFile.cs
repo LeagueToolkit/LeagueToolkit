@@ -24,9 +24,15 @@ namespace Fantome.Libraries.League.IO.SCO
                 this.Faces.Add(new SCOFace(new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] }, "lambert1", new Vector2[] { UV[i], UV[i + 1], UV[i + 2]}));
             }
         }
-        public SCOFile(string Location)
+
+        public SCOFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (StreamReader sr = new StreamReader(Location))
+
+        }
+        public SCOFile(Stream stream)
+        {
+            using (StreamReader sr = new StreamReader(stream))
             {
                 char[] SplittingArray = new char[] { ' ' };
                 string[] input = null;

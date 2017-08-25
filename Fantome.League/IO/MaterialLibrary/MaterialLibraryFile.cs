@@ -11,8 +11,13 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
         public MaterialLibraryFile() { }
 
         public MaterialLibraryFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (StreamReader sr = new StreamReader(fileLocation))
+
+        }
+        public MaterialLibraryFile(Stream stream)
+        {
+            using (StreamReader sr = new StreamReader(stream))
             {
                 while (!sr.EndOfStream)
                 {
@@ -26,7 +31,12 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
 
         public void Write(string fileLocation)
         {
-            using (StreamWriter sw = new StreamWriter(fileLocation))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (StreamWriter sw = new StreamWriter(stream))
             {
                 foreach (MaterialLibraryMaterial material in this.Materials)
                 {

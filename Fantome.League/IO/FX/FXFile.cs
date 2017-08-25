@@ -9,10 +9,14 @@ namespace Fantome.Libraries.League.IO.FX
     {
         public List<FXTrack> Tracks { get; private set; } = new List<FXTrack>();
         public List<string> TargetBones { get; private set; } = new List<string>();
-
         public FXFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+
+        }
+        public FXFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 for (int i = 0; i < 8; i++)
                 {
@@ -44,7 +48,11 @@ namespace Fantome.Libraries.League.IO.FX
 
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            Write(File.Create(fileLocation));
+        }
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 foreach (FXTrack track in this.Tracks)
                 {

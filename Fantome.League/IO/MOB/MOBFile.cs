@@ -15,8 +15,13 @@ namespace Fantome.Libraries.League.IO.MOB
         }
 
         public MOBFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+
+        }
+        public MOBFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "OPAM")
@@ -42,7 +47,12 @@ namespace Fantome.Libraries.League.IO.MOB
 
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(Encoding.ASCII.GetBytes("OPAM"));
                 bw.Write((uint)2);
