@@ -25,8 +25,18 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
         public WADFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+
+        }
+
+        /// <summary>
+        /// Reads a <see cref="WADFile"/> from the specified stream
+        /// </summary>
+        /// <param name="stream">The stream to read from</param>
+        public WADFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
                 if (magic != "RW")
@@ -47,7 +57,8 @@ namespace Fantome.Libraries.League.IO.WAD
                     br.ReadBytes(83 - ecdsaLength);
                 }
 
-                ulong unknown = br.ReadUInt64();
+                //XXHash Checksum of WAD Data (everything after TOC).
+                ulong dataChecksum = br.ReadUInt64();
 
                 ushort tocStartOffset = br.ReadUInt16();
                 ushort tocFileEntrySize = br.ReadUInt16();

@@ -13,9 +13,14 @@ namespace Fantome.Libraries.League.IO.MapParticles
         }
 
         public MapParticlesFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
+        {
+
+        }
+        public MapParticlesFile(Stream stream)
         {
             this.Particles = new List<MapParticlesParticle>();
-            using (StreamReader sr = new StreamReader(fileLocation))
+            using (StreamReader sr = new StreamReader(stream))
             {
                 while (!sr.EndOfStream)
                 {
@@ -26,7 +31,12 @@ namespace Fantome.Libraries.League.IO.MapParticles
 
         public void Write(string fileLocation)
         {
-            using (StreamWriter sw = new StreamWriter(fileLocation))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (StreamWriter sw = new StreamWriter(stream))
             {
                 foreach (MapParticlesParticle particle in this.Particles)
                 {

@@ -61,9 +61,14 @@ namespace Fantome.Libraries.League.IO.SKN
             }
         }
 
-        public SKNFile(string Location)
+        public SKNFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+
+        }
+        public SKNFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 UInt32 Magic = br.ReadUInt32();
                 if (Magic != 0x00112233)
@@ -114,9 +119,13 @@ namespace Fantome.Libraries.League.IO.SKN
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            Write(File.Create(fileLocation));
+        }
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(0x00112233);
                 bw.Write((UInt16)2);

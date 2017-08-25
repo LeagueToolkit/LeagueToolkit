@@ -13,11 +13,17 @@ namespace Fantome.Libraries.League.IO.LightEnvironment
         }
 
         public LightEnvironmentFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (StreamReader sr = new StreamReader(fileLocation))
+
+        }
+
+        public LightEnvironmentFile(Stream stream)
+        {
+            using (StreamReader sr = new StreamReader(stream))
             {
                 string lightVersion = sr.ReadLine();
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     this.Lights.Add(new LightEnvironmentLight(sr));
                 }
@@ -26,8 +32,13 @@ namespace Fantome.Libraries.League.IO.LightEnvironment
 
         public void Write(string fileLocation)
         {
-            using (StreamWriter sw = new StreamWriter(fileLocation))
-            {
+            Write(File.Create(fileLocation));
+        }
+
+        private void Write(Stream stream)
+        {
+            using (StreamWriter sw = new StreamWriter(stream))
+            { 
                 sw.WriteLine("3");
 
                 foreach(LightEnvironmentLight light in this.Lights)

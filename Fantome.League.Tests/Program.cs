@@ -114,7 +114,7 @@ namespace Fantome.Libraries.League.Tests
         static void LightGridTest()
         {
             LightGridFile lightgrid = new LightGridFile("LightGrid.dat");
-            lightgrid.Write("LightGridWrite.dat");
+            lightgrid.WriteTexture("LightGridWrite.tga");
         }
 
         static void MaterialLibraryTest()
