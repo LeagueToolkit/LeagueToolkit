@@ -47,9 +47,16 @@ namespace Fantome.Libraries.League.IO.OBJ
             }
         }
 
-        public OBJFile(string Location)
+
+        public OBJFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (StreamReader sr = new StreamReader(Location))
+
+        }
+
+        public OBJFile(Stream stream)
+        {
+            using (StreamReader sr = new StreamReader(stream))
             {
                 while (sr.BaseStream.Position != sr.BaseStream.Length)
                 {
@@ -58,9 +65,14 @@ namespace Fantome.Libraries.League.IO.OBJ
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (StreamWriter sw = new StreamWriter(Location))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (StreamWriter sw = new StreamWriter(stream))
             {
                 foreach (string Comment in this.Comments)
                 {

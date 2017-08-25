@@ -7,9 +7,15 @@ namespace Fantome.Libraries.League.IO.Inibin
     public class InibinFile
     {
         public List<InibinSet> Sets { get; private set; } = new List<InibinSet>();
+
         public InibinFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+
+        }
+        public InibinFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 uint version = br.ReadByte();
 
@@ -87,10 +93,14 @@ namespace Fantome.Libraries.League.IO.Inibin
                 }
             }
         }
-
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 ushort stringDataLength = 0;
                 InibinFlags flags = 0;

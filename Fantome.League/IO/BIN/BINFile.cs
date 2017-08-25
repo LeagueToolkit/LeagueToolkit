@@ -24,8 +24,18 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
         public BINFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="BINFile"/> from the specified stream
+        /// </summary>
+        /// <param name="stream">Straem to read from</param>
+        public BINFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "PROP")
@@ -61,7 +71,16 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation, FileMode.Create)))
+            Write(File.Create(fileLocation));
+        }
+
+        /// <summary>
+        /// Writes this <see cref="BINFile"/> to the specified stream
+        /// </summary>
+        /// <param name="stream">The stream to write to</param>
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
                 bw.Write((uint)2);

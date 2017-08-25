@@ -13,9 +13,15 @@ namespace Fantome.Libraries.League.IO.LightGrid
         public LightGridSun Sun { get; private set; }
         public List<ColorRGBAVector4Byte> Grid { get; private set; } = new List<ColorRGBAVector4Byte>();
 
+
         public LightGridFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+
+        }
+        public LightGridFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 this.Version = br.ReadUInt32();
                 this._gridOffset = br.ReadUInt32();
@@ -32,7 +38,11 @@ namespace Fantome.Libraries.League.IO.LightGrid
 
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation, FileMode.Create)))
+            Write(File.Create(fileLocation));
+        }
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(this.Version);
                 bw.Write(this._gridOffset);
