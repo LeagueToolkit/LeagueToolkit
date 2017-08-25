@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-
+            LightGridTest();
         }
 
         static void WGEOTest()
@@ -113,7 +113,7 @@ namespace Fantome.Libraries.League.Tests
         static void LightGridTest()
         {
             LightGridFile lightgrid = new LightGridFile("LightGrid.dat");
-            lightgrid.Write("LightGridWrite.dat");
+            lightgrid.WriteTexture("LightGridWrite.tga");
         }
 
         static void MaterialLibraryTest()
