@@ -1,35 +1,32 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.SKN
 {
-    [DebuggerDisplay("[ {Name} ]")]
     public class SKNSubmesh
     {
         public string Name { get; private set; }
-        public UInt32 StartVertex { get; private set; }
-        public UInt32 VertexCount { get; private set; }
-        public UInt32 StartIndex { get; private set; }
-        public UInt32 IndexCount { get; private set; }
+        public uint StartVertex { get; private set; }
+        public uint VertexCount { get; private set; }
+        public uint StartIndex { get; private set; }
+        public uint IndexCount { get; private set; }
 
-        public SKNSubmesh(string Name, UInt32 StartVertex, UInt32 VertexCount, UInt32 StartIndex, UInt32 IndexCount)
+        public SKNSubmesh(string name, uint startVertex, uint vertexCount, uint startIndex, uint indexCount)
         {
-            this.Name = Name;
-            this.StartVertex = StartVertex;
-            this.VertexCount = VertexCount;
-            this.StartIndex = StartIndex;
-            this.IndexCount = IndexCount;
+            this.Name = name;
+            this.StartVertex = vertexCount;
+            this.VertexCount = vertexCount;
+            this.StartIndex = startIndex;
+            this.IndexCount = indexCount;
         }
 
         public SKNSubmesh(BinaryReader br)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
-            this.StartVertex = br.ReadUInt32();
-            this.VertexCount = br.ReadUInt32();
-            this.StartIndex = br.ReadUInt32();
-            this.IndexCount = br.ReadUInt32();
+            uint startVertex = br.ReadUInt32();
+            uint vertexCount = br.ReadUInt32();
+            uint startIndex = br.ReadUInt32();
+            uint indexCount = br.ReadUInt32();
         }
 
         public void Write(BinaryWriter bw)

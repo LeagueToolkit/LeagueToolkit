@@ -89,16 +89,16 @@ namespace Fantome.Libraries.League.IO.NVR
             {
                 for (int i = 0; i < 3; i++)
                 {
-                    NVRVertex8 position = (NVRVertex8)objVertices[face.VertexIndices[i]];
+                    NVRVertex8 position = (NVRVertex8)objVertices[(int)face.VertexIndices[i]];
                     Vector2 UV = new Vector2(0, 0);
                     if (objFile.UVs.Count > 0)
                     {
-                        UV = objFile.UVs[face.UVIndices[i]];
+                        UV = objFile.UVs[(int)face.UVIndices[i]];
                     }
                     Vector3 normal = new Vector3(0, 0, 0);
                     if (objFile.Normals.Count > 0)
                     {
-                        normal = objFile.Normals[face.NormalIndices[i]];
+                        normal = objFile.Normals[(int)face.NormalIndices[i]];
                     }
 
                     if ((position.UV != null && position.Normal != null) && (!position.UV.Equals(UV) || !position.Normal.Equals(normal)))

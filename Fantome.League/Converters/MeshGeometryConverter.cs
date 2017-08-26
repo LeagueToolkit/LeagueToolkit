@@ -26,9 +26,9 @@ namespace Fantome.Libraries.League.Converters
             Int32Collection indices = new Int32Collection();
             foreach (OBJFace face in obj.Faces)
             {
-                indices.Add(face.VertexIndices[0]);
-                indices.Add(face.VertexIndices[1]);
-                indices.Add(face.VertexIndices[2]);
+                indices.Add((int)face.VertexIndices[0]);
+                indices.Add((int)face.VertexIndices[1]);
+                indices.Add((int)face.VertexIndices[2]);
             }
 
             Point3DCollection vertices = new Point3DCollection();
@@ -65,7 +65,7 @@ namespace Fantome.Libraries.League.Converters
                 Int32Collection indices = new Int32Collection();
                 for (int i = 0; i < submesh.IndexCount; i++)
                 {
-                    indices.Add(skn.Indices[i + (int)submesh.StartIndex] - (int)submesh.StartIndex);
+                    indices.Add((int)skn.Indices[i + (int)submesh.StartIndex] - (int)submesh.StartIndex);
                 }
 
                 Point3DCollection vertices = new Point3DCollection();

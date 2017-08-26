@@ -17,13 +17,17 @@ namespace Fantome.Libraries.League.Converters
         public static SCBFile ConvertSCO(SCOFile sco)
         {
             List<uint> indices = new List<uint>();
-            List<Vector2> uv = new List<Vector2>();
-            foreach (SCOFace face in sco.Faces)
+            List<Vector2> uvs = new List<Vector2>();
+
+            foreach (KeyValuePair<string, List<SCOFace>> material in sco.Materials)
             {
-                indices.AddRange(face.Indices.Cast<uint>());
-                uv.AddRange(face.UV);
+                foreach (SCOFace face in material.Value)
+                {
+                    indices.AddRange(face.Indices);
+                    uvs.AddRange(face.UVs);
+                }
             }
-            return new SCBFile(indices, sco.Vertices, uv);
+            return new SCBFile(sco.Vertices, indices, uvs);
         }
 
         /// <summary>
@@ -33,9 +37,12 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="SCBFile"/> converted from <paramref name="obj"/></returns>
         public static SCBFile ConvertOBJ(OBJFile obj)
         {
+            List<Vector3> vertices = obj.Vertices;
+            List<OBJFace> faces = obj.Faces;
             List<uint> indices = new List<uint>();
             bool zeroPointIndex = false;
-            foreach (OBJFace face in obj.Faces)
+
+            foreach (OBJFace face in faces)
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -52,7 +59,7 @@ namespace Fantome.Libraries.League.Converters
             }
             if (!zeroPointIndex)
             {
-                foreach (OBJFace face in obj.Faces)
+                foreach (OBJFace face in faces)
                 {
                     for (int i = 0; i < 3; i++)
                     {
@@ -61,11 +68,11 @@ namespace Fantome.Libraries.League.Converters
                     }
                 }
             }
-            foreach (OBJFace Face in obj.Faces)
+            foreach (OBJFace face in faces)
             {
-                indices.AddRange(Face.VertexIndices.Cast<uint>());
+                indices.AddRange(face.VertexIndices.Cast<uint>());
             }
-            return new SCBFile(indices, obj.Vertices, obj.UVs);
+            return new SCBFile(obj.Vertices, indices, obj.UVs);
         }
     }
 }

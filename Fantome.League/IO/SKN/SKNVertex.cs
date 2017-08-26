@@ -1,13 +1,10 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
-using System.Diagnostics;
 using System.IO;
 
 namespace Fantome.Libraries.League.IO.SKN
 {
-    [DebuggerDisplay("[ {Position.X}, {Position.Y}, {Position.Z} ]")]
     public class SKNVertex
     {
-        private bool IsTangent { get; set; }
         public Vector3 Position { get; private set; }
         public Vector4Byte BoneIndices { get; private set; }
         public Vector4 Weights { get; private set; }
@@ -15,23 +12,35 @@ namespace Fantome.Libraries.League.IO.SKN
         public Vector2 UV { get; private set; }
         public Vector4Byte Tangent { get; private set; }
 
-        public SKNVertex(Vector3 Position)
+        public SKNVertex(Vector3 position, Vector4Byte boneIndices, Vector4 weights, Vector3 normal, Vector2 uv)
         {
-            this.IsTangent = false;
             this.Position = Position;
+            this.BoneIndices = boneIndices;
+            this.Weights = weights;
+            this.Normal = normal;
+            this.UV = uv;
         }
 
-        public SKNVertex(BinaryReader br, bool IsTangent)
+        public SKNVertex(Vector3 position, Vector4Byte boneIndices, Vector4 weights, Vector3 normal, Vector2 uv, Vector4Byte tangent)
+        {
+            this.Position = Position;
+            this.BoneIndices = boneIndices;
+            this.Weights = weights;
+            this.Normal = normal;
+            this.UV = uv;
+            this.Tangent = tangent;
+        }
+
+        public SKNVertex(BinaryReader br, bool isTangent)
         {
             this.Position = new Vector3(br);
             this.BoneIndices = new Vector4Byte(br);
             this.Weights = new Vector4(br);
             this.Normal = new Vector3(br);
             this.UV = new Vector2(br);
-            if (IsTangent)
+            if (isTangent)
             {
                 this.Tangent = new Vector4Byte(br);
-                this.IsTangent = IsTangent;
             }
         }
 
@@ -42,24 +51,10 @@ namespace Fantome.Libraries.League.IO.SKN
             this.Weights.Write(bw);
             this.Normal.Write(bw);
             this.UV.Write(bw);
-            if (this.IsTangent)
+            if (this.Tangent != null)
+            {
                 this.Tangent.Write(bw);
-        }
-
-        public void SetWeight(Vector4Byte BoneIndices, Vector4 Weights)
-        {
-            this.BoneIndices = BoneIndices;
-            this.Weights = Weights;
-        }
-
-        public void SetNormal(Vector3 Normal)
-        {
-            this.Normal = Normal;
-        }
-
-        public void SetUV(Vector2 UV)
-        {
-            this.UV = UV;
+            }
         }
     }
 }

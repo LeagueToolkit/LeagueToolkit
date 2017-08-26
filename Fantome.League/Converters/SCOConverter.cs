@@ -19,14 +19,18 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="SCOFile"/> converted from <paramref name="scb"/></returns>
         public static SCOFile ConvertSCB(SCBFile scb)
         {
-            List<ushort> indices = new List<ushort>();
+            List<uint> indices = new List<uint>();
             List<Vector2> uvs = new List<Vector2>();
-            foreach (SCBFace face in scb.Faces)
+
+            foreach (KeyValuePair<string, List<SCBFace>> material in scb.Materials)
             {
-                indices.AddRange(face.Indices.AsEnumerable().Cast<ushort>());
-                uvs.AddRange(face.UV);
+                foreach (SCBFace face in material.Value)
+                {
+                    indices.AddRange(face.Indices);
+                    uvs.AddRange(face.UVs);
+                }
             }
-            return new SCOFile(indices, scb.Vertices, uvs);
+            return new SCOFile(scb.Vertices, indices, uvs);
         }
 
         /// <summary>
@@ -36,9 +40,12 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="SCOFile"/> converted from <paramref name="obj"/></returns>
         public static SCOFile ConvertOBJ(OBJFile obj)
         {
-            List<UInt16> indices = new List<UInt16>();
+            List<Vector3> vertices = obj.Vertices;
+            List<OBJFace> faces = obj.Faces;
+            List<uint> indices = new List<uint>();
             bool zeroPointIndex = false;
-            foreach (OBJFace face in obj.Faces)
+
+            foreach (OBJFace face in faces)
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -55,7 +62,7 @@ namespace Fantome.Libraries.League.Converters
             }
             if (!zeroPointIndex)
             {
-                foreach (OBJFace face in obj.Faces)
+                foreach (OBJFace face in faces)
                 {
                     for (int i = 0; i < 3; i++)
                     {
@@ -64,11 +71,11 @@ namespace Fantome.Libraries.League.Converters
                     }
                 }
             }
-            foreach (OBJFace Face in obj.Faces)
+            foreach (OBJFace face in faces)
             {
-                indices.AddRange(Face.VertexIndices);
+                indices.AddRange(face.VertexIndices);
             }
-            return new SCOFile(indices, obj.Vertices, obj.UVs);
+            return new SCOFile(obj.Vertices, indices, obj.UVs);
         }
 
         /// <summary>
@@ -90,7 +97,7 @@ namespace Fantome.Libraries.League.Converters
                 weights.Add(vertex.Weights);
                 boneIndices.Add(vertex.BoneIndices);
             }
-            return new Tuple<SCOFile, WGTFile>(new SCOFile(skn.Indices, vertices, uvs), new WGTFile(weights, boneIndices));
+            return new Tuple<SCOFile, WGTFile>(new SCOFile(vertices, skn.Indices, uvs), new WGTFile(weights, boneIndices));
         }
     }
 }

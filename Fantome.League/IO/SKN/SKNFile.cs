@@ -1,158 +1,250 @@
-﻿using Fantome.Libraries.League.Helpers.Exceptions;
-using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 
 namespace Fantome.Libraries.League.IO.SKN
 {
-    [DebuggerDisplay("[ Version: {Version} ]")]
     public class SKNFile
     {
-        public UInt32 Version { get; private set; }
         public List<SKNSubmesh> Submeshes { get; private set; } = new List<SKNSubmesh>();
-        public List<UInt16> Indices { get; private set; } = new List<UInt16>();
+        public List<uint> Indices { get; private set; } = new List<uint>();
         public List<SKNVertex> Vertices { get; private set; } = new List<SKNVertex>();
 
-        public SKNFile(WGTFile Weights, SCOFile Model)
+        public SKNFile(WGTFile weightsFile, SCOFile modelFile)
         {
-            this.Submeshes.Add(new SKNSubmesh(Model.Name, 0, (uint)Model.Vertices.Count, 0, (uint)Model.Faces.Count * 3));
-            foreach (Vector3 Vertex in Model.Vertices)
-            {
-                this.Vertices.Add(new SKNVertex(Vertex));
-            }
-            for (int i = 0; i < this.Vertices.Count; i++)
-            {
-                this.Vertices[i].SetWeight(Weights.Weights[i].Indices, Weights.Weights[i].Weights);
-            }
-            for (int i = 0; i < Model.Faces.Count; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    this.Vertices[Model.Faces[i].Indices[j]].SetUV(Model.Faces[i].UV[j]);
-                }
-                for (int j = 0; j < 3; j++)
-                {
-                    this.Indices.Add(Model.Faces[i].Indices[j]);
-                }
-            }
-            for (int i = 0; i < Indices.Count; i += 3)
-            {
-                Vector3 cp = Vector3.Cross(
-                    Vertices[Indices[i + 1]].Position - Vertices[Indices[i]].Position,
-                    Vertices[Indices[i + 2]].Position - Vertices[Indices[i]].Position);
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector4Byte> boneIndices = new List<Vector4Byte>();
+            List<Vector4> weights = new List<Vector4>();
+            List<Vector2> uvs = new List<Vector2>();
+            List<uint> indices = new List<uint>();
 
-                Vertices[Indices[i]].SetNormal(Vertices[Indices[i]].Normal + cp);
-                Vertices[Indices[i + 1]].SetNormal(Vertices[Indices[i + 1]].Normal + cp);
-                Vertices[Indices[i + 2]].SetNormal(Vertices[Indices[i + 2]].Normal + cp);
-            }
-            foreach (SKNVertex Vertex in Vertices)
+            foreach (WGTWeight weight in weightsFile.Weights)
             {
-                float s = Vertex.Normal.X + Vertex.Normal.Y + Vertex.Normal.Z;
-                Vertex.SetNormal(new Vector3(
-                    Vertex.Normal.X / s,
-                    Vertex.Normal.Y / s,
-                    Vertex.Normal.Z / s
-                    )
-                    );
+                boneIndices.Add(weight.Indices);
+                weights.Add(weight.Weights);
             }
+
+            foreach (KeyValuePair<string, List<SCOFace>> material in modelFile.Materials)
+            {
+                uint currentIndexValue = 0;
+
+                this.Submeshes.Add(new SKNSubmesh(
+                    material.Key,
+                    currentIndexValue,
+                    (uint)material.Value.Count,
+                    currentIndexValue,
+                    (uint)(material.Value.Count * 3)));
+
+                currentIndexValue += (uint)material.Value.Count;
+
+                foreach (SCOFace face in material.Value)
+                {
+                    indices.AddRange(face.Indices);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        vertices.Add(modelFile.Vertices[(int)face.Indices[i]]);
+                        uvs.Add(face.UVs[i]);
+                    }
+                }
+            }
+
+            //Calculates smooth normals for the mesh
+            List<Vector3> normals = new List<Vector3>(vertices.Count);
+            for (int i = 0; i < indices.Count; i++)
+            {
+                uint a = indices[i];
+                uint b = indices[i + 1];
+                uint c = indices[i + 2];
+
+                Vector3 edgeA = vertices[(int)a] - vertices[(int)b];
+                Vector3 edgeB = vertices[(int)c] - vertices[(int)b];
+                Vector3 normal = Vector3.Cross(edgeA, edgeB);
+
+                normals[(int)a] = normal;
+                normals[(int)b] = normal;
+                normals[(int)c] = normal;
+
+                //Normalizes normals
+                for (int j = 0; j < normals.Count; j++)
+                {
+                    Vector3 normalNormalize = normals[i];
+                    float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
+                    normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
+                }
+            }
+
+            List<SKNVertex> sknVertices = new List<SKNVertex>();
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                sknVertices.Add(new SKNVertex(vertices[i], boneIndices[i], weights[i], normals[i], uvs[i]));
+            }
+
+            this.Indices = indices;
+            this.Vertices = sknVertices;
         }
 
         public SKNFile(string fileLocation)
-            : this(File.OpenRead(fileLocation))
         {
-
-        }
-        public SKNFile(Stream stream)
-        {
-            using (BinaryReader br = new BinaryReader(stream))
+            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
             {
-                UInt32 Magic = br.ReadUInt32();
-                if (Magic != 0x00112233)
-                    throw new InvalidFileMagicException();
+                uint magic = br.ReadUInt32();
+                if (magic != 0x00112233)
+                {
+                    throw new Exception("Not a valid SKN file");
+                }
 
-                this.Version = br.ReadUInt16();
-                if (this.Version != 2 && this.Version != 4)
-                    throw new UnsupportedFileVersionException();
+                ushort major = br.ReadUInt16();
+                ushort minor = br.ReadUInt16();
+                if (major != 2 && major != 4 && minor != 1)
+                {
+                    throw new Exception("This SKN version is not supported");
+                }
 
-                UInt16 ObjectCount = br.ReadUInt16();
-                UInt32 SubmeshCount = br.ReadUInt32();
+                uint submeshCount = br.ReadUInt32();
 
-                for (int i = 0; i < SubmeshCount; i++)
+                for (int i = 0; i < submeshCount; i++)
                 {
                     this.Submeshes.Add(new SKNSubmesh(br));
                 }
-                if (this.Version == 4)
-                    br.ReadUInt32();
-
-                UInt32 IndexCount = br.ReadUInt32();
-                UInt32 VertexCount = br.ReadUInt32();
-
-                UInt32 VertexSize;
-                bool IsTangent = false;
-                Vector3 Min;
-                Vector3 Max;
-                Vector3 CentralPoint;
-                float Radius;
-
-                if (this.Version == 4)
+                if (major == 4)
                 {
-                    VertexSize = br.ReadUInt32();
-                    IsTangent = br.ReadUInt32() == 1;
-                    Min = new Vector3(br);
-                    Max = new Vector3(br);
-                    CentralPoint = new Vector3(br);
-                    Radius = br.ReadSingle();
+                    uint unknown = br.ReadUInt32();
                 }
 
-                for (int i = 0; i < IndexCount; i++)
+                uint indexCount = br.ReadUInt32();
+                uint vertexCount = br.ReadUInt32();
+
+                uint vertexSize;
+                bool isTangent = false;
+                R3DBox boundingBox;
+                R3DSphere boundingSphere;
+
+                if (major == 4)
+                {
+                    vertexSize = br.ReadUInt32();
+                    isTangent = br.ReadUInt32() == 1;
+                    boundingBox = new R3DBox(br);
+                    boundingSphere = new R3DSphere(br);
+                }
+
+                for (int i = 0; i < indexCount; i++)
                 {
                     this.Indices.Add(br.ReadUInt16());
                 }
-                for (int i = 0; i < VertexCount; i++)
+                for (int i = 0; i < vertexCount; i++)
                 {
-                    this.Vertices.Add(new SKNVertex(br, IsTangent));
+                    this.Vertices.Add(new SKNVertex(br, isTangent));
                 }
             }
         }
 
         public void Write(string fileLocation)
         {
-            Write(File.Create(fileLocation));
-        }
-        public void Write(Stream stream)
-        {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
             {
                 bw.Write(0x00112233);
-                bw.Write((UInt16)2);
-                bw.Write((UInt16)1);
-                bw.Write((UInt32)this.Submeshes.Count);
+                bw.Write((ushort)4);
+                bw.Write((ushort)1);
+                bw.Write(this.Submeshes.Count);
 
-                UInt32 IndexCount = 0;
-                UInt32 VertexCount = 0;
-                foreach (SKNSubmesh Submesh in this.Submeshes)
+                uint indexCount = 0;
+                uint vertexCount = 0;
+                foreach (SKNSubmesh submesh in this.Submeshes)
                 {
-                    Submesh.Write(bw);
-                    IndexCount += Submesh.IndexCount;
-                    VertexCount += Submesh.VertexCount;
+                    submesh.Write(bw);
+                    indexCount += submesh.IndexCount;
+                    vertexCount += submesh.VertexCount;
                 }
-                bw.Write(IndexCount);
-                bw.Write(VertexCount);
+                bw.Write((uint)0);
+                bw.Write(indexCount);
+                bw.Write(vertexCount);
 
-                foreach (UInt16 Index in this.Indices)
+                if (this.Vertices[0].Tangent != null)
                 {
-                    bw.Write(Index);
+                    bw.Write((uint)56);
+                    bw.Write((uint)1);
                 }
-                foreach (SKNVertex Vertex in this.Vertices)
+                else
                 {
-                    Vertex.Write(bw);
+                    bw.Write((uint)52);
+                    bw.Write((uint)0);
+                }
+
+                R3DBox box = CalculateBoundingBox();
+                box.Write(bw);
+                CalculateBoundingSphere(box).Write(bw);
+
+                foreach (ushort index in this.Indices)
+                {
+                    bw.Write(index);
+                }
+                foreach (SKNVertex vertex in this.Vertices)
+                {
+                    vertex.Write(bw);
                 }
                 bw.Write(new byte[12]);
             }
+        }
+
+        public R3DBox CalculateBoundingBox()
+        {
+            Vector3 min = this.Vertices[0].Position;
+            Vector3 max = this.Vertices[0].Position;
+
+            foreach (SKNVertex vertex in this.Vertices)
+            {
+                if (min.X > vertex.Position.X) min.X = vertex.Position.X;
+                if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
+                if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
+                if (max.X < vertex.Position.X) max.X = vertex.Position.X;
+                if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
+                if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+            }
+
+            return new R3DBox(min, max);
+        }
+
+        public R3DSphere CalculateBoundingSphere()
+        {
+            R3DBox box = CalculateBoundingBox();
+            Vector3 centralPoint = CalculateCentralPoint();
+
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+        }
+
+        public R3DSphere CalculateBoundingSphere(R3DBox box)
+        {
+            Vector3 centralPoint = CalculateCentralPoint();
+
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+        }
+
+        public R3DSphere CalculateBoundingSphere(R3DBox box, Vector3 centralPoint)
+        {
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+        }
+
+        public Vector3 CalculateCentralPoint()
+        {
+            R3DBox box = CalculateBoundingBox();
+
+            return new Vector3(
+                0.5f * (box.Min.X + box.Max.X),
+                0.5f * (box.Min.Y + box.Max.Y),
+                0.5f * (box.Min.Z + box.Max.Z)
+                );
+        }
+
+        public Vector3 CalculateCentralPoint(R3DBox box)
+        {
+            return new Vector3(
+                0.5f * (box.Min.X + box.Max.X),
+                0.5f * (box.Min.Y + box.Max.Y),
+                0.5f * (box.Min.Z + box.Max.Z)
+                );
         }
     }
 }

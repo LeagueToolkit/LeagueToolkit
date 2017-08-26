@@ -29,7 +29,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            ObjectConfigTest();
+            SCOTest();
         }
 
         static void WGEOTest()
@@ -70,6 +70,7 @@ namespace Fantome.Libraries.League.Tests
         static void SCOTest()
         {
             SCOFile sco = new SCOFile("Aatrox_Basic_A_trail_01.sco");
+            sco.Write("kek.sco");
         }
 
         static void NVRTest()
