@@ -77,12 +77,12 @@ namespace Fantome.Libraries.League.IO.WAD
 
         public void Extract(string directoryLocation, bool identifyFiles)
         {
-            if(!Directory.Exists(directoryLocation))
+            if (!Directory.Exists(directoryLocation))
             {
                 Directory.CreateDirectory(directoryLocation);
             }
             //Using Parallel Foreach loop to make extraction super duper fast
-            Parallel.ForEach(this.Entries, entry => 
+            Parallel.ForEach(this.Entries, entry =>
             {
                 if (identifyFiles)
                 {

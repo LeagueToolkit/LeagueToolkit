@@ -1,10 +1,9 @@
-﻿using Fantome.Libraries.League.Helpers.Compression;
+﻿using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.Helpers.Compression;
 using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Text;
-using Fantome.Libraries.League.Helpers;
-using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
