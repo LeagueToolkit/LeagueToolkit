@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using Fantome.Libraries.League.Helpers.Exceptions;
+using System.Text;
 
 namespace Fantome.Libraries.League.IO.FX
 {
@@ -10,10 +9,14 @@ namespace Fantome.Libraries.League.IO.FX
     {
         public List<FXTrack> Tracks { get; private set; } = new List<FXTrack>();
         public List<string> TargetBones { get; private set; } = new List<string>();
-
-        public FXFile(string Location)
+        public FXFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+
+        }
+        public FXFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 for (int i = 0; i < 8; i++)
                 {
@@ -22,39 +25,45 @@ namespace Fantome.Libraries.League.IO.FX
 
                 if (br.BaseStream.Position != br.BaseStream.Length)
                 {
-                    UInt32 Version = br.ReadUInt32();
-                    if (Version != 1)
-                        throw new UnsupportedFileVersionException();
-
-                    UInt32 Flag = br.ReadUInt32();
-                    UInt32 TargetBoneCount = br.ReadUInt32();
-
-                    if ((Flag & 1) == 1)
+                    uint version = br.ReadUInt32();
+                    if (version != 1)
                     {
-                        for (int i = 0; i < TargetBoneCount; i++)
+                        throw new Exception("This version is not supported");
+                    }
+
+                    uint flag = br.ReadUInt32();
+                    uint targetBoneCount = br.ReadUInt32();
+
+                    if ((flag & 1) == 1)
+                    {
+                        for (int i = 0; i < targetBoneCount; i++)
                         {
-                            string TargetBone = Encoding.ASCII.GetString(br.ReadBytes(64));
-                            this.TargetBones.Add(TargetBone.Remove(TargetBone.IndexOfAny(new char[] { '\u0000', (char)0xCD })));
+                            string targetBone = Encoding.ASCII.GetString(br.ReadBytes(64));
+                            this.TargetBones.Add(targetBone.Remove(targetBone.IndexOfAny(new char[] { '\u0000', (char)0xCD })));
                         }
                     }
                 }
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            Write(File.Create(fileLocation));
+        }
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
-                foreach (FXTrack Track in this.Tracks)
+                foreach (FXTrack track in this.Tracks)
                 {
-                    Track.Write(bw);
+                    track.Write(bw);
                 }
-                bw.Write((UInt32)1);
-                bw.Write((UInt32)1);
-                bw.Write((UInt32)this.Tracks.Count);
-                foreach (string TargetBone in this.TargetBones)
+                bw.Write((uint)1);
+                bw.Write(this.TargetBones.Count != 0 ? 1 : 0);
+                bw.Write((uint)this.Tracks.Count);
+                foreach (string targetBone in this.TargetBones)
                 {
-                    bw.Write(TargetBone.PadRight(64, '\u0000').ToCharArray());
+                    bw.Write(targetBone.PadRight(64, '\u0000').ToCharArray());
                 }
             }
         }

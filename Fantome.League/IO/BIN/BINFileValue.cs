@@ -1,19 +1,46 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.BIN
 {
+    /// <summary>
+    /// Represents a value inside of a <see cref="BINFileEntry"/> or <see cref="BINFileValueList"/>
+    /// </summary>
     public class BINFileValue
     {
-        public UInt32 Property { get; private set; }
+        /// <summary>
+        /// The hash of the name of this <see cref="BINFileValue"/>
+        /// </summary>
+        /// <remarks>Can be <see cref="null"/> if <see cref="Parent"/> assigns it a type</remarks>
+        public uint Property { get; private set; }
+        /// <summary>
+        /// Type of this <see cref="BINFileValue"/>
+        /// </summary>
+        /// <remarks>Can be <see cref="null"/> if <see cref="Parent"/> assigns it a type</remarks>
         public BINFileValueType? Type { get; private set; }
-        public Object Value { get; private set; }
-        public Object Parent { get; private set; }
+        /// <summary>
+        /// The value of this <see cref="BINFileValue"/>
+        /// </summary>
+        public object Value { get; private set; }
+        /// <summary>
+        /// Object that is the parent of this <see cref="BINFileValue"/>
+        /// </summary>
+        /// <remarks>Can be either <see cref="BINFileEntry"/> or <see cref="BINFileValueList"/></remarks>
+        public object Parent { get; private set; }
+        /// <summary>
+        /// Whether <see cref="Type"/> and <see cref="Property"/> were read
+        /// </summary>
         private bool _typeRead = false;
 
-        public BINFileValue(BinaryReader br, Object parent, BINFileValueType? type = null)
+        /// <summary>
+        /// Initializes a new <see cref="BINFileValue"/> from a <see cref="BinaryReader"/>
+        /// </summary>
+        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
+        /// <param name="parent">The <see cref="Parent"/> of this value</param>
+        /// <param name="type">The type that should be given to this entry</param>
+        /// <remarks>If you give this <see cref="BINFileValue"/> a custom type then <see cref="Property"/> and <see cref="Type"/> won't be read from the <see cref="BinaryReader"/></remarks>
+        public BINFileValue(BinaryReader br, object parent, BINFileValueType? type = null)
         {
             this.Parent = parent;
             this.Type = type;
@@ -70,7 +97,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINFileValueType.ByteVector4 || this.Type == BINFileValueType.ByteVector4_2)
             {
-                this.Value = new Byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
+                this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             }
             else if (this.Type == BINFileValueType.FloatVector2)
             {
@@ -94,6 +121,11 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="BINFileValue"/> into a <see cref="BinaryWriter"/>
+        /// </summary>
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
+        /// <param name="writeType">Whether to write the <see cref="Property"/> and <see cref="Type"/> of this <see cref="BINFileValue"/></param>
         public void Write(BinaryWriter bw, bool writeType)
         {
             if (writeType)
@@ -104,7 +136,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
             if (this.Type == BINFileValueType.String)
             {
-                string value = this.Value as String;
+                string value = this.Value as string;
                 bw.Write((ushort)value.Length);
                 bw.Write(Encoding.ASCII.GetBytes(value));
             }
@@ -180,6 +212,9 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
+        /// <summary>
+        /// Gets the size of this entry in bytes
+        /// </summary>
         public int GetSize()
         {
             int size = this._typeRead ? 5 : 0;
@@ -194,7 +229,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINFileValueType.String)
             {
-                size += 2 + (this.Value as String).Length;
+                size += 2 + (this.Value as string).Length;
             }
             else if (this.Type == BINFileValueType.Float ||
                 this.Type == BINFileValueType.UInt32 ||
@@ -234,28 +269,94 @@ namespace Fantome.Libraries.League.IO.BIN
         }
     }
 
+    /// <summary>
+    /// Type of a <see cref="BINFileValue"/>
+    /// </summary>
     public enum BINFileValueType : Byte
     {
+        /// <summary>
+        /// 3 UShorts
+        /// </summary>
         UInt16Vector3 = 0,
+        /// <summary>
+        /// Boolean
+        /// </summary>
         Boolean = 1,
+        /// <summary>
+        /// Byte
+        /// </summary>
         ByteValue = 3,
+        /// <summary>
+        /// UShort
+        /// </summary>
         UInt16 = 5,
+        /// <summary>
+        /// UInt
+        /// </summary>
         UInt32_3 = 6,
+        /// <summary>
+        /// UInt
+        /// </summary>
         UInt32_2 = 7,
+        /// <summary>
+        /// 2 UInts
+        /// </summary>
         UInt32Vector2 = 9,
+        /// <summary>
+        /// Float
+        /// </summary>
         Float = 10,
+        /// <summary>
+        /// 2 Floats
+        /// </summary>
         FloatVector2 = 11,
+        /// <summary>
+        /// 3 Floats
+        /// </summary>
         FloatVector3 = 12,
+        /// <summary>
+        /// 4 Floats
+        /// </summary>
         FloatVector4 = 13,
+        /// <summary>
+        /// 4 Bytes
+        /// </summary>
         ByteVector4 = 15,
+        /// <summary>
+        /// String
+        /// </summary>
         String = 16,
+        /// <summary>
+        /// UInt
+        /// </summary>
         UInt32 = 17,
+        /// <summary>
+        /// List with 32-bit size and value count
+        /// </summary>
         LargeStaticTypeList = 18,
+        /// <summary>
+        /// List which holds values of different type
+        /// </summary>
         List2 = 19,
+        /// <summary>
+        /// List which holds values of different type
+        /// </summary>
         List = 20,
+        /// <summary>
+        /// 4 Bytes
+        /// </summary>
         ByteVector4_2 = 21,
+        /// <summary>
+        /// List with 8-bit value count
+        /// </summary>
         SmallStaticTypeList = 22,
+        /// <summary>
+        /// List which holds values with of 2 types
+        /// </summary>
         DoubleTypeList = 23,
+        /// <summary>
+        /// Byte
+        /// </summary>
         ByteValue2 = 24
     }
 }

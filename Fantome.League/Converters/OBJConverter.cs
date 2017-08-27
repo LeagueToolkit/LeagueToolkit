@@ -1,11 +1,9 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
-using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WGEO;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,24 +11,24 @@ namespace Fantome.Libraries.League.Converters
 {
     public static class OBJConverter
     {
-        public static IEnumerable<OBJFile> ConvertWGEOModels(WGEOFile WGEO)
+        /// <summary>
+        /// Converts the models of <paramref name="wgeo"/> into the <see cref="OBJFile"/> format
+        /// </summary>
+        /// <param name="wgeo">The <see cref="WGEOFile"/> to convert models from</param>
+        /// <returns>Converted <see cref="WGEOModel"/> models in the <see cref="OBJFile"/> format</returns>
+        public static IEnumerable<OBJFile> ConvertWGEOModels(WGEOFile wgeo)
         {
-            foreach (WGEOModel Model in WGEO.Models)
+            foreach (WGEOModel model in wgeo.Models)
             {
-                List<Vector3> Vertices = new List<Vector3>();
-                List<Vector2> UVs = new List<Vector2>();
-                foreach (WGEOVertex Vertex in Model.Vertices)
+                List<Vector3> vertices = new List<Vector3>();
+                List<Vector2> uvs = new List<Vector2>();
+                foreach (WGEOVertex vertex in model.Vertices)
                 {
-                    Vertices.Add(Vertex.Position);
-                    UVs.Add(Vertex.UV);
+                    vertices.Add(vertex.Position);
+                    uvs.Add(vertex.UV);
                 }
-                yield return new OBJFile(Vertices, UVs, Model.Indices);
+                yield return new OBJFile(vertices, uvs, model.Indices);
             }
-        }
-
-        public static OBJFile VisualiseWGEOBucketGeometry(WGEOFile WGEO)
-        {
-            return new OBJFile(WGEO.BucketGeometry.Vertices, WGEO.BucketGeometry.Indices);
         }
 
         //public static OBJFile VisualiseNVRNodes(NVRFile Nvr)
@@ -93,42 +91,59 @@ namespace Fantome.Libraries.League.Converters
         //    return new OBJFile(Vertices, Indices);
         //}
 
-        public static OBJFile ConvertSKN(SKNFile Model)
+        /// <summary>
+        /// Converts <paramref name="model"/> to an <see cref="OBJFile"/>
+        /// </summary>
+        /// <param name="model">The <see cref="SKNFile"/> to convert to a <see cref="OBJFile"/></param>
+        /// <returns>An <see cref="OBJFile"/> converted from <paramref name="model"/></returns>
+        public static OBJFile ConvertSKN(SKNFile model)
         {
-            List<Vector3> Vertices = new List<Vector3>();
-            List<Vector2> UV = new List<Vector2>();
-            List<Vector3> Normals = new List<Vector3>();
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector2> uv = new List<Vector2>();
+            List<Vector3> normals = new List<Vector3>();
 
-            foreach (SKNVertex Vertex in Model.Vertices)
+            foreach (SKNVertex vertex in model.Vertices)
             {
-                Vertices.Add(Vertex.Position);
-                UV.Add(Vertex.UV);
-                Normals.Add(Vertex.Normal);
+                vertices.Add(vertex.Position);
+                uv.Add(vertex.UV);
+                normals.Add(vertex.Normal);
             }
 
-            return new OBJFile(Vertices, UV, Normals, Model.Indices);
+            return new OBJFile(vertices, uv, normals, model.Indices);
         }
-        public static OBJFile ConvertSCB(SCBFile SCB)
+
+        /// <summary>
+        /// Converts <paramref name="scb"/> to the <see cref="OBJFile"/> format
+        /// </summary>
+        /// <param name="scb">The <see cref="SCBFile"/> to convert to an <see cref="OBJFile"/></param>
+        /// <returns>An <see cref="OBJFile"/> converted from <paramref name="scb"/></returns>
+        public static OBJFile ConvertSCB(SCBFile scb)
         {
-            List<UInt16> Indices = new List<UInt16>();
-            List<Vector2> UV = new List<Vector2>();
-            foreach(SCBFace Face in SCB.Faces)
+            List<ushort> indices = new List<ushort>();
+            List<Vector2> uv = new List<Vector2>();
+            foreach (SCBFace face in scb.Faces)
             {
-                Indices.AddRange(Face.Indices.AsEnumerable().Cast<UInt16>());
-                UV.AddRange(Face.UV);
+                indices.AddRange(face.Indices.AsEnumerable().Cast<ushort>());
+                uv.AddRange(face.UV);
             }
-            return new OBJFile(SCB.Vertices, UV, Indices);
+            return new OBJFile(scb.Vertices, uv, indices);
         }
-        public static OBJFile ConvertSCO(SCOFile SCO)
+
+        /// <summary>
+        /// Converts <paramref name="sco"/> to the <see cref="OBJFile"/> format
+        /// </summary>
+        /// <param name="sco">The <see cref="SCOFile"/> to conver to an <see cref="OBJFile"/></param>
+        /// <returns>An <see cref="OBJFile"/> converted from <paramref name="sco"/></returns>
+        public static OBJFile ConvertSCO(SCOFile sco)
         {
-            List<UInt16> Indices = new List<UInt16>();
-            List<Vector2> UV = new List<Vector2>();
-            foreach (SCOFace Face in SCO.Faces)
+            List<ushort> indices = new List<ushort>();
+            List<Vector2> uv = new List<Vector2>();
+            foreach (SCOFace face in sco.Faces)
             {
-                Indices.AddRange(Face.Indices);
-                UV.AddRange(Face.UV);
+                indices.AddRange(face.Indices);
+                uv.AddRange(face.UV);
             }
-            return new OBJFile(SCO.Vertices, UV, Indices);
+            return new OBJFile(sco.Vertices, uv, indices);
         }
     }
 }

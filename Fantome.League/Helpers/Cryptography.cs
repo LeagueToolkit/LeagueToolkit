@@ -8,6 +8,12 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
 {
     public static class Cryptography
     {
+        /// <summary>
+        /// Hashes a string
+        /// </summary>
+        /// <param name="toHash">String to hash</param>
+        /// <returns>A hash generated from <paramref name="toHash"/></returns>
+        /// <remarks>Used in BIN, BNK and WPK</remarks>
         public static UInt32 FNV32Hash(string toHash)
         {
             toHash = toHash.ToLower();
@@ -21,6 +27,13 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
             return hash;
         }
 
+        /// <summary>
+        /// Hashes a section and property
+        /// </summary>
+        /// <param name="section">The section of the hash</param>
+        /// <param name="property">The property of the hash</param>
+        /// <returns>A hash generated from <paramref name="section"/> and <paramref name="property"/></returns>
+        /// <remarks>Used in Inibin</remarks>
         public static UInt32 SectionHash(string section, string property)
         {
             UInt32 hash = 0;
@@ -38,6 +51,12 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
             return hash;
         }
 
+        /// <summary>
+        /// Hashes a string
+        /// </summary>
+        /// <param name="toHash">The string to hash</param>
+        /// <returns>A hash generated from <paramref name="toHash"/></returns>
+        /// <remarks>Used in RAF, SKL and ANM</remarks>
         public static UInt32 LeagueHash(string toHash)
         {
             uint hash = 0;

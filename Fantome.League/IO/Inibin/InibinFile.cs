@@ -1,33 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Diagnostics;
 
 namespace Fantome.Libraries.League.IO.Inibin
 {
     public class InibinFile
     {
         public List<InibinSet> Sets { get; private set; } = new List<InibinSet>();
-        public InibinFile(string location)
+
+        public InibinFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(location)))
+
+        }
+        public InibinFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 uint version = br.ReadByte();
 
                 uint stringDataLength = 0;
                 InibinFlags flags = 0;
-                if(version == 1)
+                if (version == 1)
                 {
                     br.ReadBytes(3);
                     uint valueCount = br.ReadUInt32();
                     stringDataLength = br.ReadUInt32();
 
-                    this.Sets.Add(new InibinSet(br ,InibinFlags.StringList, (uint)br.BaseStream.Length - stringDataLength, valueCount));
+                    this.Sets.Add(new InibinSet(br, InibinFlags.StringList, (uint)br.BaseStream.Length - stringDataLength, valueCount));
                 }
-                else
+                else if(version == 2)
                 {
                     stringDataLength = br.ReadUInt16();
                     flags = (InibinFlags)br.ReadUInt16();
@@ -85,17 +87,25 @@ namespace Fantome.Libraries.League.IO.Inibin
                         this.Sets.Add(new InibinSet(br, InibinFlags.StringList, (uint)br.BaseStream.Length - stringDataLength));
                     }
                 }
+                else
+                {
+                    throw new Exception("This version is not supported");
+                }
             }
         }
-
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 ushort stringDataLength = 0;
                 InibinFlags flags = 0;
 
-                foreach(string dataString in this.Sets.Find(x => x.Type == InibinFlags.StringList).Properties.Values)
+                foreach (string dataString in this.Sets.Find(x => x.Type == InibinFlags.StringList).Properties.Values)
                 {
                     stringDataLength += (ushort)(dataString.Length + 1);
                 }
@@ -104,15 +114,15 @@ namespace Fantome.Libraries.League.IO.Inibin
                 {
                     flags |= InibinFlags.BitList;
                 }
-                if(this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatList))
+                if (this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatList))
                 {
                     flags |= InibinFlags.FixedPointFloatList;
                 }
-                if(this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec2))
+                if (this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec2))
                 {
                     flags |= InibinFlags.FixedPointFloatListVec2;
                 }
-                if(this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec3))
+                if (this.Sets.Exists(x => x.Type == InibinFlags.FixedPointFloatListVec3))
                 {
                     flags |= InibinFlags.FixedPointFloatListVec3;
                 }
@@ -158,7 +168,7 @@ namespace Fantome.Libraries.League.IO.Inibin
                 bw.Write(stringDataLength);
                 bw.Write((ushort)flags);
 
-                foreach(InibinSet set in this.Sets)
+                foreach (InibinSet set in this.Sets)
                 {
                     set.Write(bw);
                 }

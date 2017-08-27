@@ -1,21 +1,18 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.FX
 {
-    [DebuggerDisplay("[ {Texture}, Link Type: {LinkType}, Blend Type: {BlendType} ]")]
     public class FXWeaponStreakInfo
     {
-        public Int32 LinkType { get; private set; }
-        public Int32 BlendType { get; private set; }
+        public int LinkType { get; private set; }
+        public int BlendType { get; private set; }
         public float TrailsPerSecond { get; private set; }
         public float TrailCount { get; private set; }
         public float StartAlpha { get; private set; }
         public float EndAlpha { get; private set; }
         public float AlphaDecay { get; private set; }
-        public Int32 TextureMapMode { get; private set; }
+        public int TextureMapMode { get; private set; }
         public string Texture { get; private set; }
         public FXTimeGradient ColorOverTime { get; private set; }
         public FXTimeGradient WidthOverTime { get; private set; }
@@ -31,10 +28,8 @@ namespace Fantome.Libraries.League.IO.FX
             this.AlphaDecay = br.ReadSingle();
             this.TextureMapMode = br.ReadInt32();
 
-
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(64));
-            char TextureIndexOf = this.Texture.Contains("\0") ? '\u0000' : '?';
-            this.Texture = this.Texture.Remove(this.Texture.IndexOf(TextureIndexOf));
+            this.Texture = this.Texture.Remove(this.Texture.IndexOf(this.Texture.Contains("\0") ? '\u0000' : '?'));
 
             this.ColorOverTime = new FXTimeGradient(br);
             this.WidthOverTime = new FXTimeGradient(br);
@@ -51,8 +46,8 @@ namespace Fantome.Libraries.League.IO.FX
             bw.Write(this.AlphaDecay);
             bw.Write(this.TextureMapMode);
             bw.Write(this.Texture.PadRight(64, '\u0000').ToCharArray());
-            ColorOverTime.Write(bw);
-            WidthOverTime.Write(bw);
+            this.ColorOverTime.Write(bw);
+            this.WidthOverTime.Write(bw);
         }
     }
 }

@@ -18,7 +18,6 @@ using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
-using Fantome.Libraries.League.IO.Inibin;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -26,7 +25,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            InibinTest();
+            LightGridTest();
         }
 
         static void WGEOTest()
@@ -111,13 +110,39 @@ namespace Fantome.Libraries.League.Tests
         static void LightGridTest()
         {
             LightGridFile lightgrid = new LightGridFile("LightGrid.dat");
-            lightgrid.Write("LightGridWrite.dat");
-        }
-
-        static void InibinTest()
-        {
-            InibinFile inibin = new InibinFile("kek.troybin");
-            inibin.Write("lul.troybin");
+            lightgrid.WriteTexture("LightGridWrite.tga");
         }
     }
 }
+
+using Fantome.Libraries.League.IO.LightDat;
+using Fantome.Libraries.League.IO.LightEnvironment;
+using Fantome.Libraries.League.IO.MaterialLibrary;
+using Fantome.Libraries.League.IO.Inibin;
+using Fantome.Libraries.League.IO.WAD;
+using Fantome.Libraries.League.IO.ObjectConfig;
+
+            ObjectConfigTest();
+
+        static void MaterialLibraryTest()
+        {
+            MaterialLibraryFile materialLibrary = new MaterialLibraryFile("room.mat");
+            materialLibrary.Write("kek.txt");
+        }
+      
+        static void InibinTest()
+        {
+            InibinFile inibin = new InibinFile("Dragon_BALine.troybin");
+            //inibin.Write("lul.troybin");
+        }
+
+        static void WADTest()
+        {
+            WADFile wad = new WADFile("Ornn.wad.client");
+        }
+
+        static void ObjectConfigTest()
+        {
+            ObjectConfigFile cfg = new ObjectConfigFile("ObjectCFG.cfg");
+            cfg.Write("ObjectCFGWrite.cfg");
+        }

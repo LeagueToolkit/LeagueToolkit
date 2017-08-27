@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Fantome.Libraries.League.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -54,7 +55,7 @@
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
     <Compile Include="Helpers\Structures.cs" />
-    <Compile Include="IO\AiMesh\AiMeshFace.cs" />
+    <Compile Include="IO\AiMesh\AiMeshCell.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
     <Compile Include="IO\BIN\BINFileEntry.cs" />
@@ -72,6 +73,8 @@
     <Compile Include="IO\LightEnvironment\LightEnvironmentLight.cs" />
     <Compile Include="IO\LightGrid\LightGridFile.cs" />
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
+    <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
+    <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
     <Compile Include="IO\MOB\MOBFile.cs" />
     <Compile Include="IO\MOB\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
@@ -83,6 +86,7 @@
     <Compile Include="IO\NVR\NVRNode.cs" />
     <Compile Include="IO\NVR\NVRVertex.cs" />
     <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigFile.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />

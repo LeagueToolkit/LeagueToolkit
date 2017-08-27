@@ -28,9 +28,15 @@ namespace Fantome.Libraries.League.IO.SCB
             }
         }
 
-        public SCBFile(string Location)
+        public SCBFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+
+        }
+
+        public SCBFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 string Magic = Encoding.ASCII.GetString(br.ReadBytes(8));
                 if (Magic != "r3d2Mesh")
@@ -79,10 +85,14 @@ namespace Fantome.Libraries.League.IO.SCB
                 }
             }
         }
-
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write("r3d2Mesh".ToCharArray());
                 bw.Write((UInt16)3);

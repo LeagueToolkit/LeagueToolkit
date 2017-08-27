@@ -1,15 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 namespace Fantome.Libraries.League.IO.BIN
 {
+    /// <summary>
+    /// Represents a list of <see cref="BINFileValue"/>
+    /// </summary>
     public class BINFileValueList
     {
-        public UInt32 Property { get; private set; }
+        /// <summary>
+        /// The hash of the name of this <see cref="BINFileValueList"/>
+        /// </summary>
+        /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> is anything else than <c>BINFileValueType.List</c> or <c>BINFileValueType.List2</c></remarks>
+        public uint Property { get; private set; }
+        /// <summary>
+        /// Type of this <see cref="BINFileValueList"/>
+        /// </summary>
         public BINFileValueType Type { get; private set; }
+        /// <summary>
+        /// Types of the entries this <see cref="BINFileValueList"/> contains
+        /// </summary>
         public BINFileValueType[] EntryTypes { get; private set; }
+        /// <summary>
+        /// A Collection of <see cref="BINFileValue"/>
+        /// </summary>
         public List<BINFileValue> Entries { get; private set; } = new List<BINFileValue>();
+
+        /// <summary>
+        /// Initializes a new <see cref="BINFileValueList"/> from a <see cref="BinaryReader"/>
+        /// </summary>
+        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
+        /// <param name="type">What type this <see cref="BINFileValueList"/> should be</param>
         public BINFileValueList(BinaryReader br, BINFileValueType type)
         {
             this.Type = type;
@@ -55,12 +76,16 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="BINFileValueList"/> into a <see cref="BinaryWriter"/>
+        /// </summary>
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
             if (this.Type == BINFileValueType.LargeStaticTypeList)
             {
                 bw.Write((byte)this.EntryTypes[0]);
-                bw.Write(GetEntriesSize());
+                bw.Write(GetContentSize());
                 bw.Write(this.Entries.Count);
                 foreach (BINFileValue value in this.Entries)
                 {
@@ -79,7 +104,7 @@ namespace Fantome.Libraries.League.IO.BIN
             else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
             {
                 bw.Write(this.Property);
-                bw.Write(GetEntriesSize());
+                bw.Write(GetContentSize());
                 bw.Write((ushort)this.Entries.Count);
                 foreach (BINFileValue value in this.Entries)
                 {
@@ -90,7 +115,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write((byte)this.EntryTypes[1]);
-                bw.Write(GetEntriesSize());
+                bw.Write(GetContentSize());
                 bw.Write(this.Entries.Count);
                 foreach (BINFileValue value in this.Entries)
                 {
@@ -99,7 +124,8 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
-        private int GetEntriesSize()
+
+        private int GetContentSize()
         {
             int size = 0;
 
@@ -124,9 +150,12 @@ namespace Fantome.Libraries.League.IO.BIN
             return size;
         }
 
+        /// <summary>
+        /// Gets the size of this <see cref="BINFileValueList"/> in bytes
+        /// </summary>
         public int GetSize()
         {
-            int size = this.GetEntriesSize();
+            int size = this.GetContentSize();
 
             if (this.Type == BINFileValueType.LargeStaticTypeList)
             {

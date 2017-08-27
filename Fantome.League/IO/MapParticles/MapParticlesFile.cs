@@ -5,26 +5,42 @@ namespace Fantome.Libraries.League.IO.MapParticles
 {
     public class MapParticlesFile
     {
-        public List<MapParticlesParticle> Particles { get; private set; } = new List<MapParticlesParticle>();
+        public List<MapParticlesParticle> Particles { get; private set; }
 
-        public MapParticlesFile(string Location)
+        public MapParticlesFile(List<MapParticlesParticle> particles)
         {
-            using (StreamReader sr = new StreamReader(Location))
+            this.Particles = particles;
+        }
+
+        public MapParticlesFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
+        {
+
+        }
+        public MapParticlesFile(Stream stream)
+        {
+            this.Particles = new List<MapParticlesParticle>();
+            using (StreamReader sr = new StreamReader(stream))
             {
-                while (sr.BaseStream.Position < sr.BaseStream.Length)
+                while (!sr.EndOfStream)
                 {
                     this.Particles.Add(new MapParticlesParticle(sr));
                 }
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (StreamWriter sw = new StreamWriter(Location))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (StreamWriter sw = new StreamWriter(stream))
             {
-                foreach (MapParticlesParticle Particle in this.Particles)
+                foreach (MapParticlesParticle particle in this.Particles)
                 {
-                    Particle.Write(sw);
+                    particle.Write(sw);
                 }
             }
         }
