@@ -1,36 +1,40 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.SCO;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.SCB
 {
-    [DebuggerDisplay("[ {Material} ]")]
     public class SCBFace
     {
-        public UInt32[] Indices { get; private set; } = new UInt32[3];
+        public uint[] Indices { get; private set; }
         public string Material { get; private set; }
-        public Vector2[] UV { get; private set; } = new Vector2[3];
+        public Vector2[] UVs { get; private set; }
 
-        public SCBFace(UInt32[] Indices, string Material, Vector2[] UV)
+        public SCBFace(SCOFace face)
         {
-            this.Indices = Indices;
-            this.Material = Material;
-            this.UV = UV;
+            this.Indices = face.Indices;
         }
+
+        public SCBFace(UInt32[] indices, string material, Vector2[] uvs)
+        {
+            this.Indices = indices;
+            this.Material = material;
+            this.UVs = uvs;
+        }
+
         public SCBFace(BinaryReader br)
         {
-            for (int i = 0; i < 3; i++)
-            {
-                this.Indices[i] = br.ReadUInt32();
-            }
+            this.Indices = new uint[] { br.ReadUInt32(), br.ReadUInt32(), br.ReadUInt32() };
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
             float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
-            for (int i = 0; i < 3; i++)
+            this.UVs = new Vector2[]
             {
-                this.UV[i] = new Vector2(uvs[i], uvs[i + 3]);
-            }
+                new Vector2(uvs[0], uvs[3]),
+                new Vector2(uvs[1], uvs[4]),
+                new Vector2(uvs[2], uvs[5])
+            };
         }
 
         public void Write(BinaryWriter bw)
@@ -40,14 +44,13 @@ namespace Fantome.Libraries.League.IO.SCB
                 bw.Write(this.Indices[i]);
             }
             bw.Write(this.Material.PadRight(64, '\u0000').ToCharArray());
-
             for (int i = 0; i < 3; i++)
             {
-                bw.Write(this.UV[i].X);
+                bw.Write(this.UVs[i].X);
             }
             for (int i = 0; i < 3; i++)
             {
-                bw.Write(this.UV[i].Y);
+                bw.Write(this.UVs[i].Y);
             }
         }
     }

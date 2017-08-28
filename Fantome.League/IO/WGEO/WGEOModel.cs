@@ -14,9 +14,9 @@ namespace Fantome.Libraries.League.IO.WGEO
         public R3DSphere Sphere { get; private set; }
         public R3DBox BoundingBox { get; private set; }
         public List<WGEOVertex> Vertices { get; private set; } = new List<WGEOVertex>();
-        public List<UInt16> Indices { get; private set; } = new List<UInt16>();
+        public List<uint> Indices { get; private set; } = new List<uint>();
 
-        public WGEOModel(string Texture, string Material, List<WGEOVertex> Vertices, List<UInt16> Indices)
+        public WGEOModel(string Texture, string Material, List<WGEOVertex> Vertices, List<uint> Indices)
         {
             this.Texture = Texture;
             this.Material = Material;

@@ -345,6 +345,4 @@ namespace Fantome.Libraries.League.IO.NVR
         D3DFMT_BINARYBUFFER = 0xC7,
         D3DFMT_FORCE_DWORD = 0x7FFFFFFF,
     }
-
-
 }

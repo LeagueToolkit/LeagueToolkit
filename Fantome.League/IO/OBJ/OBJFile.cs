@@ -14,51 +14,47 @@ namespace Fantome.Libraries.League.IO.OBJ
         public List<Vector3> Normals { get; private set; } = new List<Vector3>();
         public List<OBJFace> Faces { get; private set; } = new List<OBJFace>();
 
-        public OBJFile(List<Vector3> Vertices, List<UInt16> Indices)
+        public OBJFile(List<Vector3> vertices, List<uint> indices)
         {
-            this.Vertices = Vertices;
-            for (int i = 0; i < Indices.Count; i += 3)
+            this.Vertices = vertices;
+            for (int i = 0; i < indices.Count; i += 3)
             {
-                UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
-                this.Faces.Add(new OBJFace(FaceIndices));
+                uint[] faceIndices = new uint[] { indices[i], indices[i + 1], indices[i + 2] };
+                this.Faces.Add(new OBJFace(faceIndices));
             }
         }
 
-        public OBJFile(List<Vector3> Vertices, List<Vector2> UVs, List<UInt16> Indices)
+        public OBJFile(List<Vector3> vertices, List<uint> indices, List<Vector2> uvs)
         {
-            this.Vertices = Vertices;
-            this.UVs = UVs;
-            for (int i = 0; i < Indices.Count; i += 3)
+            this.Vertices = vertices;
+            this.UVs = uvs;
+            for (int i = 0; i < indices.Count; i += 3)
             {
-                UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
-                this.Faces.Add(new OBJFace(FaceIndices, FaceIndices));
+                uint[] faceIndices = new uint[] { indices[i], indices[i + 1], indices[i + 2] };
+                this.Faces.Add(new OBJFace(faceIndices, faceIndices));
             }
         }
 
-        public OBJFile(List<Vector3> Vertices, List<Vector2> UVs, List<Vector3> Normals, List<UInt16> Indices)
+        public OBJFile(List<Vector3> vertices, List<uint> indices, List<Vector2> uvs, List<Vector3> normals)
         {
-            this.Vertices = Vertices;
-            this.UVs = UVs;
-            this.Normals = Normals;
-            for (int i = 0; i < Indices.Count; i += 3)
+            this.Vertices = vertices;
+            this.UVs = uvs;
+            this.Normals = normals;
+            for (int i = 0; i < indices.Count; i += 3)
             {
-                UInt16[] FaceIndices = new UInt16[] { Indices[i], Indices[i + 1], Indices[i + 2] };
-                this.Faces.Add(new OBJFace(FaceIndices, FaceIndices, FaceIndices));
+                uint[] faceIndices = new uint[] { indices[i], indices[i + 1], indices[i + 2] };
+                this.Faces.Add(new OBJFace(faceIndices, faceIndices, faceIndices));
             }
         }
 
 
-        public OBJFile(string fileLocation)
-            : this(File.OpenRead(fileLocation))
-        {
-
-        }
+        public OBJFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
         public OBJFile(Stream stream)
         {
             using (StreamReader sr = new StreamReader(stream))
             {
-                while (sr.BaseStream.Position != sr.BaseStream.Length)
+                while (!sr.EndOfStream)
                 {
                     this.ReadLine(sr);
                 }
@@ -74,131 +70,110 @@ namespace Fantome.Libraries.League.IO.OBJ
         {
             using (StreamWriter sw = new StreamWriter(stream))
             {
-                foreach (string Comment in this.Comments)
+                foreach (string comment in this.Comments)
                 {
-                    sw.WriteLine("#" + Comment);
+                    sw.WriteLine("#" + comment);
                 }
-                foreach (Vector3 Vertex in this.Vertices)
+                foreach (Vector3 vertex in this.Vertices)
                 {
-                    sw.WriteLine(string.Format("v {0} {1} {2}", Vertex.X, Vertex.Y, Vertex.Z));
+                    sw.WriteLine(string.Format("v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
                 }
-                foreach (Vector2 UV in this.UVs)
+                foreach (Vector2 uv in this.UVs)
                 {
-                    sw.WriteLine(string.Format("vt {0} {1}", UV.X, 1 - UV.Y));
+                    sw.WriteLine(string.Format("vt {0} {1}", uv.X, 1 - uv.Y));
                 }
-                foreach (Vector3 Normal in this.Normals)
+                foreach (Vector3 normal in this.Normals)
                 {
-                    sw.WriteLine(string.Format("vn {0} {1} {2}", Normal.X, Normal.Y, Normal.Z));
+                    sw.WriteLine(string.Format("vn {0} {1} {2}", normal.X, normal.Y, normal.Z));
                 }
-                foreach (OBJFace Face in this.Faces)
+                foreach (OBJFace face in this.Faces)
                 {
-                    Face.Write(sw);
+                    face.Write(sw);
                 }
             }
         }
 
         private void ReadLine(StreamReader sr)
         {
-            string[] Input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (Input.Length == 0)
+            string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (input.Length == 0)
             {
                 return;
             }
-            if (Input[0] == "#")
+            if (input[0] == "#")
             {
-                this.Comments.Add(String.Join(" ", Input).Remove(0, 1));
+                this.Comments.Add(String.Join(" ", input).Remove(0, 1));
             }
-            else if (Input[0] == "v")
+            else if (input[0] == "v")
             {
-                this.Vertices.Add(new Vector3
-                    (
-                        float.Parse(Input[1], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(Input[2], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(Input[3], CultureInfo.InvariantCulture.NumberFormat)
-                    )
-                    );
+                this.Vertices.Add(new Vector3(float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)));
             }
-            else if (Input[0] == "vt")
+            else if (input[0] == "vt")
             {
-                this.UVs.Add(new Vector2
-                    (
-                        float.Parse(Input[1], CultureInfo.InvariantCulture.NumberFormat),
-                        1 - float.Parse(Input[2], CultureInfo.InvariantCulture.NumberFormat)
-                    )
-                    );
+                this.UVs.Add(new Vector2(float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                    1 - float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat)));
             }
-            else if (Input[0] == "vn")
+            else if (input[0] == "vn")
             {
-                this.Normals.Add(new Vector3
-                    (
-                        float.Parse(Input[1], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(Input[2], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(Input[3], CultureInfo.InvariantCulture.NumberFormat)
-                    )
-                    );
+                this.Normals.Add(new Vector3(float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
+                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)));
             }
-            else if (Input[0] == "f")
+            else if (input[0] == "f")
             {
-                string[] Vertex1 = Input[1].Split('/');
-                string[] Vertex2 = Input[2].Split('/');
-                string[] Vertex3 = Input[3].Split('/');
+                string[] vertex1 = input[1].Split('/');
+                string[] vertex2 = input[2].Split('/');
+                string[] vertex3 = input[3].Split('/');
 
-                if (Vertex1.Length == 1)
+                if (vertex1.Length == 1)
                 {
-                    this.Faces.Add(new OBJFace
-                        (
-                            new UInt16[]
-                            {
-                                (ushort)(UInt16.Parse(Vertex1[0]) - 1),
-                                (ushort)(UInt16.Parse(Vertex2[0]) - 1),
-                                (ushort)(UInt16.Parse(Vertex3[0]) - 1)
-                            }
-                        )
-                        );
+                    this.Faces.Add(new OBJFace(
+                        new uint[]
+                        {
+                            (uint.Parse(vertex1[0]) - 1),
+                            (uint.Parse(vertex2[0]) - 1),
+                            (uint.Parse(vertex3[0]) - 1)
+                        }));
                 }
-                else if (Vertex1.Length == 2)
+                else if (vertex1.Length == 2)
                 {
-                    this.Faces.Add(new OBJFace
-                        (
-                            new UInt16[]
-                            {
-                                (ushort)(UInt16.Parse(Vertex1[0]) - 1),
-                                (ushort)(UInt16.Parse(Vertex2[0]) - 1),
-                                (ushort)(UInt16.Parse(Vertex3[0]) - 1)
-                            },
-                            new UInt16[]
-                            {
-                                (ushort)(UInt16.Parse(Vertex1[1]) - 1),
-                                (ushort)(UInt16.Parse(Vertex2[1]) - 1),
-                                (ushort)(UInt16.Parse(Vertex3[1]) - 1)
-                            }
-                        )
-                        );
+                    this.Faces.Add(new OBJFace(
+                        new uint[]
+                        {
+                            (uint.Parse(vertex1[0]) - 1),
+                            (uint.Parse(vertex2[0]) - 1),
+                            (uint.Parse(vertex3[0]) - 1)
+                        },
+                        new uint[]
+                        {
+                            (uint.Parse(vertex1[1]) - 1),
+                            (uint.Parse(vertex2[1]) - 1),
+                            (uint.Parse(vertex3[1]) - 1)
+                        }));
                 }
-                else if (Vertex1.Length == 3)
+                else if (vertex1.Length == 3)
                 {
-                    this.Faces.Add(new OBJFace
-                        (
-                            new UInt16[]
-                            {
-                                (ushort)(UInt16.Parse(Vertex1[0]) - 1),
-                                (ushort)(UInt16.Parse(Vertex2[0]) - 1),
-                                (ushort)(UInt16.Parse(Vertex3[0]) - 1)
-                            },
-                            new UInt16[]
-                            {
-                                (ushort)(UInt16.Parse(Vertex1[1]) - 1),
-                                (ushort)(UInt16.Parse(Vertex2[1]) - 1),
-                                (ushort)(UInt16.Parse(Vertex3[1]) - 1)
-                            },
-                            new UInt16[]
-                            {
-                                (ushort)(UInt16.Parse(Vertex1[2]) - 1),
-                                (ushort)(UInt16.Parse(Vertex2[2]) - 1),
-                                (ushort)(UInt16.Parse(Vertex3[2]) - 1)
-                            }
-                        )
-                        );
+                    this.Faces.Add(new OBJFace(
+                        new uint[]
+                        {
+                             (uint.Parse(vertex1[0]) - 1),
+                             (uint.Parse(vertex2[0]) - 1),
+                             (uint.Parse(vertex3[0]) - 1)
+                        },
+                        new uint[]
+                        {
+                            (uint.Parse(vertex1[1]) - 1),
+                            (uint.Parse(vertex2[1]) - 1),
+                            (uint.Parse(vertex3[1]) - 1)
+                        },
+                        new uint[]
+                        {
+                            (uint.Parse(vertex1[2]) - 1),
+                            (uint.Parse(vertex2[2]) - 1),
+                            (uint.Parse(vertex3[2]) - 1)
+                        }));
                 }
             }
         }
@@ -206,42 +181,31 @@ namespace Fantome.Libraries.League.IO.OBJ
 
     public class OBJFace
     {
-        private bool IsUVSet { get; set; }
-        private bool IsNormalSet { get; set; }
-        public UInt16[] VertexIndices { get; private set; }
-        public UInt16[] UVIndices { get; private set; }
-        public UInt16[] NormalIndices { get; private set; }
+        public uint[] VertexIndices { get; private set; }
+        public uint[] UVIndices { get; private set; }
+        public uint[] NormalIndices { get; private set; }
 
-        public OBJFace(UInt16[] VertexIndices)
+        public OBJFace(uint[] VertexIndices)
         {
             this.VertexIndices = VertexIndices;
-            this.IsUVSet = false;
-            this.IsNormalSet = false;
-            this.UVIndices = new UInt16[3];
-            this.NormalIndices = new UInt16[3];
         }
 
-        public OBJFace(UInt16[] VertexIndices, UInt16[] UVIndices)
+        public OBJFace(uint[] VertexIndices, uint[] UVIndices)
         {
             this.VertexIndices = VertexIndices;
             this.UVIndices = UVIndices;
-            this.IsUVSet = true;
-            this.IsNormalSet = false;
-            this.NormalIndices = new UInt16[3];
         }
 
-        public OBJFace(UInt16[] VertexIndices, UInt16[] UVIndices, UInt16[] NormalIndices)
+        public OBJFace(uint[] VertexIndices, uint[] UVIndices, uint[] NormalIndices)
         {
             this.VertexIndices = VertexIndices;
             this.UVIndices = UVIndices;
             this.NormalIndices = NormalIndices;
-            this.IsUVSet = true;
-            this.IsNormalSet = true;
         }
 
         public void Write(StreamWriter sw)
         {
-            if (this.IsUVSet && !this.IsNormalSet)
+            if (this.UVIndices != null && this.NormalIndices == null)
             {
                 sw.WriteLine(string.Format(
                     "f {0}/{1} {2}/{3} {4}/{5}",
@@ -253,7 +217,7 @@ namespace Fantome.Libraries.League.IO.OBJ
                     this.UVIndices[2] + 1
                     ));
             }
-            else if (this.IsUVSet && this.IsNormalSet)
+            else if (this.UVIndices != null && this.NormalIndices != null)
             {
                 sw.WriteLine(string.Format(
                     "f {0}/{1}/{2} {3}/{4}/{5} {6}/{7}/{8}",

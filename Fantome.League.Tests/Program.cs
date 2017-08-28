@@ -64,6 +64,7 @@ namespace Fantome.Libraries.League.Tests
         static void SCOTest()
         {
             SCOFile sco = new SCOFile("Aatrox_Basic_A_trail_01.sco");
+            sco.Write("kek.sco");
         }
 
         static void NVRTest()
