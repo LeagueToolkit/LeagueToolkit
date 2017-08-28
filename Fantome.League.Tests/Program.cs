@@ -1,4 +1,4 @@
-﻿using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.Converters;
 using Fantome.Libraries.League.IO.AiMesh;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
@@ -23,7 +23,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            InibinTest();
+
         }
 
         static void WGEOTest()
@@ -132,6 +132,7 @@ namespace Fantome.Libraries.League.Tests
         static void WADTest()
         {
             WADFile wad = new WADFile("Ornn.wad.client");
+            wad.Extract("OrnnWad", true);
         }
 
         static void ObjectConfigTest()
