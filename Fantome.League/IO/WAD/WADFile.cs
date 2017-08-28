@@ -1,7 +1,9 @@
+using Fantome.Libraries.League.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
@@ -24,11 +26,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Reads a <see cref="WADFile"/> from the specified location
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
-        public WADFile(string fileLocation)
-            : this(File.OpenRead(fileLocation))
-        {
-
-        }
+        public WADFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
         /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified stream
@@ -75,6 +73,26 @@ namespace Fantome.Libraries.League.IO.WAD
                     entry.ReadData(br);
                 }
             }
+        }
+
+        public void Extract(string directoryLocation, bool identifyFiles)
+        {
+            if (!Directory.Exists(directoryLocation))
+            {
+                Directory.CreateDirectory(directoryLocation);
+            }
+            //Using Parallel Foreach loop to make extraction super duper fast
+            Parallel.ForEach(this.Entries, entry =>
+            {
+                if (identifyFiles)
+                {
+                    File.WriteAllBytes(string.Format("{0}//{1}.{2}", directoryLocation, Utilities.ByteArrayToHex(entry.XXHash), entry.GetEntryExtension()), entry.Data);
+                }
+                else
+                {
+                    File.WriteAllBytes(string.Format("{0}//{1}", directoryLocation, Utilities.ByteArrayToHex(entry.XXHash)), entry.Data);
+                }
+            });
         }
     }
 }
