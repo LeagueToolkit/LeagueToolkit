@@ -11,6 +11,19 @@ namespace Fantome.Libraries.League.IO.Inibin
         public InibinFlags Type { get; private set; }
         public Dictionary<uint, object> Properties { get; private set; } = new Dictionary<uint, object>();
 
+        public InibinSet() { }
+
+        public InibinSet(InibinFlags type)
+        {
+            this.Type = type;
+        }
+
+        public InibinSet(InibinFlags type, Dictionary<uint, object> properties)
+        {
+            this.Type = type;
+            this.Properties = properties;
+        }
+
         public InibinSet(BinaryReader br, InibinFlags type)
         {
             this.Type = type;
@@ -124,8 +137,14 @@ namespace Fantome.Libraries.League.IO.Inibin
 
             if (this.Type == InibinFlags.BitList)
             {
-                bool[] booleans = this.Properties.Values.Cast<bool>().ToArray();
+                List<bool> booleans = this.Properties.Values.Cast<bool>().ToList();
                 byte value = 0;
+
+                while((booleans.Count % 8) != 0)
+                {
+                    booleans.Add(false);
+                }
+
                 for (int i = 0, j = 0; i < this.Properties.Count; i++)
                 {
                     if (booleans[i])
@@ -134,7 +153,7 @@ namespace Fantome.Libraries.League.IO.Inibin
                     }
                     j++;
 
-                    if (j == 8)
+                    if (j == 8 || i == this.Properties.Count - 1)
                     {
                         bw.Write(value);
                         j = value = 0;
