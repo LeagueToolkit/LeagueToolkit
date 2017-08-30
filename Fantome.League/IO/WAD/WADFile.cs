@@ -2,6 +2,7 @@ using Fantome.Libraries.League.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,18 +23,26 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         public List<WADEntry> Entries { get; private set; } = new List<WADEntry>();
 
+        internal readonly MemoryStream _dataBuffer;
+
         /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified location
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
-        public WADFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+        public WADFile(string fileLocation, bool readData) : this(File.OpenRead(fileLocation), readData) { }
 
         /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified stream
         /// </summary>
         /// <param name="stream">The stream to read from</param>
-        public WADFile(Stream stream)
+        public WADFile(Stream stream, bool readData)
         {
+            //Creates a copy of stream which is independent
+            byte[] dataBuffer = new byte[stream.Length];
+            stream.Read(dataBuffer, 0, (int)stream.Length);
+            stream.Seek(0, SeekOrigin.Begin);
+            this._dataBuffer = new MemoryStream(dataBuffer);
+
             using (BinaryReader br = new BinaryReader(stream))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
@@ -66,11 +75,23 @@ namespace Fantome.Libraries.League.IO.WAD
 
                 for (int i = 0; i < fileCount; i++)
                 {
-                    Entries.Add(new WADEntry(br, major, minor));
+                    Entries.Add(new WADEntry(this, br, major, minor));
                 }
-                foreach (WADEntry entry in Entries)
+
+                Parallel.ForEach(this.Entries.Where(x => x.Type == EntryType.String), entry =>
                 {
-                    entry.ReadData(br);
+                    entry.ReadData();
+                });
+
+                if (readData)
+                {
+                    Parallel.ForEach(this.Entries, entry =>
+                    {
+                        if (entry.Data == null)
+                        {
+                            entry.ReadData();
+                        }
+                    });
                 }
             }
         }

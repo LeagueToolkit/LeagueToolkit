@@ -23,7 +23,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-
+            WADTest();
         }
 
         static void WGEOTest()
@@ -132,7 +132,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            WADFile wad = new WADFile("Ornn.wad.client");
+            WADFile wad = new WADFile("Ornn.wad.client", false);
             wad.Extract("OrnnWad", true);
         }
 

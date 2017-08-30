@@ -41,6 +41,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Only first 8 bytes of the original 32 byte checksum
         /// </remarks>
         public byte[] SHA256 { get; private set; }
+
         /// <summary>
         /// Uncompressed Data of this <see cref="WADEntry"/>
         /// </summary>
@@ -57,14 +58,18 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         private uint _dataOffset { get; set; }
 
+        private readonly WADFile _wad;
+
         /// <summary>
         /// Reads a <see cref="WADEntry"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         /// <param name="major">Major version of the <see cref="WADFile"/> which is being read</param>
         /// <param name="minor">Minor version of the <see cref="WADFile"/> which is being read</param>
-        public WADEntry(BinaryReader br, byte major, byte minor)
+        public WADEntry(WADFile wad, BinaryReader br, byte major, byte minor)
         {
+            this._wad = wad;
+
             this.XXHash = br.ReadBytes(8);
             this._dataOffset = br.ReadUInt32();
             this.CompressedSize = br.ReadUInt32();
@@ -73,28 +78,37 @@ namespace Fantome.Libraries.League.IO.WAD
             this.IsDuplicated = br.ReadBoolean();
             this.Unknown1 = br.ReadUInt16();
             if (major == 2 && minor == 0)
+            {
                 this.SHA256 = br.ReadBytes(8);
+            }
         }
 
         /// <summary>
         /// Reads the data of this <see cref="WADEntry"/>
         /// </summary>
-        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         /// <remarks>The type of data read depends on <see cref="Type"/></remarks>
-        public void ReadData(BinaryReader br)
+        public void ReadData()
         {
-            br.BaseStream.Seek(this._dataOffset, SeekOrigin.Begin);
             if (this.Type == EntryType.String)
             {
-                this.FileRedirection = Encoding.ASCII.GetString(br.ReadBytes((int)br.ReadUInt32()));
+                byte[] fileRedirectionBuffer = new byte[this.UncompressedSize];
+                this._wad._dataBuffer.Seek(this._dataOffset + 4, SeekOrigin.Begin);
+                this._wad._dataBuffer.Read(fileRedirectionBuffer, 0, (int)this.UncompressedSize);
+                this.FileRedirection = Encoding.ASCII.GetString(fileRedirectionBuffer);
             }
             else if (this.Type == EntryType.Compressed)
             {
-                this.Data = Compression.DecompressGZip(br.ReadBytes((int)this.CompressedSize));
+                byte[] dataBuffer = new byte[this.CompressedSize];
+                this._wad._dataBuffer.Seek(this._dataOffset, SeekOrigin.Begin);
+                this._wad._dataBuffer.Read(dataBuffer, 0, (int)this.CompressedSize);
+                this.Data = Compression.DecompressGZip(dataBuffer);
             }
             else if (this.Type == EntryType.Uncompressed)
             {
-                this.Data = br.ReadBytes((int)this.UncompressedSize);
+                byte[] dataBuffer = new byte[this.CompressedSize];
+                this._wad._dataBuffer.Seek(this._dataOffset, SeekOrigin.Begin);
+                this._wad._dataBuffer.Read(dataBuffer, 0, (int)this.UncompressedSize);
+                this.Data = dataBuffer;
             }
         }
 
@@ -103,6 +117,11 @@ namespace Fantome.Libraries.League.IO.WAD
             if (!Directory.Exists(directoryLocation))
             {
                 Directory.CreateDirectory(directoryLocation);
+            }
+
+            if (this.Data == null)
+            {
+                ReadData();
             }
 
             if (identifyFile)
@@ -120,6 +139,10 @@ namespace Fantome.Libraries.League.IO.WAD
             if (this.Type != EntryType.String)
             {
                 byte[] id = new byte[8];
+                if (this.Data == null)
+                {
+                    ReadData();
+                }
                 Buffer.BlockCopy(this.Data, 0, id, 0, 8);
 
                 if (id[0] == 'r' && id[1] == '3' && id[2] == 'd' && id[3] == '2')
