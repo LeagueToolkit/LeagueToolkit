@@ -79,6 +79,9 @@ namespace Fantome.Libraries.League.IO.WAD
             }
         }
 
+        /// <summary>
+        /// Closes the opened <see cref="Stream"/> of the current <see cref="WADFile"/> instance.
+        /// </summary>
         public void Dispose()
         {
             _stream?.Close();

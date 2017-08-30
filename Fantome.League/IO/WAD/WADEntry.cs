@@ -91,6 +91,9 @@ namespace Fantome.Libraries.League.IO.WAD
             }
         }
 
+        /// <summary>
+        /// Returns the raw content from the current <see cref="WADEntry"/>.
+        /// </summary>
         public byte[] GetContent()
         {
             byte[] dataBuffer = new byte[CompressedSize];
