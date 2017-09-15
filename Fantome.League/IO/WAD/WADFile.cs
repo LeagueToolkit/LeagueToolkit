@@ -109,14 +109,13 @@ namespace Fantome.Libraries.League.IO.WAD
 
                     if (entry.Type == EntryType.FileRedirection)
                     {
-                        List<byte> data = new List<byte>();
+                        byte[] data = new byte[4 + entry.FileRedirection.Length];
 
-                        data.AddRange(BitConverter.GetBytes(entry.FileRedirection.Length));
-                        data.AddRange(Encoding.ASCII.GetBytes(entry.FileRedirection));
+                        Buffer.BlockCopy(BitConverter.GetBytes(entry.FileRedirection.Length), 0, data, 0, 4);
+                        Buffer.BlockCopy(Encoding.ASCII.GetBytes(entry.FileRedirection), 0, data, 4, entry.FileRedirection.Length);
 
                         entry.CompressedSize = (uint)entry.FileRedirection.Length;
                         entry.UncompressedSize = (uint)entry.FileRedirection.Length;
-
                         entry.SHA256 = GetSha256(data.ToArray());
 
                         bw.Write(data.ToArray());
@@ -137,14 +136,13 @@ namespace Fantome.Libraries.League.IO.WAD
 
                     if (entry.Item1.Type == EntryType.FileRedirection)
                     {
-                        List<byte> data = new List<byte>();
+                        byte[] data = new byte[4 + entry.Item1.FileRedirection.Length];
 
-                        data.AddRange(BitConverter.GetBytes(entry.Item1.FileRedirection.Length));
-                        data.AddRange(Encoding.ASCII.GetBytes(entry.Item1.FileRedirection));
+                        Buffer.BlockCopy(BitConverter.GetBytes(entry.Item1.FileRedirection.Length), 0, data, 0, 4);
+                        Buffer.BlockCopy(Encoding.ASCII.GetBytes(entry.Item1.FileRedirection), 0, data, 4, entry.Item1.FileRedirection.Length);
 
                         entry.Item1.CompressedSize = (uint)entry.Item1.FileRedirection.Length;
                         entry.Item1.UncompressedSize = (uint)entry.Item1.FileRedirection.Length;
-
                         entry.Item1.SHA256 = GetSha256(data.ToArray());
 
                         bw.Write(data.ToArray());
