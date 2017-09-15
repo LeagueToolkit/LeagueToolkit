@@ -69,13 +69,15 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         /// <param name="xxHash">The XXHash of this <see cref="WADEntry"/></param>
         /// <param name="type">The <see cref="EntryType"/> of this <see cref="WADEntry"/></param>
-        public WADEntry(ulong xxHash, EntryType type)
+        public WADEntry(WADFile wad, ulong xxHash, byte[] data, EntryType type)
         {
+            this._wad = wad;
             this.XXHash = xxHash;
 
             if (type != EntryType.FileRedirection)
             {
                 this.Type = type;
+                SetData(data);
             }
             else
             {
@@ -88,11 +90,13 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         /// <param name="xxHash">The XXHash of this <see cref="WADEntry"/></param>
         /// <param name="fileRedirection">The file the game should load instead of this one</param>
-        public WADEntry(ulong xxHash, string fileRedirection)
+        public WADEntry(WADFile wad, ulong xxHash, string fileRedirection)
         {
+            this._wad = wad;
             this.XXHash = xxHash;
             this.FileRedirection = fileRedirection;
             this.Type = EntryType.FileRedirection;
+            SetData(new byte[4 + this.FileRedirection.Length]);
         }
 
         /// <summary>
@@ -131,7 +135,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="data"></param>
         public void SetData(byte[] data)
         {
-            long originalPosition = this._wad._stream.Position;
+            long originalPosition = this._wad._stream.Length;
             byte[] writeData = this.Type == EntryType.Compressed ? Compression.CompressGZip(data) : data;
 
             this._dataOffset = (uint)originalPosition;

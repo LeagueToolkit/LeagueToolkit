@@ -30,8 +30,6 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         internal Stream _stream { get; private set; }
 
-        private List<Tuple<WADEntry, byte[]>> _newEntries { get; set; } = new List<Tuple<WADEntry, byte[]>>();
-
         /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified location
         /// </summary>
@@ -104,15 +102,15 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="type">Type of file being added</param>
         public void AddEntry(ulong xxHash, byte[] data, EntryType type)
         {
-            if(!this.Entries.Exists(x => x.XXHash == xxHash) && !this._newEntries.Exists(x => x.Item1.XXHash == xxHash))
+            if(!this.Entries.Exists(x => x.XXHash == xxHash))
             {
                 if (type == EntryType.FileRedirection)
                 {
-                    this._newEntries.Add(new Tuple<WADEntry, byte[]>(new WADEntry(xxHash, Encoding.ASCII.GetString(data)), null));
+                    this.Entries.Add(new WADEntry(this, xxHash, Encoding.ASCII.GetString(data)));
                 }
                 else
                 {
-                    this._newEntries.Add(new Tuple<WADEntry, byte[]>(new WADEntry(xxHash, type), data));
+                    this.Entries.Add(new WADEntry(this, xxHash, data, type));
                 }
             }
             else
@@ -143,10 +141,6 @@ namespace Fantome.Libraries.League.IO.WAD
             {
                 this.Entries.RemoveAll(x => x.XXHash == xxHash);
             }
-            else if(this._newEntries.Exists(x => x.Item1.XXHash == xxHash))
-            {
-                this._newEntries.RemoveAll(x => x.Item1.XXHash == xxHash);
-            }
         }
 
         /// <summary>
@@ -156,7 +150,6 @@ namespace Fantome.Libraries.League.IO.WAD
         public void RemoveEntry(WADEntry entry)
         {
             this.Entries.Remove(entry);
-            this._newEntries.RemoveAll(x => x.Item1 == entry);
         }
 
         /// <summary>
@@ -182,11 +175,9 @@ namespace Fantome.Libraries.League.IO.WAD
                 bw.Write(new byte[92]);
                 bw.Write((ushort)104);
                 bw.Write((ushort)32);
+                bw.Write(this.Entries.Count);
 
-                int fileCount = this._newEntries == null ? this.Entries.Count : this.Entries.Count + this._newEntries.Count;
-                bw.Write(fileCount);
-
-                bw.Seek(fileCount * 32, SeekOrigin.Current);
+                bw.Seek(this.Entries.Count * 32, SeekOrigin.Current);
                 foreach (WADEntry entry in this.Entries)
                 {
                     entry._dataOffset = (uint)bw.BaseStream.Position;
@@ -214,48 +205,11 @@ namespace Fantome.Libraries.League.IO.WAD
                         bw.Write(data);
                     }
                 }
-                foreach (Tuple<WADEntry, byte[]> entry in this._newEntries)
-                {
-                    entry.Item1._dataOffset = (uint)bw.BaseStream.Position;
-
-                    if (entry.Item1.Type == EntryType.FileRedirection)
-                    {
-                        byte[] data = new byte[4 + entry.Item1.FileRedirection.Length];
-
-                        Buffer.BlockCopy(BitConverter.GetBytes(entry.Item1.FileRedirection.Length), 0, data, 0, 4);
-                        Buffer.BlockCopy(Encoding.ASCII.GetBytes(entry.Item1.FileRedirection), 0, data, 4, entry.Item1.FileRedirection.Length);
-
-                        entry.Item1.CompressedSize = (uint)entry.Item1.FileRedirection.Length;
-                        entry.Item1.UncompressedSize = (uint)entry.Item1.FileRedirection.Length;
-                        entry.Item1.SHA256 = GetSha256(data.ToArray());
-
-                        bw.Write(data.ToArray());
-                    }
-                    else
-                    {
-                        byte[] data = entry.Item2;
-
-                        if (entry.Item1.Type == EntryType.Compressed)
-                        {
-                            data = Compression.CompressGZip(data);
-                        }
-
-                        entry.Item1.CompressedSize = (uint)data.Length;
-                        entry.Item1.UncompressedSize = (uint)entry.Item2.Length;
-                        entry.Item1.SHA256 = GetSha256(data.ToArray());
-
-                        bw.Write(data);
-                    }
-                }
 
                 bw.Seek(104, SeekOrigin.Begin);
                 foreach (WADEntry entry in this.Entries)
                 {
                     entry.Write(bw);
-                }
-                foreach (Tuple<WADEntry, byte[]> entry in this._newEntries)
-                {
-                    entry.Item1.Write(bw);
                 }
             }
         }
