@@ -1,4 +1,3 @@
-using Fantome.Libraries.League.Helpers;
 using Fantome.Libraries.League.Helpers.Compression;
 using System;
 using System.Collections.Generic;
@@ -6,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
@@ -83,11 +81,19 @@ namespace Fantome.Libraries.League.IO.WAD
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="WADFile"/> to the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
             Write(File.Create(fileLocation));
         }
 
+        /// <summary>
+        /// Writes this <see cref="WADFile"/> into the specified <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
             using (BinaryWriter bw = new BinaryWriter(stream))
