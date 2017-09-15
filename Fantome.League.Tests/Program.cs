@@ -18,6 +18,7 @@ using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
 using Fantome.Libraries.League.Helpers.Utilities;
 using System.IO;
+using System.Text;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -138,6 +139,7 @@ namespace Fantome.Libraries.League.Tests
             //Directory.CreateDirectory(extractionFolder);
             using (WADFile wad = new WADFile(@"C:\Users\Crauzer\Desktop\Garen.wad.client"))
             {
+                wad.AddEntry(123456789, File.ReadAllBytes(@"C:/WooxyPortable/Wooxy.exe"), EntryType.Compressed);
                 /*foreach (WADEntry wadEntry in wad.Entries)
                 {
                     if (wadEntry.Type != EntryType.FileRedirection)

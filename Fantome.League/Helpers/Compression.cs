@@ -44,9 +44,9 @@ namespace Fantome.Libraries.League.Helpers.Compression
             {
                 using (MemoryStream uncompressedBuffer = new MemoryStream(buffer))
                 {
-                    using (GZipStream gzipBuffer = new GZipStream(uncompressedBuffer, CompressionMode.Decompress))
+                    using (GZipStream gzipBuffer = new GZipStream(compressedBuffer, CompressionMode.Compress))
                     {
-                        gzipBuffer.CopyTo(uncompressedBuffer);
+                        uncompressedBuffer.CopyTo(gzipBuffer);
                     }
                 }
                 return compressedBuffer.ToArray();

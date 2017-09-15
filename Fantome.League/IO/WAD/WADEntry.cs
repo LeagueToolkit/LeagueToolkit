@@ -15,7 +15,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// Hash of the <see cref="Name"/> of this <see cref="WADEntry"/>
         /// </summary>
-        public long XXHash { get; private set; }
+        public ulong XXHash { get; private set; }
 
         /// <summary>
         /// Compressed Size of <see cref="Data"/>
@@ -65,6 +65,37 @@ namespace Fantome.Libraries.League.IO.WAD
         private readonly WADFile _wad;
 
         /// <summary>
+        /// Initializes a new <see cref="WADEntry"/>
+        /// </summary>
+        /// <param name="xxHash">The XXHash of this <see cref="WADEntry"/></param>
+        /// <param name="type">The <see cref="EntryType"/> of this <see cref="WADEntry"/></param>
+        public WADEntry(ulong xxHash, EntryType type)
+        {
+            this.XXHash = xxHash;
+
+            if (type != EntryType.FileRedirection)
+            {
+                this.Type = type;
+            }
+            else
+            {
+                throw new Exception("Invalid EntryType. To create a file redirection Entry use the correct constructor");
+            }
+        }
+
+        /// <summary>
+        /// Initializes a new File Redirection <see cref="WADEntry"/>
+        /// </summary>
+        /// <param name="xxHash">The XXHash of this <see cref="WADEntry"/></param>
+        /// <param name="fileRedirection">The file the game should load instead of this one</param>
+        public WADEntry(ulong xxHash, string fileRedirection)
+        {
+            this.XXHash = xxHash;
+            this.FileRedirection = fileRedirection;
+            this.Type = EntryType.FileRedirection;
+        }
+
+        /// <summary>
         /// Reads a <see cref="WADEntry"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
@@ -73,7 +104,7 @@ namespace Fantome.Libraries.League.IO.WAD
         public WADEntry(WADFile wad, BinaryReader br, byte major, byte minor)
         {
             this._wad = wad;
-            this.XXHash = br.ReadInt64();
+            this.XXHash = br.ReadUInt64();
             this._dataOffset = br.ReadUInt32();
             this.CompressedSize = br.ReadUInt32();
             this.UncompressedSize = br.ReadUInt32();
@@ -95,19 +126,29 @@ namespace Fantome.Libraries.League.IO.WAD
         }
 
         /// <summary>
-        /// Writes this <see cref="WADEntry"/> into a <see cref="BinaryWriter"/>
+        /// Replaces this <see cref="WADEntry"/>'s data
         /// </summary>
-        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
-        public void Write(BinaryWriter bw)
+        /// <param name="data"></param>
+        public void SetData(byte[] data)
         {
-            bw.Write(this.XXHash);
-            bw.Write(this._dataOffset);
-            bw.Write(this.CompressedSize);
-            bw.Write(this.UncompressedSize);
-            bw.Write((byte)this.Type);
-            bw.Write(this.IsDuplicated);
-            bw.Write(this.Unknown1);
-            bw.Write(this.SHA256);
+            long originalPosition = this._wad._stream.Position;
+            byte[] writeData = this.Type == EntryType.Compressed ? Compression.CompressGZip(data) : data;
+
+            this._dataOffset = (uint)originalPosition;
+            this.CompressedSize = (uint)writeData.Length;
+            this.UncompressedSize = this.Type == EntryType.Compressed ? BitConverter.ToUInt32(writeData, writeData.Length - 4) : (uint)writeData.Length;
+
+            if (this.Type != EntryType.FileRedirection)
+            {
+                this._wad._stream.Write(data, 0, data.Length);
+            }
+            else
+            {
+                this._wad._stream.Write(BitConverter.GetBytes(writeData.Length), 0, 4);
+                this._wad._stream.Write(writeData, 0, writeData.Length);
+            }
+
+            this._wad._stream.Seek(originalPosition, SeekOrigin.Begin);
         }
 
         /// <summary>
@@ -126,6 +167,22 @@ namespace Fantome.Libraries.League.IO.WAD
             {
                 return dataBuffer;
             }
+        }
+
+        /// <summary>
+        /// Writes this <see cref="WADEntry"/> into a <see cref="BinaryWriter"/>
+        /// </summary>
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.XXHash);
+            bw.Write(this._dataOffset);
+            bw.Write(this.CompressedSize);
+            bw.Write(this.UncompressedSize);
+            bw.Write((byte)this.Type);
+            bw.Write(this.IsDuplicated);
+            bw.Write(this.Unknown1);
+            bw.Write(this.SHA256);
         }
     }
 

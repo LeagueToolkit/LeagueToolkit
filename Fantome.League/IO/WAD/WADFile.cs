@@ -1,4 +1,5 @@
 using Fantome.Libraries.League.Helpers.Compression;
+using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,6 +80,83 @@ namespace Fantome.Libraries.League.IO.WAD
                     Entries.Add(new WADEntry(this, br, major, minor));
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
+        /// <param name="path">The virtual path of the file being added</param>
+        /// <param name="data">Data of file being added</param>
+        /// <param name="type">Type of file being added</param>
+        public void AddEntry(string path, byte[] data, EntryType type)
+        {
+            using (XXHash64 xxHash = XXHash64.Create())
+            {
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), data, type);
+            }
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
+        /// <param name="xxHash">The hash of the virtual path being added</param>
+        /// <param name="data">Data of file being added</param>
+        /// <param name="type">Type of file being added</param>
+        public void AddEntry(ulong xxHash, byte[] data, EntryType type)
+        {
+            if(!this.Entries.Exists(x => x.XXHash == xxHash) && !this._newEntries.Exists(x => x.Item1.XXHash == xxHash))
+            {
+                if (type == EntryType.FileRedirection)
+                {
+                    this._newEntries.Add(new Tuple<WADEntry, byte[]>(new WADEntry(xxHash, Encoding.ASCII.GetString(data)), null));
+                }
+                else
+                {
+                    this._newEntries.Add(new Tuple<WADEntry, byte[]>(new WADEntry(xxHash, type), data));
+                }
+            }
+            else
+            {
+                throw new Exception("An Entry with this path already exists");
+            }
+        }
+
+        /// <summary>
+        /// Removes a <see cref="WADEntry"/> Entry with the specified path
+        /// </summary>
+        /// <param name="path">The path of the <see cref="WADEntry"/> to remove</param>
+        public void RemoveEntry(string path)
+        {
+            using (XXHash64 xxHash = XXHash64.Create())
+            {
+                RemoveEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0));
+            }
+        }
+
+        /// <summary>
+        /// Removes a <see cref="WADEntry"/> with the specified hash
+        /// </summary>
+        /// <param name="xxHash">The hash of the <see cref="WADEntry"/> to remove</param>
+        public void RemoveEntry(ulong xxHash)
+        {
+            if(this.Entries.Exists(x => x.XXHash == xxHash))
+            {
+                this.Entries.RemoveAll(x => x.XXHash == xxHash);
+            }
+            else if(this._newEntries.Exists(x => x.Item1.XXHash == xxHash))
+            {
+                this._newEntries.RemoveAll(x => x.Item1.XXHash == xxHash);
+            }
+        }
+
+        /// <summary>
+        /// Removes a <see cref="WADEntry"/>
+        /// </summary>
+        /// <param name="entry">The <see cref="WADEntry"/> to remove</param>
+        public void RemoveEntry(WADEntry entry)
+        {
+            this.Entries.Remove(entry);
+            this._newEntries.RemoveAll(x => x.Item1 == entry);
         }
 
         /// <summary>
