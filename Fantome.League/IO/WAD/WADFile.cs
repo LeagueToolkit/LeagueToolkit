@@ -1,8 +1,10 @@
 using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.Helpers.Compression;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +30,8 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <see cref="Stream"/> of the currently opened <see cref="WADFile"/>.
         /// </summary>
         internal Stream _stream { get; private set; }
+
+        private List<Tuple<WADEntry, byte[]>> _newEntries { get; set; } = new List<Tuple<WADEntry, byte[]>>();
 
         /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified location
@@ -79,8 +83,112 @@ namespace Fantome.Libraries.League.IO.WAD
             }
         }
 
+        public void Write(string fileLocation)
+        {
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
+            {
+                bw.Write(Encoding.ASCII.GetBytes("RW"));
+                bw.Write((byte)2);
+                bw.Write((byte)0);
+                bw.Write(new byte[92]);
+                bw.Write((ushort)104);
+                bw.Write((ushort)32);
+
+                int fileCount = this._newEntries == null ? this.Entries.Count : this.Entries.Count + this._newEntries.Count;
+                bw.Write(fileCount);
+
+                bw.Seek(fileCount * 32, SeekOrigin.Current);
+                foreach (WADEntry entry in this.Entries)
+                {
+                    entry._dataOffset = (uint)bw.BaseStream.Position;
+
+                    if (entry.Type == EntryType.FileRedirection)
+                    {
+                        List<byte> data = new List<byte>();
+
+                        data.AddRange(BitConverter.GetBytes(entry.FileRedirection.Length));
+                        data.AddRange(Encoding.ASCII.GetBytes(entry.FileRedirection));
+
+                        entry.CompressedSize = (uint)entry.FileRedirection.Length;
+                        entry.UncompressedSize = (uint)entry.FileRedirection.Length;
+
+                        entry.SHA256 = GetSha256(data.ToArray());
+
+                        bw.Write(data.ToArray());
+                    }
+                    else
+                    {
+                        byte[] data = entry.GetContent(false);
+
+                        entry.CompressedSize = (uint)data.Length;
+                        entry.UncompressedSize = entry.Type == EntryType.Compressed ? BitConverter.ToUInt32(data, data.Length - 4) : (uint)data.Length;
+
+                        bw.Write(data);
+                    }
+                }
+                foreach (Tuple<WADEntry, byte[]> entry in this._newEntries)
+                {
+                    entry.Item1._dataOffset = (uint)bw.BaseStream.Position;
+
+                    if (entry.Item1.Type == EntryType.FileRedirection)
+                    {
+                        List<byte> data = new List<byte>();
+
+                        data.AddRange(BitConverter.GetBytes(entry.Item1.FileRedirection.Length));
+                        data.AddRange(Encoding.ASCII.GetBytes(entry.Item1.FileRedirection));
+
+                        entry.Item1.CompressedSize = (uint)entry.Item1.FileRedirection.Length;
+                        entry.Item1.UncompressedSize = (uint)entry.Item1.FileRedirection.Length;
+
+                        entry.Item1.SHA256 = GetSha256(data.ToArray());
+
+                        bw.Write(data.ToArray());
+                    }
+                    else
+                    {
+                        byte[] data = entry.Item2;
+
+                        if (entry.Item1.Type == EntryType.Compressed)
+                        {
+                            data = Compression.CompressGZip(data);
+                        }
+
+                        entry.Item1.CompressedSize = (uint)data.Length;
+                        entry.Item1.UncompressedSize = (uint)entry.Item2.Length;
+                        entry.Item1.SHA256 = GetSha256(data.ToArray());
+
+                        bw.Write(data);
+                    }
+                }
+
+                bw.Seek(104, SeekOrigin.Begin);
+                foreach (WADEntry entry in this.Entries)
+                {
+                    entry.Write(bw);
+                }
+                foreach (Tuple<WADEntry, byte[]> entry in this._newEntries)
+                {
+                    entry.Item1.Write(bw);
+                }
+            }
+        }
+
+        private byte[] GetSha256(byte[] data)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                return sha256.ComputeHash(data).Take(8).ToArray();
+            }
+        }
+
+
         /// <summary>
-        /// Closes the opened <see cref="Stream"/> of the current <see cref="WADFile"/> instance.
+        /// Closes the opened <see cref="Stream"/> of this <see cref="WADFile"/> instance.
         /// </summary>
         public void Dispose()
         {

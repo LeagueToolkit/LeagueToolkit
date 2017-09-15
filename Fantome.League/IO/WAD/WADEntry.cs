@@ -20,12 +20,12 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// Compressed Size of <see cref="Data"/>
         /// </summary>
-        public uint CompressedSize { get; private set; }
+        public uint CompressedSize { get; internal set; }
 
         /// <summary>
         /// Uncompressed Size of <see cref="Data"/>
         /// </summary>
-        public uint UncompressedSize { get; private set; }
+        public uint UncompressedSize { get; internal set; }
 
         /// <summary>
         /// Type of this <see cref="WADEntry"/>
@@ -37,6 +37,9 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         public bool IsDuplicated { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public ushort Unknown1 { get; set; }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Will be <see cref="null"/> if the version of the <see cref="WADFile"/> which it was read from is not 2.0
         /// Only first 8 bytes of the original 32 byte checksum
         /// </remarks>
-        public byte[] SHA256 { get; private set; }
+        public byte[] SHA256 { get; internal set; }
 
         /// <summary>
         /// File to load instead of this <see cref="WADEntry"/>
@@ -57,7 +60,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// Offset to the <see cref="WADEntry"/> data
         /// </summary>
-        private uint _dataOffset { get; set; }
+        internal uint _dataOffset { get; set; }
 
         private readonly WADFile _wad;
 
@@ -92,14 +95,30 @@ namespace Fantome.Libraries.League.IO.WAD
         }
 
         /// <summary>
-        /// Returns the raw content from the current <see cref="WADEntry"/>.
+        /// Writes this <see cref="WADEntry"/> into a <see cref="BinaryWriter"/>
         /// </summary>
-        public byte[] GetContent()
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
+        public void Write(BinaryWriter bw)
         {
-            byte[] dataBuffer = new byte[CompressedSize];
-            _wad._stream.Seek(_dataOffset, SeekOrigin.Begin);
-            _wad._stream.Read(dataBuffer, 0, (int)CompressedSize);
-            if (Type == EntryType.Compressed)
+            bw.Write(this.XXHash);
+            bw.Write(this._dataOffset);
+            bw.Write(this.CompressedSize);
+            bw.Write(this.UncompressedSize);
+            bw.Write((byte)this.Type);
+            bw.Write(this.IsDuplicated);
+            bw.Write(this.Unknown1);
+            bw.Write(this.SHA256);
+        }
+
+        /// <summary>
+        /// Returns the Data from this <see cref="WADEntry"/>.
+        /// </summary>
+        public byte[] GetContent(bool decompress)
+        {
+            byte[] dataBuffer = new byte[this.CompressedSize];
+            _wad._stream.Seek(this._dataOffset, SeekOrigin.Begin);
+            _wad._stream.Read(dataBuffer, 0, (int)this.CompressedSize);
+            if (this.Type == EntryType.Compressed && decompress)
             {
                 return Compression.DecompressGZip(dataBuffer);
             }
