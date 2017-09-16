@@ -13,96 +13,95 @@ namespace Fantome.Libraries.League.IO.NVR
         public List<NVRMesh> Meshes { get; private set; }
 
         public NVRFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.Open(fileLocation, FileMode.Open)))
+
+        }
+        public NVRFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
-                this.Read(br);
+                //Reading magic and version
+                string magic = ASCIIEncoding.ASCII.GetString(br.ReadBytes(4));
+                if (magic != "NVR\0")
+                {
+                    throw new InvalidFileMagicException();
+                }
+                this.MajorVersion = br.ReadInt16();
+                this.MinorVersion = br.ReadInt16();
+
+                //Reading the counts
+                int materialsCount = br.ReadInt32();
+                int vertexBufferCount = br.ReadInt32();
+                int indexBufferCount = br.ReadInt32();
+                int meshesCount = br.ReadInt32();
+                int nodesCount = br.ReadInt32();
+
+                //Parse content
+                NVRBuffers buffers = new NVRBuffers();
+                for (int i = 0; i < materialsCount; i++)
+                {
+                    buffers.Materials.Add(new NVRMaterial(br, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
+                }
+                for (int i = 0; i < vertexBufferCount; i++)
+                {
+                    buffers.VertexBuffers.Add(new NVRVertexBuffer(br));
+                }
+                for (int i = 0; i < indexBufferCount; i++)
+                {
+                    buffers.IndexBuffers.Add(new NVRIndexBuffer(br));
+                }
+                for (int i = 0; i < meshesCount; i++)
+                {
+                    buffers.Meshes.Add(new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
+                }
+                // Unused
+                for (int i = 0; i < nodesCount; i++)
+                {
+                    buffers.Nodes.Add(new NVRNode(br, buffers));
+                }
+
+                this.Meshes = buffers.Meshes;
             }
         }
 
-        public void Read(BinaryReader br)
+        public void Write(string fileLocation)
         {
-            //Reading magic and version
-            string magic = ASCIIEncoding.ASCII.GetString(br.ReadBytes(4));
-            if (magic != "NVR\0")
-            {
-                throw new InvalidFileMagicException();
-            }
-            this.MajorVersion = br.ReadInt16();
-            this.MinorVersion = br.ReadInt16();
-
-            //Reading the counts
-            int materialsCount = br.ReadInt32();
-            int vertexBufferCount = br.ReadInt32();
-            int indexBufferCount = br.ReadInt32();
-            int meshesCount = br.ReadInt32();
-            int nodesCount = br.ReadInt32();
-
-            //Parse content
-            NVRBuffers buffers = new NVRBuffers();
-            for (int i = 0; i < materialsCount; i++)
-            {
-                buffers.Materials.Add(new NVRMaterial(br, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
-            }
-            for (int i = 0; i < vertexBufferCount; i++)
-            {
-                buffers.VertexBuffers.Add(new NVRVertexBuffer(br));
-            }
-            for (int i = 0; i < indexBufferCount; i++)
-            {
-                buffers.IndexBuffers.Add(new NVRIndexBuffer(br));
-            }
-            for (int i = 0; i < meshesCount; i++)
-            {
-                buffers.Meshes.Add(new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
-            }
-            // Unused
-            for (int i = 0; i < nodesCount; i++)
-            {
-                buffers.Nodes.Add(new NVRNode(br, buffers));
-            }
-
-            this.Meshes = buffers.Meshes;
+            Write(File.Create(fileLocation));
         }
-
-        public void Save(string fileLocation)
+        public void Write(Stream stream)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation, FileMode.Create)))
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
-                this.Write(bw);
-            }
-        }
-
-        private void Write(BinaryWriter bw)
-        {
-            NVRBuffers buffers = this.GenerateBuffers();
-            bw.Write(ASCIIEncoding.ASCII.GetBytes("NVR\0"));
-            bw.Write(this.MajorVersion);
-            bw.Write(this.MinorVersion);
-            bw.Write(buffers.Materials.Count);
-            bw.Write(buffers.VertexBuffers.Count);
-            bw.Write(buffers.IndexBuffers.Count);
-            bw.Write(buffers.Meshes.Count);
-            bw.Write(buffers.Nodes.Count);
-            foreach (NVRMaterial material in buffers.Materials)
-            {
-                material.Write(bw);
-            }
-            foreach (NVRVertexBuffer vertBuffer in buffers.VertexBuffers)
-            {
-                vertBuffer.Write(bw);
-            }
-            foreach (NVRIndexBuffer indBuffer in buffers.IndexBuffers)
-            {
-                indBuffer.Write(bw);
-            }
-            foreach (NVRMesh mesh in buffers.Meshes)
-            {
-                mesh.Write(bw);
-            }
-            foreach (NVRNode node in buffers.Nodes)
-            {
-                node.Write(bw);
+                NVRBuffers buffers = this.GenerateBuffers();
+                bw.Write(ASCIIEncoding.ASCII.GetBytes("NVR\0"));
+                bw.Write(this.MajorVersion);
+                bw.Write(this.MinorVersion);
+                bw.Write(buffers.Materials.Count);
+                bw.Write(buffers.VertexBuffers.Count);
+                bw.Write(buffers.IndexBuffers.Count);
+                bw.Write(buffers.Meshes.Count);
+                bw.Write(buffers.Nodes.Count);
+                foreach (NVRMaterial material in buffers.Materials)
+                {
+                    material.Write(bw);
+                }
+                foreach (NVRVertexBuffer vertBuffer in buffers.VertexBuffers)
+                {
+                    vertBuffer.Write(bw);
+                }
+                foreach (NVRIndexBuffer indBuffer in buffers.IndexBuffers)
+                {
+                    indBuffer.Write(bw);
+                }
+                foreach (NVRMesh mesh in buffers.Meshes)
+                {
+                    mesh.Write(bw);
+                }
+                foreach (NVRNode node in buffers.Nodes)
+                {
+                    node.Write(bw);
+                }
             }
         }
 
@@ -346,6 +345,4 @@ namespace Fantome.Libraries.League.IO.NVR
         D3DFMT_BINARYBUFFER = 0xC7,
         D3DFMT_FORCE_DWORD = 0x7FFFFFFF,
     }
-
-
 }

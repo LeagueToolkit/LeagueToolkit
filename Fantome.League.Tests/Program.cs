@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Fantome.Libraries.League.IO.WGEO;
-using Fantome.Libraries.League.IO.MOB;
-using Fantome.Libraries.League.IO.SKN;
-using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.Converters;
 using Fantome.Libraries.League.IO.AiMesh;
-using Fantome.Libraries.League.IO.SCB;
-using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.WGT;
-using Fantome.Libraries.League.IO.NVR;
-using Fantome.Libraries.League.IO.MapParticles;
-using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.BIN;
+using Fantome.Libraries.League.IO.FX;
+using Fantome.Libraries.League.IO.Inibin;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
+using Fantome.Libraries.League.IO.LightGrid;
+using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
-using Fantome.Libraries.League.IO.Inibin;
+using Fantome.Libraries.League.IO.MOB;
+using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.ObjectConfig;
+using Fantome.Libraries.League.IO.SCB;
+using Fantome.Libraries.League.IO.SCO;
+using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WAD;
+using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.Helpers.Utilities;
+using System.IO;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -28,7 +25,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-
+            WADTest();
         }
 
         static void WGEOTest()
@@ -69,6 +66,7 @@ namespace Fantome.Libraries.League.Tests
         static void SCOTest()
         {
             SCOFile sco = new SCOFile("Aatrox_Basic_A_trail_01.sco");
+            sco.Write("kek.sco");
         }
 
         static void NVRTest()
@@ -113,7 +111,7 @@ namespace Fantome.Libraries.League.Tests
         static void LightGridTest()
         {
             LightGridFile lightgrid = new LightGridFile("LightGrid.dat");
-            lightgrid.Write("LightGridWrite.dat");
+            lightgrid.WriteTexture("LightGridWrite.tga");
         }
 
         static void MaterialLibraryTest()
@@ -121,16 +119,42 @@ namespace Fantome.Libraries.League.Tests
             MaterialLibraryFile materialLibrary = new MaterialLibraryFile("room.mat");
             materialLibrary.Write("kek.txt");
         }
-      
+
         static void InibinTest()
         {
-            InibinFile inibin = new InibinFile("Dragon_BALine.troybin");
-            //inibin.Write("lul.troybin");
+            InibinFile inibin = new InibinFile("bestInibinMapskins.inibin");
+            inibin.AddValue("Attack", "e-xrgba", 5);
+            inibin.AddValue("Attack", "kek", 10);
+            inibin.AddValue("Attack", "lol", 25d);
+            inibin.AddValue("Attack", "chewy", true);
+            inibin.AddValue("Attack", "crauzer", false);
+            inibin.AddValue("Attack", "vector3", new float[3]);
+            inibin.Write("bestInibinMapskins.inibin");
         }
 
         static void WADTest()
         {
-            WADFile wad = new WADFile("Ornn.wad.client");
+            string extractionFolder = "D:/Chewy/Desktop/WADTEST";
+            Directory.CreateDirectory(extractionFolder);
+            using (WADFile wad = new WADFile(@"D:\Chewy\Documents\LoL\Wooxy debug\extract\lol_game_client\DATA\FINAL\Champions\Zed.wad.client"))
+            {
+                foreach (WADEntry wadEntry in wad.Entries)
+                {
+                    if (wadEntry.Type != EntryType.FileRedirection)
+                    {
+                        byte[] fileData = wadEntry.GetContent();
+                        Utilities.LeagueFileType fileType = Utilities.GetLeagueFileExtensionType(fileData);
+                        string filePath = string.Format("{0}/{1}.{2}", extractionFolder, wadEntry.XXHash, Utilities.GetEntryExtension(fileType));
+                        File.WriteAllBytes(filePath, fileData);
+                    }
+                }
+            }
+        }
+
+        static void ObjectConfigTest()
+        {
+            ObjectConfigFile cfg = new ObjectConfigFile("ObjectCFG.cfg");
+            cfg.Write("ObjectCFGWrite.cfg");
         }
     }
 }

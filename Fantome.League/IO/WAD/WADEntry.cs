@@ -1,4 +1,8 @@
-﻿using System.IO;
+﻿using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.Helpers.Compression;
+using System;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.WAD
@@ -9,32 +13,32 @@ namespace Fantome.Libraries.League.IO.WAD
     public class WADEntry
     {
         /// <summary>
-        /// Name of this <see cref="WADEntry"/>
-        /// </summary>
-        /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> is not <c>EntryType.String</c></remarks>
-        public string Name { get; private set; }
-        /// <summary>
         /// Hash of the <see cref="Name"/> of this <see cref="WADEntry"/>
         /// </summary>
-        public byte[] XXHash { get; private set; }
+        public long XXHash { get; private set; }
+
         /// <summary>
         /// Compressed Size of <see cref="Data"/>
         /// </summary>
         public uint CompressedSize { get; private set; }
+
         /// <summary>
         /// Uncompressed Size of <see cref="Data"/>
         /// </summary>
         public uint UncompressedSize { get; private set; }
+
         /// <summary>
         /// Type of this <see cref="WADEntry"/>
         /// </summary>
         public EntryType Type { get; private set; }
+
         /// <summary>
         /// Whether this <see cref="WADEntry"/> is contained in a <see cref="WADFile"/> more than one time
         /// </summary>
         public bool IsDuplicated { get; private set; }
-        public byte Unknown1 { get; set; }
-        public byte Unknown2 { get; set; }
+
+        public ushort Unknown1 { get; set; }
+
         /// <summary>
         /// SHA256 Checksum of <see cref="Data"/>
         /// </summary>
@@ -43,18 +47,19 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Only first 8 bytes of the original 32 byte checksum
         /// </remarks>
         public byte[] SHA256 { get; private set; }
+
         /// <summary>
-        /// Data of this <see cref="WADEntry"/>
+        /// File to load instead of this <see cref="WADEntry"/>
         /// </summary>
-        /// <remarks>
-        /// The conent it contains is compressed with GZip\n
-        /// Will be <see cref="null"/> if <see cref="Type"/> is <c>EntryType.String</c> and the data is <see cref="Name"/>
-        /// </remarks>
-        public byte[] Data { get; private set; }
+        /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> isn't <c>EntryType.String</c></remarks>
+        public string FileRedirection { get; private set; }
+
         /// <summary>
         /// Offset to the <see cref="WADEntry"/> data
         /// </summary>
         private uint _dataOffset { get; set; }
+
+        private readonly WADFile _wad;
 
         /// <summary>
         /// Reads a <see cref="WADEntry"/> from a <see cref="BinaryReader"/>
@@ -62,35 +67,45 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         /// <param name="major">Major version of the <see cref="WADFile"/> which is being read</param>
         /// <param name="minor">Minor version of the <see cref="WADFile"/> which is being read</param>
-        public WADEntry(BinaryReader br, byte major, byte minor)
+        public WADEntry(WADFile wad, BinaryReader br, byte major, byte minor)
         {
-            this.XXHash = br.ReadBytes(8);
+            this._wad = wad;
+            this.XXHash = br.ReadInt64();
             this._dataOffset = br.ReadUInt32();
             this.CompressedSize = br.ReadUInt32();
             this.UncompressedSize = br.ReadUInt32();
             this.Type = (EntryType)br.ReadByte();
             this.IsDuplicated = br.ReadBoolean();
-            this.Unknown1 = br.ReadByte();
-            this.Unknown2 = br.ReadByte();
+            this.Unknown1 = br.ReadUInt16();
             if (major == 2 && minor == 0)
+            {
                 this.SHA256 = br.ReadBytes(8);
+            }
+
+            if (Type == EntryType.FileRedirection)
+            {
+                long currentPosition = br.BaseStream.Position;
+                br.BaseStream.Seek(_dataOffset, SeekOrigin.Begin);
+                this.FileRedirection = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                br.BaseStream.Seek(currentPosition, SeekOrigin.Begin);
+            }
         }
 
         /// <summary>
-        /// Reads the data of this <see cref="WADEntry"/>
+        /// Returns the raw content from the current <see cref="WADEntry"/>.
         /// </summary>
-        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
-        /// <remarks>The type of data read depends on <see cref="Type"/></remarks>
-        public void ReadData(BinaryReader br)
+        public byte[] GetContent()
         {
-            br.BaseStream.Seek(this._dataOffset, SeekOrigin.Begin);
-            if (this.Type == EntryType.String)
+            byte[] dataBuffer = new byte[CompressedSize];
+            _wad._stream.Seek(_dataOffset, SeekOrigin.Begin);
+            _wad._stream.Read(dataBuffer, 0, (int)CompressedSize);
+            if (Type == EntryType.Compressed)
             {
-                this.Name = Encoding.ASCII.GetString(br.ReadBytes((int)br.ReadUInt32()));
+                return Compression.DecompressGZip(dataBuffer);
             }
             else
             {
-                this.Data = br.ReadBytes((int)this.CompressedSize);
+                return dataBuffer;
             }
         }
     }
@@ -109,8 +124,8 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         Compressed,
         /// <summary>
-        /// The Data of this <see cref="WADEntry"/> is a string and is its Name
+        /// The Data of this <see cref="WADEntry"/> is a file redirection
         /// </summary>
-        String
+        FileRedirection
     }
 }

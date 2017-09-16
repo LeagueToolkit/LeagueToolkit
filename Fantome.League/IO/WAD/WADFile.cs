@@ -1,7 +1,10 @@
+using Fantome.Libraries.League.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
@@ -9,24 +12,37 @@ namespace Fantome.Libraries.League.IO.WAD
     /// Represents a WAD File
     /// </summary>
     /// <remarks>WAD Files can only be read</remarks>
-    public class WADFile
+    public class WADFile : IDisposable
     {
         /// <summary>
         /// ECDSA Signature contained in the header of the file
         /// </summary>
         public byte[] ECDSA { get; private set; }
+
         /// <summary>
         /// A collection of <see cref="WADEntry"/>
         /// </summary>
         public List<WADEntry> Entries { get; private set; } = new List<WADEntry>();
 
         /// <summary>
+        /// <see cref="Stream"/> of the currently opened <see cref="WADFile"/>.
+        /// </summary>
+        internal Stream _stream { get; private set; }
+
+        /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified location
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
-        public WADFile(string fileLocation)
+        public WADFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+
+        /// <summary>
+        /// Reads a <see cref="WADFile"/> from the specified stream
+        /// </summary>
+        /// <param name="stream">The stream to read from</param>
+        public WADFile(Stream stream)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+            _stream = stream;
+            using (BinaryReader br = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
                 if (magic != "RW")
@@ -47,7 +63,8 @@ namespace Fantome.Libraries.League.IO.WAD
                     br.ReadBytes(83 - ecdsaLength);
                 }
 
-                ulong unknown = br.ReadUInt64();
+                //XXHash Checksum of WAD Data (everything after TOC).
+                ulong dataChecksum = br.ReadUInt64();
 
                 ushort tocStartOffset = br.ReadUInt16();
                 ushort tocFileEntrySize = br.ReadUInt16();
@@ -57,13 +74,18 @@ namespace Fantome.Libraries.League.IO.WAD
 
                 for (int i = 0; i < fileCount; i++)
                 {
-                    Entries.Add(new WADEntry(br, major, minor));
-                }
-                foreach (WADEntry entry in Entries)
-                {
-                    entry.ReadData(br);
+                    Entries.Add(new WADEntry(this, br, major, minor));
                 }
             }
+        }
+
+        /// <summary>
+        /// Closes the opened <see cref="Stream"/> of the current <see cref="WADFile"/> instance.
+        /// </summary>
+        public void Dispose()
+        {
+            _stream?.Close();
+            _stream = null;
         }
     }
 }
