@@ -6,24 +6,51 @@ using System.Text;
 
 namespace Fantome.Libraries.League.IO.Inibin
 {
+    /// <summary>
+    /// Represents a set of values inside of a <see cref="InibinFile"/>
+    /// </summary>
     public class InibinSet
     {
+        /// <summary>
+        /// Type of the values of this <see cref="InibinSet"/>
+        /// </summary>
         public InibinFlags Type { get; private set; }
+
+        /// <summary>
+        /// Values of this <see cref="InibinSet"/>
+        /// </summary>
         public Dictionary<uint, object> Properties { get; private set; } = new Dictionary<uint, object>();
 
+        /// <summary>
+        /// Initializes a blank <see cref="InibinSet"/>
+        /// </summary>
         public InibinSet() { }
 
+        /// <summary>
+        /// Initializes a new <see cref="InibinSet"/> with the specified type
+        /// </summary>
+        /// <param name="type">Type of this <see cref="InibinSet"/></param>
         public InibinSet(InibinFlags type)
         {
             this.Type = type;
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="InibinSet"/>
+        /// </summary>
+        /// <param name="type">Type of this <see cref="InibinSet"/></param>
+        /// <param name="properties">Values of this <see cref="InibinSet"/></param>
         public InibinSet(InibinFlags type, Dictionary<uint, object> properties)
         {
             this.Type = type;
             this.Properties = properties;
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="InibinSet"/> from a <see cref="BinaryReader"/>
+        /// </summary>
+        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
+        /// <param name="type">The type of this <see cref="InibinSet"/></param>
         public InibinSet(BinaryReader br, InibinFlags type)
         {
             this.Type = type;
@@ -92,6 +119,13 @@ namespace Fantome.Libraries.League.IO.Inibin
             }
         }
 
+        /// <summary>
+        /// Initializes a new legacy <see cref="InibinSet"/> from a <see cref="BinaryReader"/>
+        /// </summary>
+        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
+        /// <param name="type">The type of this <see cref="InibinSet"/></param>
+        /// <param name="stringOffset">Offset to the string data</param>
+        /// <param name="valueCount">Amount of values in this <see cref="InibinSet"/></param>
         public InibinSet(BinaryReader br, InibinFlags type, uint stringOffset, uint? valueCount = null)
         {
             this.Type = type;
@@ -126,6 +160,10 @@ namespace Fantome.Libraries.League.IO.Inibin
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="InibinSet"/> into a <see cref="BinaryWriter"/>
+        /// </summary>
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
             bw.Write((ushort)this.Properties.Count);
