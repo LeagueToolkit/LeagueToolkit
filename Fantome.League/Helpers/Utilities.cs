@@ -13,19 +13,6 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             return BitConverter.ToString(array).Replace("-", "");
         }
 
-        public enum LeagueFileType
-        {
-            Unknown,
-            ANM,
-            BIN,
-            BNK,
-            DDS,
-            SCB,
-            SCO,
-            SKL,
-            SKN
-        }
-
         public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
         {
             byte[] id = new byte[8];
@@ -100,5 +87,18 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "";
             }
         }
+    }
+
+    public enum LeagueFileType
+    {
+        Unknown,
+        ANM,
+        BIN,
+        BNK,
+        DDS,
+        SCB,
+        SCO,
+        SKL,
+        SKN
     }
 }
