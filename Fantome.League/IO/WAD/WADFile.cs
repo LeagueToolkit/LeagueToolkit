@@ -2,6 +2,7 @@ using Fantome.Libraries.League.Helpers.Compression;
 using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -20,15 +21,22 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         public byte[] ECDSA { get; private set; }
 
+        private List<WADEntry> _entries = new List<WADEntry>();
+
         /// <summary>
         /// A collection of <see cref="WADEntry"/>
         /// </summary>
-        public List<WADEntry> Entries { get; private set; } = new List<WADEntry>();
+        public ReadOnlyCollection<WADEntry> Entries { get; private set; }
 
         /// <summary>
         /// <see cref="Stream"/> of the currently opened <see cref="WADFile"/>.
         /// </summary>
         internal Stream _stream { get; private set; }
+
+        private WADFile()
+        {
+            Entries = _entries.AsReadOnly();
+        }
 
         /// <summary>
         /// Reads a <see cref="WADFile"/> from the specified location
@@ -40,7 +48,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Reads a <see cref="WADFile"/> from the specified stream
         /// </summary>
         /// <param name="stream">The stream to read from</param>
-        public WADFile(Stream stream)
+        public WADFile(Stream stream) : this()
         {
             _stream = stream;
             using (BinaryReader br = new BinaryReader(stream, Encoding.ASCII, true))
@@ -75,8 +83,21 @@ namespace Fantome.Libraries.League.IO.WAD
 
                 for (int i = 0; i < fileCount; i++)
                 {
-                    Entries.Add(new WADEntry(this, br, major, minor));
+                    _entries.Add(new WADEntry(this, br, major, minor));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="EntryType.FileRedirection"/> <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
+        /// <param name="path">The virtual path of the file being added</param>
+        /// <param name="fileRedirection">The file the game should load instead of this one</param>
+        public void AddEntry(string path, string fileRedirection)
+        {
+            using (XXHash64 xxHash = XXHash64.Create())
+            {
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), fileRedirection);
             }
         }
 
@@ -85,13 +106,23 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         /// <param name="path">The virtual path of the file being added</param>
         /// <param name="data">Data of file being added</param>
-        /// <param name="type">Type of file being added</param>
-        public void AddEntry(string path, byte[] data, EntryType type)
+        /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
+        public void AddEntry(string path, byte[] data, bool compressedEntry)
         {
             using (XXHash64 xxHash = XXHash64.Create())
             {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), data, type);
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), data, compressedEntry);
             }
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="EntryType.FileRedirection"/> <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
+        /// <param name="xxHash">The hash of the virtual path being added</param>
+        /// <param name="fileRedirection">The file the game should load instead of this one</param>
+        public void AddEntry(ulong xxHash, string fileRedirection)
+        {
+            AddEntry(new WADEntry(this, xxHash, fileRedirection));
         }
 
         /// <summary>
@@ -99,19 +130,18 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         /// <param name="xxHash">The hash of the virtual path being added</param>
         /// <param name="data">Data of file being added</param>
-        /// <param name="type">Type of file being added</param>
-        public void AddEntry(ulong xxHash, byte[] data, EntryType type)
+        /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
+        public void AddEntry(ulong xxHash, byte[] data, bool compressedEntry)
         {
-            if(!this.Entries.Exists(x => x.XXHash == xxHash))
+            AddEntry(new WADEntry(this, xxHash, data, compressedEntry));
+        }
+
+        private void AddEntry(WADEntry entry)
+        {
+            if (!this._entries.Exists(x => x.XXHash == entry.XXHash))
             {
-                if (type == EntryType.FileRedirection)
-                {
-                    this.Entries.Add(new WADEntry(this, xxHash, Encoding.ASCII.GetString(data)));
-                }
-                else
-                {
-                    this.Entries.Add(new WADEntry(this, xxHash, data, type));
-                }
+                this._entries.Add(entry);
+                this._entries.Sort();
             }
             else
             {
@@ -137,9 +167,9 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="xxHash">The hash of the <see cref="WADEntry"/> to remove</param>
         public void RemoveEntry(ulong xxHash)
         {
-            if(this.Entries.Exists(x => x.XXHash == xxHash))
+            if (this._entries.Exists(x => x.XXHash == xxHash))
             {
-                this.Entries.RemoveAll(x => x.XXHash == xxHash);
+                this._entries.RemoveAll(x => x.XXHash == xxHash);
             }
         }
 
@@ -149,7 +179,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="entry">The <see cref="WADEntry"/> to remove</param>
         public void RemoveEntry(WADEntry entry)
         {
-            this.Entries.Remove(entry);
+            this._entries.Remove(entry);
         }
 
         /// <summary>
@@ -167,7 +197,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.ASCII, true))
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
                 bw.Write((byte)2);
@@ -175,53 +205,57 @@ namespace Fantome.Libraries.League.IO.WAD
                 bw.Write(new byte[92]);
                 bw.Write((ushort)104);
                 bw.Write((ushort)32);
-                bw.Write(this.Entries.Count);
+                bw.Write(Entries.Count);
 
-                bw.Seek(this.Entries.Count * 32, SeekOrigin.Current);
-                foreach (WADEntry entry in this.Entries)
+                uint currentDataOffset = (uint)(bw.BaseStream.Position + (32 * Entries.Count));
+
+                for (int i = 0; i < Entries.Count; i++)
                 {
-                    entry._dataOffset = (uint)bw.BaseStream.Position;
+                    WADEntry currentEntry = Entries[i];
+                    currentEntry._isDuplicated = false;
 
-                    if (entry.Type == EntryType.FileRedirection)
+                    // Finding potential duplicated entry
+                    WADEntry duplicatedEntry = null;
+                    if (currentEntry.Type != EntryType.FileRedirection)
                     {
-                        byte[] data = new byte[4 + entry.FileRedirection.Length];
+                        for (int j = 0; j < i; j++)
+                        {
+                            if (Entries[j].SHA256.SequenceEqual(currentEntry.SHA256))
+                            {
+                                currentEntry._isDuplicated = true;
+                                duplicatedEntry = Entries[j];
+                                break;
+                            }
+                        }
+                    }
 
-                        Buffer.BlockCopy(BitConverter.GetBytes(entry.FileRedirection.Length), 0, data, 0, 4);
-                        Buffer.BlockCopy(Encoding.ASCII.GetBytes(entry.FileRedirection), 0, data, 4, entry.FileRedirection.Length);
-
-                        entry.CompressedSize = (uint)entry.FileRedirection.Length;
-                        entry.UncompressedSize = (uint)entry.FileRedirection.Length;
-                        entry.SHA256 = GetSha256(data.ToArray());
-
-                        bw.Write(data.ToArray());
+                    // Assigning offsets
+                    if (duplicatedEntry == null)
+                    {
+                        currentEntry._dataOffset = currentDataOffset;
+                        currentDataOffset += currentEntry.CompressedSize;
                     }
                     else
                     {
-                        byte[] data = entry.GetContent(false);
-
-                        entry.CompressedSize = (uint)data.Length;
-                        entry.UncompressedSize = entry.Type == EntryType.Compressed ? BitConverter.ToUInt32(data, data.Length - 4) : (uint)data.Length;
-
-                        bw.Write(data);
+                        currentEntry._dataOffset = duplicatedEntry._dataOffset;
                     }
+
+                    currentEntry.Write(bw);
                 }
 
-                bw.Seek(104, SeekOrigin.Begin);
-                foreach (WADEntry entry in this.Entries)
+                // Write actual file data
+                foreach (WADEntry wadEntry in Entries)
                 {
-                    entry.Write(bw);
+                    if (!wadEntry._isDuplicated)
+                    {
+                        bw.Write(wadEntry.GetContent(false));
+                    }
+                    wadEntry._newData = null;
                 }
             }
-        }
 
-        private byte[] GetSha256(byte[] data)
-        {
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                return sha256.ComputeHash(data).Take(8).ToArray();
-            }
+            _stream = stream;
         }
-
 
         /// <summary>
         /// Closes the opened <see cref="Stream"/> of this <see cref="WADFile"/> instance.

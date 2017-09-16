@@ -137,20 +137,13 @@ namespace Fantome.Libraries.League.Tests
         {
             //string extractionFolder = "D:/Chewy/Desktop/WADTEST";
             //Directory.CreateDirectory(extractionFolder);
-            using (WADFile wad = new WADFile(@"C:\Users\Crauzer\Desktop\Garen.wad.client"))
+            using (WADFile wad = new WADFile(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assets.wad"))
             {
-                wad.AddEntry(123456789, File.ReadAllBytes(@"C:/WooxyPortable/Wooxy.exe"), EntryType.Compressed);
-                /*foreach (WADEntry wadEntry in wad.Entries)
-                {
-                    if (wadEntry.Type != EntryType.FileRedirection)
-                    {
-                        byte[] fileData = wadEntry.GetContent();
-                        Utilities.LeagueFileType fileType = Utilities.GetLeagueFileExtensionType(fileData);
-                        string filePath = string.Format("{0}/{1}.{2}", extractionFolder, wadEntry.XXHash, Utilities.GetEntryExtension(fileType));
-                        File.WriteAllBytes(filePath, fileData);
-                    }
-                }*/
-                wad.Write("Garen.wad.client");
+                wad.AddEntry(123456789, File.ReadAllBytes(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\description.json"), true);
+                wad.AddEntry(12345678, File.ReadAllBytes(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\description.json"), true);
+                wad.AddEntry(0, "wow");
+                wad.Entries[0].FileRedirection = "It's like right now";
+                wad.Write(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assetsOHWOW.wad");
             }
         }
 
