@@ -91,7 +91,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         internal byte[] _newData;
 
-        private readonly WADFile _wad;
+        internal readonly WADFile _wad;
 
         /// <summary>
         /// Initializes a new <see cref="WADEntry"/>

@@ -136,9 +136,13 @@ namespace Fantome.Libraries.League.IO.WAD
             AddEntry(new WADEntry(this, xxHash, data, compressedEntry));
         }
 
-        private void AddEntry(WADEntry entry)
+        /// <summary>
+        /// Adds an existing <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
+        /// <param name="entry"></param>
+        public void AddEntry(WADEntry entry)
         {
-            if (!this._entries.Exists(x => x.XXHash == entry.XXHash))
+            if (!this._entries.Exists(x => x.XXHash == entry.XXHash) && entry._wad == this)
             {
                 this._entries.Add(entry);
                 this._entries.Sort();
