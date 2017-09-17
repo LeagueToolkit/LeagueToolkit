@@ -83,7 +83,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadUInt16();
             }
-            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
             {
                 this.Value = br.ReadByte();
             }
@@ -114,6 +114,10 @@ namespace Fantome.Libraries.League.IO.BIN
             else if (this.Type == BINFileValueType.UInt16Vector3)
             {
                 this.Value = new ushort[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
+            }
+            else if (this.Type == BINFileValueType.ByteValue)
+            {
+                this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             }
             else
             {
@@ -160,7 +164,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((ushort)this.Value);
             }
-            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
             {
                 bw.Write((byte)this.Value);
             }
@@ -244,7 +248,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 size += 2;
             }
-            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
             {
                 size += 1;
             }
@@ -285,7 +289,11 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Byte
         /// </summary>
-        ByteValue = 3,
+        ByteValue = 2,
+        /// <summary>
+        /// Byte
+        /// </summary>
+        ByteValue2 = 3,
         /// <summary>
         /// UShort
         /// </summary>
@@ -293,7 +301,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// UInt
         /// </summary>
-        UInt32_3 = 6,
+        UInt32 = 6,
         /// <summary>
         /// UInt
         /// </summary>
@@ -329,7 +337,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// UInt
         /// </summary>
-        UInt32 = 17,
+        UInt32_3 = 17,
         /// <summary>
         /// List with 32-bit size and value count
         /// </summary>
@@ -357,6 +365,6 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Byte
         /// </summary>
-        ByteValue2 = 24
+        ByteValue3 = 24
     }
 }
