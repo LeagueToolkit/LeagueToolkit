@@ -18,6 +18,7 @@ using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
 using Fantome.Libraries.League.Helpers.Utilities;
 using System.IO;
+using System.Text;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -134,20 +135,15 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            string extractionFolder = "D:/Chewy/Desktop/WADTEST";
-            Directory.CreateDirectory(extractionFolder);
-            using (WADFile wad = new WADFile(@"D:\Chewy\Documents\LoL\Wooxy debug\extract\lol_game_client\DATA\FINAL\Champions\Zed.wad.client"))
+            //string extractionFolder = "D:/Chewy/Desktop/WADTEST";
+            //Directory.CreateDirectory(extractionFolder);
+            using (WADFile wad = new WADFile(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assets.wad"))
             {
-                foreach (WADEntry wadEntry in wad.Entries)
-                {
-                    if (wadEntry.Type != EntryType.FileRedirection)
-                    {
-                        byte[] fileData = wadEntry.GetContent();
-                        Utilities.LeagueFileType fileType = Utilities.GetLeagueFileExtensionType(fileData);
-                        string filePath = string.Format("{0}/{1}.{2}", extractionFolder, wadEntry.XXHash, Utilities.GetEntryExtension(fileType));
-                        File.WriteAllBytes(filePath, fileData);
-                    }
-                }
+                wad.AddEntry(123456789, File.ReadAllBytes(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\description.json"), true);
+                wad.AddEntry(12345678, File.ReadAllBytes(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\description.json"), true);
+                wad.AddEntry(0, "wow");
+                wad.Entries[0].FileRedirection = "It's like right now";
+                wad.Write(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assetsOHWOW.wad");
             }
         }
 

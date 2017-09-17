@@ -13,63 +13,56 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             return BitConverter.ToString(array).Replace("-", "");
         }
 
-        public enum LeagueFileType
-        {
-            Unknown,
-            ANM,
-            BIN,
-            BNK,
-            DDS,
-            SCB,
-            SCO,
-            SKL,
-            SKN
-        }
-
         public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
         {
-            byte[] id = new byte[8];
-            Buffer.BlockCopy(fileData, 0, id, 0, 8);
-            if (id[0] == 'r' && id[1] == '3' && id[2] == 'd' && id[3] == '2')
+            if (fileData[0] == 'r' && fileData[1] == '3' && fileData[2] == 'd' && fileData[3] == '2')
             {
-                if (id[4] == 'M' && id[5] == 'e' && id[6] == 's' && id[7] == 'h')
+                if (fileData[4] == 'M' && fileData[5] == 'e' && fileData[6] == 's' && fileData[7] == 'h')
                 {
                     return LeagueFileType.SCB;
                 }
-                else if (id[4] == 's' && id[5] == 'k' && id[6] == 'l' && id[7] == 't')
+                else if (fileData[4] == 's' && fileData[5] == 'k' && fileData[6] == 'l' && fileData[7] == 't')
                 {
                     return LeagueFileType.SKL;
                 }
-                else if (id[4] == 'a' && id[5] == 'n' && id[6] == 'm' && id[7] == 'd')
+                else if (fileData[4] == 'a' && fileData[5] == 'n' && fileData[6] == 'm' && fileData[7] == 'd')
                 {
                     return LeagueFileType.ANM;
                 }
-                else if (id[4] == 'c' && id[5] == 'a' && id[6] == 'n' && id[7] == 'm')
+                else if (fileData[4] == 'c' && fileData[5] == 'a' && fileData[6] == 'n' && fileData[7] == 'm')
                 {
                     return LeagueFileType.ANM;
                 }
             }
-            else if (id[0] == 'B' && id[1] == 'K' && id[2] == 'H' && id[3] == 'D')
+            else if (fileData[0] == 'B' && fileData[1] == 'K' && fileData[2] == 'H' && fileData[3] == 'D')
             {
                 return LeagueFileType.BNK;
             }
-            else if (id[0] == 0x33 && id[1] == 0x22 && id[2] == 0x11 && id[3] == 0x00)
+            else if (fileData[0] == 0x33 && fileData[1] == 0x22 && fileData[2] == 0x11 && fileData[3] == 0x00)
             {
                 return LeagueFileType.SKN;
             }
-            else if (id[0] == 'D' && id[1] == 'D' && id[2] == 'S' && id[3] == 0x20)
+            else if (fileData[0] == 'D' && fileData[1] == 'D' && fileData[2] == 'S' && fileData[3] == 0x20)
             {
                 return LeagueFileType.DDS;
             }
-            else if (id[0] == 'P' && id[1] == 'R' && id[2] == 'O' && id[3] == 'P')
+            else if (fileData[0] == 'P' && fileData[1] == 'R' && fileData[2] == 'O' && fileData[3] == 'P')
             {
                 return LeagueFileType.BIN;
             }
-            else if (id[0] == '[' && id[1] == 'O' && id[2] == 'b' && id[3] == 'j')
+            else if (fileData[0] == '[' && fileData[1] == 'O' && fileData[2] == 'b' && fileData[3] == 'j')
             {
                 return LeagueFileType.SCO;
             }
-            else if (BitConverter.ToInt32(id.Take(4).ToArray(), 0) == fileData.Length)
+            else if(fileData[1] == 'L' && fileData[2] == 'u' && fileData[3] == 'a' && fileData[4] == 'Q')
+            {
+                return LeagueFileType.LUAOBJ;
+            }
+            else if (fileData[1] == 'P' && fileData[2] == 'r' && fileData[3] == 'e' && fileData[4] == 'L' && fileData[5] == 'o' && fileData[6] == 'a' && fileData[4] == 'd')
+            {
+                return LeagueFileType.PRELOAD;
+            }
+            else if (BitConverter.ToInt32(fileData.Take(4).ToArray(), 0) == fileData.Length)
             {
                 return LeagueFileType.SKL;
             }
@@ -88,6 +81,10 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "bnk";
                 case LeagueFileType.DDS:
                     return "dds";
+                case LeagueFileType.LUAOBJ:
+                    return "luaobj";
+                case LeagueFileType.PRELOAD:
+                    return "preload";
                 case LeagueFileType.SCB:
                     return "scb";
                 case LeagueFileType.SCO:
@@ -100,5 +97,20 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "";
             }
         }
+    }
+
+    public enum LeagueFileType
+    {
+        Unknown,
+        ANM,
+        BIN,
+        BNK,
+        DDS,
+        LUAOBJ,
+        PRELOAD,
+        SCB,
+        SCO,
+        SKL,
+        SKN
     }
 }

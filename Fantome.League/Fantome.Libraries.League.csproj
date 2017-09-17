@@ -60,6 +60,7 @@
     <Compile Include="Helpers\Exceptions.cs" />
     <Compile Include="Helpers\Structures.cs" />
     <Compile Include="Helpers\Utilities.cs" />
+    <Compile Include="Helpers\XXHash.cs" />
     <Compile Include="IO\AiMesh\AiMeshCell.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />

@@ -13,6 +13,11 @@ namespace Fantome.Libraries.League.Helpers.Compression
     /// </summary>
     public static class Compression
     {
+        /// <summary>
+        /// Decompresses the specified GZip Data
+        /// </summary>
+        /// <param name="buffer">Data to decompress</param>
+        /// <returns>Decompressed Data</returns>
         public static byte[] DecompressGZip(byte[] buffer)
         {
             using (MemoryStream decompressedBuffer = new MemoryStream())
@@ -25,6 +30,26 @@ namespace Fantome.Libraries.League.Helpers.Compression
                     }
                 }
                 return decompressedBuffer.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Compresses the specified Data
+        /// </summary>
+        /// <param name="buffer">Data to compress</param>
+        /// <returns>Compressed Data</returns>
+        public static byte[] CompressGZip(byte[] buffer)
+        {
+            using (MemoryStream compressedBuffer = new MemoryStream())
+            {
+                using (MemoryStream uncompressedBuffer = new MemoryStream(buffer))
+                {
+                    using (GZipStream gzipBuffer = new GZipStream(compressedBuffer, CompressionMode.Compress))
+                    {
+                        uncompressedBuffer.CopyTo(gzipBuffer);
+                    }
+                }
+                return compressedBuffer.ToArray();
             }
         }
     }
