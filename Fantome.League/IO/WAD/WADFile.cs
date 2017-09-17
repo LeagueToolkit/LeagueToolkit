@@ -207,7 +207,8 @@ namespace Fantome.Libraries.League.IO.WAD
                 bw.Write((ushort)32);
                 bw.Write(Entries.Count);
 
-                uint currentDataOffset = (uint)(bw.BaseStream.Position + (32 * Entries.Count));
+                long tocOffset = stream.Position;
+                stream.Seek(tocOffset + (32 * Entries.Count), SeekOrigin.Begin);
 
                 for (int i = 0; i < Entries.Count; i++)
                 {
@@ -229,28 +230,24 @@ namespace Fantome.Libraries.League.IO.WAD
                         }
                     }
 
-                    // Assigning offsets
+                    // Writing data
                     if (duplicatedEntry == null)
                     {
-                        currentEntry._dataOffset = currentDataOffset;
-                        currentDataOffset += currentEntry.CompressedSize;
+                        bw.Write(currentEntry.GetContent(false));
+                        currentEntry._newData = null;
+                        currentEntry._dataOffset = (uint)stream.Position - currentEntry.CompressedSize;
                     }
                     else
                     {
                         currentEntry._dataOffset = duplicatedEntry._dataOffset;
                     }
-
-                    currentEntry.Write(bw);
                 }
 
-                // Write actual file data
+                // Write TOC
+                stream.Seek(tocOffset, SeekOrigin.Begin);
                 foreach (WADEntry wadEntry in Entries)
                 {
-                    if (!wadEntry._isDuplicated)
-                    {
-                        bw.Write(wadEntry.GetContent(false));
-                    }
-                    wadEntry._newData = null;
+                    wadEntry.Write(bw);
                 }
             }
 
