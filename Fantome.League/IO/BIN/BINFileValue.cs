@@ -115,10 +115,6 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new ushort[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
             }
-            else if (this.Type == BINFileValueType.ByteValue)
-            {
-                this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
-            }
             else
             {
                 throw new Exception("Unknown value type: " + this.Type);
