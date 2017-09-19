@@ -3,6 +3,7 @@ using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -97,7 +98,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             using (XXHash64 xxHash = XXHash64.Create())
             {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), fileRedirection);
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), fileRedirection);
             }
         }
 
@@ -111,7 +112,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             using (XXHash64 xxHash = XXHash64.Create())
             {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), data, compressedEntry);
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), data, compressedEntry);
             }
         }
 
