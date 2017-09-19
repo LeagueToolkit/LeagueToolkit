@@ -6,12 +6,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Fantome.Libraries.League.IO.SKN
+namespace Fantome.Libraries.League.IO.SimpleSkin
 {
+    /// <summary>
+    /// Represents a Simple Skin (SKN) file
+    /// </summary>
     public class SKNFile
     {
+        /// <summary>
+        /// Models of this <see cref="SKNFile"/>
+        /// </summary>
         public List<SKNSubmesh> Submeshes { get; private set; } = new List<SKNSubmesh>();
 
+        /// <summary>
+        /// Initializes a new <see cref="SKNFile"/> from legacy files
+        /// </summary>
+        /// <param name="weightsFile">Weights of this <see cref="SKNFile"/></param>
+        /// <param name="modelFile">Model Data of this <see cref="SKNFile"/></param>
         public SKNFile(WGTFile weightsFile, SCOFile modelFile)
         {
             List<Vector3> vertices = new List<Vector3>();
@@ -80,8 +91,16 @@ namespace Fantome.Libraries.League.IO.SKN
             }
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="SKNFile"/> from the specified location
+        /// </summary>
+        /// <param name="fileLocation">Location to read from</param>
         public SKNFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
+        /// <summary>
+        /// Initializes a new <see cref="SKNFile"/> from a <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
         public SKNFile(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
@@ -145,6 +164,9 @@ namespace Fantome.Libraries.League.IO.SKN
             }
         }
 
+        /// <summary>
+        /// Calculates an AABB Bounding Box of this <see cref="SKNFile"/>
+        /// </summary>
         public R3DBox CalculateBoundingBox()
         {
             List<SKNVertex> vertices = new List<SKNVertex>();
@@ -176,6 +198,9 @@ namespace Fantome.Libraries.League.IO.SKN
             }
         }
 
+        /// <summary>
+        /// Calculates a Bounding Sphere of this <see cref="SKNFile"/>
+        /// </summary>
         public R3DSphere CalculateBoundingSphere()
         {
             R3DBox box = CalculateBoundingBox();
@@ -184,6 +209,10 @@ namespace Fantome.Libraries.League.IO.SKN
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
         }
 
+        /// <summary>
+        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/>
+        /// </summary>
+        /// <param name="box"><see cref="R3DBox"/> to use</param>
         public R3DSphere CalculateBoundingSphere(R3DBox box)
         {
             Vector3 centralPoint = CalculateCentralPoint();
@@ -191,11 +220,19 @@ namespace Fantome.Libraries.League.IO.SKN
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
         }
 
+        /// <summary>
+        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/> and a Central Point
+        /// </summary>
+        /// <param name="box"><see cref="R3DBox"/> to use</param>
+        /// <param name="centralPoint">Position of the <see cref="R3DSphere"/></param>
         public R3DSphere CalculateBoundingSphere(R3DBox box, Vector3 centralPoint)
         {
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
         }
 
+        /// <summary>
+        /// Calculates the Central Point of this <see cref="SKNFile"/>
+        /// </summary>
         public Vector3 CalculateCentralPoint()
         {
             R3DBox box = CalculateBoundingBox();
@@ -205,6 +242,10 @@ namespace Fantome.Libraries.League.IO.SKN
                 0.5f * (box.Min.Z + box.Max.Z));
         }
 
+        /// <summary>
+        /// Calculates the Central Point of this <see cref="SKNFile"/> from a <see cref="R3DBox"/>
+        /// </summary>
+        /// <param name="box"><see cref="R3DBox"/> to use</param>
         public Vector3 CalculateCentralPoint(R3DBox box)
         {
             return new Vector3(0.5f * (box.Min.X + box.Max.X),
@@ -212,11 +253,19 @@ namespace Fantome.Libraries.League.IO.SKN
                 0.5f * (box.Min.Z + box.Max.Z));
         }
 
+        /// <summary>
+        /// Writes this <see cref="SKNFile"/> to the specified location
+        /// </summary>
+        /// <param name="fileLocation">Location to write to</param>
         public void Write(string fileLocation)
         {
             Write(File.Create(fileLocation));
         }
 
+        /// <summary>
+        /// Writes this <see cref="SKNFile"/> into the specified <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
             using (BinaryWriter bw = new BinaryWriter(stream))

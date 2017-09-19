@@ -13,7 +13,7 @@ using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.ObjectConfig;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
 using Fantome.Libraries.League.Helpers.Utilities;
