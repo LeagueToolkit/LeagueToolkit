@@ -5,12 +5,12 @@ namespace Fantome.Libraries.League.IO.SKN
 {
     public class SKNVertex
     {
-        public Vector3 Position { get; private set; }
-        public Vector4Byte BoneIndices { get; private set; }
-        public Vector4 Weights { get; private set; }
-        public Vector3 Normal { get; private set; }
-        public Vector2 UV { get; private set; }
-        public Vector4Byte Tangent { get; private set; }
+        public Vector3 Position { get; set; }
+        public Vector4Byte BoneIndices { get; set; }
+        public Vector4 Weights { get; set; }
+        public Vector3 Normal { get; set; }
+        public Vector2 UV { get; set; }
+        public Vector4Byte Tangent { get; set; }
 
         public SKNVertex(Vector3 position, Vector4Byte boneIndices, Vector4 weights, Vector3 normal, Vector2 uv)
         {

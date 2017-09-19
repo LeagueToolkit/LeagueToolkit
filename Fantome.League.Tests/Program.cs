@@ -26,7 +26,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            SKNTest();
         }
 
         static void WGEOTest()
@@ -43,7 +43,8 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Plantking.skn");
+            SKNFile skn = new SKNFile("86FEC5F936C4CAA1.skn");
+            skn.Write("Ornn.skn");
         }
 
         static void FXTest()

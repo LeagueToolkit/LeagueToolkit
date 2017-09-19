@@ -98,18 +98,24 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="OBJFile"/> converted from <paramref name="model"/></returns>
         public static OBJFile ConvertSKN(SKNFile model)
         {
+            List<uint> indices = new List<uint>();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<Vector3> normals = new List<Vector3>();
 
-            foreach (SKNVertex vertex in model.Vertices)
+            foreach(SKNSubmesh submesh in model.Submeshes)
             {
-                vertices.Add(vertex.Position);
-                uv.Add(vertex.UV);
-                normals.Add(vertex.Normal);
+                indices.AddRange(submesh.Indices.Cast<uint>());
+                foreach (SKNVertex vertex in submesh.Vertices)
+                {
+                    vertices.Add(vertex.Position);
+                    uv.Add(vertex.UV);
+                    normals.Add(vertex.Normal);
+                }
             }
 
-            return new OBJFile(vertices, model.Indices, uv, normals);
+
+            return new OBJFile(vertices, indices, uv, normals);
         }
 
         /// <summary>
