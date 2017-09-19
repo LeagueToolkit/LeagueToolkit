@@ -275,91 +275,91 @@ namespace Fantome.Libraries.League.IO.BIN
     public enum BINFileValueType : Byte
     {
         /// <summary>
-        /// 3 UShorts
+        /// Represents a <see cref="ushort"/> Vector3 value
         /// </summary>
         UInt16Vector3 = 0,
         /// <summary>
-        /// Boolean
+        /// Represents a <see cref="bool"/> value
         /// </summary>
         Boolean = 1,
         /// <summary>
-        /// Byte
+        /// Represents a <see cref="byte"/> value
         /// </summary>
         ByteValue = 2,
         /// <summary>
-        /// Byte
+        /// Represents a <see cref="byte"/> value
         /// </summary>
         ByteValue2 = 3,
         /// <summary>
-        /// UShort
+        /// Represents a <see cref="ushort"/> value
         /// </summary>
         UInt16 = 5,
         /// <summary>
-        /// UInt
+        /// Represents a <see cref="uint"/> value
         /// </summary>
         UInt32 = 6,
         /// <summary>
-        /// UInt
+        /// Represents a <see cref="uint"/> value
         /// </summary>
         UInt32_2 = 7,
         /// <summary>
-        /// 2 UInts
+        /// Represents a <see cref="uint"/> Vector2 value
         /// </summary>
         UInt32Vector2 = 9,
         /// <summary>
-        /// Float
+        /// Represents a <see cref="float"/> value
         /// </summary>
         Float = 10,
         /// <summary>
-        /// 2 Floats
+        /// Represents a <see cref="float"/> Vector2 value
         /// </summary>
         FloatVector2 = 11,
         /// <summary>
-        /// 3 Floats
+        /// Represents a <see cref="float"/> Vector3 value
         /// </summary>
         FloatVector3 = 12,
         /// <summary>
-        /// 4 Floats
+        /// Represents a <see cref="float"/> Vector4 value
         /// </summary>
         FloatVector4 = 13,
         /// <summary>
-        /// 4 Bytes
+        /// Represents a <see cref="byte"/> Vector4 value
         /// </summary>
         ByteVector4 = 15,
         /// <summary>
-        /// String
+        /// Represents a <see cref="string"/> value
         /// </summary>
         String = 16,
         /// <summary>
-        /// UInt
+        /// Represents a <see cref="uint"/> value
         /// </summary>
         UInt32_3 = 17,
         /// <summary>
-        /// List with 32-bit size and value count
+        /// Represents a List with a <see cref="uint"/> Size and Value Count
         /// </summary>
         LargeStaticTypeList = 18,
         /// <summary>
-        /// List which holds values of different type
+        /// Represents a List which holds values of different types
         /// </summary>
         List2 = 19,
         /// <summary>
-        /// List which holds values of different type
+        /// Represents a List which holds values of different types
         /// </summary>
         List = 20,
         /// <summary>
-        /// 4 Bytes
+        /// Represents a <see cref="byte"/> Vector4 value
         /// </summary>
         ByteVector4_2 = 21,
         /// <summary>
-        /// List with 8-bit value count
+        /// Represents a List with <see cref="byte"/> Value Count
         /// </summary>
         SmallStaticTypeList = 22,
         /// <summary>
-        /// List which holds values with of 2 types
+        /// Represents a List which holds values of 2 types
         /// </summary>
         DoubleTypeList = 23,
         /// <summary>
-        /// Byte
+        /// Represents a <see cref="byte"/> value
         /// </summary>
         ByteValue3 = 24
     }
