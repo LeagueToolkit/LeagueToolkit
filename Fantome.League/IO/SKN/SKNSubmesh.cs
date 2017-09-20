@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -80,6 +81,89 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         public void AssignSimpleSkin(SKNFile skn)
         {
             this._skn = skn;
+        }
+
+        /// <summary>
+        /// Calculates an AABB Bounding Box of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        public R3DBox CalculateBoundingBox()
+        {
+            if (this.Vertices.Count == 0)
+            {
+                return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+            }
+            else
+            {
+                Vector3 min = this.Vertices[0].Position;
+                Vector3 max = this.Vertices[0].Position;
+
+                foreach (SKNVertex vertex in this.Vertices)
+                {
+                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
+                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
+                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
+                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
+                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
+                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+                }
+
+                return new R3DBox(min, max);
+            }
+        }
+
+        /// <summary>
+        /// Calculates a Bounding Sphere of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        public R3DSphere CalculateBoundingSphere()
+        {
+            R3DBox box = CalculateBoundingBox();
+            Vector3 centralPoint = CalculateCentralPoint();
+
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+        }
+
+        /// <summary>
+        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/> of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        /// <param name="box"><see cref="R3DBox"/> of this <see cref="SKNSubmesh"/></param>
+        public R3DSphere CalculateBoundingSphere(R3DBox box)
+        {
+            Vector3 centralPoint = CalculateCentralPoint();
+
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+        }
+
+        /// <summary>
+        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/> and a Central Point of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        /// <param name="box"><see cref="R3DBox"/> of this <see cref="SKNSubmesh"/></param>
+        /// <param name="centralPoint">Position of the <see cref="R3DSphere"/></param>
+        public R3DSphere CalculateBoundingSphere(R3DBox box, Vector3 centralPoint)
+        {
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+        }
+
+        /// <summary>
+        /// Calculates the Central Point of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        public Vector3 CalculateCentralPoint()
+        {
+            R3DBox box = CalculateBoundingBox();
+
+            return new Vector3(0.5f * (box.Min.X + box.Max.X),
+                0.5f * (box.Min.Y + box.Max.Y),
+                0.5f * (box.Min.Z + box.Max.Z));
+        }
+
+        /// <summary>
+        /// Calculates the Central Point of this <see cref="SKNSubmesh"/> from a <see cref="R3DBox"/> of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        /// <param name="box"><see cref="R3DBox"/> of this <see cref="SKNSubmesh"/></param>
+        public Vector3 CalculateCentralPoint(R3DBox box)
+        {
+            return new Vector3(0.5f * (box.Min.X + box.Max.X),
+                0.5f * (box.Min.Y + box.Max.Y),
+                0.5f * (box.Min.Z + box.Max.Z));
         }
 
         /// <summary>

@@ -210,9 +210,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         }
 
         /// <summary>
-        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/>
+        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/> of this <see cref="SKNFile"/>
         /// </summary>
-        /// <param name="box"><see cref="R3DBox"/> to use</param>
+        /// <param name="box"><see cref="R3DBox"/> of this <see cref="SKNFile"/></param>
         public R3DSphere CalculateBoundingSphere(R3DBox box)
         {
             Vector3 centralPoint = CalculateCentralPoint();
@@ -221,10 +221,10 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         }
 
         /// <summary>
-        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/> and a Central Point
+        /// Calculates a Bounding Sphere from a <see cref="R3DBox"/> and a Central Point of this <see cref="SKNFile"/>
         /// </summary>
-        /// <param name="box"><see cref="R3DBox"/> to use</param>
-        /// <param name="centralPoint">Position of the <see cref="R3DSphere"/></param>
+        /// <param name="box"><see cref="R3DBox"/> of this <see cref="SKNFile"/></param>
+        /// <param name="centralPoint">Position of the <see cref="R3DSphere"/> of this <see cref="SKNFile"/></param>
         public R3DSphere CalculateBoundingSphere(R3DBox box, Vector3 centralPoint)
         {
             return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
@@ -243,9 +243,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         }
 
         /// <summary>
-        /// Calculates the Central Point of this <see cref="SKNFile"/> from a <see cref="R3DBox"/>
+        /// Calculates the Central Point of this <see cref="SKNFile"/> from a <see cref="R3DBox"/> of this <see cref="SKNFile"/>
         /// </summary>
-        /// <param name="box"><see cref="R3DBox"/> to use</param>
+        /// <param name="box"><see cref="R3DBox"/> of this <see cref="SKNFile"/></param>
         public Vector3 CalculateCentralPoint(R3DBox box)
         {
             return new Vector3(0.5f * (box.Min.X + box.Max.X),
