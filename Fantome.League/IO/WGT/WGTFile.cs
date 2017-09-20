@@ -1,61 +1,114 @@
-﻿using Fantome.Libraries.League.Helpers.Exceptions;
-using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.WGT
 {
-    [DebuggerDisplay("[ Version: {Version} ]")]
+    /// <summary>
+    /// Represents a Weight File which is used in old League of Legends versions together with SCO
+    /// </summary>
     public class WGTFile
     {
-        public UInt32 Version { get; private set; }
-        public UInt32 SkeletonID { get; private set; }
+        /// <summary>
+        /// Weights of this <see cref="WGTFile"/>
+        /// </summary>
         public List<WGTWeight> Weights { get; private set; } = new List<WGTWeight>();
 
-        public WGTFile(List<Vector4> Weights, List<Vector4Byte> BoneIndices)
+        /// <summary>
+        /// Initializes a blank <see cref="WGTFile"/>
+        /// </summary>
+        public WGTFile() { }
+
+        /// <summary>
+        /// Initializes a new <see cref="WGTFile"/>
+        /// </summary>
+        /// <param name="weights">Weights of this <see cref="WGTFile"/></param>
+        public WGTFile(List<WGTWeight> weights)
         {
-            for(int i = 0; i < Weights.Count; i++)
+            this.Weights = weights;
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="WGTFile"/>
+        /// </summary>
+        /// <param name="weights">Weight data of this <see cref="WGTFile"/></param>
+        /// <param name="boneIndices">Bone Index data of this <see cref="WGTFile"/></param>
+        public WGTFile(List<Vector4> weights, List<Vector4Byte> boneIndices)
+        {
+            if (weights.Count != boneIndices.Count)
             {
-                this.Weights.Add(new WGTWeight(Weights[i], BoneIndices[i]));
+                throw new Exception("Weights and Bone Indices have to be synchronized");
+            }
+
+            for (int i = 0; i < weights.Count; i++)
+            {
+                this.Weights.Add(new WGTWeight(weights[i], boneIndices[i]));
             }
         }
-        public WGTFile(string Location)
+
+        /// <summary>
+        /// Initializes a new <see cref="WGTFile"/> from the spcified location
+        /// </summary>
+        /// <param name="fileLocation">Location to read from</param>
+        public WGTFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+
+        /// <summary>
+        /// Initializes a new <see cref="WGTFile"/> from a <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        public WGTFile(Stream stream)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+            using (BinaryReader br = new BinaryReader(stream))
             {
-                string Magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-                if (Magic != "r3d2wght")
-                    throw new InvalidFileMagicException();
+                string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+                if (magic != "r3d2wght")
+                {
+                    throw new Exception("This is not a valid WGT file");
+                }
 
-                this.Version = br.ReadUInt32();
-                if (this.Version != 1)
-                    throw new UnsupportedFileVersionException();
+                uint version = br.ReadUInt32();
+                if (version != 1)
+                {
+                    throw new Exception("This WGT file version is not supported");
+                }
 
-                this.SkeletonID = br.ReadUInt32();
-                UInt32 WeightCount = br.ReadUInt32();
+                uint skeletonId = br.ReadUInt32();
+                uint weightCount = br.ReadUInt32();
 
-                for (int i = 0; i < WeightCount; i++)
+                for (int i = 0; i < weightCount; i++)
                 {
                     this.Weights.Add(new WGTWeight(br));
                 }
             }
         }
 
-        public void Write(string Location)
+        /// <summary>
+        /// Writes this <see cref="WGTFile"/> to the specified location
+        /// </summary>
+        /// <param name="fileLocation">Location to write to</param>
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
-            {
-                bw.Write("r3d2wght".ToCharArray());
-                bw.Write((UInt32)1);
-                bw.Write(this.SkeletonID);
-                bw.Write((UInt32)this.Weights.Count);
+            Write(File.Create(fileLocation));
+        }
 
-                foreach (WGTWeight Weight in this.Weights)
+        /// <summary>
+        /// Writes this <see cref="WGTFile"/> into a <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream"><see cref="Stream"/> to write to</param>
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
+            {
+                bw.Write(Encoding.ASCII.GetBytes("r3d2wght"));
+                bw.Write(1);
+                bw.Write(0);
+                bw.Write(this.Weights.Count);
+
+                foreach (WGTWeight weight in this.Weights)
                 {
-                    Weight.Write(bw);
+                    weight.Write(bw);
                 }
             }
         }
