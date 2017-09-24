@@ -131,7 +131,7 @@ namespace Fantome.Libraries.League.Converters
                 List<Vector3> vertices = new List<Vector3>();
                 List<Vector2> uv = new List<Vector2>();
                 List<Vector3> normals = new List<Vector3>();
-                indices.AddRange(submesh.Indices.Select(i => (uint)i));
+                indices.AddRange(submesh.GetNormalizedIndices().Select(i => (uint)i));
                 foreach (SKNVertex vertex in submesh.Vertices)
                 {
                     vertices.Add(vertex.Position);
