@@ -10,7 +10,7 @@ using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.MOB;
 using Fantome.Libraries.League.IO.NVR;
-using Fantome.Libraries.League.IO.ObjectConfig;
+using Fantome.Libraries.League.IO.INI;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SKN;
@@ -147,9 +147,9 @@ namespace Fantome.Libraries.League.Tests
             }
         }
 
-        static void ObjectConfigTest()
+        static void IniTest()
         {
-            ObjectConfigFile cfg = new ObjectConfigFile("ObjectCFG.cfg");
+            IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
         }
     }
