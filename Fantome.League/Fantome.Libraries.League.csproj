@@ -93,6 +93,7 @@
     <Compile Include="IO\NVR\NVRVertex.cs" />
     <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
     <Compile Include="IO\ObjectConfig\ObjectConfigFile.cs" />
+    <Compile Include="IO\OBJ\OBJFace.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />

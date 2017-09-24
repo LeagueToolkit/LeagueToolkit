@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
@@ -81,6 +82,16 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         public void AssignSimpleSkin(SKNFile skn)
         {
             this._skn = skn;
+        }
+
+        /// <summary>
+        /// Gets the Normalized Indices of this <see cref="SKNSubmesh"/>
+        /// </summary>
+        public List<ushort> GetNormalizedIndices()
+        {
+            ushort min = this.Indices.Min();
+
+            return this.Indices.Select(i => i -= min).ToList();
         }
 
         /// <summary>
