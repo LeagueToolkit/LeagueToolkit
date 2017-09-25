@@ -16,9 +16,7 @@ using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
-using Fantome.Libraries.League.Helpers.Utilities;
 using System.IO;
-using System.Text;
 
 namespace Fantome.Libraries.League.Tests
 {
