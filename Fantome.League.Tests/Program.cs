@@ -13,7 +13,7 @@ using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.ObjectConfig;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
 using Fantome.Libraries.League.Helpers.Utilities;
@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            MOBTest();
+
         }
 
         static void WGEOTest()
@@ -46,7 +46,8 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Plantking.skn");
+            SKNFile skn = new SKNFile("86FEC5F936C4CAA1.skn");
+            skn.Write("Ornn.skn");
         }
 
         static void FXTest()
