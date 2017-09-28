@@ -4,6 +4,7 @@ using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WGEO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -110,6 +111,30 @@ namespace Fantome.Libraries.League.Converters
             }
 
             return new OBJFile(vertices, model.Indices, uv, normals);
+        }
+
+        /// <summary>
+        /// Converts the Submeshes of the specified <see cref="SKNFile"/> into a List of <see cref="OBJFile"/>
+        /// </summary>
+        /// <param name="model"><see cref="SKNFile"/> to convert</param>
+        public static IEnumerable<Tuple<string, OBJFile>> ConvertSKNModels(SKNFile model)
+        {
+            foreach (SKNSubmesh submesh in model.Submeshes)
+            {
+                List<uint> indices = new List<uint>();
+                List<Vector3> vertices = new List<Vector3>();
+                List<Vector2> uv = new List<Vector2>();
+                List<Vector3> normals = new List<Vector3>();
+                indices.AddRange(submesh.GetNormalizedIndices().Select(i => (uint)i));
+                foreach (SKNVertex vertex in submesh.Vertices)
+                {
+                    vertices.Add(vertex.Position);
+                    uv.Add(vertex.UV);
+                    normals.Add(vertex.Normal);
+                }
+
+                yield return new Tuple<string, OBJFile>(submesh.Name, new OBJFile(vertices, indices, uv, normals));
+            }
         }
 
         /// <summary>
