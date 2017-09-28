@@ -1,11 +1,10 @@
-using Fantome.Libraries.League.Helpers.Compression;
 using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.WAD
@@ -97,7 +96,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             using (XXHash64 xxHash = XXHash64.Create())
             {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), fileRedirection);
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), fileRedirection);
             }
         }
 
@@ -111,7 +110,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             using (XXHash64 xxHash = XXHash64.Create())
             {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path)), 0), data, compressedEntry);
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), data, compressedEntry);
             }
         }
 
@@ -136,9 +135,13 @@ namespace Fantome.Libraries.League.IO.WAD
             AddEntry(new WADEntry(this, xxHash, data, compressedEntry));
         }
 
-        private void AddEntry(WADEntry entry)
+        /// <summary>
+        /// Adds an existing <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
+        /// <param name="entry"></param>
+        public void AddEntry(WADEntry entry)
         {
-            if (!this._entries.Exists(x => x.XXHash == entry.XXHash))
+            if (!this._entries.Exists(x => x.XXHash == entry.XXHash) && entry._wad == this)
             {
                 this._entries.Add(entry);
                 this._entries.Sort();

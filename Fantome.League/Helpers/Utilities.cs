@@ -8,9 +8,23 @@ namespace Fantome.Libraries.League.Helpers.Utilities
 {
     public static class Utilities
     {
-        public static string ByteArrayToHex(byte[] array)
+        public static string ByteArrayToHex(byte[] array, bool reverse)
         {
-            return BitConverter.ToString(array).Replace("-", "");
+            if(reverse)
+            {
+                array = array.Reverse().ToArray();
+            }
+
+            StringBuilder hexString = new StringBuilder(array.Length * 2);
+            string hexAlphabeth = "0123456789ABCDEF";
+
+            for(int i = 0; i < array.Length; i++)
+            {
+                hexString.Append(hexAlphabeth[array[i] >> 4]);
+                hexString.Append(hexAlphabeth[array[i] & 0xF]);
+            }
+
+            return hexString.ToString();
         }
 
         public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
