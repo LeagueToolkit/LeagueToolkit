@@ -1,4 +1,3 @@
-using Fantome.Libraries.League.Helpers.Compression;
 using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
@@ -6,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.WAD
