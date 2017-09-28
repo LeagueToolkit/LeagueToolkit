@@ -3,22 +3,42 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Fantome.Libraries.League.IO.MOB
+namespace Fantome.Libraries.League.IO.MapObjects
 {
+    /// <summary>
+    /// Represents a MapObjects.mob file
+    /// </summary>
     public class MOBFile
     {
-        public List<MOBObject> Objects { get; private set; }
+        /// <summary>
+        /// Objects of this <see cref="MOBFile"/>
+        /// </summary>
+        public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
 
+        /// <summary>
+        /// Initializes an empty <see cref="MOBFile"/>
+        /// </summary>
+        public MOBFile() { }
+
+        /// <summary>
+        /// Initializes a new <see cref="MOBFile"/>
+        /// </summary>
+        /// <param name="objects">Objects of this <see cref="MOBFile"/></param>
         public MOBFile(List<MOBObject> objects)
         {
             this.Objects = objects;
         }
 
-        public MOBFile(string fileLocation)
-            : this(File.OpenRead(fileLocation))
-        {
+        /// <summary>
+        /// Initializes a new <see cref="MOBFile"/> from the specified location
+        /// </summary>
+        /// <param name="fileLocation">Location to read from</param>
+        public MOBFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
-        }
+        /// <summary>
+        /// Initalizes a new <see cref="MOBFile"/> from the specified <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
         public MOBFile(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
@@ -45,11 +65,19 @@ namespace Fantome.Libraries.League.IO.MOB
             }
         }
 
+        /// <summary>
+        /// Writes this <see cref="MOBFile"/> to the spcified location
+        /// </summary>
+        /// <param name="fileLocation">Location to write to</param>
         public void Write(string fileLocation)
         {
             Write(File.Create(fileLocation));
         }
 
+        /// <summary>
+        /// Writes this <see cref="MOBFile"/> into a <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
             using (BinaryWriter bw = new BinaryWriter(stream))

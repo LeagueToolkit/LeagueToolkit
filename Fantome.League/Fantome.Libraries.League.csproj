@@ -81,8 +81,8 @@
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
-    <Compile Include="IO\MOB\MOBFile.cs" />
-    <Compile Include="IO\MOB\MOBObject.cs" />
+    <Compile Include="IO\MapObjects\MOBFile.cs" />
+    <Compile Include="IO\MapObjects\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
     <Compile Include="IO\NVR\NVRDrawIndexedPrimitive.cs" />
     <Compile Include="IO\NVR\NVRFile.cs" />
