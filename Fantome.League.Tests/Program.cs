@@ -13,7 +13,7 @@ using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.INI;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SimpleSkin;
+using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
 using System.IO;
@@ -45,8 +45,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("86FEC5F936C4CAA1.skn");
-            skn.Write("Ornn.skn");
+            SKNFile skn = new SKNFile("Plantking.skn");
         }
 
         static void FXTest()

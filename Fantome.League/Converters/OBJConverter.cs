@@ -2,7 +2,7 @@
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SimpleSkin;
+using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WGEO;
 using System;
 using System.Collections.Generic;
@@ -99,24 +99,18 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="OBJFile"/> converted from <paramref name="model"/></returns>
         public static OBJFile ConvertSKN(SKNFile model)
         {
-            List<uint> indices = new List<uint>();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<Vector3> normals = new List<Vector3>();
 
-            foreach(SKNSubmesh submesh in model.Submeshes)
+            foreach (SKNVertex vertex in model.Vertices)
             {
-                indices.AddRange(submesh.Indices.Cast<uint>());
-                foreach (SKNVertex vertex in submesh.Vertices)
-                {
-                    vertices.Add(vertex.Position);
-                    uv.Add(vertex.UV);
-                    normals.Add(vertex.Normal);
-                }
+                vertices.Add(vertex.Position);
+                uv.Add(vertex.UV);
+                normals.Add(vertex.Normal);
             }
 
-
-            return new OBJFile(vertices, indices, uv, normals);
+            return new OBJFile(vertices, model.Indices, uv, normals);
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.OBJ;
-using Fantome.Libraries.League.IO.SimpleSkin;
+using Fantome.Libraries.League.IO.SKN;
 using Fantome.Libraries.League.IO.WGEO;
 using System;
 using System.Collections.Generic;
@@ -62,13 +62,18 @@ namespace Fantome.Libraries.League.Converters
             {
                 MeshGeometry3D mesh = new MeshGeometry3D();
 
-                Int32Collection indices = new Int32Collection(submesh.Indices.Cast<int>());
+                Int32Collection indices = new Int32Collection();
+                for (int i = 0; i < submesh.IndexCount; i++)
+                {
+                    indices.Add((int)skn.Indices[i + (int)submesh.StartIndex] - (int)submesh.StartIndex);
+                }
+
                 Point3DCollection vertices = new Point3DCollection();
                 Vector3DCollection normals = new Vector3DCollection();
                 PointCollection uvs = new PointCollection();
-                for (int i = 0; i < submesh.Vertices.Count; i++)
+                for (int i = 0; i < submesh.VertexCount; i++)
                 {
-                    SKNVertex vertex = submesh.Vertices[i];
+                    SKNVertex vertex = skn.Vertices[i + (int)submesh.StartVertex];
                     vertices.Add(new Point3D(vertex.Position.X, vertex.Position.Y, vertex.Position.Z));
                     normals.Add(new Vector3D(vertex.Normal.X, vertex.Normal.Y, vertex.Normal.Z));
                     uvs.Add(new Point(vertex.UV.X, vertex.UV.Y));
