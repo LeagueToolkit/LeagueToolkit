@@ -33,7 +33,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             foreach (WGTWeight weight in weightsFile.Weights)
             {
-                boneIndices.Add(weight.Indices);
+                boneIndices.Add(weight.BoneIndices);
                 weights.Add(weight.Weights);
             }
 
