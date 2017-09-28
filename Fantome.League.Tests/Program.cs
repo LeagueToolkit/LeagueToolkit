@@ -8,15 +8,18 @@ using Fantome.Libraries.League.IO.LightEnvironment;
 using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
-using Fantome.Libraries.League.IO.MOB;
+using Fantome.Libraries.League.IO.MapObjects;
 using Fantome.Libraries.League.IO.NVR;
-using Fantome.Libraries.League.IO.ObjectConfig;
+using Fantome.Libraries.League.IO.INI;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WGEO;
 using System.IO;
+using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -24,7 +27,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            WADTest();
+
         }
 
         static void WGEOTest()
@@ -36,12 +39,14 @@ namespace Fantome.Libraries.League.Tests
         static void MOBTest()
         {
             MOBFile mob = new MOBFile("MapObjects.mob");
-            mob.Write("MapObjectsWrite.mob");
+            List<MOBObject> objects = new List<MOBObject>();
+            objects.AddRange(mob.Objects.Where(x => x.Type == MOBObjectType.Info));
         }
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Plantking.skn");
+            SKNFile skn = new SKNFile("86FEC5F936C4CAA1.skn");
+            skn.Write("Ornn.skn");
         }
 
         static void FXTest()
@@ -91,7 +96,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("1A95B85AAA53A9.bin");
+            BINFile bin = new BINFile("7204EAC36A3BCCB3.bin");
             bin.Write("test.bin");
         }
 
@@ -145,9 +150,9 @@ namespace Fantome.Libraries.League.Tests
             }
         }
 
-        static void ObjectConfigTest()
+        static void IniTest()
         {
-            ObjectConfigFile cfg = new ObjectConfigFile("ObjectCFG.cfg");
+            IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
         }
     }

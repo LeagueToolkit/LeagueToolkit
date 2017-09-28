@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -31,9 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -77,8 +81,8 @@
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
-    <Compile Include="IO\MOB\MOBFile.cs" />
-    <Compile Include="IO\MOB\MOBObject.cs" />
+    <Compile Include="IO\MapObjects\MOBFile.cs" />
+    <Compile Include="IO\MapObjects\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
     <Compile Include="IO\NVR\NVRDrawIndexedPrimitive.cs" />
     <Compile Include="IO\NVR\NVRFile.cs" />
@@ -88,17 +92,23 @@
     <Compile Include="IO\NVR\NVRNode.cs" />
     <Compile Include="IO\NVR\NVRVertex.cs" />
     <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
-    <Compile Include="IO\ObjectConfig\ObjectConfigFile.cs" />
+    <Compile Include="IO\INI\IniFile.cs" />
+    <Compile Include="IO\OBJ\OBJFace.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />
+    <Compile Include="IO\ReleaseManifest\ReleaseManifestFile.cs" />
+    <Compile Include="IO\ReleaseManifest\ReleaseManifestFileEntry.cs" />
+    <Compile Include="IO\ReleaseManifest\ReleaseManifestFolderEntry.cs" />
+    <Compile Include="IO\RiotArchive\RAF.cs" />
+    <Compile Include="IO\RiotArchive\RAFFileEntry.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\SCO\SCOFace.cs" />
     <Compile Include="IO\SCO\SCOFile.cs" />
-    <Compile Include="IO\SKN\SKNFile.cs" />
-    <Compile Include="IO\SKN\SKNSubmesh.cs" />
-    <Compile Include="IO\SKN\SKNVertex.cs" />
+    <Compile Include="IO\SimpleSkin\SKNFile.cs" />
+    <Compile Include="IO\SimpleSkin\SKNSubmesh.cs" />
+    <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
     <Compile Include="IO\WAD\WADFile.cs" />
     <Compile Include="IO\WGEO\WGEOBucket.cs" />
@@ -108,8 +118,18 @@
     <Compile Include="IO\WGEO\WGEOVertex.cs" />
     <Compile Include="IO\WGT\WGTFile.cs" />
     <Compile Include="IO\WGT\WGTWeight.cs" />
+    <Compile Include="Manager\Installation\LeagueBackupArchive.cs" />
+    <Compile Include="Manager\Installation\LeagueInstallation.cs" />
+    <Compile Include="Manager\Installation\LeagueRADSInstallation.cs" />
+    <Compile Include="Manager\Installation\LeagueRADSProject.cs" />
+    <Compile Include="Manager\Installation\LeagueRADSProjectRelease.cs" />
+    <Compile Include="Manager\Installation\LeagueRawInstallation.cs" />
+    <Compile Include="Manager\LeagueManager.cs" />
+    <Compile Include="Manager\LeagueRADSDeployRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
