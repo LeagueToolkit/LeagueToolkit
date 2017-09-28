@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -81,8 +81,8 @@
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
-    <Compile Include="IO\MOB\MOBFile.cs" />
-    <Compile Include="IO\MOB\MOBObject.cs" />
+    <Compile Include="IO\MapObjects\MOBFile.cs" />
+    <Compile Include="IO\MapObjects\MOBObject.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
     <Compile Include="IO\NVR\NVRDrawIndexedPrimitive.cs" />
     <Compile Include="IO\NVR\NVRFile.cs" />
@@ -93,6 +93,7 @@
     <Compile Include="IO\NVR\NVRVertex.cs" />
     <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
     <Compile Include="IO\INI\IniFile.cs" />
+    <Compile Include="IO\OBJ\OBJFace.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />
@@ -105,9 +106,9 @@
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\SCO\SCOFace.cs" />
     <Compile Include="IO\SCO\SCOFile.cs" />
-    <Compile Include="IO\SKN\SKNFile.cs" />
-    <Compile Include="IO\SKN\SKNSubmesh.cs" />
-    <Compile Include="IO\SKN\SKNVertex.cs" />
+    <Compile Include="IO\SimpleSkin\SKNFile.cs" />
+    <Compile Include="IO\SimpleSkin\SKNSubmesh.cs" />
+    <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
     <Compile Include="IO\WAD\WADFile.cs" />
     <Compile Include="IO\WGEO\WGEOBucket.cs" />
