@@ -2,7 +2,7 @@
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
@@ -86,18 +86,33 @@ namespace Fantome.Libraries.League.Converters
         public static Tuple<SCOFile, WGTFile> ConvertToLegacy(SKNFile skn)
         {
             List<Vector3> vertices = new List<Vector3>();
-            List<Vector2> uvs = new List<Vector2>();
+            Dictionary<string, List<SCOFace>> materials = new Dictionary<string, List<SCOFace>>();
             List<Vector4Byte> boneIndices = new List<Vector4Byte>();
             List<Vector4> weights = new List<Vector4>();
 
-            foreach (SKNVertex vertex in skn.Vertices)
+            foreach (SKNSubmesh submesh in skn.Submeshes)
             {
-                vertices.Add(vertex.Position);
-                uvs.Add(vertex.UV);
-                weights.Add(vertex.Weights);
-                boneIndices.Add(vertex.BoneIndices);
+                List<SCOFace> faces = new List<SCOFace>();
+                for (int i = 0; i < submesh.Indices.Count; i += 3)
+                {
+                    faces.Add(new SCOFace(new uint[] { submesh.Indices[i], submesh.Indices[i + 1], submesh.Indices[i + 2], }, submesh.Name,
+                        new Vector2[]
+                        {
+                            submesh.Vertices[submesh.Indices[i]].UV,
+                            submesh.Vertices[submesh.Indices[i + 1]].UV,
+                            submesh.Vertices[submesh.Indices[i + 2]].UV,
+                        }));
+                }
+                materials.Add(submesh.Name, faces);
+
+                foreach (SKNVertex vertex in submesh.Vertices)
+                {
+                    vertices.Add(vertex.Position);
+                    weights.Add(vertex.Weights);
+                    boneIndices.Add(vertex.BoneIndices);
+                }
             }
-            return new Tuple<SCOFile, WGTFile>(new SCOFile(vertices, skn.Indices, uvs), new WGTFile(weights, boneIndices));
+            return new Tuple<SCOFile, WGTFile>(new SCOFile(vertices, materials), new WGTFile(weights, boneIndices));
         }
     }
 }
