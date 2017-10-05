@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -111,11 +111,11 @@
     <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
     <Compile Include="IO\WAD\WADFile.cs" />
-    <Compile Include="IO\WorldGeometry\WGEOBucket.cs" />
-    <Compile Include="IO\WorldGeometry\WGEOBucketGeometry.cs" />
-    <Compile Include="IO\WorldGeometry\WGEOFile.cs" />
-    <Compile Include="IO\WorldGeometry\WGEOModel.cs" />
-    <Compile Include="IO\WorldGeometry\WGEOVertex.cs" />
+    <Compile Include="IO\WGEO\WGEOBucket.cs" />
+    <Compile Include="IO\WGEO\WGEOBucketGeometry.cs" />
+    <Compile Include="IO\WGEO\WGEOFile.cs" />
+    <Compile Include="IO\WGEO\WGEOModel.cs" />
+    <Compile Include="IO\WGEO\WGEOVertex.cs" />
     <Compile Include="IO\WGT\WGTFile.cs" />
     <Compile Include="IO\WGT\WGTWeight.cs" />
     <Compile Include="Manager\Installation\LeagueBackupArchive.cs" />

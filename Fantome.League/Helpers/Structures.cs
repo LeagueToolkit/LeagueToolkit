@@ -803,7 +803,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <returns>Wheter this <see cref="R3DBox"/> contains the <see cref="Vector3"/> <paramref name="point"/></returns>
         public bool ContainsPoint(Vector3 point)
         {
-            return ((point.X >= this.Min.X) && (point.X <= this.Max.X) && (point.Y >= this.Min.Y) && (point.Y <= this.Max.Y) && (point.Z >= this.Min.Z) && (point.Z <= this.Max.Z));
+            return ((point.X >= Min.X) && (point.X <= Max.X) && (point.Y >= Min.Y) && (point.Y <= Max.Y) && (point.Z >= Min.Z) && (point.Z <= Max.Z));
         }
     }
 
@@ -848,8 +848,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
-            bw.Write(this.Radius);
+            Position.Write(bw);
+            bw.Write(Radius);
         }
     }
 
@@ -858,22 +858,22 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class R3DMatrix44
     {
-        public float M11 { get; private set; }
-        public float M12 { get; private set; }
-        public float M13 { get; private set; }
-        public float M14 { get; private set; }
-        public float M21 { get; private set; }
-        public float M22 { get; private set; }
-        public float M23 { get; private set; }
-        public float M24 { get; private set; }
-        public float M31 { get; private set; }
-        public float M32 { get; private set; }
-        public float M33 { get; private set; }
-        public float M34 { get; private set; }
-        public float M41 { get; private set; }
-        public float M42 { get; private set; }
-        public float M43 { get; private set; }
-        public float M44 { get; private set; }
+        public float m11 { get; private set; }
+        public float m12 { get; private set; }
+        public float m13 { get; private set; }
+        public float m14 { get; private set; }
+        public float m21 { get; private set; }
+        public float m22 { get; private set; }
+        public float m23 { get; private set; }
+        public float m24 { get; private set; }
+        public float m31 { get; private set; }
+        public float m32 { get; private set; }
+        public float m33 { get; private set; }
+        public float m34 { get; private set; }
+        public float m41 { get; private set; }
+        public float m42 { get; private set; }
+        public float m43 { get; private set; }
+        public float m44 { get; private set; }
 
         /// <summary>
         /// Initializes a new <see cref="R3DMatrix44"/> instance
@@ -889,22 +889,22 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="br"></param>
         public R3DMatrix44(BinaryReader br)
         {
-            this.M11 = br.ReadSingle();
-            this.M12 = br.ReadSingle();
-            this.M13 = br.ReadSingle();
-            this.M14 = br.ReadSingle();
-            this.M21 = br.ReadSingle();
-            this.M22 = br.ReadSingle();
-            this.M23 = br.ReadSingle();
-            this.M24 = br.ReadSingle();
-            this.M31 = br.ReadSingle();
-            this.M32 = br.ReadSingle();
-            this.M33 = br.ReadSingle();
-            this.M34 = br.ReadSingle();
-            this.M41 = br.ReadSingle();
-            this.M42 = br.ReadSingle();
-            this.M43 = br.ReadSingle();
-            this.M44 = br.ReadSingle();
+            this.m11 = br.ReadSingle();
+            this.m12 = br.ReadSingle();
+            this.m13 = br.ReadSingle();
+            this.m14 = br.ReadSingle();
+            this.m21 = br.ReadSingle();
+            this.m22 = br.ReadSingle();
+            this.m23 = br.ReadSingle();
+            this.m24 = br.ReadSingle();
+            this.m31 = br.ReadSingle();
+            this.m32 = br.ReadSingle();
+            this.m33 = br.ReadSingle();
+            this.m34 = br.ReadSingle();
+            this.m41 = br.ReadSingle();
+            this.m42 = br.ReadSingle();
+            this.m43 = br.ReadSingle();
+            this.m44 = br.ReadSingle();
         }
 
         /// <summary>
@@ -912,22 +912,22 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public void Clear()
         {
-            this.M11 = 0;
-            this.M12 = 0;
-            this.M13 = 0;
-            this.M14 = 0;
-            this.M21 = 0;
-            this.M22 = 0;
-            this.M23 = 0;
-            this.M24 = 0;
-            this.M31 = 0;
-            this.M32 = 0;
-            this.M33 = 0;
-            this.M34 = 0;
-            this.M41 = 0;
-            this.M42 = 0;
-            this.M43 = 0;
-            this.M44 = 0;
+            this.m11 = 0;
+            this.m12 = 0;
+            this.m13 = 0;
+            this.m14 = 0;
+            this.m21 = 0;
+            this.m22 = 0;
+            this.m23 = 0;
+            this.m24 = 0;
+            this.m31 = 0;
+            this.m32 = 0;
+            this.m33 = 0;
+            this.m34 = 0;
+            this.m41 = 0;
+            this.m42 = 0;
+            this.m43 = 0;
+            this.m44 = 0;
         }
 
         /// <summary>
@@ -936,22 +936,22 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            bw.Write(this.M11);
-            bw.Write(this.M12);
-            bw.Write(this.M13);
-            bw.Write(this.M14);
-            bw.Write(this.M21);
-            bw.Write(this.M22);
-            bw.Write(this.M23);
-            bw.Write(this.M24);
-            bw.Write(this.M31);
-            bw.Write(this.M32);
-            bw.Write(this.M33);
-            bw.Write(this.M34);
-            bw.Write(this.M41);
-            bw.Write(this.M42);
-            bw.Write(this.M43);
-            bw.Write(this.M44);
+            bw.Write(this.m11);
+            bw.Write(this.m12);
+            bw.Write(this.m13);
+            bw.Write(this.m14);
+            bw.Write(this.m21);
+            bw.Write(this.m22);
+            bw.Write(this.m23);
+            bw.Write(this.m24);
+            bw.Write(this.m31);
+            bw.Write(this.m32);
+            bw.Write(this.m33);
+            bw.Write(this.m34);
+            bw.Write(this.m41);
+            bw.Write(this.m42);
+            bw.Write(this.m43);
+            bw.Write(this.m44);
         }
     }
     #endregion
