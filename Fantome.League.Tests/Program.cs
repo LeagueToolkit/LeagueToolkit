@@ -15,7 +15,7 @@ using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
-using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.IO.WorldGeometry;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;

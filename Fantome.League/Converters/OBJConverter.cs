@@ -3,7 +3,7 @@ using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
-using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;

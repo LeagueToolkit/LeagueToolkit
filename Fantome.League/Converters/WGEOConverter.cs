@@ -1,6 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.NVR;
-using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.IO.WorldGeometry;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,7 +21,7 @@ namespace Fantome.Libraries.League.Converters
             foreach (NVRMesh mesh in nvr.Meshes)
             {
                 List<WGEOVertex> vertices = new List<WGEOVertex>();
-                List<uint> indices = mesh.IndexedPrimitives[0].Indices.Select(x => (uint)x).ToList();
+                List<ushort> indices = mesh.IndexedPrimitives[0].Indices.Select(x => (ushort)x).ToList();
 
                 foreach (NVRVertex vertex in mesh.IndexedPrimitives[0].Vertices)
                 {
