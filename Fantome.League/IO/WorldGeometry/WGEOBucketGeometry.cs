@@ -10,16 +10,49 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
     /// </summary>
     public class WGEOBucketGeometry
     {
+        /// <summary>
+        /// Min X Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MinX { get; set; }
+        /// <summary>
+        /// Min Y Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MinZ { get; set; }
+        /// <summary>
+        /// Max X bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MaxX { get; set; }
+        /// <summary>
+        /// Max Z Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MaxZ { get; set; }
+        /// <summary>
+        /// X Center of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float CenterX { get; set; }
+        /// <summary>
+        /// Z Center of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float CenterZ { get; set; }
+        /// <summary>
+        /// Min Y Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MinY { get; set; }
+        /// <summary>
+        /// Max X bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MaxY { get; set; }
+        /// <summary>
+        /// Vertices of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public List<Vector3> Vertices { get; set; } = new List<Vector3>();
+        /// <summary>
+        /// Indices of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public List<ushort> Indices { get; set; } = new List<ushort>();
+        /// <summary>
+        /// Buckets of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public WGEOBucket[,] Buckets { get; set; }
 
         /// <summary>
