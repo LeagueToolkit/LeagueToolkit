@@ -24,7 +24,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// A Collection of <see cref="BINFileValue"/>
         /// </summary>
-        public List<BINFileValue> Entries { get; private set; } = new List<BINFileValue>();
+        public List<object> Entries { get; private set; } = new List<object>();
 
         /// <summary>
         /// Initializes a new <see cref="BINFileValueList"/> from a <see cref="BinaryReader"/>
@@ -63,15 +63,14 @@ namespace Fantome.Libraries.League.IO.BIN
                     this.Entries.Add(new BINFileValue(br, this));
                 }
             }
-            else if (this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.PairList)
             {
                 this.EntryTypes = new BINFileValueType[] { (BINFileValueType)br.ReadByte(), (BINFileValueType)br.ReadByte() };
                 uint entrySize = br.ReadUInt32();
                 uint entryCount = br.ReadUInt32();
                 for (int i = 0; i < entryCount; i++)
                 {
-                    this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[0]));
-                    this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[1]));
+                    this.Entries.Add(new BINFileValuePair(br, this.EntryTypes[0], this.EntryTypes[1]));
                 }
             }
         }
@@ -111,15 +110,15 @@ namespace Fantome.Libraries.League.IO.BIN
                     value.Write(bw, true);
                 }
             }
-            else if (this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.PairList)
             {
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write((byte)this.EntryTypes[1]);
                 bw.Write(GetContentSize());
-                bw.Write(this.Entries.Count);
-                foreach (BINFileValue value in this.Entries)
+                bw.Write(this.Entries.Count * 2);
+                foreach (BINFileValuePair valuePair in this.Entries)
                 {
-                    value.Write(bw, false);
+                    valuePair.Write(bw, false);
                 }
             }
         }
@@ -137,14 +136,21 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 size += 2;
             }
-            else if (this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.PairList)
             {
                 size += 4;
             }
 
-            foreach (BINFileValue value in this.Entries)
+            foreach (object value in this.Entries)
             {
-                size += value.GetSize();
+                if(value is BINFileValue)
+                {
+                    size += (value as BINFileValue).GetSize();
+                }
+                else
+                {
+                    size += (value as BINFileValuePair).GetSize();
+                }
             }
 
             return size;
@@ -169,7 +175,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 size += 4 + 4;
             }
-            else if (this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.PairList)
             {
                 size += 1 + 1 + 4;
             }

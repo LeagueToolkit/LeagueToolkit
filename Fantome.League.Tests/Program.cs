@@ -27,7 +27,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-
+            BINTest();
         }
 
         static void WGEOTest()
@@ -95,7 +95,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("7204EAC36A3BCCB3.bin");
+            BINFile bin = new BINFile("9AA4A24D3752A9A0");
             bin.Write("test.bin");
         }
 

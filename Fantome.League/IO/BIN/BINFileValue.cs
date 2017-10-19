@@ -67,7 +67,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new BINFileValueList(br, this.Type.Value);
             }
-            else if (this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.PairList)
             {
                 this.Value = new BINFileValueList(br, this.Type.Value);
             }
@@ -75,8 +75,8 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadSingle();
             }
-            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2 
-                || this.Type == BINFileValueType.UInt32_3 || this.Type == BINFileValueType.EntryHash)
+            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
+                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.EntryHash)
             {
                 this.Value = br.ReadUInt32();
             }
@@ -145,7 +145,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 this.Type == BINFileValueType.LargeStaticTypeList ||
                 this.Type == BINFileValueType.List ||
                 this.Type == BINFileValueType.List2 ||
-                this.Type == BINFileValueType.DoubleTypeList)
+                this.Type == BINFileValueType.PairList)
             {
                 (this.Value as BINFileValueList).Write(bw);
             }
@@ -153,8 +153,8 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((float)this.Value);
             }
-            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2 
-                || this.Type == BINFileValueType.UInt32_3 || this.Type == BINFileValueType.EntryHash)
+            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
+                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.EntryHash)
             {
                 bw.Write((uint)this.Value);
             }
@@ -223,7 +223,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
             if (this.Type == BINFileValueType.SmallStaticTypeList ||
                 this.Type == BINFileValueType.LargeStaticTypeList ||
-                this.Type == BINFileValueType.DoubleTypeList ||
+                this.Type == BINFileValueType.PairList ||
                 this.Type == BINFileValueType.List ||
                 this.Type == BINFileValueType.List2)
             {
@@ -236,7 +236,7 @@ namespace Fantome.Libraries.League.IO.BIN
             else if (this.Type == BINFileValueType.Float ||
                 this.Type == BINFileValueType.UInt32 ||
                 this.Type == BINFileValueType.UInt32_2 ||
-                this.Type == BINFileValueType.UInt32_3 ||
+                this.Type == BINFileValueType.HashValue ||
                 this.Type == BINFileValueType.ByteVector4 ||
                 this.Type == BINFileValueType.EntryHash)
             {
@@ -335,7 +335,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Represents a <see cref="uint"/> value which is a hash
         /// </summary>
-        UInt32_3 = 17,
+        HashValue = 17,
         /// <summary>
         /// Represents a List with a <see cref="uint"/> Size and Value Count
         /// </summary>
@@ -357,9 +357,9 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         SmallStaticTypeList = 22,
         /// <summary>
-        /// Represents a List which holds values of 2 types
+        /// Represents a List which holds pair values
         /// </summary>
-        DoubleTypeList = 23,
+        PairList = 23,
         /// <summary>
         /// Represents a <see cref="byte"/> value
         /// </summary>
