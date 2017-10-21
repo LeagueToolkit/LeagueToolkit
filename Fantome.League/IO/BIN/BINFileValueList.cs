@@ -115,7 +115,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write((byte)this.EntryTypes[1]);
                 bw.Write(GetContentSize());
-                bw.Write(this.Entries.Count * 2);
+                bw.Write(this.Entries.Count);
                 foreach (BINFileValuePair valuePair in this.Entries)
                 {
                     valuePair.Write(bw, false);
