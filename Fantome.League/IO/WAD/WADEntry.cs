@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.WAD
@@ -43,7 +44,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Will be <see cref="null"/> if the version of the <see cref="WADFile"/> which it was read from is not 2.0
         /// Only first 8 bytes of the original 32 byte checksum
         /// </remarks>
-        public byte[] SHA256 { get; internal set; }
+        public byte[] SHA { get; internal set; }
 
         private string _fileRedirection;
 
@@ -53,21 +54,18 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> isn't <see cref="EntryType.FileRedirection"/></remarks>
         public string FileRedirection
         {
-            get
-            {
-                return _fileRedirection;
-            }
+            get => this._fileRedirection;
             set
             {
                 if (this.Type == EntryType.FileRedirection)
                 {
-                    _fileRedirection = value;
-                    _newData = new byte[value.Length + 4];
-                    Buffer.BlockCopy(BitConverter.GetBytes(value.Length), 0, _newData, 0, 4);
-                    Buffer.BlockCopy(Encoding.ASCII.GetBytes(value), 0, _newData, 4, value.Length);
-                    this.CompressedSize = (uint)_newData.Length;
+                    this._fileRedirection = value;
+                    this._newData = new byte[value.Length + 4];
+                    Buffer.BlockCopy(BitConverter.GetBytes(value.Length), 0, this._newData, 0, 4);
+                    Buffer.BlockCopy(Encoding.ASCII.GetBytes(value), 0, this._newData, 4, value.Length);
+                    this.CompressedSize = (uint)this._newData.Length;
                     this.UncompressedSize = this.CompressedSize;
-                    this.SHA256 = new byte[8];
+                    this.SHA = new byte[8];
                 }
                 else
                 {
@@ -128,8 +126,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="wad"><see cref="WADFile"/> this new entry belongs to.</param>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         /// <param name="major">Major version of the <see cref="WADFile"/> which is being read</param>
-        /// <param name="minor">Minor version of the <see cref="WADFile"/> which is being read</param>
-        public WADEntry(WADFile wad, BinaryReader br, byte major, byte minor)
+        public WADEntry(WADFile wad, BinaryReader br, byte major)
         {
             this._wad = wad;
             this.XXHash = br.ReadUInt64();
@@ -139,16 +136,16 @@ namespace Fantome.Libraries.League.IO.WAD
             this.Type = (EntryType)br.ReadByte();
             this._isDuplicated = br.ReadBoolean();
             this.Unknown1 = br.ReadUInt16();
-            if (major == 2 && minor == 0)
+            if (major >= 2)
             {
-                this.SHA256 = br.ReadBytes(8);
+                this.SHA = br.ReadBytes(8);
             }
 
-            if (Type == EntryType.FileRedirection)
+            if (this.Type == EntryType.FileRedirection)
             {
                 long currentPosition = br.BaseStream.Position;
-                br.BaseStream.Seek(_dataOffset, SeekOrigin.Begin);
-                _fileRedirection = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                br.BaseStream.Seek(this._dataOffset, SeekOrigin.Begin);
+                this._fileRedirection = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 br.BaseStream.Seek(currentPosition, SeekOrigin.Begin);
             }
         }
@@ -159,16 +156,16 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="data"></param>
         public void EditData(byte[] data)
         {
-            if (Type == EntryType.FileRedirection)
+            if (this.Type == EntryType.FileRedirection)
             {
                 throw new Exception("You cannot edit the data of a FileRedirection Entry");
             }
-            _newData = this.Type == EntryType.Compressed ? Compression.CompressGZip(data) : data;
-            this.CompressedSize = (uint)_newData.Length;
+            this._newData = this.Type == EntryType.Compressed ? Compression.CompressGZip(data) : data;
+            this.CompressedSize = (uint)this._newData.Length;
             this.UncompressedSize = (uint)data.Length;
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            using (SHA256 sha256 = SHA256.Create())
             {
-                this.SHA256 = sha256.ComputeHash(_newData).Take(8).ToArray();
+                this.SHA = sha256.ComputeHash(this._newData).Take(8).ToArray();
             }
         }
 
@@ -185,11 +182,11 @@ namespace Fantome.Libraries.League.IO.WAD
                     bw.Write(stringData.Length);
                     bw.Write(Encoding.ASCII.GetBytes(stringData));
                 }
-                _newData = ms.ToArray();
+                this._newData = ms.ToArray();
             }
-            this.CompressedSize = (uint)_newData.Length;
+            this.CompressedSize = (uint)this._newData.Length;
             this.UncompressedSize = this.CompressedSize;
-            this.SHA256 = new byte[8];
+            this.SHA = new byte[8];
         }
 
         /// <summary>
@@ -197,12 +194,12 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         public byte[] GetContent(bool decompress)
         {
-            byte[] dataBuffer = _newData;
+            byte[] dataBuffer = this._newData;
             if (dataBuffer == null)
             {
                 dataBuffer = new byte[this.CompressedSize];
-                _wad._stream.Seek(this._dataOffset, SeekOrigin.Begin);
-                _wad._stream.Read(dataBuffer, 0, (int)this.CompressedSize);
+                this._wad._stream.Seek(this._dataOffset, SeekOrigin.Begin);
+                this._wad._stream.Read(dataBuffer, 0, (int)this.CompressedSize);
             }
             if (this.Type == EntryType.Compressed && decompress)
             {
@@ -227,7 +224,7 @@ namespace Fantome.Libraries.League.IO.WAD
             bw.Write((byte)this.Type);
             bw.Write(this._isDuplicated);
             bw.Write(this.Unknown1);
-            bw.Write(this.SHA256);
+            bw.Write(this.SHA);
         }
 
         /// <summary>
@@ -236,7 +233,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="other">Other <see cref="WADEntry"/> to compare the current one to.</param>
         public int CompareTo(WADEntry other)
         {
-            return XXHash.CompareTo(other.XXHash);
+            return this.XXHash.CompareTo(other.XXHash);
         }
     }
 
