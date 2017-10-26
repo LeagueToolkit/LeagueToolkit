@@ -215,7 +215,8 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Writes this <see cref="WADEntry"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
-        public void Write(BinaryWriter bw)
+        /// <param name="version">Which Version this <see cref="WADEntry"/> should be saved as</param>
+        public void Write(BinaryWriter bw, uint version)
         {
             bw.Write(this.XXHash);
             bw.Write(this._dataOffset);
@@ -224,7 +225,10 @@ namespace Fantome.Libraries.League.IO.WAD
             bw.Write((byte)this.Type);
             bw.Write(this._isDuplicated);
             bw.Write(this.Unknown1);
-            bw.Write(this.SHA);
+            if(version >= 2)
+            {
+                bw.Write(this.SHA);
+            }
         }
 
         /// <summary>
