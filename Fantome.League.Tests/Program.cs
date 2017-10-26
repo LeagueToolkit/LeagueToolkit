@@ -137,7 +137,11 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("Jinx.wad.client"))
+            using (WADFile wad = new WADFile("kek.wad.client"))
+            {
+                wad.Write("kek.wad.client", 2);
+            }
+            /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {
                 Dictionary<ulong, byte[]> entries = new Dictionary<ulong, byte[]>();
                 foreach(WADEntry entry in wad.Entries)
@@ -148,17 +152,17 @@ namespace Fantome.Libraries.League.Tests
                 {
                     File.WriteAllBytes("lol//" + entry.Key.ToString(), entry.Value);
                 });
-            }
+            }*/
             //string extractionFolder = "D:/Chewy/Desktop/WADTEST";
             //Directory.CreateDirectory(extractionFolder);
-            using (WADFile wad = new WADFile(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assets.wad"))
+            /*using (WADFile wad = new WADFile(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assets.wad"))
             {
                 wad.AddEntry(123456789, File.ReadAllBytes(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\description.json"), true);
                 wad.AddEntry(12345678, File.ReadAllBytes(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\description.json"), true);
                 wad.AddEntry(0, "wow");
                 wad.Entries[0].FileRedirection = "It's like right now";
                 wad.Write(@"C:\Riot Games\League of Legends\RADS\projects\league_client\managedfiles\0.0.0.93\Plugins\rcp-fe-viewport\assetsOHWOW.wad");
-            }
+            }*/
         }
 
         static void IniTest()

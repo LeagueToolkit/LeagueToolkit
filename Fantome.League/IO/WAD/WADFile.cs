@@ -196,25 +196,45 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Writes this <see cref="WADFile"/> to the specified location
         /// </summary>
         /// <param name="fileLocation">The location to write to</param>
-        public void Write(string fileLocation)
+        /// <param name="version">Which Version this <see cref="WADFile"/> should be saved as</param>
+        public void Write(string fileLocation, uint version)
         {
-            Write(File.Create(fileLocation));
+            Write(File.Create(fileLocation), version);
         }
 
         /// <summary>
         /// Writes this <see cref="WADFile"/> into the specified <see cref="Stream"/>
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        public void Write(Stream stream)
+        /// <param name="version">Which Version this <see cref="WADFile"/> should be saved as</param>
+        public void Write(Stream stream, uint version)
         {
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.ASCII, true))
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
-                bw.Write((byte)2);
+                bw.Write((byte)version);
                 bw.Write((byte)0);
-                bw.Write(new byte[92]);
-                bw.Write((ushort)104);
-                bw.Write((ushort)32);
+
+                if (version == 1)
+                {
+                    bw.Write((ushort)104);
+                    bw.Write((ushort)32);
+                }
+                else if (version == 2)
+                {
+                    bw.Write(new byte[92]);
+                    bw.Write((ushort)104);
+                    bw.Write((ushort)32);
+                }
+                else if (version == 3)
+                {
+                    bw.Write(new byte[264]);
+                }
+                else
+                {
+                    throw new Exception("WAD File version: " + version + " either does not support writing or doesn't exist");
+                }
+
                 bw.Write(this.Entries.Count);
 
                 long tocOffset = stream.Position;
@@ -227,15 +247,18 @@ namespace Fantome.Libraries.League.IO.WAD
 
                     // Finding potential duplicated entry
                     WADEntry duplicatedEntry = null;
-                    if (currentEntry.Type != EntryType.FileRedirection)
+                    if (version != 1)
                     {
-                        for (int j = 0; j < i; j++)
+                        if (currentEntry.Type != EntryType.FileRedirection)
                         {
-                            if (this.Entries[j].SHA.SequenceEqual(currentEntry.SHA))
+                            for (int j = 0; j < i; j++)
                             {
-                                currentEntry._isDuplicated = true;
-                                duplicatedEntry = this.Entries[j];
-                                break;
+                                if (this.Entries[j].SHA.SequenceEqual(currentEntry.SHA))
+                                {
+                                    currentEntry._isDuplicated = true;
+                                    duplicatedEntry = this.Entries[j];
+                                    break;
+                                }
                             }
                         }
                     }
@@ -257,7 +280,7 @@ namespace Fantome.Libraries.League.IO.WAD
                 stream.Seek(tocOffset, SeekOrigin.Begin);
                 foreach (WADEntry wadEntry in this.Entries)
                 {
-                    wadEntry.Write(bw);
+                    wadEntry.Write(bw, version);
                 }
             }
 
