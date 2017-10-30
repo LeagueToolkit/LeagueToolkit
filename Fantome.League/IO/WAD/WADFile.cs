@@ -62,8 +62,8 @@ namespace Fantome.Libraries.League.IO.WAD
                     throw new Exception("This is not a valid WAD file");
                 }
 
-                _major = br.ReadByte();
-                _minor = br.ReadByte();
+                this._major = br.ReadByte();
+                this._minor = br.ReadByte();
                 if (_major > 3)
                 {
                     throw new Exception("This version is not supported");
