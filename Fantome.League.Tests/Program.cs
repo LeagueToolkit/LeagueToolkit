@@ -137,9 +137,9 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("kek.wad.client"))
+            using (WADFile wad = new WADFile("assets.wad"))
             {
-                wad.Write("kek.wad.client", 2);
+                wad.Write("assets1.wad", 1, 0);
             }
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {
