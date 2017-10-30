@@ -73,7 +73,7 @@ namespace Fantome.Libraries.League.IO.WAD
                 //XXHash Checksum of WAD Data (everything after TOC).
                 ulong dataChecksum = 0;
 
-                if (_major == 2)
+                if (this._major == 2)
                 {
                     byte ecdsaLength = br.ReadByte();
                     this.ECDSA = br.ReadBytes(ecdsaLength);
@@ -81,13 +81,13 @@ namespace Fantome.Libraries.League.IO.WAD
 
                     dataChecksum = br.ReadUInt64();
                 }
-                else if (_major == 3)
+                else if (this._major == 3)
                 {
                     this.ECDSA = br.ReadBytes(256);
                     dataChecksum = br.ReadUInt64();
                 }
 
-                if (_major == 1 || _major == 2)
+                if (this._major == 1 || this._major == 2)
                 {
                     ushort tocStartOffset = br.ReadUInt16();
                     ushort tocFileEntrySize = br.ReadUInt16();
