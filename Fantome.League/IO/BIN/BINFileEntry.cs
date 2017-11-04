@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.IO.BIN
     /// <summary>
     /// Represents a <see cref="BINFileEntry"/> inside of a <see cref="BINFile"/>
     /// </summary>
-    public class BINFileEntry
+    public class BINFileEntry : IBINFileValue
     {
         /// <summary>
         /// Hash of the type of this <see cref="BINFileEntry"/>

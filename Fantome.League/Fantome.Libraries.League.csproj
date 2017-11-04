@@ -67,6 +67,8 @@
     <Compile Include="IO\BIN\BINFileEntry.cs" />
     <Compile Include="IO\BIN\BINFileValue.cs" />
     <Compile Include="IO\BIN\BINFileValueList.cs" />
+    <Compile Include="IO\BIN\BINFileValuePair.cs" />
+    <Compile Include="IO\BIN\IBINFileValue.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
     <Compile Include="IO\FX\FXTimeGradient.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
