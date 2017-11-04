@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.IO.BIN
     /// <summary>
     /// Represents a list of <see cref="BINFileValue"/>
     /// </summary>
-    public class BINFileValueList
+    public class BINFileValueList : IBINFileValue
     {
         /// <summary>
         /// The hash of the name of this <see cref="BINFileValueList"/>
@@ -24,7 +24,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// A Collection of <see cref="BINFileValue"/>
         /// </summary>
-        public List<object> Entries { get; private set; } = new List<object>();
+        public List<IBINFileValue> Entries { get; private set; } = new List<IBINFileValue>();
 
         /// <summary>
         /// Initializes a new <see cref="BINFileValueList"/> from a <see cref="BinaryReader"/>
@@ -141,16 +141,9 @@ namespace Fantome.Libraries.League.IO.BIN
                 size += 4;
             }
 
-            foreach (object value in this.Entries)
+            foreach (IBINFileValue value in this.Entries)
             {
-                if(value is BINFileValue)
-                {
-                    size += (value as BINFileValue).GetSize();
-                }
-                else
-                {
-                    size += (value as BINFileValuePair).GetSize();
-                }
+                size += value.GetSize();
             }
 
             return size;

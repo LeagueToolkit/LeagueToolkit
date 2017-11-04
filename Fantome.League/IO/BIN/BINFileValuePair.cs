@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.IO.BIN
     /// <summary>
     /// Represents a <see cref="KeyValuePair{TKey, TValue}"/> in a <see cref="BINFile"/>
     /// </summary>
-    public class BINFileValuePair
+    public class BINFileValuePair : IBINFileValue
     {
         /// <summary>
         /// The <see cref="BINFileValueType"/> of this <see cref="BINFileValuePair"/>'s Key 
