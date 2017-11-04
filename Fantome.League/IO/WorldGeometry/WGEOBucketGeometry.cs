@@ -10,16 +10,49 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
     /// </summary>
     public class WGEOBucketGeometry
     {
+        /// <summary>
+        /// Min X Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MinX { get; set; }
+        /// <summary>
+        /// Min Y Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MinZ { get; set; }
+        /// <summary>
+        /// Max X bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MaxX { get; set; }
+        /// <summary>
+        /// Max Z Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MaxZ { get; set; }
+        /// <summary>
+        /// X Center of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float CenterX { get; set; }
+        /// <summary>
+        /// Z Center of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float CenterZ { get; set; }
+        /// <summary>
+        /// Min Y Bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MinY { get; set; }
+        /// <summary>
+        /// Max X bound of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public float MaxY { get; set; }
+        /// <summary>
+        /// Vertices of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public List<Vector3> Vertices { get; set; } = new List<Vector3>();
+        /// <summary>
+        /// Indices of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public List<ushort> Indices { get; set; } = new List<ushort>();
+        /// <summary>
+        /// Buckets of this <see cref="WGEOBucketGeometry"/>
+        /// </summary>
         public WGEOBucket[,] Buckets { get; set; }
 
         /// <summary>
@@ -41,16 +74,16 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             this.MaxY = br.ReadSingle();
 
             uint bucketsPerSide = br.ReadUInt32();
-            uint VertexCount = br.ReadUInt32();
-            uint IndexCount = br.ReadUInt32();
+            uint vertexCount = br.ReadUInt32();
+            uint indexCount = br.ReadUInt32();
 
             this.Buckets = new WGEOBucket[bucketsPerSide, bucketsPerSide];
 
-            for (int i = 0; i < VertexCount; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 this.Vertices.Add(new Vector3(br));
             }
-            for (int i = 0; i < IndexCount; i++)
+            for (int i = 0; i < indexCount; i++)
             {
                 this.Indices.Add(br.ReadUInt16());
             }
@@ -83,16 +116,16 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
 
             uint bucketsPerSide = (uint)Math.Sqrt(this.Buckets.Length);
             bw.Write(bucketsPerSide);
-            bw.Write((uint)this.Vertices.Count);
-            bw.Write((uint)this.Indices.Count);
+            bw.Write(this.Vertices.Count);
+            bw.Write(this.Indices.Count);
 
-            foreach (Vector3 Vertex in this.Vertices)
+            foreach (Vector3 vertex in this.Vertices)
             {
-                Vertex.Write(bw);
+                vertex.Write(bw);
             }
-            foreach (ushort Index in this.Indices)
+            foreach (ushort index in this.Indices)
             {
-                bw.Write(Index);
+                bw.Write(index);
             }
             for (int i = 0; i < bucketsPerSide; i++)
             {

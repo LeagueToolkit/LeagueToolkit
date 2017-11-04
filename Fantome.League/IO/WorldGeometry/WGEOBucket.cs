@@ -7,11 +7,29 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
     /// </summary>
     public class WGEOBucket
     {
+        /// <summary>
+        /// Max X Bound of this <see cref="WGEOBucket"/>
+        /// </summary>
         public float MaxStickOutX { get; private set; }
+        /// <summary>
+        /// Max Y Bound of this <see cref="WGEOBucket"/>
+        /// </summary>
         public float MaxStickOutY { get; private set; }
+        /// <summary>
+        /// Starting index of this <see cref="WGEOBucket"/>
+        /// </summary>
         public uint StartIndex { get; private set; }
+        /// <summary>
+        /// Target Vertex of this <see cref="WGEOBucket"/>
+        /// </summary>
         public uint Vertex { get; private set; }
+        /// <summary>
+        /// Amout of Faces inside this <see cref="WGEOBucket"/>
+        /// </summary>
         public ushort InsideFaceCount { get; private set; }
+        /// <summary>
+        /// Amount of faces which are sticking out of this <see cref="WGEOBucket"/>
+        /// </summary>
         public ushort StickingOutFaceCount { get; private set; }
 
         /// <summary>
