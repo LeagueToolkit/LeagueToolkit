@@ -2,7 +2,7 @@
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
-using Fantome.Libraries.League.IO.SKN;
+using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
@@ -19,14 +19,18 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="SCOFile"/> converted from <paramref name="scb"/></returns>
         public static SCOFile ConvertSCB(SCBFile scb)
         {
-            List<ushort> indices = new List<ushort>();
+            List<uint> indices = new List<uint>();
             List<Vector2> uvs = new List<Vector2>();
-            foreach (SCBFace face in scb.Faces)
+
+            foreach (KeyValuePair<string, List<SCBFace>> material in scb.Materials)
             {
-                indices.AddRange(face.Indices.AsEnumerable().Cast<ushort>());
-                uvs.AddRange(face.UV);
+                foreach (SCBFace face in material.Value)
+                {
+                    indices.AddRange(face.Indices);
+                    uvs.AddRange(face.UVs);
+                }
             }
-            return new SCOFile(indices, scb.Vertices, uvs);
+            return new SCOFile(scb.Vertices, indices, uvs);
         }
 
         /// <summary>
@@ -36,9 +40,12 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>An <see cref="SCOFile"/> converted from <paramref name="obj"/></returns>
         public static SCOFile ConvertOBJ(OBJFile obj)
         {
-            List<UInt16> indices = new List<UInt16>();
+            List<Vector3> vertices = obj.Vertices;
+            List<OBJFace> faces = obj.Faces;
+            List<uint> indices = new List<uint>();
             bool zeroPointIndex = false;
-            foreach (OBJFace face in obj.Faces)
+
+            foreach (OBJFace face in faces)
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -55,7 +62,7 @@ namespace Fantome.Libraries.League.Converters
             }
             if (!zeroPointIndex)
             {
-                foreach (OBJFace face in obj.Faces)
+                foreach (OBJFace face in faces)
                 {
                     for (int i = 0; i < 3; i++)
                     {
@@ -64,11 +71,11 @@ namespace Fantome.Libraries.League.Converters
                     }
                 }
             }
-            foreach (OBJFace Face in obj.Faces)
+            foreach (OBJFace face in faces)
             {
-                indices.AddRange(Face.VertexIndices);
+                indices.AddRange(face.VertexIndices);
             }
-            return new SCOFile(indices, obj.Vertices, obj.UVs);
+            return new SCOFile(obj.Vertices, indices, obj.UVs);
         }
 
         /// <summary>
@@ -79,18 +86,33 @@ namespace Fantome.Libraries.League.Converters
         public static Tuple<SCOFile, WGTFile> ConvertToLegacy(SKNFile skn)
         {
             List<Vector3> vertices = new List<Vector3>();
-            List<Vector2> uvs = new List<Vector2>();
+            Dictionary<string, List<SCOFace>> materials = new Dictionary<string, List<SCOFace>>();
             List<Vector4Byte> boneIndices = new List<Vector4Byte>();
             List<Vector4> weights = new List<Vector4>();
 
-            foreach (SKNVertex vertex in skn.Vertices)
+            foreach (SKNSubmesh submesh in skn.Submeshes)
             {
-                vertices.Add(vertex.Position);
-                uvs.Add(vertex.UV);
-                weights.Add(vertex.Weights);
-                boneIndices.Add(vertex.BoneIndices);
+                List<SCOFace> faces = new List<SCOFace>();
+                for (int i = 0; i < submesh.Indices.Count; i += 3)
+                {
+                    faces.Add(new SCOFace(new uint[] { submesh.Indices[i], submesh.Indices[i + 1], submesh.Indices[i + 2], }, submesh.Name,
+                        new Vector2[]
+                        {
+                            submesh.Vertices[submesh.Indices[i]].UV,
+                            submesh.Vertices[submesh.Indices[i + 1]].UV,
+                            submesh.Vertices[submesh.Indices[i + 2]].UV,
+                        }));
+                }
+                materials.Add(submesh.Name, faces);
+
+                foreach (SKNVertex vertex in submesh.Vertices)
+                {
+                    vertices.Add(vertex.Position);
+                    weights.Add(vertex.Weights);
+                    boneIndices.Add(vertex.BoneIndices);
+                }
             }
-            return new Tuple<SCOFile, WGTFile>(new SCOFile(skn.Indices, vertices, uvs), new WGTFile(weights, boneIndices));
+            return new Tuple<SCOFile, WGTFile>(new SCOFile(vertices, materials), new WGTFile(weights, boneIndices));
         }
     }
 }

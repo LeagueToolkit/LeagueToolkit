@@ -11,23 +11,32 @@ namespace Fantome.Libraries.League.IO.LightDat
         {
             this.Lights = lights;
         }
-
         public LightDatFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (StreamReader sr = new StreamReader(fileLocation))
+
+        }
+        public LightDatFile(Stream stream)
+        {
+            using (StreamReader sr = new StreamReader(stream))
             {
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     this.Lights.Add(new LightDatLight(sr));
                 }
-            }        
+            }
         }
 
         public void Write(string fileLocation)
         {
-            using (StreamWriter sw = new StreamWriter(fileLocation))
+            Write(File.Create(fileLocation));
+        }
+
+        private void Write(Stream stream)
+        {
+            using (StreamWriter sw = new StreamWriter(stream))
             {
-                foreach(LightDatLight light in this.Lights)
+                foreach (LightDatLight light in this.Lights)
                 {
                     light.Write(sw);
                 }

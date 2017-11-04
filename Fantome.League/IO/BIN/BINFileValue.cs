@@ -7,7 +7,7 @@ namespace Fantome.Libraries.League.IO.BIN
     /// <summary>
     /// Represents a value inside of a <see cref="BINFileEntry"/> or <see cref="BINFileValueList"/>
     /// </summary>
-    public class BINFileValue
+    public class BINFileValue : IBINFileValue
     {
         /// <summary>
         /// The hash of the name of this <see cref="BINFileValue"/>
@@ -67,7 +67,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new BINFileValueList(br, this.Type.Value);
             }
-            else if (this.Type == BINFileValueType.DoubleTypeList)
+            else if (this.Type == BINFileValueType.PairList)
             {
                 this.Value = new BINFileValueList(br, this.Type.Value);
             }
@@ -75,7 +75,8 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadSingle();
             }
-            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2 || this.Type == BINFileValueType.UInt32_3)
+            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
+                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.EntryHash)
             {
                 this.Value = br.ReadUInt32();
             }
@@ -83,7 +84,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadUInt16();
             }
-            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
             {
                 this.Value = br.ReadByte();
             }
@@ -95,7 +96,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new uint[] { br.ReadUInt32(), br.ReadUInt32() };
             }
-            else if (this.Type == BINFileValueType.ByteVector4 || this.Type == BINFileValueType.ByteVector4_2)
+            else if (this.Type == BINFileValueType.ByteVector4)
             {
                 this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             }
@@ -144,7 +145,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 this.Type == BINFileValueType.LargeStaticTypeList ||
                 this.Type == BINFileValueType.List ||
                 this.Type == BINFileValueType.List2 ||
-                this.Type == BINFileValueType.DoubleTypeList)
+                this.Type == BINFileValueType.PairList)
             {
                 (this.Value as BINFileValueList).Write(bw);
             }
@@ -152,7 +153,8 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((float)this.Value);
             }
-            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2 || this.Type == BINFileValueType.UInt32_3)
+            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
+                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.EntryHash)
             {
                 bw.Write((uint)this.Value);
             }
@@ -160,7 +162,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((ushort)this.Value);
             }
-            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
             {
                 bw.Write((byte)this.Value);
             }
@@ -174,7 +176,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write(value[0]);
                 bw.Write(value[1]);
             }
-            else if (this.Type == BINFileValueType.ByteVector4 || this.Type == BINFileValueType.ByteVector4_2)
+            else if (this.Type == BINFileValueType.ByteVector4)
             {
                 byte[] value = this.Value as byte[];
                 bw.Write(value[0]);
@@ -221,7 +223,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
             if (this.Type == BINFileValueType.SmallStaticTypeList ||
                 this.Type == BINFileValueType.LargeStaticTypeList ||
-                this.Type == BINFileValueType.DoubleTypeList ||
+                this.Type == BINFileValueType.PairList ||
                 this.Type == BINFileValueType.List ||
                 this.Type == BINFileValueType.List2)
             {
@@ -234,9 +236,9 @@ namespace Fantome.Libraries.League.IO.BIN
             else if (this.Type == BINFileValueType.Float ||
                 this.Type == BINFileValueType.UInt32 ||
                 this.Type == BINFileValueType.UInt32_2 ||
-                this.Type == BINFileValueType.UInt32_3 ||
+                this.Type == BINFileValueType.HashValue ||
                 this.Type == BINFileValueType.ByteVector4 ||
-                this.Type == BINFileValueType.ByteVector4_2)
+                this.Type == BINFileValueType.EntryHash)
             {
                 size += 4;
             }
@@ -244,7 +246,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 size += 2;
             }
-            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2)
+            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
             {
                 size += 1;
             }
@@ -272,91 +274,95 @@ namespace Fantome.Libraries.League.IO.BIN
     /// <summary>
     /// Type of a <see cref="BINFileValue"/>
     /// </summary>
-    public enum BINFileValueType : Byte
+    public enum BINFileValueType : byte
     {
         /// <summary>
-        /// 3 UShorts
+        /// Represents a <see cref="ushort"/> Vector3 value
         /// </summary>
         UInt16Vector3 = 0,
         /// <summary>
-        /// Boolean
+        /// Represents a <see cref="bool"/> value
         /// </summary>
         Boolean = 1,
         /// <summary>
-        /// Byte
+        /// Represents a <see cref="byte"/> value
         /// </summary>
-        ByteValue = 3,
+        ByteValue = 2,
         /// <summary>
-        /// UShort
+        /// Represents a <see cref="byte"/> value
+        /// </summary>
+        ByteValue2 = 3,
+        /// <summary>
+        /// Represents a <see cref="ushort"/> value
         /// </summary>
         UInt16 = 5,
         /// <summary>
-        /// UInt
+        /// Represents a <see cref="uint"/> value
         /// </summary>
-        UInt32_3 = 6,
+        UInt32 = 6,
         /// <summary>
-        /// UInt
+        /// Represents a <see cref="uint"/> value
         /// </summary>
         UInt32_2 = 7,
         /// <summary>
-        /// 2 UInts
+        /// Represents a <see cref="uint"/> Vector2 value
         /// </summary>
         UInt32Vector2 = 9,
         /// <summary>
-        /// Float
+        /// Represents a <see cref="float"/> value
         /// </summary>
         Float = 10,
         /// <summary>
-        /// 2 Floats
+        /// Represents a <see cref="float"/> Vector2 value
         /// </summary>
         FloatVector2 = 11,
         /// <summary>
-        /// 3 Floats
+        /// Represents a <see cref="float"/> Vector3 value
         /// </summary>
         FloatVector3 = 12,
         /// <summary>
-        /// 4 Floats
+        /// Represents a <see cref="float"/> Vector4 value
         /// </summary>
         FloatVector4 = 13,
         /// <summary>
-        /// 4 Bytes
+        /// Represents a <see cref="byte"/> Vector4 value
         /// </summary>
         ByteVector4 = 15,
         /// <summary>
-        /// String
+        /// Represents a <see cref="string"/> value
         /// </summary>
         String = 16,
         /// <summary>
-        /// UInt
+        /// Represents a <see cref="uint"/> value which is a hash
         /// </summary>
-        UInt32 = 17,
+        HashValue = 17,
         /// <summary>
-        /// List with 32-bit size and value count
+        /// Represents a List with a <see cref="uint"/> Size and Value Count
         /// </summary>
         LargeStaticTypeList = 18,
         /// <summary>
-        /// List which holds values of different type
+        /// Represents a List which holds values of different types
         /// </summary>
         List2 = 19,
         /// <summary>
-        /// List which holds values of different type
+        /// Represents a List which holds values of different types
         /// </summary>
         List = 20,
         /// <summary>
-        /// 4 Bytes
+        /// Represents a <see cref="uint"/> value which is the hash of another entry
         /// </summary>
-        ByteVector4_2 = 21,
+        EntryHash = 21,
         /// <summary>
-        /// List with 8-bit value count
+        /// Represents a List with <see cref="byte"/> Value Count
         /// </summary>
         SmallStaticTypeList = 22,
         /// <summary>
-        /// List which holds values with of 2 types
+        /// Represents a List which holds pair values
         /// </summary>
-        DoubleTypeList = 23,
+        PairList = 23,
         /// <summary>
-        /// Byte
+        /// Represents a <see cref="byte"/> value
         /// </summary>
-        ByteValue2 = 24
+        ByteValue3 = 24
     }
 }

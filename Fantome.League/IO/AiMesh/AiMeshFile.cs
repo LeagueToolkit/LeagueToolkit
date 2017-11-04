@@ -28,8 +28,18 @@ namespace Fantome.Libraries.League.IO.AiMesh
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
         public AiMeshFile(string fileLocation)
+            : this(File.OpenRead(fileLocation))
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(fileLocation)))
+           
+        }
+
+        /// <summary>
+        /// Reads an <see cref="AiMeshFile"/> from the specified stream
+        /// </summary>
+        /// <param name="stream">Stream to read from</param>
+        public AiMeshFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
                 if (magic != "r3d2aims")
@@ -60,7 +70,16 @@ namespace Fantome.Libraries.League.IO.AiMesh
         /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            Write(File.Create(fileLocation));
+        }
+
+        /// <summary>
+        /// Writes this <see cref="AiMeshFile"/> to the specified stream
+        /// </summary>
+        /// <param name="stream">Stream to write to</param>
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(Encoding.ASCII.GetBytes("r3d2aims"));
                 bw.Write((uint)2);

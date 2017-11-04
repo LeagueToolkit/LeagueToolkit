@@ -1,66 +1,78 @@
-﻿using Fantome.Libraries.League.Helpers.Exceptions;
-using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.SCB
 {
-    [DebuggerDisplay("[ {Name} ]")]
     public class SCBFile
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
         public R3DBoundingBox BoundingBox { get; private set; }
         public Vector3 CentralPoint { get; private set; }
         public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
         public List<Vector4Byte> Tangents { get; private set; } = new List<Vector4Byte>();
-        public List<SCBFace> Faces { get; private set; } = new List<SCBFace>();
+        public Dictionary<string, List<SCBFace>> Materials { get; private set; } = new Dictionary<string, List<SCBFace>>();
         public List<Vector3Byte> VertexColors { get; private set; } = new List<Vector3Byte>();
 
-        public SCBFile(List<UInt32> Indices, List<Vector3> Vertices, List<Vector2> UV)
+        public SCBFile(List<Vector3> vertices, Dictionary<string, List<SCBFace>> materials)
         {
-            this.Vertices = Vertices;
-            for (int i = 0; i < Indices.Count; i += 3)
-            {
-                this.Faces.Add(new SCBFace(new UInt32[] { Indices[i], Indices[i + 1], Indices[i + 2] }, "lambert1", new Vector2[] { UV[i], UV[i + 1], UV[i + 2] }));
-            }
+            this.Vertices = vertices;
+            this.Materials = materials;
         }
 
-        public SCBFile(string Location)
+        public SCBFile(List<Vector3> vertices, List<uint> indices, List<Vector2> uvs)
         {
-            using (BinaryReader br = new BinaryReader(File.OpenRead(Location)))
+            this.Vertices = vertices;
+
+            List<SCBFace> faces = new List<SCBFace>();
+            for (int i = 0; i < indices.Count; i += 3)
             {
-                string Magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-                if (Magic != "r3d2Mesh")
-                    throw new InvalidFileMagicException();
+                faces.Add(new SCBFace(new uint[] { indices[i], indices[i + 1], indices[i + 2] }, "lambert1", new Vector2[] { uvs[i], uvs[i + 1], uvs[i + 2] }));
+            }
+            this.Materials.Add("lambert1", faces);
+        }
 
-                UInt16 Major = br.ReadUInt16();
-                UInt16 Minor = br.ReadUInt16();
-                if (Major != 3 && Major != 2 && Minor != 1) //There are versions [2][1] and [1][1] aswell 
-                    throw new UnsupportedFileVersionException();
+        public SCBFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
-                this.Name = Encoding.ASCII.GetString(br.ReadBytes(128)).Replace("\0", "");
-                UInt32 VertexCount = br.ReadUInt32();
-                UInt32 FaceCount = br.ReadUInt32();
-                SCBFlags Flags = (SCBFlags)br.ReadUInt32();
-                this.BoundingBox = new R3DBoundingBox(br);
-
-                bool HasTangents = false;
-                if (Major == 3 && Minor == 2)
+        public SCBFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
+            {
+                string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+                if (magic != "r3d2Mesh")
                 {
-                    HasTangents = br.ReadUInt32() == 1;
+                    throw new Exception("This is not a valid SCB file");
                 }
 
-                for (int i = 0; i < VertexCount; i++)
+                ushort major = br.ReadUInt16();
+                ushort minor = br.ReadUInt16();
+                if (major != 3 && major != 2 && minor != 1) //There are versions [2][1] and [1][1] aswell 
+                {
+                    throw new Exception(string.Format("The Version: {0}.{1} is not supported", major, minor));
+                }
+
+                this.Name = Encoding.ASCII.GetString(br.ReadBytes(128)).Replace("\0", "");
+                uint vertexCount = br.ReadUInt32();
+                uint faceCount = br.ReadUInt32();
+                SCBFlags flags = (SCBFlags)br.ReadUInt32();
+                this.BoundingBox = new R3DBoundingBox(br);
+
+                bool hasTangents = false;
+                if (major == 3 && minor == 2)
+                {
+                    hasTangents = br.ReadUInt32() == 1;
+                }
+
+                for (int i = 0; i < vertexCount; i++)
                 {
                     this.Vertices.Add(new Vector3(br));
                 }
 
-                if (Major == 3 && Minor == 2 && Flags.HasFlag(SCBFlags.Tangents) && HasTangents)
+                if (major == 3 && minor == 2 && flags.HasFlag(SCBFlags.TANGENTS) && hasTangents)
                 {
-                    for (int i = 0; i < VertexCount; i++)
+                    for (int i = 0; i < vertexCount; i++)
                     {
                         this.Tangents.Add(new Vector4Byte(br));
                     }
@@ -68,94 +80,127 @@ namespace Fantome.Libraries.League.IO.SCB
 
                 this.CentralPoint = new Vector3(br);
 
-                for (int i = 0; i < FaceCount; i++)
+                for (int i = 0; i < faceCount; i++)
                 {
-                    this.Faces.Add(new SCBFace(br));
+                    SCBFace face = new SCBFace(br);
+
+                    if (!this.Materials.ContainsKey(face.Material))
+                    {
+                        this.Materials.Add(face.Material, new List<SCBFace>());
+                    }
+
+                    this.Materials[face.Material].Add(face);
                 }
 
-                if (Flags.HasFlag(SCBFlags.VertexColors))
+                if (flags.HasFlag(SCBFlags.VERTEX_COLORS))
                 {
                     this.VertexColors.Add(new Vector3Byte(br));
                 }
             }
         }
 
-        public void Write(string Location)
+        public void Write(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(Location)))
+            Write(File.Create(fileLocation));
+        }
+
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write("r3d2Mesh".ToCharArray());
-                bw.Write((UInt16)3);
-                bw.Write((UInt16)2);
+                bw.Write((ushort)3);
+                bw.Write((ushort)2);
                 bw.Write(this.Name.PadRight(128, '\u0000').ToCharArray());
-                bw.Write((UInt32)this.Vertices.Count);
-                bw.Write((UInt32)this.Faces.Count);
+                bw.Write((uint)this.Vertices.Count);
 
-                UInt32 Flags = 0;
-                UInt32 HasTangent = 0;
+                uint faceCount = 0;
+                foreach (KeyValuePair<string, List<SCBFace>> material in this.Materials)
+                {
+                    faceCount += (uint)material.Value.Count;
+                }
+                bw.Write(faceCount);
+
+                SCBFlags flags = 0;
+                uint hasTangent = 0;
                 if (this.Tangents.Count != 0)
                 {
-                    Flags |= (UInt32)SCBFlags.Tangents;
-                    HasTangent = 1;
+                    flags |= SCBFlags.TANGENTS;
+                    hasTangent = 1;
                 }
                 if (this.VertexColors.Count != 0)
-                    Flags |= (UInt32)SCBFlags.VertexColors;
-                bw.Write(Flags);
-                this.CalculateBoundingBox().Write(bw);
-                bw.Write(HasTangent);
-
-                foreach (Vector3 Vertex in this.Vertices)
                 {
-                    Vertex.Write(bw);
+                    flags |= SCBFlags.VERTEX_COLORS;
                 }
-                foreach (Vector4Byte Tangent in this.Tangents)
+                bw.Write((uint)flags);
+                this.CalculateBoundingBox().Write(bw);
+                bw.Write(hasTangent);
+
+                foreach (Vector3 vertex in this.Vertices)
                 {
-                    Tangent.Write(bw);
+                    vertex.Write(bw);
+                }
+                foreach (Vector4Byte tangent in this.Tangents)
+                {
+                    tangent.Write(bw);
                 }
                 this.CalculateCentralPoint().Write(bw);
-                foreach (SCBFace Face in this.Faces)
+                foreach (KeyValuePair<string, List<SCBFace>> material in this.Materials)
                 {
-                    Face.Write(bw);
+                    foreach (SCBFace face in material.Value)
+                    {
+                        face.Write(bw);
+                    }
                 }
-                foreach (Vector3Byte Color in this.VertexColors)
+                foreach (Vector3Byte color in this.VertexColors)
                 {
-                    Color.Write(bw);
+                    color.Write(bw);
                 }
             }
         }
 
         public R3DBoundingBox CalculateBoundingBox()
         {
-            Vector3 Min = this.Vertices[0];
-            Vector3 Max = this.Vertices[0];
+            Vector3 min = this.Vertices[0];
+            Vector3 max = this.Vertices[0];
 
-            foreach (Vector3 Vertex in this.Vertices)
+            foreach (Vector3 vertex in this.Vertices)
             {
-                if (Min.X > Vertex.X) Min.X = Vertex.X;
-                if (Min.Y > Vertex.Y) Min.Y = Vertex.Y;
-                if (Min.Z > Vertex.Z) Min.Z = Vertex.Z;
-                if (Max.X < Vertex.X) Max.X = Vertex.X;
-                if (Max.Y < Vertex.Y) Max.Y = Vertex.Y;
-                if (Max.Z < Vertex.Z) Max.Z = Vertex.Z;
+                if (min.X > vertex.X) min.X = vertex.X;
+                if (min.Y > vertex.Y) min.Y = vertex.Y;
+                if (min.Z > vertex.Z) min.Z = vertex.Z;
+                if (max.X < vertex.X) max.X = vertex.X;
+                if (max.Y < vertex.Y) max.Y = vertex.Y;
+                if (max.Z < vertex.Z) max.Z = vertex.Z;
             }
 
-            return new R3DBoundingBox(Min, new Vector3(Math.Abs(Max.X - Min.X), Math.Abs(Max.Y - Min.Y), Math.Abs(Max.Z - Min.Z)));
+            return new R3DBoundingBox(min, new Vector3(Math.Abs(max.X - min.X), Math.Abs(max.Y - min.Y), Math.Abs(max.Z - min.Z)));
         }
 
         public Vector3 CalculateCentralPoint()
         {
-            R3DBoundingBox BoundingBox = CalculateBoundingBox();
+            R3DBoundingBox boundingBox = CalculateBoundingBox();
             return new Vector3(
-                0.5f * (BoundingBox.Size.X + BoundingBox.Org.X),
-                0.5f * (BoundingBox.Size.Y + BoundingBox.Org.Y),
-                0.5f * (BoundingBox.Size.Z + BoundingBox.Org.Z)
+                0.5f * (boundingBox.Size.X + boundingBox.Org.X),
+                0.5f * (boundingBox.Size.Y + boundingBox.Org.Y),
+                0.5f * (boundingBox.Size.Z + boundingBox.Org.Z)
+                );
+        }
+
+        public Vector3 CalculateCentralPoint(R3DBoundingBox boundingBox)
+        {
+            return new Vector3(
+                0.5f * (boundingBox.Size.X + boundingBox.Org.X),
+                0.5f * (boundingBox.Size.Y + boundingBox.Org.Y),
+                0.5f * (boundingBox.Size.Z + boundingBox.Org.Z)
                 );
         }
     }
 
-    public enum SCBFlags : UInt32
+    [Flags]
+    public enum SCBFlags : uint
     {
-        VertexColors = 1,
-        Tangents = 2
+        VERTEX_COLORS = 1,
+        TANGENTS = 2
     }
 }

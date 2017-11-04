@@ -1,6 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.NVR;
-using Fantome.Libraries.League.IO.WGEO;
+using Fantome.Libraries.League.IO.WorldGeometry;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -35,7 +35,7 @@ namespace Fantome.Libraries.League.Converters
                         NVRVertex8 vertex8 = vertex as NVRVertex8;
                         vertices.Add(new WGEOVertex(vertex8.Position, vertex8.UV));
                     }
-                    else if(mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_GROUND_8)
+                    else if (mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_GROUND_8)
                     {
                         NVRVertexGround8 vertexGround8 = vertex as NVRVertexGround8;
                         vertices.Add(new WGEOVertex(vertex.Position, new Vector2(0, 0)));
