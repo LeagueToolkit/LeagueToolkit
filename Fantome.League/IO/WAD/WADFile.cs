@@ -32,9 +32,13 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         internal Stream _stream { get; private set; }
 
+        private byte _major;
+
+        private byte _minor;
+
         private WADFile()
         {
-            Entries = _entries.AsReadOnly();
+            this.Entries = this._entries.AsReadOnly();
         }
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="stream">The stream to read from</param>
         public WADFile(Stream stream) : this()
         {
-            _stream = stream;
+            this._stream = stream;
             using (BinaryReader br = new BinaryReader(stream, Encoding.ASCII, true))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
@@ -58,31 +62,41 @@ namespace Fantome.Libraries.League.IO.WAD
                     throw new Exception("This is not a valid WAD file");
                 }
 
-                byte major = br.ReadByte();
-                byte minor = br.ReadByte();
-                if (major > 2 || minor > 0)
+                this._major = br.ReadByte();
+                this._minor = br.ReadByte();
+                if (_major > 3)
                 {
                     throw new Exception("This version is not supported");
                 }
-                if (major == 2 && minor == 0)
+
+                uint fileCount = 0;
+                //XXHash Checksum of WAD Data (everything after TOC).
+                ulong dataChecksum = 0;
+
+                if (this._major == 2)
                 {
                     byte ecdsaLength = br.ReadByte();
                     this.ECDSA = br.ReadBytes(ecdsaLength);
                     br.ReadBytes(83 - ecdsaLength);
+
+                    dataChecksum = br.ReadUInt64();
+                }
+                else if (this._major == 3)
+                {
+                    this.ECDSA = br.ReadBytes(256);
+                    dataChecksum = br.ReadUInt64();
                 }
 
-                //XXHash Checksum of WAD Data (everything after TOC).
-                ulong dataChecksum = br.ReadUInt64();
+                if (this._major == 1 || this._major == 2)
+                {
+                    ushort tocStartOffset = br.ReadUInt16();
+                    ushort tocFileEntrySize = br.ReadUInt16();
+                }
 
-                ushort tocStartOffset = br.ReadUInt16();
-                ushort tocFileEntrySize = br.ReadUInt16();
-                uint fileCount = br.ReadUInt32();
-
-                br.BaseStream.Seek(tocStartOffset, SeekOrigin.Begin);
-
+                fileCount = br.ReadUInt32();
                 for (int i = 0; i < fileCount; i++)
                 {
-                    _entries.Add(new WADEntry(this, br, major, minor));
+                    this._entries.Add(new WADEntry(this, br, _major));
                 }
             }
         }
@@ -191,7 +205,18 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
-            Write(File.Create(fileLocation));
+            Write(fileLocation, _major, _minor);
+        }
+
+        /// <summary>
+        /// Writes this <see cref="WADFile"/> to the specified location
+        /// </summary>
+        /// <param name="fileLocation">The location to write to</param>
+        /// <param name="major">Which major version this <see cref="WADFile"/> should be saved as</param>
+        /// <param name="minor">Which minor version this <see cref="WADFile"/> should be saved as</param>
+        public void Write(string fileLocation, byte major, byte minor)
+        {
+            Write(File.Create(fileLocation), major, minor);
         }
 
         /// <summary>
@@ -200,35 +225,78 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
+            Write(stream, _major, _minor);
+        }
+
+        /// <summary>
+        /// Writes this <see cref="WADFile"/> into the specified <see cref="Stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
+        /// <param name="major">Which major version this <see cref="WADFile"/> should be saved as</param>
+        /// <param name="minor">Which minor version this <see cref="WADFile"/> should be saved as</param>
+        public void Write(Stream stream, byte major, byte minor)
+        {
+            if (major > 3)
+            {
+                throw new Exception("WAD File version: " + major + " either does not support writing or doesn't exist");
+            }
+
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.ASCII, true))
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
-                bw.Write((byte)2);
-                bw.Write((byte)0);
-                bw.Write(new byte[92]);
-                bw.Write((ushort)104);
-                bw.Write((ushort)32);
-                bw.Write(Entries.Count);
+                bw.Write(major);
+                bw.Write(minor);
 
-                long tocOffset = stream.Position;
-                stream.Seek(tocOffset + (32 * Entries.Count), SeekOrigin.Begin);
-
-                for (int i = 0; i < Entries.Count; i++)
+                // Writing signatures 
+                if (major == 2)
                 {
-                    WADEntry currentEntry = Entries[i];
+                    bw.Write(new byte[84]);
+                }
+                else if (major == 3)
+                {
+                    bw.Write(new byte[256]);
+                }
+
+                // Writing file checksums
+                if (major == 2 || major == 3)
+                {
+                    bw.Write((long)0);
+                }
+
+                int tocSize = (major == 1) ? 24 : 32;
+                long tocOffset = stream.Position + 4;
+
+                // Writing TOC info
+                if (major < 3)
+                {
+                    tocOffset += 4;
+                    bw.Write((ushort)tocOffset);
+                    bw.Write((ushort)tocSize);
+                }
+
+                bw.Write(this.Entries.Count);
+
+                stream.Seek(tocOffset + (tocSize * this.Entries.Count), SeekOrigin.Begin);
+
+                for (int i = 0; i < this.Entries.Count; i++)
+                {
+                    WADEntry currentEntry = this.Entries[i];
                     currentEntry._isDuplicated = false;
 
                     // Finding potential duplicated entry
                     WADEntry duplicatedEntry = null;
-                    if (currentEntry.Type != EntryType.FileRedirection)
+                    if (major != 1)
                     {
-                        for (int j = 0; j < i; j++)
+                        if (currentEntry.Type != EntryType.FileRedirection)
                         {
-                            if (Entries[j].SHA256.SequenceEqual(currentEntry.SHA256))
+                            for (int j = 0; j < i; j++)
                             {
-                                currentEntry._isDuplicated = true;
-                                duplicatedEntry = Entries[j];
-                                break;
+                                if (this.Entries[j].SHA.SequenceEqual(currentEntry.SHA))
+                                {
+                                    currentEntry._isDuplicated = true;
+                                    duplicatedEntry = this.Entries[j];
+                                    break;
+                                }
                             }
                         }
                     }
@@ -248,13 +316,16 @@ namespace Fantome.Libraries.League.IO.WAD
 
                 // Write TOC
                 stream.Seek(tocOffset, SeekOrigin.Begin);
-                foreach (WADEntry wadEntry in Entries)
+                foreach (WADEntry wadEntry in this.Entries)
                 {
-                    wadEntry.Write(bw);
+                    wadEntry.Write(bw, major);
                 }
             }
 
-            _stream = stream;
+            this.Dispose();
+            this._stream = stream;
+            this._major = major;
+            this._minor = minor;
         }
 
         /// <summary>
@@ -262,8 +333,8 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         public void Dispose()
         {
-            _stream?.Close();
-            _stream = null;
+            this._stream?.Close();
+            this._stream = null;
         }
     }
 }
