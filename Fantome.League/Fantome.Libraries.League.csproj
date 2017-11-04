@@ -73,6 +73,8 @@
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
     <Compile Include="IO\Inibin\InibinFile.cs" />
     <Compile Include="IO\Inibin\InibinSet.cs" />
+    <Compile Include="IO\Info\InfoFile.cs" />
+    <Compile Include="IO\Info\InfoFileCharacter.cs" />
     <Compile Include="IO\LightDat\LightDatFile.cs" />
     <Compile Include="IO\LightDat\LightDatLight.cs" />
     <Compile Include="IO\LightEnvironment\LightEnvironmentFile.cs" />
