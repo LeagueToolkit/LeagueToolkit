@@ -74,16 +74,16 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             this.MaxY = br.ReadSingle();
 
             uint bucketsPerSide = br.ReadUInt32();
-            uint VertexCount = br.ReadUInt32();
-            uint IndexCount = br.ReadUInt32();
+            uint vertexCount = br.ReadUInt32();
+            uint indexCount = br.ReadUInt32();
 
             this.Buckets = new WGEOBucket[bucketsPerSide, bucketsPerSide];
 
-            for (int i = 0; i < VertexCount; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 this.Vertices.Add(new Vector3(br));
             }
-            for (int i = 0; i < IndexCount; i++)
+            for (int i = 0; i < indexCount; i++)
             {
                 this.Indices.Add(br.ReadUInt16());
             }
@@ -119,13 +119,13 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             bw.Write((uint)this.Vertices.Count);
             bw.Write((uint)this.Indices.Count);
 
-            foreach (Vector3 Vertex in this.Vertices)
+            foreach (Vector3 vertex in this.Vertices)
             {
-                Vertex.Write(bw);
+                vertex.Write(bw);
             }
-            foreach (ushort Index in this.Indices)
+            foreach (ushort index in this.Indices)
             {
-                bw.Write(Index);
+                bw.Write(index);
             }
             for (int i = 0; i < bucketsPerSide; i++)
             {

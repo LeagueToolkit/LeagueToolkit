@@ -94,9 +94,9 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 bw.Write(Encoding.ASCII.GetBytes("WGEO"));
                 bw.Write(5);
                 bw.Write(this.Models.Count);
-                foreach (WGEOModel Model in this.Models)
+                foreach (WGEOModel model in this.Models)
                 {
-                    faceCount += (uint)Model.Indices.Count / 3;
+                    faceCount += (uint)model.Indices.Count / 3;
                 }
                 bw.Write(faceCount);
 
