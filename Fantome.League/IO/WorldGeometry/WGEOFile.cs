@@ -69,7 +69,10 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                     this.Models.Add(new WGEOModel(br));
                 }
 
-                this.BucketGeometry = new WGEOBucketGeometry(br);
+                if (version == 5)
+                {
+                    this.BucketGeometry = new WGEOBucketGeometry(br);
+                }
             }
         }
 
@@ -92,7 +95,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             {
                 uint faceCount = 0;
                 bw.Write(Encoding.ASCII.GetBytes("WGEO"));
-                bw.Write(5);
+                bw.Write(this.BucketGeometry == null ? 4 : 5);
                 bw.Write(this.Models.Count);
                 foreach (WGEOModel model in this.Models)
                 {
@@ -105,7 +108,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                     model.Write(bw);
                 }
 
-                this.BucketGeometry.Write(bw);
+                this.BucketGeometry?.Write(bw);
             }
         }
     }

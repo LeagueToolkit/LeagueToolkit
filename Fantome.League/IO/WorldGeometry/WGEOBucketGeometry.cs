@@ -116,8 +116,8 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
 
             uint bucketsPerSide = (uint)Math.Sqrt(this.Buckets.Length);
             bw.Write(bucketsPerSide);
-            bw.Write((uint)this.Vertices.Count);
-            bw.Write((uint)this.Indices.Count);
+            bw.Write(this.Vertices.Count);
+            bw.Write(this.Indices.Count);
 
             foreach (Vector3 vertex in this.Vertices)
             {
