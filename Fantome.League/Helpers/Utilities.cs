@@ -72,9 +72,13 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             {
                 return LeagueFileType.LUAOBJ;
             }
-            else if (fileData[1] == 'P' && fileData[2] == 'r' && fileData[3] == 'e' && fileData[4] == 'L' && fileData[5] == 'o' && fileData[6] == 'a' && fileData[4] == 'd')
+            else if (fileData[0] == 'P' && fileData[1] == 'r' && fileData[2] == 'e' && fileData[3] == 'L' && fileData[4] == 'o' && fileData[5] == 'a' && fileData[6] == 'd')
             {
                 return LeagueFileType.PRELOAD;
+            }
+            else if (fileData[1] == 'P' && fileData[2] == 'N' && fileData[3] == 'G')
+            {
+                return LeagueFileType.PNG;
             }
             else if (BitConverter.ToInt32(fileData.Take(4).ToArray(), 0) == fileData.Length)
             {
@@ -99,6 +103,8 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "luaobj";
                 case LeagueFileType.PRELOAD:
                     return "preload";
+                case LeagueFileType.PNG:
+                    return "png";
                 case LeagueFileType.SCB:
                     return "scb";
                 case LeagueFileType.SCO:
@@ -121,6 +127,7 @@ namespace Fantome.Libraries.League.Helpers.Utilities
         BNK,
         DDS,
         LUAOBJ,
+        PNG,
         PRELOAD,
         SCB,
         SCO,
