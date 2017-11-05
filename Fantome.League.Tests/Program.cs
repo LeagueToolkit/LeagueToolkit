@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using Fantome.Libraries.League.Converters;
 using Fantome.Libraries.League.IO.AiMesh;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
-using Fantome.Libraries.League.IO.INI;
 using Fantome.Libraries.League.IO.Inibin;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
@@ -15,11 +15,10 @@ using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
-using Fantome.Libraries.League.IO.WorldGeometry;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using Fantome.Libraries.League.IO.Skeleton;
+using Fantome.Libraries.League.IO.WorldGeometry;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -95,7 +94,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("9AA4A24D3752A9A0");
+            BINFile bin = new BINFile("3DC727A31637BE79.bin");
             bin.Write("test.bin");
         }
 
@@ -165,10 +164,24 @@ namespace Fantome.Libraries.League.Tests
             }*/
         }
 
-        static void IniTest()
+        static void SKLTest()
         {
-            IniFile cfg = new IniFile("ObjectCFG.cfg");
-            cfg.Write("ObjectCFGWrite.cfg");
+            SKLFile skl = new SKLFile("Akali.skl");
+
+            List<string> bones = new List<string>();
+            for(int i = 0; i < skl.BoneIDs.Count; i++)
+            {
+                bones.Add("[" + i + "] " + skl.BoneIDs[i] + " " + skl.Bones[skl.BoneIDs[i]].Name);
+                if(i != skl.BoneIDs.Count - 1)
+                {
+                    if (skl.BoneIDs[i] + 1 != skl.BoneIDs[i + 1])
+                    {
+                        bones.Add("");
+                    }
+                }
+            }
+
+            File.WriteAllLines("kek.txt", bones);
         }
     }
 }

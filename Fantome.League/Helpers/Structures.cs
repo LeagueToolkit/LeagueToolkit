@@ -430,6 +430,81 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
     }
 
+    /// <summary>
+    /// Represents a Quaternion
+    /// </summary>
+    public class Quaternion
+    {
+        /// <summary>
+        /// The X Component
+        /// </summary>
+        public float X { get; set; }
+        /// <summary>
+        /// The Y Component
+        /// </summary>
+        public float Y { get; set; }
+        /// <summary>
+        /// The Z Component
+        /// </summary>
+        public float Z { get; set; }
+        /// <summary>
+        /// The W Component
+        /// </summary>
+        public float W { get; set; }
+
+        /// <summary>
+        /// Initializes a new <see cref="Quaternion"/> instance
+        /// </summary>
+        /// <param name="x">The X Component</param>
+        /// <param name="y">The Y Component</param>
+        /// <param name="z">The Z Component</param>
+        /// <param name="w">The W Component</param>
+        public Quaternion(float x, float y, float z, float w)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+            this.W = w;
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="Quaternion"/> instance from a <see cref="BinaryWriter"/>
+        /// </summary>
+        /// <param name="br"></param>
+        public Quaternion(BinaryReader br)
+        {
+            this.X = br.ReadSingle();
+            this.Y = br.ReadSingle();
+            this.Z = br.ReadSingle();
+            this.W = br.ReadSingle();
+        }
+
+        /// <summary>
+        /// Writes this <see cref="Quaternion"/> into
+        /// </summary>
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
+        public Quaternion(BinaryWriter bw)
+        {
+            bw.Write(this.X);
+            bw.Write(this.Y);
+            bw.Write(this.Z);
+            bw.Write(this.W);
+        }
+
+        /// <summary>
+        /// Gets a representation of this <see cref="Quaternion"/> in Euler Angles
+        /// </summary>
+        public Vector3 GetEuler()
+        {
+            return new Vector3(0, 0, 0)
+            {
+                X = Mathf.RadiansToDegrees((float)Math.Atan((2 * (this.X * this.Y + this.Z * this.W)) / 1 - (2 * (this.Y * this.Y + this.Z * this.Z)))),
+                Y = Mathf.RadiansToDegrees((float)Math.Asin(2 * (this.X * this.Z - this.W * this.Y))),
+                Z = Mathf.RadiansToDegrees((float)Math.Atan((2 * (this.X * this.W + this.Y * this.Z)) / 1 - (2 * (this.Z * this.Z + this.W * this.W))))
+            };
+        }
+    }
+
     #region Colors
     /// <summary>
     /// Represents a 24-bit RGB Color using bytes
@@ -854,26 +929,74 @@ namespace Fantome.Libraries.League.Helpers.Structures
     }
 
     /// <summary>
-    /// Represents a transformation Matrix
+    /// Represents a 4x4 Transformation Matrix
     /// </summary>
     public class R3DMatrix44
     {
-        public float M11 { get; private set; }
-        public float M12 { get; private set; }
-        public float M13 { get; private set; }
-        public float M14 { get; private set; }
-        public float M21 { get; private set; }
-        public float M22 { get; private set; }
-        public float M23 { get; private set; }
-        public float M24 { get; private set; }
-        public float M31 { get; private set; }
-        public float M32 { get; private set; }
-        public float M33 { get; private set; }
-        public float M34 { get; private set; }
-        public float M41 { get; private set; }
-        public float M42 { get; private set; }
-        public float M43 { get; private set; }
-        public float M44 { get; private set; }
+        public float M11 { get; set; }
+        public float M12 { get; set; }
+        public float M13 { get; set; }
+        public float M14 { get; set; }
+        public float M21 { get; set; }
+        public float M22 { get; set; }
+        public float M23 { get; set; }
+        public float M24 { get; set; }
+        public float M31 { get; set; }
+        public float M32 { get; set; }
+        public float M33 { get; set; }
+        public float M34 { get; set; }
+        public float M41 { get; set; }
+        public float M42 { get; set; }
+        public float M43 { get; set; }
+        public float M44 { get; set; }
+
+        public R3DMatrix44(float m11, float m12, float m13, float m14,
+            float m21, float m22, float m23, float m24,
+            float m31, float m32, float m33, float m34,
+            float m41, float m42, float m43, float m44)
+        {
+            this.M11 = m11;
+            this.M12 = m12;
+            this.M13 = m13;
+            this.M14 = m14;
+            this.M21 = m21;
+            this.M22 = m22;
+            this.M23 = m23;
+            this.M24 = m24;
+            this.M31 = m31;
+            this.M32 = m32;
+            this.M33 = m33;
+            this.M34 = m34;
+            this.M41 = m41;
+            this.M42 = m42;
+            this.M43 = m43;
+            this.M44 = m44;
+        }
+
+        public R3DMatrix44(float[,] matrix)
+        {
+            if (matrix.Length != 16)
+            {
+                throw new Exception("Cannot construct a Matrix from this array");
+            }
+
+            this.M11 = matrix[0, 0];
+            this.M12 = matrix[0, 1];
+            this.M13 = matrix[0, 2];
+            this.M14 = matrix[0, 3];
+            this.M21 = matrix[1, 0];
+            this.M22 = matrix[1, 1];
+            this.M23 = matrix[1, 2];
+            this.M24 = matrix[1, 3];
+            this.M31 = matrix[2, 0];
+            this.M32 = matrix[2, 1];
+            this.M33 = matrix[2, 2];
+            this.M34 = matrix[2, 3];
+            this.M31 = matrix[3, 0];
+            this.M32 = matrix[3, 1];
+            this.M33 = matrix[3, 2];
+            this.M34 = matrix[3, 3];
+        }
 
         /// <summary>
         /// Initializes a new <see cref="R3DMatrix44"/> instance
@@ -933,7 +1056,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// Writes this <see cref="R3DMatrix44"/> into a <see cref="BinaryWriter"/>
         /// </summary>
-        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
+        ///<param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.M11);
@@ -952,6 +1075,165 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M42);
             bw.Write(this.M43);
             bw.Write(this.M44);
+        }
+
+        public void AssignValues(float[,] matrix)
+        {
+            if (matrix.Length != 16)
+            {
+                throw new Exception("Cannot construct a Matrix from this array");
+            }
+
+            this.M11 = matrix[0, 0];
+            this.M12 = matrix[0, 1];
+            this.M13 = matrix[0, 2];
+            this.M14 = matrix[0, 3];
+            this.M21 = matrix[1, 0];
+            this.M22 = matrix[1, 1];
+            this.M23 = matrix[1, 2];
+            this.M24 = matrix[1, 3];
+            this.M31 = matrix[2, 0];
+            this.M32 = matrix[2, 1];
+            this.M33 = matrix[2, 2];
+            this.M34 = matrix[2, 3];
+            this.M31 = matrix[3, 0];
+            this.M32 = matrix[3, 1];
+            this.M33 = matrix[3, 2];
+            this.M34 = matrix[3, 3];
+        }
+
+        public float[,] GetArray()
+        {
+            float[,] matrix = new float[4, 4];
+
+            matrix[0, 0] = this.M11;
+            matrix[0, 1] = this.M12;
+            matrix[0, 2] = this.M13;
+            matrix[0, 3] = this.M14;
+            matrix[1, 0] = this.M21;
+            matrix[1, 1] = this.M22;
+            matrix[1, 2] = this.M23;
+            matrix[1, 3] = this.M24;
+            matrix[2, 0] = this.M31;
+            matrix[2, 1] = this.M32;
+            matrix[2, 2] = this.M33;
+            matrix[2, 3] = this.M34;
+            matrix[3, 0] = this.M41;
+            matrix[3, 1] = this.M42;
+            matrix[3, 2] = this.M43;
+            matrix[3, 3] = this.M44;
+
+            return matrix;
+        }
+
+        public R3DMatrix44 Inverse()
+        {
+            float[,] s = new float[4, 4];
+            s[0, 0] = 1;
+            s[1, 1] = 1;
+            s[2, 2] = 1;
+            s[3, 3] = 1;
+
+            float[,] t = this.GetArray();
+
+            for (int i = 0; i < 3; i++)
+            {
+                int pivot = i;
+                float pivotSize = t[i, i];
+                if (pivotSize < 0)
+                {
+                    pivotSize = -pivotSize;
+                }
+
+                for (int j = i + 1; j < 4; j++)
+                {
+                    float tmp = t[j, i];
+
+                    if (tmp < 0)
+                    {
+                        tmp = -tmp;
+                    }
+
+                    if (tmp > pivotSize)
+                    {
+                        pivot = j;
+                        pivotSize = tmp;
+                    }
+                }
+
+                if (pivot != i)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        float tmp;
+                        tmp = t[i, j];
+                        t[i, j] = t[pivot, j];
+                        t[pivot, j] = tmp;
+
+                        tmp = s[i, j];
+                        s[i, j] = s[pivot, j];
+                        s[pivot, j] = tmp;
+                    }
+                }
+
+                for (int j = i + 1; j < 4; j++)
+                {
+                    float f = t[j, i] / t[i, i];
+
+                    for (int k = 0; k < 4; k++)
+                    {
+                        t[j, k] -= f * t[i, k];
+                        s[j, k] -= f * s[i, k];
+                    }
+                }
+            }
+
+            for (int i = 3; i >= 0; --i)
+            {
+                float f = t[i, i];
+
+                for (int j = 0; j < 4; j++)
+                {
+                    t[i, j] /= f;
+                    s[i, j] /= f;
+                }
+
+                for (int j = 0; j < i; j++)
+                {
+                    f = t[j, i];
+
+                    for (int k = 0; k < 4; k++)
+                    {
+                        t[j, k] -= f * t[i, k];
+                        s[j, k] -= f * s[i, k];
+                    }
+                }
+            }
+
+            return new R3DMatrix44(s);
+        }
+
+        public static R3DMatrix44 operator *(R3DMatrix44 right, R3DMatrix44 left)
+        {
+            return new R3DMatrix44
+                (
+                right.M11 * left.M11 + right.M12 * left.M21 + right.M13 * left.M31 + right.M14 * left.M41,
+                right.M11 * left.M12 + right.M12 * left.M22 + right.M13 * left.M32 + right.M14 * left.M42,
+                right.M11 * left.M13 + right.M12 * left.M23 + right.M13 * left.M33 + right.M14 * left.M43,
+                right.M11 * left.M14 + right.M12 * left.M24 + right.M13 * left.M34 + right.M14 * left.M44,
+                right.M21 * left.M11 + right.M22 * left.M21 + right.M23 * left.M31 + right.M24 * left.M41,
+                right.M21 * left.M12 + right.M22 * left.M22 + right.M23 * left.M32 + right.M24 * left.M42,
+                right.M21 * left.M13 + right.M22 * left.M23 + right.M23 * left.M33 + right.M24 * left.M43,
+                right.M21 * left.M14 + right.M22 * left.M24 + right.M23 * left.M34 + right.M24 * left.M44,
+                right.M31 * left.M11 + right.M32 * left.M21 + right.M33 * left.M31 + right.M34 * left.M41,
+                right.M31 * left.M12 + right.M32 * left.M22 + right.M33 * left.M32 + right.M34 * left.M42,
+                right.M31 * left.M13 + right.M32 * left.M23 + right.M33 * left.M33 + right.M34 * left.M43,
+                right.M31 * left.M14 + right.M32 * left.M24 + right.M33 * left.M34 + right.M34 * left.M44,
+                right.M41 * left.M11 + right.M42 * left.M21 + right.M43 * left.M31 + right.M44 * left.M41,
+                right.M41 * left.M12 + right.M42 * left.M22 + right.M43 * left.M32 + right.M44 * left.M42,
+                right.M41 * left.M13 + right.M42 * left.M23 + right.M43 * left.M33 + right.M44 * left.M43,
+                right.M41 * left.M14 + right.M42 * left.M24 + right.M43 * left.M34 + right.M44 * left.M44
+                );
         }
     }
     #endregion

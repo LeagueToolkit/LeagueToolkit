@@ -58,6 +58,7 @@
     <Compile Include="Helpers\Compression.cs" />
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
+    <Compile Include="Helpers\Mathf.cs" />
     <Compile Include="Helpers\Structures.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="Helpers\XXHash.cs" />
@@ -108,6 +109,10 @@
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\SCO\SCOFace.cs" />
     <Compile Include="IO\SCO\SCOFile.cs" />
+    <Compile Include="IO\Skeleton\ISKLBone.cs" />
+    <Compile Include="IO\Skeleton\SKLFile.cs" />
+    <Compile Include="IO\Skeleton\SKLLegacyBone.cs" />
+    <Compile Include="IO\Skeleton\SKLRawBone.cs" />
     <Compile Include="IO\SimpleSkin\SKNFile.cs" />
     <Compile Include="IO\SimpleSkin\SKNSubmesh.cs" />
     <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
