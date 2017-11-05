@@ -9,18 +9,26 @@ namespace Fantome.Libraries.League.IO.BIN
     public class BINFileValueList : IBINFileValue
     {
         /// <summary>
+        /// The Parent of this <see cref="BINFileValueList"/>
+        /// </summary>
+        public object Parent { get; private set; }
+
+        /// <summary>
         /// The hash of the name of this <see cref="BINFileValueList"/>
         /// </summary>
         /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> is anything else than <c>BINFileValueType.List</c> or <c>BINFileValueType.List2</c></remarks>
         public uint Property { get; private set; }
+
         /// <summary>
         /// Type of this <see cref="BINFileValueList"/>
         /// </summary>
         public BINFileValueType Type { get; private set; }
+
         /// <summary>
         /// Types of the entries this <see cref="BINFileValueList"/> contains
         /// </summary>
         public BINFileValueType[] EntryTypes { get; private set; }
+
         /// <summary>
         /// A Collection of <see cref="BINFileValue"/>
         /// </summary>
@@ -31,8 +39,9 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         /// <param name="type">What type this <see cref="BINFileValueList"/> should be</param>
-        public BINFileValueList(BinaryReader br, BINFileValueType type)
+        public BINFileValueList(BinaryReader br, object parent, BINFileValueType type)
         {
+            this.Parent = parent;
             this.Type = type;
             if (this.Type == BINFileValueType.LargeStaticTypeList)
             {
@@ -70,7 +79,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 uint entryCount = br.ReadUInt32();
                 for (int i = 0; i < entryCount; i++)
                 {
-                    this.Entries.Add(new BINFileValuePair(br, this.EntryTypes[0], this.EntryTypes[1]));
+                    this.Entries.Add(new BINFileValuePair(br, this, this.EntryTypes[0], this.EntryTypes[1]));
                 }
             }
         }

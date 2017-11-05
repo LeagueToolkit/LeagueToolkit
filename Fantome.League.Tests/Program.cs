@@ -95,7 +95,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("9AA4A24D3752A9A0");
+            BINFile bin = new BINFile("3DC727A31637BE79.bin");
             bin.Write("test.bin");
         }
 

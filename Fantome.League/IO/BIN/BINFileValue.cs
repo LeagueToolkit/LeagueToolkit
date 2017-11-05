@@ -57,19 +57,19 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINFileValueType.SmallStaticTypeList)
             {
-                this.Value = new BINFileValueList(br, this.Type.Value);
+                this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
             else if (this.Type == BINFileValueType.LargeStaticTypeList)
             {
-                this.Value = new BINFileValueList(br, this.Type.Value);
+                this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
             else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
             {
-                this.Value = new BINFileValueList(br, this.Type.Value);
+                this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
             else if (this.Type == BINFileValueType.PairList)
             {
-                this.Value = new BINFileValueList(br, this.Type.Value);
+                this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
             else if (this.Type == BINFileValueType.Float)
             {
