@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Fantome.Libraries.League.IO.MapGeometry;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -27,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            WADTest();
+            MgeoTest();
         }
 
         static void WGEOTest()
@@ -169,6 +170,11 @@ namespace Fantome.Libraries.League.Tests
         {
             IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
+        }
+
+        static void MgeoTest()
+        {
+            MGEOFile mgeo = new MGEOFile("7F5D3FD13D7E5174");
         }
     }
 }
