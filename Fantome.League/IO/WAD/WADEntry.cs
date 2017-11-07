@@ -97,12 +97,12 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="wad"><see cref="WADFile"/> this new entry belongs to.</param>
         /// <param name="xxHash">The XXHash of this new entry.</param>
         /// <param name="data">Data of this new entry.</param>
-        /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
+        /// <param name="compressedEntry">Whether the data needs to be ZStandard compressed inside WAD</param>
         public WADEntry(WADFile wad, ulong xxHash, byte[] data, bool compressedEntry)
         {
             this._wad = wad;
             this.XXHash = xxHash;
-            this.Type = compressedEntry ? EntryType.Compressed : EntryType.Uncompressed;
+            this.Type = compressedEntry ? EntryType.ZStandardCompressed : EntryType.Uncompressed;
             this.EditData(data);
         }
 
@@ -160,7 +160,19 @@ namespace Fantome.Libraries.League.IO.WAD
             {
                 throw new Exception("You cannot edit the data of a FileRedirection Entry");
             }
-            this._newData = this.Type == EntryType.Compressed ? Compression.CompressGZip(data) : data;
+            else if (this.Type == EntryType.Compressed)
+            {
+                this._newData = Compression.CompressGZip(data);
+            }
+            else if (this.Type == EntryType.ZStandardCompressed)
+            {
+                this._newData = Compression.CompressZStandard(data);
+            }
+            else
+            {
+                this._newData = data;
+            }
+
             this.CompressedSize = (uint)this._newData.Length;
             this.UncompressedSize = (uint)data.Length;
             using (SHA256 sha256 = SHA256.Create())
@@ -204,6 +216,10 @@ namespace Fantome.Libraries.League.IO.WAD
             if (this.Type == EntryType.Compressed && decompress)
             {
                 return Compression.DecompressGZip(dataBuffer);
+            }
+            else if (this.Type == EntryType.ZStandardCompressed && decompress)
+            {
+                return Compression.DecompressZStandard(dataBuffer);
             }
             else
             {
@@ -257,6 +273,10 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// The Data of this <see cref="WADEntry"/> is a file redirection
         /// </summary>
-        FileRedirection
+        FileRedirection,
+        /// <summary>
+        /// The Data of this <see cref="WADEntry"/> is compressed with ZStandard
+        /// </summary>
+        ZStandardCompressed
     }
 }
