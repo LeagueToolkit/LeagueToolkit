@@ -27,7 +27,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            WADTest();
         }
 
         static void WGEOTest()
@@ -137,9 +137,9 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("assets.wad"))
+            using (WADFile wad = new WADFile("Map19.wad.client"))
             {
-                wad.Write("assets1.wad", 1, 0);
+
             }
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {

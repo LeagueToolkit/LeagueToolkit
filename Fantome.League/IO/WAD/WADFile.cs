@@ -64,7 +64,7 @@ namespace Fantome.Libraries.League.IO.WAD
 
                 this._major = br.ReadByte();
                 this._minor = br.ReadByte();
-                if (_major > 3)
+                if (this._major > 3)
                 {
                     throw new Exception("This version is not supported");
                 }
@@ -96,7 +96,7 @@ namespace Fantome.Libraries.League.IO.WAD
                 fileCount = br.ReadUInt32();
                 for (int i = 0; i < fileCount; i++)
                 {
-                    this._entries.Add(new WADEntry(this, br, _major));
+                    this._entries.Add(new WADEntry(this, br, this._major));
                 }
             }
         }
@@ -205,7 +205,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
-            Write(fileLocation, _major, _minor);
+            Write(fileLocation, this._major, this._minor);
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
-            Write(stream, _major, _minor);
+            Write(stream, this._major, this._minor);
         }
 
         /// <summary>
