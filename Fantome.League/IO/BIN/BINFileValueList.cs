@@ -16,7 +16,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// The hash of the name of this <see cref="BINFileValueList"/>
         /// </summary>
-        /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> is anything else than <c>BINFileValueType.List</c> or <c>BINFileValueType.List2</c></remarks>
+        /// <remarks>Will be <see cref="null"/> if <see cref="Type"/> is anything else than <c>BINFileValueType.Embedded</c> or <c>BINFileValueType.Structure</c></remarks>
         public uint Property { get; private set; }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             this.Parent = parent;
             this.Type = type;
-            if (this.Type == BINFileValueType.LargeStaticTypeList)
+            if (this.Type == BINFileValueType.Container)
             {
                 this.EntryTypes = new BINFileValueType[] { (BINFileValueType)br.ReadByte() };
                 uint entrySize = br.ReadUInt32();
@@ -53,7 +53,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[0]));
                 }
             }
-            else if (this.Type == BINFileValueType.SmallStaticTypeList)
+            else if (this.Type == BINFileValueType.AdditionalOptionalData)
             {
                 this.EntryTypes = new BINFileValueType[] { (BINFileValueType)br.ReadByte() };
                 byte entryCount = br.ReadByte();
@@ -62,7 +62,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     this.Entries.Add(new BINFileValue(br, this, this.EntryTypes[0]));
                 }
             }
-            else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
+            else if (this.Type == BINFileValueType.Embedded || this.Type == BINFileValueType.Structure)
             {
                 this.Property = br.ReadUInt32();
                 uint entrySize = br.ReadUInt32();
@@ -72,7 +72,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     this.Entries.Add(new BINFileValue(br, this));
                 }
             }
-            else if (this.Type == BINFileValueType.PairList)
+            else if (this.Type == BINFileValueType.Map)
             {
                 this.EntryTypes = new BINFileValueType[] { (BINFileValueType)br.ReadByte(), (BINFileValueType)br.ReadByte() };
                 uint entrySize = br.ReadUInt32();
@@ -90,7 +90,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            if (this.Type == BINFileValueType.LargeStaticTypeList)
+            if (this.Type == BINFileValueType.Container)
             {
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write(GetContentSize());
@@ -100,7 +100,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     value.Write(bw, false);
                 }
             }
-            else if (this.Type == BINFileValueType.SmallStaticTypeList)
+            else if (this.Type == BINFileValueType.AdditionalOptionalData)
             {
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write((byte)this.Entries.Count);
@@ -109,7 +109,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     value.Write(bw, false);
                 }
             }
-            else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
+            else if (this.Type == BINFileValueType.Embedded || this.Type == BINFileValueType.Structure)
             {
                 bw.Write(this.Property);
                 bw.Write(GetContentSize());
@@ -119,7 +119,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     value.Write(bw, true);
                 }
             }
-            else if (this.Type == BINFileValueType.PairList)
+            else if (this.Type == BINFileValueType.Map)
             {
                 bw.Write((byte)this.EntryTypes[0]);
                 bw.Write((byte)this.EntryTypes[1]);
@@ -137,15 +137,15 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             int size = 0;
 
-            if (this.Type == BINFileValueType.LargeStaticTypeList)
+            if (this.Type == BINFileValueType.Container)
             {
                 size += 4;
             }
-            else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
+            else if (this.Type == BINFileValueType.Embedded || this.Type == BINFileValueType.Structure)
             {
                 size += 2;
             }
-            else if (this.Type == BINFileValueType.PairList)
+            else if (this.Type == BINFileValueType.Map)
             {
                 size += 4;
             }
@@ -165,19 +165,19 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             int size = this.GetContentSize();
 
-            if (this.Type == BINFileValueType.LargeStaticTypeList)
+            if (this.Type == BINFileValueType.Container)
             {
                 size += 1 + 4;
             }
-            else if (this.Type == BINFileValueType.SmallStaticTypeList)
+            else if (this.Type == BINFileValueType.AdditionalOptionalData)
             {
                 size += 1 + 1;
             }
-            else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
+            else if (this.Type == BINFileValueType.Embedded || this.Type == BINFileValueType.Structure)
             {
                 size += 4 + 4;
             }
-            else if (this.Type == BINFileValueType.PairList)
+            else if (this.Type == BINFileValueType.Map)
             {
                 size += 1 + 1 + 4;
             }

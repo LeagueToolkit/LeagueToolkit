@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System;
 using System.IO;
 using System.Text;
 
@@ -55,19 +56,19 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16()));
             }
-            else if (this.Type == BINFileValueType.SmallStaticTypeList)
+            else if (this.Type == BINFileValueType.AdditionalOptionalData)
             {
                 this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
-            else if (this.Type == BINFileValueType.LargeStaticTypeList)
+            else if (this.Type == BINFileValueType.Container)
             {
                 this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
-            else if (this.Type == BINFileValueType.List || this.Type == BINFileValueType.List2)
+            else if (this.Type == BINFileValueType.Embedded || this.Type == BINFileValueType.Structure)
             {
                 this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
-            else if (this.Type == BINFileValueType.PairList)
+            else if (this.Type == BINFileValueType.Map)
             {
                 this.Value = new BINFileValueList(br, this, this.Type.Value);
             }
@@ -76,7 +77,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 this.Value = br.ReadSingle();
             }
             else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
-                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.EntryHash)
+                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.LinkOffset)
             {
                 this.Value = br.ReadUInt32();
             }
@@ -84,7 +85,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadUInt16();
             }
-            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
+            else if (this.Type == BINFileValueType.SByte || this.Type == BINFileValueType.Byte || this.Type == BINFileValueType.ByteValue3)
             {
                 this.Value = br.ReadByte();
             }
@@ -96,7 +97,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new uint[] { br.ReadUInt32(), br.ReadUInt32() };
             }
-            else if (this.Type == BINFileValueType.ByteVector4)
+            else if (this.Type == BINFileValueType.Color)
             {
                 this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             }
@@ -141,11 +142,11 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((ushort)value.Length);
                 bw.Write(Encoding.ASCII.GetBytes(value));
             }
-            else if (this.Type == BINFileValueType.SmallStaticTypeList ||
-                this.Type == BINFileValueType.LargeStaticTypeList ||
-                this.Type == BINFileValueType.List ||
-                this.Type == BINFileValueType.List2 ||
-                this.Type == BINFileValueType.PairList)
+            else if (this.Type == BINFileValueType.AdditionalOptionalData ||
+                this.Type == BINFileValueType.Container ||
+                this.Type == BINFileValueType.Embedded ||
+                this.Type == BINFileValueType.Structure ||
+                this.Type == BINFileValueType.Map)
             {
                 (this.Value as BINFileValueList).Write(bw);
             }
@@ -154,7 +155,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((float)this.Value);
             }
             else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
-                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.EntryHash)
+                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.LinkOffset)
             {
                 bw.Write((uint)this.Value);
             }
@@ -162,7 +163,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((ushort)this.Value);
             }
-            else if (this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
+            else if (this.Type == BINFileValueType.SByte || this.Type == BINFileValueType.Byte || this.Type == BINFileValueType.ByteValue3)
             {
                 bw.Write((byte)this.Value);
             }
@@ -176,7 +177,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write(value[0]);
                 bw.Write(value[1]);
             }
-            else if (this.Type == BINFileValueType.ByteVector4)
+            else if (this.Type == BINFileValueType.Color)
             {
                 byte[] value = this.Value as byte[];
                 bw.Write(value[0]);
@@ -221,11 +222,11 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             int size = this._typeRead ? 5 : 0;
 
-            if (this.Type == BINFileValueType.SmallStaticTypeList ||
-                this.Type == BINFileValueType.LargeStaticTypeList ||
-                this.Type == BINFileValueType.PairList ||
-                this.Type == BINFileValueType.List ||
-                this.Type == BINFileValueType.List2)
+            if (this.Type == BINFileValueType.AdditionalOptionalData ||
+                this.Type == BINFileValueType.Container ||
+                this.Type == BINFileValueType.Map ||
+                this.Type == BINFileValueType.Embedded ||
+                this.Type == BINFileValueType.Structure)
             {
                 size += (this.Value as BINFileValueList).GetSize();
             }
@@ -237,8 +238,8 @@ namespace Fantome.Libraries.League.IO.BIN
                 this.Type == BINFileValueType.UInt32 ||
                 this.Type == BINFileValueType.UInt32_2 ||
                 this.Type == BINFileValueType.HashValue ||
-                this.Type == BINFileValueType.ByteVector4 ||
-                this.Type == BINFileValueType.EntryHash)
+                this.Type == BINFileValueType.Color ||
+                this.Type == BINFileValueType.LinkOffset)
             {
                 size += 4;
             }
@@ -246,7 +247,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 size += 2;
             }
-            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.ByteValue || this.Type == BINFileValueType.ByteValue2 || this.Type == BINFileValueType.ByteValue3)
+            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.SByte || this.Type == BINFileValueType.Byte || this.Type == BINFileValueType.ByteValue3)
             {
                 size += 1;
             }
@@ -285,13 +286,13 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         Boolean = 1,
         /// <summary>
-        /// Represents a <see cref="byte"/> value
+        /// Represents an <see cref="sbyte"/> value
         /// </summary>
-        ByteValue = 2,
+        SByte = 2,
         /// <summary>
         /// Represents a <see cref="byte"/> value
         /// </summary>
-        ByteValue2 = 3,
+        Byte = 3,
         /// <summary>
         /// Represents a <see cref="ushort"/> value
         /// </summary>
@@ -325,9 +326,13 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         FloatVector4 = 13,
         /// <summary>
-        /// Represents a <see cref="byte"/> Vector4 value
+        /// Represents a <see cref="R3DMatrix44"/> value
         /// </summary>
-        ByteVector4 = 15,
+        Matrix44 = 14,
+        /// <summary>
+        /// Represents a <see cref="ColorRGBAVector4Byte"/> value
+        /// </summary>
+        Color = 15,
         /// <summary>
         /// Represents a <see cref="string"/> value
         /// </summary>
@@ -337,29 +342,29 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         HashValue = 17,
         /// <summary>
-        /// Represents a List with a <see cref="uint"/> Size and Value Count
+        /// Represents a Value Container
         /// </summary>
-        LargeStaticTypeList = 18,
+        Container = 18,
         /// <summary>
-        /// Represents a List which holds values of different types
+        /// Represents a Structure
         /// </summary>
-        List2 = 19,
+        Structure = 19,
         /// <summary>
-        /// Represents a List which holds values of different types
+        /// Represents an Embedded Structure
         /// </summary>
-        List = 20,
+        Embedded = 20,
         /// <summary>
-        /// Represents a <see cref="uint"/> value which is the hash of another entry
+        /// Represents a <see cref="uint"/> value which links to another entry
         /// </summary>
-        EntryHash = 21,
+        LinkOffset = 21,
         /// <summary>
-        /// Represents a List with <see cref="byte"/> Value Count
+        /// Represents Additional Optional Data
         /// </summary>
-        SmallStaticTypeList = 22,
+        AdditionalOptionalData = 22,
         /// <summary>
-        /// Represents a List which holds pair values
+        /// Represents a List which holds Key-Value values
         /// </summary>
-        PairList = 23,
+        Map = 23,
         /// <summary>
         /// Represents a <see cref="byte"/> value
         /// </summary>
