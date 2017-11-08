@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
@@ -32,8 +33,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 bool unknownFlag = br.ReadByte() == 1;
 
-                uint unknownSectionSize = br.ReadUInt32() << 7;
-                byte[] unknownSection = br.ReadBytes((int)unknownSectionSize);
+                List<uint> vertexBufferTypes = new List<uint>();
+                uint vertexBufferTypesCount = (br.ReadUInt32() << 7) / 4;
+                for (int i = 0; i < vertexBufferTypesCount; i++)
+                {
+                    vertexBufferTypes.Add(br.ReadUInt32());
+                }
 
                 /*List<List<MGEOVertex>> vertexBuffers = new List<List<MGEOVertex>>();
                 uint vertexBufferCount = br.ReadUInt32();
@@ -73,8 +78,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 uint meshCount = br.ReadUInt32();
                 for (int i = 0; i < meshCount; i++)
                 {
-                    this.Meshes.Add(new MGEOMesh(br, unknownFlag));
+                    this.Meshes.Add(new MGEOMesh(vertexBuffers, indexBuffers, br, unknownFlag));
                 }
+
+                File.WriteAllText("kek.txt", JsonConvert.SerializeObject(this.Meshes, Formatting.Indented));
 
                 this.BucketGeometry = new MGEOBucketGeometry(br);
             }

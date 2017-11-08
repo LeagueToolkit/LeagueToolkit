@@ -11,33 +11,34 @@ namespace Fantome.Libraries.League.IO.MapGeometry
     public class MGEOMesh
     {
         public string Name { get; set; }
-        public uint Unknown1 { get; set; }
         public uint Unknown2 { get; set; }
-        public List<uint> Unknown3 { get; set; } = new List<uint>(); //Possibly the index of the vertex and index buffers ?
-        public uint Unknown4 { get; set; }
-        public uint Unknown5 { get; set; }
+        public List<uint> VertexBuffers { get; set; } = new List<uint>(); //Possibly the index of the vertex and index buffers ?
         public List<MGEOMaterial> Materials { get; set; } = new List<MGEOMaterial>();
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 TransformationMatrix { get; set; }
         public Vector3 Unknown7 { get; set; }
-        public float[] Unknown8 { get; set; } = new float[27];
+        public R3DMatrix44[] Unknown8 { get; set; } = new R3DMatrix44[3];
         public string Texture { get; set; }
         public ColorRGBAVector4 Color { get; set; }
+        public List<byte[]> Vertices { get; set; } = new List<byte[]>();
+        public List<ushort> Indices { get; set; } = new List<ushort>();
 
-        public MGEOMesh(BinaryReader br, bool specialHeaderFlag)
+        public MGEOMesh(List<byte[]> vertexBuffers, List<List<ushort>> indexBuffers, BinaryReader br, bool specialHeaderFlag)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            this.Unknown1 = br.ReadUInt32();
-            uint unknownCount = br.ReadUInt32();
+            uint vertexCount = br.ReadUInt32();
+            uint vertexBufferCount = br.ReadUInt32();
             this.Unknown2 = br.ReadUInt32();
 
-            for (int i = 0; i < unknownCount; i++)
+            for (int i = 0; i < vertexBufferCount; i++)
             {
-                this.Unknown3.Add(br.ReadUInt32());
+                this.VertexBuffers.Add(br.ReadUInt32());
+                this.Vertices.Add(vertexBuffers[(int)this.VertexBuffers[i]]);
             }
 
-            this.Unknown4 = br.ReadUInt32();
-            this.Unknown5 = br.ReadUInt32();
+            uint indexCount = br.ReadUInt32();
+            int indexBuffer = br.ReadInt32();
+            this.Indices.AddRange(indexBuffers[indexBuffer]);
 
             uint materialCount = br.ReadUInt32();
             for (int i = 0; i < materialCount; i++)
@@ -54,9 +55,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 this.Unknown7 = new Vector3(br);
             }
 
-            for (int i = 0; i < 27; i++)
+            for (int i = 0; i < 3; i++)
             {
-                this.Unknown8[i] = br.ReadSingle();
+                this.Unknown8[i] = new R3DMatrix44(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
+                                                   br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
+                                                   br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
+                                                   0, 0, 0, 1);
             }
 
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));

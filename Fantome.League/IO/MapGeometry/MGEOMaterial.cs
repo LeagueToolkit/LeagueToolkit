@@ -11,19 +11,19 @@ namespace Fantome.Libraries.League.IO.MapGeometry
     {
         public uint Unknown1 { get; set; }
         public string Name { get; set; }
-        public uint Unknown2 { get; set; }
-        public uint Unknown3 { get; set; }
-        public uint Unknown4 { get; set; }
-        public uint Unknown5 { get; set; }
+        public uint StartIndex { get; set; }
+        public uint IndexCount { get; set; }
+        public uint StartVertex { get; set; }
+        public uint VertexCount { get; set; }
 
         public MGEOMaterial(BinaryReader br)
         {
             this.Unknown1 = br.ReadUInt32();
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            this.Unknown2 = br.ReadUInt32();
-            this.Unknown3 = br.ReadUInt32();
-            this.Unknown4 = br.ReadUInt32();
-            this.Unknown5 = br.ReadUInt32();
+            this.StartIndex = br.ReadUInt32();
+            this.IndexCount = br.ReadUInt32();
+            this.StartVertex = br.ReadUInt32();
+            this.VertexCount = br.ReadUInt32();
         }
     }
 }
