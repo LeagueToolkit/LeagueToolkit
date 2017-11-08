@@ -39,8 +39,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Unknown4 = br.ReadUInt32();
             this.Unknown5 = br.ReadUInt32();
 
-            uint unknownCount2 = br.ReadUInt32();
-            for (int i = 0; i < unknownCount2; i++)
+            uint materialCount = br.ReadUInt32();
+            for (int i = 0; i < materialCount; i++)
             {
                 this.Materials.Add(new MGEOMaterial(br));
             }

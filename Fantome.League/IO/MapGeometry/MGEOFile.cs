@@ -9,6 +9,9 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MGEOFile
     {
+        public List<MGEOMesh> Meshes { get; set; } = new List<MGEOMesh>();
+        public MGEOBucketGeometry BucketGeometry { get; set; }
+
         public MGEOFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
         public MGEOFile(Stream stream)
@@ -67,12 +70,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     indexBuffers.Add(indices);
                 }
 
-                List<MGEOMesh> meshes = new List<MGEOMesh>();
-                uint materialCount = br.ReadUInt32();
-                for (int i = 0; i < materialCount; i++)
+                uint meshCount = br.ReadUInt32();
+                for (int i = 0; i < meshCount; i++)
                 {
-                    meshes.Add(new MGEOMesh(br, unknownFlag));
+                    this.Meshes.Add(new MGEOMesh(br, unknownFlag));
                 }
+
+                this.BucketGeometry = new MGEOBucketGeometry(br);
             }
         }
     }
