@@ -11,7 +11,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
     public class MGEOMesh
     {
         public string Name { get; set; }
-        public uint Unknown2 { get; set; }
+        public MGEOMeshType Type { get; set; }
         public List<uint> VertexBuffers { get; set; } = new List<uint>();
         public List<MGEOMaterial> Materials { get; set; } = new List<MGEOMaterial>();
         public R3DBox BoundingBox { get; set; }
@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
             uint vertexBufferCount = br.ReadUInt32();
-            this.Unknown2 = br.ReadUInt32();
+            this.Type = (MGEOMeshType)br.ReadUInt32(); //Lightmap = 4
 
             // Most meshes have 2 vertex buffer with the first one having vertex positions and most likely normals,
             // still havent figured out what the second type is
@@ -49,7 +49,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
                 else
                 {
-                    br.ReadUInt32();
+                    uint vertexBufferIndex = br.ReadUInt32();
                 }
             }
 
@@ -90,5 +90,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             this.Color = new ColorRGBAVector4(br);
         }
+    }
+
+    public enum MGEOMeshType : uint
+    {
+        Model = 0,
+        DoubleBufferSimpleGeo = 2,
+        Ground = 4,
+        SimpleGeo2 = 5,
     }
 }
