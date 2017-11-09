@@ -28,10 +28,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
             uint vertexBufferCount = br.ReadUInt32();
-            this.Type = (MGEOMeshType)br.ReadUInt32(); //Lightmap = 4
+            this.Type = (MGEOMeshType)br.ReadUInt32();
 
-            // Most meshes have 2 vertex buffer with the first one having vertex positions and most likely normals,
-            // still havent figured out what the second type is
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 if (i == 0)
@@ -73,7 +71,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             this.BoundingBox = new R3DBox(br);
             this.TransformationMatrix = new R3DMatrix44(br);
-            byte padding = br.ReadByte(); // This is most likely just padding, could be flags or something though
+            byte padding = br.ReadByte();
 
             if (specialHeaderFlag)
             {
