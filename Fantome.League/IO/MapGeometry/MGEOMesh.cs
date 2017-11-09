@@ -30,6 +30,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             uint vertexBufferCount = br.ReadUInt32();
             this.Unknown2 = br.ReadUInt32();
 
+            // Most meshes have 2 vertex buffer with the first one having vertex positions and most likely normals,
+            // still havent figured out what the second type is
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 this.VertexBuffers.Add(br.ReadUInt32());
@@ -40,6 +42,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             int indexBuffer = br.ReadInt32();
             this.Indices.AddRange(indexBuffers[indexBuffer]);
 
+            // This material structure is really similiar to SKN Submesh structure but only that there is 
+            // one more uint at the start of it which might be the flags of the submesh 
             uint materialCount = br.ReadUInt32();
             for (int i = 0; i < materialCount; i++)
             {
@@ -48,13 +52,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             this.BoundingBox = new R3DBox(br);
             this.TransformationMatrix = new R3DMatrix44(br);
-            uint unknownPaddingOrFlag = br.ReadByte();
+            byte padding = br.ReadByte(); // This is most likely just padding, could be flags or something though
 
             if (specialHeaderFlag)
             {
-                this.Unknown7 = new Vector3(br);
+                this.Unknown7 = new Vector3(br); // No idea what this Vector might be
             }
 
+            // These are most likely 3 3x3 Matrices, no idea what data they contains though
             for (int i = 0; i < 3; i++)
             {
                 this.Unknown8[i] = new R3DMatrix44(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
