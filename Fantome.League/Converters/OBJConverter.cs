@@ -35,7 +35,7 @@ namespace Fantome.Libraries.League.Converters
 
         public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MGEOFile mgeo)
         {
-            foreach (MGEOMesh model in mgeo.Meshes)
+            foreach (MGEOModel model in mgeo.Meshes)
             {
                 List<Vector3> vertices = new List<Vector3>();
                 List<Vector3> normals = new List<Vector3>();

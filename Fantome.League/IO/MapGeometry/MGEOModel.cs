@@ -8,12 +8,12 @@ using Fantome.Libraries.League.Helpers.Structures;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOMesh
+    public class MGEOModel
     {
         public string Name { get; set; }
         public MGEOMeshType Type { get; set; }
         public List<uint> VertexBuffers { get; set; } = new List<uint>();
-        public List<MGEOMaterial> Materials { get; set; } = new List<MGEOMaterial>();
+        public List<MGEOSubmesh> Materials { get; set; } = new List<MGEOSubmesh>();
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 TransformationMatrix { get; set; }
         public Vector3 Unknown7 { get; set; }
@@ -23,7 +23,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
         public List<ushort> Indices { get; set; } = new List<ushort>();
 
-        public MGEOMesh(BinaryReader br, List<uint> vertexBufferOffsets, List<uint> indexBufferOffsets, bool specialHeaderFlag)
+        public MGEOModel(BinaryReader br, List<uint> vertexBufferOffsets, List<uint> indexBufferOffsets, bool specialHeaderFlag)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
@@ -68,7 +68,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             uint materialCount = br.ReadUInt32();
             for (int i = 0; i < materialCount; i++)
             {
-                this.Materials.Add(new MGEOMaterial(br));
+                this.Materials.Add(new MGEOSubmesh(br));
             }
 
             this.BoundingBox = new R3DBox(br);

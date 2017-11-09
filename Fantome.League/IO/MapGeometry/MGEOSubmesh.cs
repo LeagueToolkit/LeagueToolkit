@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOMaterial
+    public class MGEOSubmesh
     {
         public uint Unknown1 { get; set; }
         public string Name { get; set; }
@@ -16,7 +16,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public uint StartVertex { get; set; }
         public uint VertexCount { get; set; }
 
-        public MGEOMaterial(BinaryReader br)
+        public MGEOSubmesh(BinaryReader br)
         {
             this.Unknown1 = br.ReadUInt32();
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));

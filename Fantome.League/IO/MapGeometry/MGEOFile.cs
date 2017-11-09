@@ -10,7 +10,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MGEOFile
     {
-        public List<MGEOMesh> Meshes { get; set; } = new List<MGEOMesh>();
+        public List<MGEOModel> Meshes { get; set; } = new List<MGEOModel>();
         public MGEOBucketGeometry BucketGeometry { get; set; }
 
         public MGEOFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
@@ -61,7 +61,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 uint meshCount = br.ReadUInt32();
                 for (int i = 0; i < meshCount; i++)
                 {
-                    this.Meshes.Add(new MGEOMesh(br, vertexBufferOffsets, indexBufferOffsets, unknownFlag));
+                    this.Meshes.Add(new MGEOModel(br, vertexBufferOffsets, indexBufferOffsets, unknownFlag));
                 }
 
                 //File.WriteAllText("kek.txt", JsonConvert.SerializeObject(this.Meshes, Formatting.Indented));
