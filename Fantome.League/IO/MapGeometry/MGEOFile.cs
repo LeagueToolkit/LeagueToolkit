@@ -33,11 +33,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 bool unknownFlag = br.ReadByte() == 1;
 
-                List<uint> vertexBufferTypes = new List<uint>();
-                uint vertexBufferTypesCount = (br.ReadUInt32() << 7) / 4;
-                for (int i = 0; i < vertexBufferTypesCount; i++)
+                List<uint> unknownList = new List<uint>();
+                uint unknownCount = (br.ReadUInt32() << 7) / 4;
+                for (int i = 0; i < unknownCount; i++)
                 {
-                    vertexBufferTypes.Add(br.ReadUInt32());
+                    unknownList.Add(br.ReadUInt32());
                 }
 
                 /*List<List<MGEOVertex>> vertexBuffers = new List<List<MGEOVertex>>();
