@@ -4,9 +4,9 @@ namespace Fantome.Libraries.League.IO.OBJ
 {
     public class OBJFace
     {
-        public uint[] VertexIndices { get; private set; }
-        public uint[] UVIndices { get; private set; }
-        public uint[] NormalIndices { get; private set; }
+        public uint[] VertexIndices { get; set; }
+        public uint[] UVIndices { get; set; }
+        public uint[] NormalIndices { get; set; }
 
         public OBJFace(uint[] vertexIndices)
         {

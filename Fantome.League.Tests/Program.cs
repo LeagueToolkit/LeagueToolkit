@@ -1,3 +1,4 @@
+using System;
 using Fantome.Libraries.League.Converters;
 using Fantome.Libraries.League.IO.AiMesh;
 using Fantome.Libraries.League.IO.BIN;
@@ -21,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fantome.Libraries.League.IO.MapGeometry;
+using Fantome.Libraries.League.IO.OBJ;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -175,6 +177,10 @@ namespace Fantome.Libraries.League.Tests
         static void MgeoTest()
         {
             MGEOFile mgeo = new MGEOFile("7F5D3FD13D7E5174");
+            foreach (Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo))
+            {
+                model.Item2.Write("mgeo//" + model.Item1 + ".obj");
+            }
         }
     }
 }

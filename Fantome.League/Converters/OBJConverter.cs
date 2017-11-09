@@ -7,6 +7,7 @@ using Fantome.Libraries.League.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fantome.Libraries.League.IO.MapGeometry;
 
 namespace Fantome.Libraries.League.Converters
 {
@@ -29,6 +30,22 @@ namespace Fantome.Libraries.League.Converters
                     uvs.Add(vertex.UV);
                 }
                 yield return new OBJFile(vertices, model.Indices.Cast<uint>().ToList(), uvs);
+            }
+        }
+
+        public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MGEOFile mgeo)
+        {
+            foreach (MGEOMesh model in mgeo.Meshes)
+            {
+                List<Vector3> vertices = new List<Vector3>();
+                List<Vector3> normals = new List<Vector3>();
+                foreach (MGEOVertex vertex in model.Vertices)
+                {
+                    vertices.Add(vertex.Position);
+                    normals.Add(vertex.Normal);
+                }
+
+                yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, model.Indices.Select(x => (uint)x).ToList(), new List<Vector2>(), normals));
             }
         }
 
