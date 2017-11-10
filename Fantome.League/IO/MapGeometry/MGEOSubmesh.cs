@@ -16,7 +16,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         internal uint _indexCount;
         internal uint _startVertex;
         internal uint _vertexCount;
-        public List<Vector3> Vertices { get; set; } = new List<Vector3>();
+        public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
         public List<ushort> Indices { get; set; } = new List<ushort>();
 
         public MGEOSubmesh(BinaryReader br)

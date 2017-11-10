@@ -13,15 +13,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public string Name { get; set; }
         public MGEOMeshType Type { get; set; }
         public List<uint> VertexBuffers { get; set; } = new List<uint>();
-        public List<MGEOSubmesh> Materials { get; set; } = new List<MGEOSubmesh>();
+        public List<MGEOSubmesh> Submeshes { get; set; } = new List<MGEOSubmesh>();
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 TransformationMatrix { get; set; }
         public Vector3 Unknown7 { get; set; }
         public R3DMatrix44[] Unknown8 { get; set; } = new R3DMatrix44[3];
         public string Texture { get; set; }
         public ColorRGBAVector4 Color { get; set; }
-        public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
-        public List<ushort> Indices { get; set; } = new List<ushort>();
 
         public MGEOModel(BinaryReader br, List<uint> vertexBufferOffsets, List<uint> indexBufferOffsets, bool specialHeaderFlag)
         {
@@ -30,24 +28,37 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             uint vertexBufferCount = br.ReadUInt32();
             this.Type = (MGEOMeshType)br.ReadUInt32();
 
+            List<MGEOVertex> vertices = new List<MGEOVertex>();
+            List<ushort> indices = new List<ushort>();
+
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 if (i == 0)
                 {
                     long originalVertexPosition = br.BaseStream.Position + 4;
-                    br.BaseStream.Seek(vertexBufferOffsets[(int) br.ReadUInt32()], SeekOrigin.Begin);
+                    br.BaseStream.Seek(vertexBufferOffsets[(int)br.ReadUInt32()], SeekOrigin.Begin);
 
                     uint vertexCountInBuffer = br.ReadUInt32() / 32;
                     for (int j = 0; j < vertexCount; j++)
                     {
-                        this.Vertices.Add(new MGEOVertex(br));
+                        vertices.Add(new MGEOVertex(br));
                     }
 
                     br.BaseStream.Seek(originalVertexPosition, SeekOrigin.Begin);
                 }
                 else
                 {
-                    uint vertexBufferIndex = br.ReadUInt32();
+                    long originalVertexPosition = br.BaseStream.Position + 4;
+                    br.BaseStream.Seek(vertexBufferOffsets[(int)br.ReadUInt32()], SeekOrigin.Begin);
+
+                    uint vertexCountInBuffer = br.ReadUInt32() / 16;
+                    for (int j = 0; j < vertexCountInBuffer; j++)
+                    {
+                        vertices[j].UV1 = new Vector2(br);
+                        vertices[j].UV2 = new Vector2(br);
+                    }
+
+                    br.BaseStream.Seek(originalVertexPosition, SeekOrigin.Begin);
                 }
             }
 
@@ -59,14 +70,17 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             uint indexCountInBuffer = br.ReadUInt32();
             for (int i = 0; i < indexCount; i++)
             {
-                this.Indices.Add(br.ReadUInt16());
+                indices.Add(br.ReadUInt16());
             }
             br.BaseStream.Seek(originalIndexPosition, SeekOrigin.Begin);
 
             uint materialCount = br.ReadUInt32();
             for (int i = 0; i < materialCount; i++)
             {
-                this.Materials.Add(new MGEOSubmesh(br));
+                this.Submeshes.Add(new MGEOSubmesh(br));
+
+                this.Submeshes[i].Vertices = vertices.GetRange((int)this.Submeshes[i]._startVertex, (int)this.Submeshes[i]._vertexCount);
+                this.Submeshes[i].Indices = indices.GetRange((int)this.Submeshes[i]._startIndex, (int)this.Submeshes[i]._indexCount);
             }
 
             this.BoundingBox = new R3DBox(br);
