@@ -4,9 +4,8 @@ using System.IO;
 
 namespace Fantome.Libraries.League.IO.Skeleton
 {
-    public class SKLRawBone : ISKLBone
+    public class SKLRawBone : SKLBone
     {
-        public string Name { get; set; }
         public short ID { get; set; }
         public short ParentID { get; set; }
         public ushort Unknown1 { get; private set; }
@@ -18,7 +17,6 @@ namespace Fantome.Libraries.League.IO.Skeleton
         public Quaternion Rotation { get; private set; }
         public Vector3 CT { get; private set; }
         public float[] Extra { get; private set; }
-        public List<ISKLBone> Children { get; set; } = new List<ISKLBone>();
 
         public SKLRawBone(BinaryReader br)
         {
@@ -43,11 +41,6 @@ namespace Fantome.Libraries.League.IO.Skeleton
                 br.ReadSingle(),
                 br.ReadSingle()
             };
-        }
-
-        public void AddBone(ISKLBone bone)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

@@ -15,12 +15,12 @@ namespace Fantome.Libraries.League.IO.Skeleton
     {
         public SKLType Type { get; private set; }
         private uint _id;
-        public List<ISKLBone> Bones { get; private set; } = new List<ISKLBone>();
+        public List<SKLBone> Bones { get; private set; } = new List<SKLBone>();
         public List<ushort> BoneIDs { get; private set; } = new List<ushort>();
 
         public SKLFile() { }
 
-        public SKLFile(List<ISKLBone> bones, SKLType type)
+        public SKLFile(List<SKLBone> bones, SKLType type)
         {
             this.Type = type;
             this.Bones = bones;
@@ -117,6 +117,14 @@ namespace Fantome.Libraries.League.IO.Skeleton
                         bone.LocalMatrix = bone._parentID != -1 ? bones[bone._parentID].GlobalMatrix.Inverse() * bone.GlobalMatrix : bone.GlobalMatrix;
                     }
                 }
+            }
+        }
+
+        private void NestBone(SKLLegacyBone bone)
+        {
+            foreach ()
+            {
+                
             }
         }
     }

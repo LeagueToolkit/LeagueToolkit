@@ -3,20 +3,18 @@
 namespace Fantome.Libraries.League.IO.Skeleton
 {
     /// <summary>
-    /// Represents an Interface from which all SKL Bone types inherit
+    /// Represents an abstract class from which all SKL Bone types inherit
     /// </summary>
-    public interface ISKLBone
+    public abstract class SKLBone
     {
         /// <summary>
-        /// The Name of this <see cref="ISKLBone"/>
+        /// The Name of this <see cref="SKLBone"/>
         /// </summary>
-        string Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
-        /// The Children bones of this <see cref="ISKLBone"/>
+        /// The Children bones of this <see cref="SKLBone"/>
         /// </summary>
-        List<ISKLBone> Children { get; set; }
-
-        void AddBone(ISKLBone bone);
+        public List<SKLBone> Children { get; set; }
     }
 }

@@ -11,13 +11,8 @@ namespace Fantome.Libraries.League.IO.Skeleton
     /// <summary>
     /// Represents a Legacy SKL Bone
     /// </summary>
-    public class SKLLegacyBone : ISKLBone
+    public class SKLLegacyBone : SKLBone
     {
-        /// <summary>
-        /// The Name of this <see cref="SKLLegacyBone"/>
-        /// </summary>
-        public string Name { get; set; }
-
         /// <summary>
         /// The ID of this <see cref="SKLLegacyBone"/>
         /// </summary>
@@ -42,7 +37,6 @@ namespace Fantome.Libraries.League.IO.Skeleton
         /// The Local Transformation Matrix of this <see cref="SKLLegacyBone"/>
         /// </summary>
         public R3DMatrix44 LocalMatrix { get; set; }
-        public List<ISKLBone> Children { get; set; } = new List<ISKLBone>();
 
         public SKLLegacyBone(BinaryReader br, int id)
         {
@@ -136,11 +130,6 @@ namespace Fantome.Libraries.League.IO.Skeleton
             }
 
             return new Quaternion(x, y, z, w);
-        }
-
-        public void AddBone(ISKLBone bone)
-        {
-            throw new NotImplementedException();
         }
     }
 }
