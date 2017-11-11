@@ -51,7 +51,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             }
 
             //Calculates smooth normals for the mesh
-            List<Vector3> normals = new List<Vector3>(vertices.Count);
+            List<Vector3> normals = new List<Vector3>(new Vector3[vertices.Count]);
             for (int i = 0; i < indices.Count; i++)
             {
                 uint a = indices[i];
