@@ -26,7 +26,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            SKLTest();
         }
 
         static void WGEOTest()

@@ -109,7 +109,7 @@
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\SCO\SCOFace.cs" />
     <Compile Include="IO\SCO\SCOFile.cs" />
-    <Compile Include="IO\Skeleton\ISKLBone.cs" />
+    <Compile Include="IO\Skeleton\SKLBone.cs" />
     <Compile Include="IO\Skeleton\SKLFile.cs" />
     <Compile Include="IO\Skeleton\SKLLegacyBone.cs" />
     <Compile Include="IO\Skeleton\SKLRawBone.cs" />

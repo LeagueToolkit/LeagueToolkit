@@ -1128,89 +1128,166 @@ namespace Fantome.Libraries.League.Helpers.Structures
 
         public R3DMatrix44 Inverse()
         {
-            float[,] s = new float[4, 4];
-            s[0, 0] = 1;
-            s[1, 1] = 1;
-            s[2, 2] = 1;
-            s[3, 3] = 1;
+            R3DMatrix44 r = new R3DMatrix44();
 
-            float[,] t = this.GetArray();
+            /*float det;
 
-            for (int i = 0; i < 3; i++)
-            {
-                int pivot = i;
-                float pivotSize = t[i, i];
-                if (pivotSize < 0)
-                {
-                    pivotSize = -pivotSize;
-                }
+     Compute adjoint: 
 
-                for (int j = i + 1; j < 4; j++)
-                {
-                    float tmp = t[j, i];
+            dst[0] =
+                +src[5] * src[10] * src[15]
+                - src[5] * src[11] * src[14]
+                - src[9] * src[6] * src[15]
+                + src[9] * src[7] * src[14]
+                + src[13] * src[6] * src[11]
+                - src[13] * src[7] * src[10];
 
-                    if (tmp < 0)
-                    {
-                        tmp = -tmp;
-                    }
+            dst[1] =
+                -src[1] * src[10] * src[15]
+                + src[1] * src[11] * src[14]
+                + src[9] * src[2] * src[15]
+                - src[9] * src[3] * src[14]
+                - src[13] * src[2] * src[11]
+                + src[13] * src[3] * src[10];
 
-                    if (tmp > pivotSize)
-                    {
-                        pivot = j;
-                        pivotSize = tmp;
-                    }
-                }
+            dst[2] =
+                +src[1] * src[6] * src[15]
+                - src[1] * src[7] * src[14]
+                - src[5] * src[2] * src[15]
+                + src[5] * src[3] * src[14]
+                + src[13] * src[2] * src[7]
+                - src[13] * src[3] * src[6];
 
-                if (pivot != i)
-                {
-                    for (int j = 0; j < 4; j++)
-                    {
-                        float tmp;
-                        tmp = t[i, j];
-                        t[i, j] = t[pivot, j];
-                        t[pivot, j] = tmp;
+            dst[3] =
+                -src[1] * src[6] * src[11]
+                + src[1] * src[7] * src[10]
+                + src[5] * src[2] * src[11]
+                - src[5] * src[3] * src[10]
+                - src[9] * src[2] * src[7]
+                + src[9] * src[3] * src[6];
 
-                        tmp = s[i, j];
-                        s[i, j] = s[pivot, j];
-                        s[pivot, j] = tmp;
-                    }
-                }
+            dst[4] =
+                -src[4] * src[10] * src[15]
+                + src[4] * src[11] * src[14]
+                + src[8] * src[6] * src[15]
+                - src[8] * src[7] * src[14]
+                - src[12] * src[6] * src[11]
+                + src[12] * src[7] * src[10];
 
-                for (int j = i + 1; j < 4; j++)
-                {
-                    float f = t[j, i] / t[i, i];
+            dst[5] =
+                +src[0] * src[10] * src[15]
+                - src[0] * src[11] * src[14]
+                - src[8] * src[2] * src[15]
+                + src[8] * src[3] * src[14]
+                + src[12] * src[2] * src[11]
+                - src[12] * src[3] * src[10];
 
-                    for (int k = 0; k < 4; k++)
-                    {
-                        t[j, k] -= f * t[i, k];
-                        s[j, k] -= f * s[i, k];
-                    }
-                }
-            }
+            dst[6] =
+                -src[0] * src[6] * src[15]
+                + src[0] * src[7] * src[14]
+                + src[4] * src[2] * src[15]
+                - src[4] * src[3] * src[14]
+                - src[12] * src[2] * src[7]
+                + src[12] * src[3] * src[6];
 
-            for (int i = 3; i >= 0; --i)
-            {
-                float f = t[i, i];
+            dst[7] =
+                +src[0] * src[6] * src[11]
+                - src[0] * src[7] * src[10]
+                - src[4] * src[2] * src[11]
+                + src[4] * src[3] * src[10]
+                + src[8] * src[2] * src[7]
+                - src[8] * src[3] * src[6];
 
-                for (int j = 0; j < 4; j++)
-                {
-                    t[i, j] /= f;
-                    s[i, j] /= f;
-                }
+            dst[8] =
+                +src[4] * src[9] * src[15]
+                - src[4] * src[11] * src[13]
+                - src[8] * src[5] * src[15]
+                + src[8] * src[7] * src[13]
+                + src[12] * src[5] * src[11]
+                - src[12] * src[7] * src[9];
 
-                for (int j = 0; j < i; j++)
-                {
-                    f = t[j, i];
+            dst[9] =
+                -src[0] * src[9] * src[15]
+                + src[0] * src[11] * src[13]
+                + src[8] * src[1] * src[15]
+                - src[8] * src[3] * src[13]
+                - src[12] * src[1] * src[11]
+                + src[12] * src[3] * src[9];
 
-                    for (int k = 0; k < 4; k++)
-                    {
-                        t[j, k] -= f * t[i, k];
-                        s[j, k] -= f * s[i, k];
-                    }
-                }
-            }
+            dst[10] =
+                +src[0] * src[5] * src[15]
+                - src[0] * src[7] * src[13]
+                - src[4] * src[1] * src[15]
+                + src[4] * src[3] * src[13]
+                + src[12] * src[1] * src[7]
+                - src[12] * src[3] * src[5];
 
-            return new R3DMatrix44(s);
+            dst[11] =
+                -src[0] * src[5] * src[11]
+                + src[0] * src[7] * src[9]
+                + src[4] * src[1] * src[11]
+                - src[4] * src[3] * src[9]
+                - src[8] * src[1] * src[7]
+                + src[8] * src[3] * src[5];
+
+            dst[12] =
+                -src[4] * src[9] * src[14]
+                + src[4] * src[10] * src[13]
+                + src[8] * src[5] * src[14]
+                - src[8] * src[6] * src[13]
+                - src[12] * src[5] * src[10]
+                + src[12] * src[6] * src[9];
+
+            dst[13] =
+                +src[0] * src[9] * src[14]
+                - src[0] * src[10] * src[13]
+                - src[8] * src[1] * src[14]
+                + src[8] * src[2] * src[13]
+                + src[12] * src[1] * src[10]
+                - src[12] * src[2] * src[9];
+
+            dst[14] =
+                -src[0] * src[5] * src[14]
+                + src[0] * src[6] * src[13]
+                + src[4] * src[1] * src[14]
+                - src[4] * src[2] * src[13]
+                - src[12] * src[1] * src[6]
+                + src[12] * src[2] * src[5];
+
+            dst[15] =
+                +src[0] * src[5] * src[10]
+                - src[0] * src[6] * src[9]
+                - src[4] * src[1] * src[10]
+                + src[4] * src[2] * src[9]
+                + src[8] * src[1] * src[6]
+                - src[8] * src[2] * src[5];
+
+            Compute determinant: 
+
+            det = +src[0] * dst[0] + src[1] * dst[4] + src[2] * dst[8] + src[3] * dst[12];
+
+             Multiply adjoint with reciprocal of determinant: 
+
+            det = 1.0f / det;
+
+            dst[0] *= det;
+            dst[1] *= det;
+            dst[2] *= det;
+            dst[3] *= det;
+            dst[4] *= det;
+            dst[5] *= det;
+            dst[6] *= det;
+            dst[7] *= det;
+            dst[8] *= det;
+            dst[9] *= det;
+            dst[10] *= det;
+            dst[11] *= det;
+            dst[12] *= det;
+            dst[13] *= det;
+            dst[14] *= det;
+            dst[15] *= det;*/
+
+            return r;
         }
 
         public static R3DMatrix44 operator *(R3DMatrix44 right, R3DMatrix44 left)

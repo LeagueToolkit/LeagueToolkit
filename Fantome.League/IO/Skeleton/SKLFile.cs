@@ -99,11 +99,11 @@ namespace Fantome.Libraries.League.IO.Skeleton
                     br.ReadUInt32();
                     this._id = br.ReadUInt32();
 
+                    List<SKLLegacyBone> bones = new List<SKLLegacyBone>();
                     uint boneCount = br.ReadUInt32();
                     for (int i = 0; i < boneCount; i++)
                     {
-                        SKLLegacyBone bone  = new SKLLegacyBone(br, i);
-
+                        bones.Add(new SKLLegacyBone(br, i));
                     }
 
                     uint boneIndexCount = br.ReadUInt32();
@@ -115,16 +115,21 @@ namespace Fantome.Libraries.League.IO.Skeleton
                     foreach (SKLLegacyBone bone in bones)
                     {
                         bone.LocalMatrix = bone._parentID != -1 ? bones[bone._parentID].GlobalMatrix.Inverse() * bone.GlobalMatrix : bone.GlobalMatrix;
+
+                        if (bone._parentID != -1)
+                        {
+                            bones.Find(x => x._id == bone._parentID).Children.Add(bone);
+                        }
+                    }
+
+                    foreach (SKLLegacyBone bone in bones)
+                    {
+                        if (bone._parentID == -1)
+                        {
+                            this.Bones.Add(bone);
+                        }
                     }
                 }
-            }
-        }
-
-        private void NestBone(SKLLegacyBone bone)
-        {
-            foreach ()
-            {
-                
             }
         }
     }
