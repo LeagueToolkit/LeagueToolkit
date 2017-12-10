@@ -52,7 +52,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             //Calculates smooth normals for the mesh
             List<Vector3> normals = new List<Vector3>(new Vector3[vertices.Count]);
-            for (int i = 0; i < indices.Count; i++)
+            for (int i = 0; i < indices.Count; i += 3)
             {
                 uint a = indices[i];
                 uint b = indices[i + 1];
@@ -65,16 +65,16 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 normals[(int)a] = normal;
                 normals[(int)b] = normal;
                 normals[(int)c] = normal;
-
-                //Normalizes normals
-                for (int j = 0; j < normals.Count; j++)
-                {
-                    Vector3 normalNormalize = normals[i];
-                    float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
-                    normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
-                }
             }
 
+            //Normalizes normals
+            for (int j = 0; j < normals.Count; j++)
+            {
+                Vector3 normalNormalize = normals[i];
+                float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
+                normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
+            }
+            
             //Creates SKNVertex list from componets
             List<SKNVertex> sknVertices = new List<SKNVertex>();
             for (int i = 0; i < vertices.Count; i++)
