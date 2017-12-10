@@ -97,6 +97,10 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new uint[] { br.ReadUInt32(), br.ReadUInt32() };
             }
+            else if(this.Type == BINFileValueType.Matrix44)
+            {
+                this.Value = new R3DMatrix44(br);
+            }
             else if (this.Type == BINFileValueType.Color)
             {
                 this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
@@ -176,6 +180,10 @@ namespace Fantome.Libraries.League.IO.BIN
                 uint[] value = this.Value as uint[];
                 bw.Write(value[0]);
                 bw.Write(value[1]);
+            }
+            else if (this.Type == BINFileValueType.Matrix44)
+            {
+                (this.Value as R3DMatrix44).Write(bw);
             }
             else if (this.Type == BINFileValueType.Color)
             {
