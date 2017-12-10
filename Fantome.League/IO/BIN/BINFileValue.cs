@@ -5,133 +5,137 @@ using System.Text;
 
 namespace Fantome.Libraries.League.IO.BIN
 {
-    /// <summary>
-    /// Represents a value inside of a <see cref="BINFileEntry"/> or <see cref="BINFileValueList"/>
-    /// </summary>
     public class BINFileValue : IBINFileValue
     {
-        /// <summary>
-        /// The hash of the name of this <see cref="BINFileValue"/>
-        /// </summary>
-        /// <remarks>Can be <see cref="null"/> if <see cref="Parent"/> assigns it a type</remarks>
-        public uint Property { get; private set; }
-        /// <summary>
-        /// Type of this <see cref="BINFileValue"/>
-        /// </summary>
-        /// <remarks>Can be <see cref="null"/> if <see cref="Parent"/> assigns it a type</remarks>
         public BINFileValueType? Type { get; private set; }
-        /// <summary>
-        /// The value of this <see cref="BINFileValue"/>
-        /// </summary>
-        public object Value { get; private set; }
-        /// <summary>
-        /// Object that is the parent of this <see cref="BINFileValue"/>
-        /// </summary>
-        /// <remarks>Can be either <see cref="BINFileEntry"/> or <see cref="BINFileValueList"/></remarks>
         public object Parent { get; private set; }
-        /// <summary>
-        /// Whether <see cref="Type"/> and <see cref="Property"/> were read
-        /// </summary>
-        private bool _typeRead = false;
+        public uint Property { get; set; }
+        public object Value { get; private set; }
 
-        /// <summary>
-        /// Initializes a new <see cref="BINFileValue"/> from a <see cref="BinaryReader"/>
-        /// </summary>
-        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
-        /// <param name="parent">The <see cref="Parent"/> of this value</param>
-        /// <param name="type">The type that should be given to this entry</param>
-        /// <remarks>If you give this <see cref="BINFileValue"/> a custom type then <see cref="Property"/> and <see cref="Type"/> won't be read from the <see cref="BinaryReader"/></remarks>
+        private bool _typeRead;
+
+        public BINFileValue(object parent, uint property, object value)
+        {
+
+        }
+
         public BINFileValue(BinaryReader br, object parent, BINFileValueType? type = null)
         {
             this.Parent = parent;
             this.Type = type;
-            if (type == null)
+            if (this.Type == null)
             {
                 this.Property = br.ReadUInt32();
                 this.Type = (BINFileValueType)br.ReadByte();
                 this._typeRead = true;
             }
 
-            if (this.Type == BINFileValueType.String)
+            if (this.Type == BINFileValueType.UInt16Vector3)
             {
-                this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16()));
-            }
-            else if (this.Type == BINFileValueType.AdditionalOptionalData)
-            {
-                this.Value = new BINFileValueList(br, this, this.Type.Value);
-            }
-            else if (this.Type == BINFileValueType.Container)
-            {
-                this.Value = new BINFileValueList(br, this, this.Type.Value);
-            }
-            else if (this.Type == BINFileValueType.Embedded || this.Type == BINFileValueType.Structure)
-            {
-                this.Value = new BINFileValueList(br, this, this.Type.Value);
-            }
-            else if (this.Type == BINFileValueType.Map)
-            {
-                this.Value = new BINFileValueList(br, this, this.Type.Value);
-            }
-            else if (this.Type == BINFileValueType.Float)
-            {
-                this.Value = br.ReadSingle();
-            }
-            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
-                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.LinkOffset)
-            {
-                this.Value = br.ReadUInt32();
-            }
-            else if (this.Type == BINFileValueType.UInt16)
-            {
-                this.Value = br.ReadUInt16();
-            }
-            else if (this.Type == BINFileValueType.SByte || this.Type == BINFileValueType.Byte || this.Type == BINFileValueType.ByteValue3)
-            {
-                this.Value = br.ReadByte();
+                this.Value = new uint[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
             }
             else if (this.Type == BINFileValueType.Boolean)
             {
                 this.Value = br.ReadBoolean();
             }
-            else if (this.Type == BINFileValueType.UInt32Vector2)
+            else if (this.Type == BINFileValueType.SByte)
             {
-                this.Value = new uint[] { br.ReadUInt32(), br.ReadUInt32() };
+                this.Value = br.ReadSByte();
             }
-            else if(this.Type == BINFileValueType.Matrix44)
+            else if (this.Type == BINFileValueType.Byte)
+            {
+                this.Value = br.ReadByte();
+            }
+            else if (this.Type == BINFileValueType.Int16)
+            {
+                this.Value = br.ReadInt16();
+            }
+            else if (this.Type == BINFileValueType.Int16)
+            {
+                this.Value = br.ReadUInt16();
+            }
+            else if (this.Type == BINFileValueType.UInt16)
+            {
+                this.Value = br.ReadUInt16();
+            }
+            else if (this.Type == BINFileValueType.Int32)
+            {
+                this.Value = br.ReadInt32();
+            }
+            else if (this.Type == BINFileValueType.UInt32)
+            {
+                this.Value = br.ReadUInt32();
+            }
+            else if (this.Type == BINFileValueType.Int64)
+            {
+                this.Value = br.ReadInt64();
+            }
+            else if (this.Type == BINFileValueType.UInt64)
+            {
+                this.Value = br.ReadUInt64();
+            }
+            else if (this.Type == BINFileValueType.Float)
+            {
+                this.Value = br.ReadSingle();
+            }
+            else if (this.Type == BINFileValueType.FloatVector2)
+            {
+                this.Value = new Vector2(br);
+            }
+            else if (this.Type == BINFileValueType.FloatVector3)
+            {
+                this.Value = new Vector3(br);
+            }
+            else if (this.Type == BINFileValueType.FloatVector4)
+            {
+                this.Value = new Vector4(br);
+            }
+            else if (this.Type == BINFileValueType.Matrix44)
             {
                 this.Value = new R3DMatrix44(br);
             }
             else if (this.Type == BINFileValueType.Color)
             {
-                this.Value = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
+                this.Value = new ColorRGBAVector4Byte(br);
             }
-            else if (this.Type == BINFileValueType.FloatVector2)
+            else if (this.Type == BINFileValueType.String)
             {
-                this.Value = new float[] { br.ReadSingle(), br.ReadSingle() };
+                this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
             }
-            else if (this.Type == BINFileValueType.FloatVector3)
+            else if (this.Type == BINFileValueType.StringHash)
             {
-                this.Value = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
+                this.Value = br.ReadUInt32();
             }
-            else if (this.Type == BINFileValueType.FloatVector4)
+            else if (this.Type == BINFileValueType.Container)
             {
-                this.Value = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
+                this.Value = new BINFileContainer(br, this);
             }
-            else if (this.Type == BINFileValueType.UInt16Vector3)
+            else if (this.Type == BINFileValueType.Structure || this.Type == BINFileValueType.Embedded)
             {
-                this.Value = new ushort[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
+                this.Value = new BINFileStructure(br, this);
+            }
+            else if (this.Type == BINFileValueType.LinkOffset)
+            {
+                this.Value = br.ReadUInt32();
+            }
+            else if (this.Type == BINFileValueType.AdditionalOptionalData)
+            {
+                this.Value = new BINFileAdditionalData(br, this);
+            }
+            else if (this.Type == BINFileValueType.Map)
+            {
+                this.Value = new BINFileMap(br, this);
+            }
+            else if (this.Type == BINFileValueType.UnknownByte)
+            {
+                this.Value = br.ReadByte();
             }
             else
             {
-                throw new Exception("Unknown value type: " + this.Type);
+                throw new Exception("An Unknown Value Type was encountered: " + (byte)this.Type);
             }
         }
 
-        /// <summary>
-        /// Writes this <see cref="BINFileValue"/> into a <see cref="BinaryWriter"/>
-        /// </summary>
-        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
-        /// <param name="writeType">Whether to write the <see cref="Property"/> and <see cref="Type"/> of this <see cref="BINFileValue"/></param>
         public void Write(BinaryWriter bw, bool writeType)
         {
             if (writeType)
@@ -140,46 +144,64 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((byte)this.Type);
             }
 
-            if (this.Type == BINFileValueType.String)
+            if (this.Type == BINFileValueType.UInt16Vector3)
             {
-                string value = this.Value as string;
-                bw.Write((ushort)value.Length);
-                bw.Write(Encoding.ASCII.GetBytes(value));
-            }
-            else if (this.Type == BINFileValueType.AdditionalOptionalData ||
-                this.Type == BINFileValueType.Container ||
-                this.Type == BINFileValueType.Embedded ||
-                this.Type == BINFileValueType.Structure ||
-                this.Type == BINFileValueType.Map)
-            {
-                (this.Value as BINFileValueList).Write(bw);
-            }
-            else if (this.Type == BINFileValueType.Float)
-            {
-                bw.Write((float)this.Value);
-            }
-            else if (this.Type == BINFileValueType.UInt32 || this.Type == BINFileValueType.UInt32_2
-                || this.Type == BINFileValueType.HashValue || this.Type == BINFileValueType.LinkOffset)
-            {
-                bw.Write((uint)this.Value);
-            }
-            else if (this.Type == BINFileValueType.UInt16)
-            {
-                bw.Write((ushort)this.Value);
-            }
-            else if (this.Type == BINFileValueType.SByte || this.Type == BINFileValueType.Byte || this.Type == BINFileValueType.ByteValue3)
-            {
-                bw.Write((byte)this.Value);
+                ushort[] vector = this.Value as ushort[];
+                bw.Write(vector[0]);
+                bw.Write(vector[1]);
+                bw.Write(vector[2]);
             }
             else if (this.Type == BINFileValueType.Boolean)
             {
                 bw.Write((bool)this.Value);
             }
-            else if (this.Type == BINFileValueType.UInt32Vector2)
+            else if (this.Type == BINFileValueType.SByte)
             {
-                uint[] value = this.Value as uint[];
-                bw.Write(value[0]);
-                bw.Write(value[1]);
+                bw.Write((sbyte)this.Value);
+            }
+            else if (this.Type == BINFileValueType.Byte)
+            {
+                bw.Write((byte)this.Value);
+            }
+            else if (this.Type == BINFileValueType.Int16)
+            {
+                bw.Write((short)this.Value);
+            }
+            else if (this.Type == BINFileValueType.UInt16)
+            {
+                bw.Write((ushort)this.Value);
+            }
+            else if (this.Type == BINFileValueType.Int32)
+            {
+                bw.Write((int)this.Value);
+            }
+            else if (this.Type == BINFileValueType.UInt32)
+            {
+                bw.Write((uint)this.Value);
+            }
+            else if (this.Type == BINFileValueType.Int64)
+            {
+                bw.Write((long)this.Value);
+            }
+            else if (this.Type == BINFileValueType.UInt64)
+            {
+                bw.Write((ulong)this.Value);
+            }
+            else if (this.Type == BINFileValueType.Float)
+            {
+                bw.Write((float)this.Value);
+            }
+            else if (this.Type == BINFileValueType.FloatVector2)
+            {
+                (this.Value as Vector2).Write(bw);
+            }
+            else if (this.Type == BINFileValueType.FloatVector3)
+            {
+                (this.Value as Vector3).Write(bw);
+            }
+            else if (this.Type == BINFileValueType.FloatVector4)
+            {
+                (this.Value as Vector4).Write(bw);
             }
             else if (this.Type == BINFileValueType.Matrix44)
             {
@@ -187,93 +209,103 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINFileValueType.Color)
             {
-                byte[] value = this.Value as byte[];
-                bw.Write(value[0]);
-                bw.Write(value[1]);
-                bw.Write(value[2]);
-                bw.Write(value[3]);
-            }
-            else if (this.Type == BINFileValueType.FloatVector2)
-            {
-                float[] value = this.Value as float[];
-                bw.Write(value[0]);
-                bw.Write(value[1]);
-            }
-            else if (this.Type == BINFileValueType.FloatVector3)
-            {
-                float[] value = this.Value as float[];
-                bw.Write(value[0]);
-                bw.Write(value[1]);
-                bw.Write(value[2]);
-            }
-            else if (this.Type == BINFileValueType.FloatVector4)
-            {
-                float[] value = this.Value as float[];
-                bw.Write(value[0]);
-                bw.Write(value[1]);
-                bw.Write(value[2]);
-                bw.Write(value[3]);
-            }
-            else if (this.Type == BINFileValueType.UInt16Vector3)
-            {
-                ushort[] value = this.Value as ushort[];
-                bw.Write(value[0]);
-                bw.Write(value[1]);
-                bw.Write(value[2]);
-            }
-        }
-
-        /// <summary>
-        /// Gets the size of this entry in bytes
-        /// </summary>
-        public int GetSize()
-        {
-            int size = this._typeRead ? 5 : 0;
-
-            if (this.Type == BINFileValueType.AdditionalOptionalData ||
-                this.Type == BINFileValueType.Container ||
-                this.Type == BINFileValueType.Map ||
-                this.Type == BINFileValueType.Embedded ||
-                this.Type == BINFileValueType.Structure)
-            {
-                size += (this.Value as BINFileValueList).GetSize();
+                (this.Value as ColorRGBAVector4Byte).Write(bw);
             }
             else if (this.Type == BINFileValueType.String)
             {
-                size += 2 + (this.Value as string).Length;
+                string value = this.Value as string;
+                bw.Write((ushort)value.Length);
+                bw.Write(Encoding.ASCII.GetBytes(value));
             }
-            else if (this.Type == BINFileValueType.Float ||
-                this.Type == BINFileValueType.UInt32 ||
-                this.Type == BINFileValueType.UInt32_2 ||
-                this.Type == BINFileValueType.HashValue ||
-                this.Type == BINFileValueType.Color ||
-                this.Type == BINFileValueType.LinkOffset)
+            else if (this.Type == BINFileValueType.StringHash)
             {
-                size += 4;
+                bw.Write((uint)this.Value);
             }
-            else if (this.Type == BINFileValueType.UInt16)
+            else if (this.Type == BINFileValueType.Container)
             {
-                size += 2;
+                (this.Value as BINFileContainer).Write(bw);
             }
-            else if (this.Type == BINFileValueType.Boolean || this.Type == BINFileValueType.SByte || this.Type == BINFileValueType.Byte || this.Type == BINFileValueType.ByteValue3)
+            else if (this.Type == BINFileValueType.Structure || this.Type == BINFileValueType.Embedded)
             {
-                size += 1;
+                (this.Value as BINFileStructure).Write(bw);
             }
-            else if (this.Type == BINFileValueType.UInt32Vector2 || this.Type == BINFileValueType.FloatVector2)
+            else if (this.Type == BINFileValueType.LinkOffset)
             {
-                size += 8;
+                bw.Write((uint)this.Value);
             }
-            else if (this.Type == BINFileValueType.FloatVector3)
+            else if (this.Type == BINFileValueType.AdditionalOptionalData)
             {
-                size += 12;
+                (this.Value as BINFileAdditionalData).Write(bw);
             }
-            else if (this.Type == BINFileValueType.FloatVector4)
+            else if (this.Type == BINFileValueType.Map)
             {
-                size += 16;
+                (this.Value as BINFileMap).Write(bw);
             }
-            else if (this.Type == BINFileValueType.UInt16Vector3)
+            else if (this.Type == BINFileValueType.UnknownByte)
             {
-                size += 6;
+                bw.Write((byte)this.Value);
+            }
+        }
+
+        public uint GetSize()
+        {
+            uint size = this._typeRead ? (uint)5 : 0;
+
+            switch (this.Type)
+            {
+                case BINFileValueType.UInt16Vector3:
+                    size += 6;
+                    break;
+
+                case BINFileValueType.Boolean:
+                case BINFileValueType.SByte:
+                case BINFileValueType.Byte:
+                case BINFileValueType.UnknownByte:
+                    size += 1;
+                    break;
+
+                case BINFileValueType.Int16:
+                case BINFileValueType.UInt16:
+                    size += 2;
+                    break;
+
+                case BINFileValueType.Int32:
+                case BINFileValueType.UInt32:
+                case BINFileValueType.StringHash:
+                case BINFileValueType.LinkOffset:
+                case BINFileValueType.Float:
+                case BINFileValueType.Color:
+                    size += 4;
+                    break;
+
+                case BINFileValueType.Int64:
+                case BINFileValueType.UInt64:
+                case BINFileValueType.FloatVector2:
+                    size += 8;
+                    break;
+
+                case BINFileValueType.FloatVector3:
+                    size += 12;
+                    break;
+                case BINFileValueType.FloatVector4:
+                    size += 16;
+                    break;
+
+                case BINFileValueType.Matrix44:
+                    size += 64;
+                    break;
+
+                case BINFileValueType.String:
+                    size += 2 + (uint)(this.Value as string).Length;
+                    break;
+
+                case BINFileValueType.Container:
+                case BINFileValueType.Structure:
+                case BINFileValueType.Embedded:
+                case BINFileValueType.AdditionalOptionalData:
+                case BINFileValueType.Map:
+                    size += (this.Value as IBINFileValue).GetSize();
+                    break;
             }
 
             return size;
@@ -302,21 +334,29 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         Byte = 3,
         /// <summary>
+        /// Represents a <see cref="short"/> value
+        /// </summary>
+        Int16 = 4,
+        /// <summary>
         /// Represents a <see cref="ushort"/> value
         /// </summary>
         UInt16 = 5,
         /// <summary>
-        /// Represents a <see cref="uint"/> value
+        /// Represents an <see cref="int"/> value
         /// </summary>
-        UInt32 = 6,
+        Int32 = 6,
         /// <summary>
         /// Represents a <see cref="uint"/> value
         /// </summary>
-        UInt32_2 = 7,
+        UInt32 = 7,
         /// <summary>
-        /// Represents a <see cref="uint"/> Vector2 value
+        /// Reperesents a <see cref="long"/> value
         /// </summary>
-        UInt32Vector2 = 9,
+        Int64 = 8,
+        /// <summary>
+        /// Represents a <see cref="ulong"/> value
+        /// </summary>
+        UInt64 = 9,
         /// <summary>
         /// Represents a <see cref="float"/> value
         /// </summary>
@@ -348,7 +388,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Represents a <see cref="uint"/> value which is a hash
         /// </summary>
-        HashValue = 17,
+        StringHash = 17,
         /// <summary>
         /// Represents a Value Container
         /// </summary>
@@ -376,6 +416,6 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Represents a <see cref="byte"/> value
         /// </summary>
-        ByteValue3 = 24
+        UnknownByte = 24
     }
 }

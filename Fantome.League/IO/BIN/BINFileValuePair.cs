@@ -28,6 +28,14 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         public KeyValuePair<BINFileValue, BINFileValue> Pair { get; private set; }
 
+
+        public BINFileValuePair(object parent, BINFileValueType keyType, BINFileValueType valueType)
+        {
+            this.Parent = parent;
+            this.KeyType = keyType;
+            this.ValueType = valueType;
+        }
+
         /// <summary>
         /// Initializes a new <see cref="BINFileValuePair"/> from a <see cref="BinaryReader"/>
         /// </summary>
@@ -47,17 +55,16 @@ namespace Fantome.Libraries.League.IO.BIN
         /// Writes this <see cref="BINFileValuePair"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
-        /// <param name="writeType">Whether the Property and Type of the <see cref="KeyValuePair{TKey, TVal}"/> of this <see cref="BINFileValuePair"/> should be written</param>
-        public void Write(BinaryWriter bw, bool writeType)
+        public void Write(BinaryWriter bw)
         {
-            this.Pair.Key.Write(bw, writeType);
-            this.Pair.Value.Write(bw, writeType);
+            this.Pair.Key.Write(bw, false);
+            this.Pair.Value.Write(bw, false);
         }
 
         /// <summary>
         /// Gets the size of this <see cref="BINFileValuePair"/>
         /// </summary>
-        public int GetSize()
+        public uint GetSize()
         {
             return this.Pair.Key.GetSize() + this.Pair.Value.GetSize();
         }

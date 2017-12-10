@@ -64,9 +64,12 @@
     <Compile Include="IO\AiMesh\AiMeshCell.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
+    <Compile Include="IO\BIN\BINFileAdditionalData.cs" />
+    <Compile Include="IO\BIN\BINFileContainer.cs" />
     <Compile Include="IO\BIN\BINFileEntry.cs" />
+    <Compile Include="IO\BIN\BINFileMap.cs" />
+    <Compile Include="IO\BIN\BINFileStructure.cs" />
     <Compile Include="IO\BIN\BINFileValue.cs" />
-    <Compile Include="IO\BIN\BINFileValueList.cs" />
     <Compile Include="IO\BIN\BINFileValuePair.cs" />
     <Compile Include="IO\BIN\IBINFileValue.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
@@ -133,5 +136,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
