@@ -80,8 +80,6 @@
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
     <Compile Include="IO\Inibin\InibinFile.cs" />
     <Compile Include="IO\Inibin\InibinSet.cs" />
-    <Compile Include="IO\LeagueSoundbank\LeagueSoundbankEntry.cs" />
-    <Compile Include="IO\LeagueSoundbank\LeagueSoundbankFile.cs" />
     <Compile Include="IO\LightDat\LightDatFile.cs" />
     <Compile Include="IO\LightDat\LightDatLight.cs" />
     <Compile Include="IO\LightEnvironment\LightEnvironmentFile.cs" />
