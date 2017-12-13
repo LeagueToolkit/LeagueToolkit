@@ -908,26 +908,26 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Clears all values
+        /// Resets this <see cref="R3DMatrix44"/> to an Identity Matrix
         /// </summary>
         public void Clear()
         {
-            this.M11 = 0;
+            this.M11 = 1;
             this.M12 = 0;
             this.M13 = 0;
             this.M14 = 0;
             this.M21 = 0;
-            this.M22 = 0;
+            this.M22 = 1;
             this.M23 = 0;
             this.M24 = 0;
             this.M31 = 0;
             this.M32 = 0;
-            this.M33 = 0;
+            this.M33 = 1;
             this.M34 = 0;
             this.M41 = 0;
             this.M42 = 0;
             this.M43 = 0;
-            this.M44 = 0;
+            this.M44 = 1;
         }
 
         /// <summary>
@@ -952,6 +952,41 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M42);
             bw.Write(this.M43);
             bw.Write(this.M44);
+        }
+
+        public float Determinant()
+        {
+            return this.M41 *
+                (+this.M14 * this.M23 * this.M32
+                - this.M13 * this.M24 * this.M32
+                - this.M14 * this.M22 * this.M33
+                + this.M12 * this.M24 * this.M33
+                + this.M13 * this.M22 * this.M34
+                - this.M12 * this.M23 * this.M34)
+
+                 +this.M42 *
+                (+this.M11 * this.M23 * this.M34
+                - this.M11 * this.M24 * this.M33
+                + this.M14 * this.M21 * this.M33
+                - this.M13 * this.M21 * this.M34
+                + this.M13 * this.M24 * this.M31
+                - this.M14 * this.M23 * this.M31)
+
+                + this.M43 *
+               (+ this.M11 * this.M24 * this.M32
+                - this.M11 * this.M22 * this.M34
+                - this.M14 * this.M21 * this.M32
+                + this.M12 * this.M21 * this.M34
+                + this.M14 * this.M22 * this.M31
+                - this.M12 * this.M24 * this.M31)
+
+                + this.M44 *
+                (-this.M13 * this.M22 * this.M31
+                - this.M11 * this.M23 * this.M32
+                + this.M11 * this.M22 * this.M33
+                + this.M13 * this.M21 * this.M32
+                - this.M12 * this.M21 * this.M33
+                + this.M12 * this.M23 * this.M31);
         }
 
         public static R3DMatrix44 operator *(R3DMatrix44 a, R3DMatrix44 b)
