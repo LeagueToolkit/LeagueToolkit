@@ -954,6 +954,76 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M44);
         }
 
+        /// <summary>
+        /// Returns the Translation Vector of this <see cref="R3DMatrix44"/>
+        /// </summary>
+        public Vector3 GetTranslation()
+        {
+            return new Vector3(this.M14, this.M24, this.M33);
+        }
+
+        /// <summary>
+        /// Returns the Inverse of this <see cref="R3DMatrix44"/>
+        /// </summary>
+        public R3DMatrix44 Inverse()
+        {
+            float t11 = this.M23 * this.M34 * this.M42 
+                - this.M24 * this.M33 * this.M42 
+                + this.M24 * this.M32 * this.M43 
+                - this.M22 * this.M34 * this.M43 
+                - this.M23 * this.M32 * this.M44 
+                + this.M22 * this.M33 * this.M44;
+
+            float t12 = this.M14 * this.M33 * this.M42 
+                - this.M13 * this.M34 * this.M42 
+                - this.M14 * this.M32 * this.M43 
+                + this.M12 * this.M34 * this.M43 
+                + this.M13 * this.M32 * this.M44 
+                - this.M12 * this.M33 * this.M44;
+
+            float t13 = this.M13 * this.M24 * this.M42
+                - this.M14 * this.M23 * this.M42 
+                + this.M14 * this.M22 * this.M43 
+                - this.M12 * this.M24 * this.M43 
+                - this.M13 * this.M22 * this.M44 
+                + this.M12 * this.M23 * this.M44;
+
+            float t14 = this.M14 * this.M23 * this.M32 
+                - this.M13 * this.M24 * this.M32 
+                - this.M14 * this.M22 * this.M33
+                + this.M12 * this.M24 * this.M33 
+                + this.M13 * this.M22 * this.M34
+                - this.M12 * this.M23 * this.M34;
+
+            float inverseDeterminant = 1 / (this.M11 * t11 + this.M21 * t12 + this.M31 * t13 + this.M41 * t14);
+
+            return new R3DMatrix44()
+            {
+                M11 = t11 * inverseDeterminant,
+                M12 = (this.M24 * this.M33 * this.M41 - this.M23 * this.M34 * this.M41 - this.M24 * this.M31 * this.M43 + this.M21 * this.M34 * this.M43 + this.M23 * this.M31 * this.M44 - this.M21 * this.M33 * this.M44) * inverseDeterminant,
+                M13 = (this.M22 * this.M34 * this.M41 - this.M24 * this.M32 * this.M41 + this.M24 * this.M31 * this.M42 - this.M21 * this.M34 * this.M42 - this.M22 * this.M31 * this.M44 + this.M21 * this.M32 * this.M44) * inverseDeterminant,
+                M14 = (this.M23 * this.M32 * this.M41 - this.M22 * this.M33 * this.M41 - this.M23 * this.M31 * this.M42 + this.M21 * this.M33 * this.M42 + this.M22 * this.M31 * this.M43 - this.M21 * this.M32 * this.M43) * inverseDeterminant,
+
+                M21 = t12 * inverseDeterminant,
+                M22 = (this.M13 * this.M34 * this.M41 - this.M14 * this.M33 * this.M41 + this.M14 * this.M31 * this.M43 - this.M11 * this.M34 * this.M43 - this.M13 * this.M31 * this.M44 + this.M11 * this.M33 * this.M44) * inverseDeterminant,
+                M23 = (this.M14 * this.M32 * this.M41 - this.M12 * this.M34 * this.M41 - this.M14 * this.M31 * this.M42 + this.M11 * this.M34 * this.M42 + this.M12 * this.M31 * this.M44 - this.M11 * this.M32 * this.M44) * inverseDeterminant,
+                M24 = (this.M12 * this.M33 * this.M41 - this.M13 * this.M32 * this.M41 + this.M13 * this.M31 * this.M42 - this.M11 * this.M33 * this.M42 - this.M12 * this.M31 * this.M43 + this.M11 * this.M32 * this.M43) * inverseDeterminant,
+
+                M31 = t13 * inverseDeterminant,
+                M32 = (this.M14 * this.M23 * this.M41 - this.M13 * this.M24 * this.M41 - this.M14 * this.M21 * this.M43 + this.M11 * this.M24 * this.M43 + this.M13 * this.M21 * this.M44 - this.M11 * this.M23 * this.M44) * inverseDeterminant,
+                M33 = (this.M12 * this.M24 * this.M41 - this.M14 * this.M22 * this.M41 + this.M14 * this.M21 * this.M42 - this.M11 * this.M24 * this.M42 - this.M12 * this.M21 * this.M44 + this.M11 * this.M22 * this.M44) * inverseDeterminant,
+                M34 = (this.M13 * this.M22 * this.M41 - this.M12 * this.M23 * this.M41 - this.M13 * this.M21 * this.M42 + this.M11 * this.M23 * this.M42 + this.M12 * this.M21 * this.M43 - this.M11 * this.M22 * this.M43) * inverseDeterminant,
+
+                M41 = t14 * inverseDeterminant,
+                M42 = (this.M13 * this.M24 * this.M31 - this.M14 * this.M23 * this.M31 + this.M14 * this.M21 * this.M33 - this.M11 * this.M24 * this.M33 - this.M13 * this.M21 * this.M34 + this.M11 * this.M23 * this.M34) * inverseDeterminant,
+                M43 = (this.M14 * this.M22 * this.M31 - this.M12 * this.M24 * this.M31 - this.M14 * this.M21 * this.M32 + this.M11 * this.M24 * this.M32 + this.M12 * this.M21 * this.M34 - this.M11 * this.M22 * this.M34) * inverseDeterminant,
+                M44 = (this.M12 * this.M23 * this.M31 - this.M13 * this.M22 * this.M31 + this.M13 * this.M21 * this.M32 - this.M11 * this.M23 * this.M32 - this.M12 * this.M21 * this.M33 + this.M11 * this.M22 * this.M33) * inverseDeterminant
+            };
+        }
+
+        /// <summary>
+        /// Returns the Determinant of this <see cref="R3DMatrix44"/>
+        /// </summary>
         public float Determinant()
         {
             return this.M41 *
