@@ -70,7 +70,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             //Normalizes normals
             for (int j = 0; j < normals.Count; j++)
             {
-                Vector3 normalNormalize = normals[i];
+                Vector3 normalNormalize = normals[j];
                 float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
                 normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
             }
