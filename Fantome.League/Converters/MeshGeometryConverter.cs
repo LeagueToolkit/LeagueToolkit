@@ -62,7 +62,7 @@ namespace Fantome.Libraries.League.Converters
             {
                 MeshGeometry3D mesh = new MeshGeometry3D();
 
-                Int32Collection indices = new Int32Collection(submesh.Indices.Cast<int>());
+                Int32Collection indices = new Int32Collection(submesh.Indices.Select(x => (int)x));
                 Point3DCollection vertices = new Point3DCollection();
                 Vector3DCollection normals = new Vector3DCollection();
                 PointCollection uvs = new PointCollection();
@@ -94,7 +94,7 @@ namespace Fantome.Libraries.League.Converters
             {
                 MeshGeometry3D mesh = new MeshGeometry3D();
 
-                Int32Collection indices = new Int32Collection(Model.Indices.Cast<int>());
+                Int32Collection indices = new Int32Collection(Model.Indices.Select(x => (int)x));
                 Point3DCollection vertices = new Point3DCollection();
                 PointCollection uv = new PointCollection();
                 foreach (WGEOVertex Vertex in Model.Vertices)

@@ -27,7 +27,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            WADTest();
+            LegacySKNTest();
         }
 
         static void WGEOTest()
@@ -169,6 +169,11 @@ namespace Fantome.Libraries.League.Tests
         {
             IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
+        }
+
+        static void LegacySKNTest()
+        {
+
         }
     }
 }
