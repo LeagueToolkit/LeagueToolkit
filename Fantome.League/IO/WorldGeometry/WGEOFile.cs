@@ -56,7 +56,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 }
 
                 uint version = br.ReadUInt32();
-                if (version != 5 || version != 4)
+                if (version != 5 && version != 4)
                 {
                     throw new Exception("This WGEO file version is not supported");
                 }

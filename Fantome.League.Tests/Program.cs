@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            WPKTest();
+          
         }
 
         static void WGEOTest()
@@ -96,7 +96,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("9AA4A24D3752A9A0");
+            BINFile bin = new BINFile("880D994B89429092.bin");
             bin.Write("test.bin");
         }
 
@@ -170,12 +170,6 @@ namespace Fantome.Libraries.League.Tests
         {
             IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
-        }
-
-        static void WPKTest()
-        {
-            LeagueSoundbankFile soundbankFile = new LeagueSoundbankFile("A3821A89904A149B");
-            soundbankFile.Write("lol");
         }
     }
 }

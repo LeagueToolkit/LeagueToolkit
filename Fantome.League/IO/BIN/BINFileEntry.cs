@@ -63,9 +63,9 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Gets the size of this <see cref="BINFileEntry"/> in bytes
         /// </summary>
-        public int GetSize()
+        public uint GetSize()
         {
-            int size = 0;
+            uint size = 0;
             foreach (BINFileValue value in this.Values)
             {
                 size += value.GetSize();
