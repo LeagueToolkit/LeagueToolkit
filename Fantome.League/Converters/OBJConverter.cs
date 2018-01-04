@@ -106,7 +106,7 @@ namespace Fantome.Libraries.League.Converters
 
             foreach(SKNSubmesh submesh in model.Submeshes)
             {
-                indices.AddRange(submesh.Indices.Cast<uint>());
+                indices.AddRange(submesh.Indices.Select(x => (uint)x));
                 foreach (SKNVertex vertex in submesh.Vertices)
                 {
                     vertices.Add(vertex.Position);

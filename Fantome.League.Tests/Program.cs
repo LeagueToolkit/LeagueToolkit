@@ -15,6 +15,7 @@ using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
+using Fantome.Libraries.League.IO.WGT;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using System.Collections.Generic;
 using System.IO;
@@ -173,7 +174,9 @@ namespace Fantome.Libraries.League.Tests
 
         static void LegacySKNTest()
         {
-
+            OBJConverter.ConvertSKN(SKNConverter.ConvertLegacyModel(
+                new WGTFile("to_skn//Order_Minion_Archer//Order_Minion_Archer.wgt"),
+                new SCOFile("to_skn//Order_Minion_Archer//Order_Minion_Archer.sco"))).Write("kek.obj");
         }
     }
 }

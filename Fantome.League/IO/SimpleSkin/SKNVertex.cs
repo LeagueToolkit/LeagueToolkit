@@ -40,7 +40,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         /// <param name="uv">UV of this <see cref="SKNVertex"/></param>
         public SKNVertex(Vector3 position, Vector4Byte boneIndices, Vector4 weights, Vector3 normal, Vector2 uv)
         {
-            this.Position = Position;
+            this.Position = position;
             this.BoneIndices = boneIndices;
             this.Weights = weights;
             this.Normal = normal;
@@ -58,7 +58,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         /// <param name="tangent">Tangent of this <see cref="SKNVertex"/></param>
         public SKNVertex(Vector3 position, Vector4Byte boneIndices, Vector4 weights, Vector3 normal, Vector2 uv, Vector4Byte tangent)
         {
-            this.Position = Position;
+            this.Position = position;
             this.BoneIndices = boneIndices;
             this.Weights = weights;
             this.Normal = normal;

@@ -31,12 +31,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             List<Vector2> uvs = new List<Vector2>();
             List<uint> indices = new List<uint>();
 
-            foreach (WGTWeight weight in weightsFile.Weights)
-            {
-                boneIndices.Add(weight.BoneIndices);
-                weights.Add(weight.Weights);
-            }
-
             foreach (KeyValuePair<string, List<SCOFace>> material in modelFile.Materials)
             {
                 foreach (SCOFace face in material.Value)
@@ -45,6 +39,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                     for (int i = 0; i < 3; i++)
                     {
                         vertices.Add(modelFile.Vertices[(int)face.Indices[i]]);
+                        boneIndices.Add(weightsFile.Weights[(int)face.Indices[i]].BoneIndices);
+                        weights.Add(weightsFile.Weights[(int)face.Indices[i]].Weights);
                         uvs.Add(face.UVs[i]);
                     }
                 }
@@ -52,6 +48,11 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             //Calculates smooth normals for the mesh
             List<Vector3> normals = new List<Vector3>(new Vector3[vertices.Count]);
+            for(int i = 0; i < normals.Count; i++)
+            {
+                normals[i] = new Vector3(0, 0, 0);
+            }
+
             for (int i = 0; i < indices.Count; i += 3)
             {
                 uint a = indices[i];
@@ -62,17 +63,17 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 Vector3 edgeB = vertices[(int)c] - vertices[(int)b];
                 Vector3 normal = Vector3.Cross(edgeA, edgeB);
 
-                normals[(int)a] = normal;
-                normals[(int)b] = normal;
-                normals[(int)c] = normal;
+                normals[(int)a] += normal;
+                normals[(int)b] += normal;
+                normals[(int)c] += normal;
             }
 
             //Normalizes normals
-            for (int j = 0; j < normals.Count; j++)
+            for (int i = 0; i < normals.Count; i++)
             {
-                Vector3 normalNormalize = normals[j];
+                Vector3 normalNormalize = normals[i];
                 float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
-                normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
+                normals[i] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
             }
             
             //Creates SKNVertex list from componets
@@ -86,7 +87,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             int indexOffset = 0;
             foreach (KeyValuePair<string, List<SCOFace>> material in modelFile.Materials)
             {
-                this.Submeshes.Add(new SKNSubmesh(material.Key, indices.GetRange(indexOffset, material.Value.Count).Cast<ushort>().ToList(),
+                this.Submeshes.Add(new SKNSubmesh(material.Key, indices.GetRange(indexOffset, material.Value.Count).Select(x => (ushort)x).ToList(),
                     sknVertices.GetRange(indexOffset, material.Value.Count), this));
             }
         }
