@@ -431,11 +431,15 @@ namespace Fantome.Libraries.League.Helpers.Structures
     }
 
     /// <summary>
+<<<<<<< HEAD
     /// Represents a Quaternion
+=======
+>>>>>>> master
     /// </summary>
     public class Quaternion
     {
         /// <summary>
+<<<<<<< HEAD
         /// The X Component
         /// </summary>
         public float X { get; set; }
@@ -449,16 +453,21 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float Z { get; set; }
         /// <summary>
         /// The W Component
+=======
+>>>>>>> master
         /// </summary>
         public float W { get; set; }
 
         /// <summary>
         /// Initializes a new <see cref="Quaternion"/> instance
         /// </summary>
+<<<<<<< HEAD
         /// <param name="x">The X Component</param>
         /// <param name="y">The Y Component</param>
         /// <param name="z">The Z Component</param>
         /// <param name="w">The W Component</param>
+=======
+>>>>>>> master
         public Quaternion(float x, float y, float z, float w)
         {
             this.X = x;
@@ -468,6 +477,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+<<<<<<< HEAD
         /// Initializes a new <see cref="Quaternion"/> instance from a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="br"></param>
@@ -502,6 +512,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 Y = Mathf.RadiansToDegrees((float)Math.Asin(2 * (this.X * this.Z - this.W * this.Y))),
                 Z = Mathf.RadiansToDegrees((float)Math.Atan((2 * (this.X * this.W + this.Y * this.Z)) / 1 - (2 * (this.Z * this.Z + this.W * this.W))))
             };
+=======
+>>>>>>> master
         }
     }
 
@@ -1031,26 +1043,21 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Clears all values
         /// </summary>
         public void Clear()
         {
-            this.M11 = 0;
             this.M12 = 0;
             this.M13 = 0;
             this.M14 = 0;
             this.M21 = 0;
-            this.M22 = 0;
             this.M23 = 0;
             this.M24 = 0;
             this.M31 = 0;
             this.M32 = 0;
-            this.M33 = 0;
             this.M34 = 0;
             this.M41 = 0;
             this.M42 = 0;
             this.M43 = 0;
-            this.M44 = 0;
         }
 
         /// <summary>
@@ -1077,6 +1084,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M44);
         }
 
+<<<<<<< HEAD
         public void AssignValues(float[,] matrix)
         {
             if (matrix.Length != 16)
@@ -1311,6 +1319,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 right.M41 * left.M13 + right.M42 * left.M23 + right.M43 * left.M33 + right.M44 * left.M43,
                 right.M41 * left.M14 + right.M42 * left.M24 + right.M43 * left.M34 + right.M44 * left.M44
                 );
+=======
+>>>>>>> master
         }
     }
     #endregion

@@ -4,6 +4,7 @@ using Fantome.Libraries.League.IO.AiMesh;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.Inibin;
+using Fantome.Libraries.League.IO.LeagueSoundbank;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
 using Fantome.Libraries.League.IO.LightGrid;
@@ -26,7 +27,10 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
+<<<<<<< HEAD
             SKLTest();
+=======
+>>>>>>> master
         }
 
         static void WGEOTest()
@@ -94,7 +98,10 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
+<<<<<<< HEAD
             BINFile bin = new BINFile("3DC727A31637BE79.bin");
+=======
+>>>>>>> master
             bin.Write("test.bin");
         }
 
@@ -136,9 +143,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("assets.wad"))
             {
-                wad.Write("assets1.wad", 1, 0);
             }
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {

@@ -23,10 +23,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// Initializes a new <see cref="BINFile"/> from the specified location
         /// </summary>
         /// <param name="fileLocation">The location to read from</param>
-        public BINFile(string fileLocation) : this(File.OpenRead(fileLocation))
-        {
-
-        }
+        public BINFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
         /// <summary>
         /// Initializes a new <see cref="BINFile"/> from the specified stream
@@ -57,6 +54,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 {
                     this.Entries.Add(new BINFileEntry(br));
                 }
+
                 foreach (BINFileEntry entry in this.Entries)
                 {
                     entry.ReadData(br);
