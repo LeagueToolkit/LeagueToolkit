@@ -30,6 +30,7 @@ namespace Fantome.Libraries.League.Tests
 <<<<<<< HEAD
             SKLTest();
 =======
+          
 >>>>>>> master
         }
 
@@ -101,6 +102,7 @@ namespace Fantome.Libraries.League.Tests
 <<<<<<< HEAD
             BINFile bin = new BINFile("3DC727A31637BE79.bin");
 =======
+            BINFile bin = new BINFile("880D994B89429092.bin");
 >>>>>>> master
             bin.Write("test.bin");
         }
@@ -143,7 +145,9 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
+            using (WADFile wad = new WADFile("Map19.wad.client"))
             {
+
             }
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {
