@@ -4,7 +4,6 @@ using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.INI;
 using Fantome.Libraries.League.IO.Inibin;
-using Fantome.Libraries.League.IO.LeagueSoundbank;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
 using Fantome.Libraries.League.IO.LightGrid;
