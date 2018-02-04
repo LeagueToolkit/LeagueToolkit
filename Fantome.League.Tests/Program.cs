@@ -11,6 +11,7 @@ using Fantome.Libraries.League.IO.MapObjects;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
@@ -27,13 +28,20 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-          
+            
         }
 
         static void WGEOTest()
         {
             WGEOFile wgeo = new WGEOFile("room.wgeo");
-            wgeo.Write("roomWrite.wgeo");
+
+            int index = 0;
+            foreach(OBJFile obj in OBJConverter.ConvertWGEOModels(wgeo))
+            {
+                obj.Write(string.Format("wgeo//{1}_{0}.obj", index, wgeo.Models[index].Material));
+
+                index++;
+            }
         }
 
         static void MOBTest()

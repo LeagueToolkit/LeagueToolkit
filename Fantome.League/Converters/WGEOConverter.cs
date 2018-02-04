@@ -47,7 +47,7 @@ namespace Fantome.Libraries.League.Converters
                     }
                 }
 
-                models.Add(new WGEOModel(mesh.Material.Channels[0].Name, mesh.Material.Name, vertices, indices));
+                models.Add(new WGEOModel(mesh.Material.Channels[0].Name, mesh.Material.Name, vertices, indices.Cast<uint>().ToList()));
             }
 
             return new WGEOFile(models, bucketTemplate);
