@@ -55,6 +55,7 @@ namespace Fantome.Libraries.League.IO.Skeleton
                     {
                         throw new Exception("This SKL file is corrupted");
                     }
+
                     br.ReadUInt32();
 
                     ushort zero = br.ReadUInt16();

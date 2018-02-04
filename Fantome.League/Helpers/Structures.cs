@@ -431,30 +431,10 @@ namespace Fantome.Libraries.League.Helpers.Structures
     }
 
     /// <summary>
-<<<<<<< HEAD
-    /// Represents a Quaternion
-=======
     /// Represents a Rotation Quaternion
->>>>>>> master
     /// </summary>
     public class Quaternion
     {
-        /// <summary>
-<<<<<<< HEAD
-        /// The X Component
-        /// </summary>
-        public float X { get; set; }
-        /// <summary>
-        /// The Y Component
-        /// </summary>
-        public float Y { get; set; }
-        /// <summary>
-        /// The Z Component
-        /// </summary>
-        public float Z { get; set; }
-        /// <summary>
-        /// The W Component
-=======
         /// The X component 
         /// </summary>
         public float X { get; set; }
@@ -468,20 +448,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float Z { get; set; }
         /// <summary>
         /// The W component 
->>>>>>> master
         /// </summary>
         public float W { get; set; }
 
-        /// <summary>
-        /// Initializes a new <see cref="Quaternion"/> instance
-        /// </summary>
-<<<<<<< HEAD
         /// <param name="x">The X Component</param>
         /// <param name="y">The Y Component</param>
         /// <param name="z">The Z Component</param>
         /// <param name="w">The W Component</param>
-=======
->>>>>>> master
         public Quaternion(float x, float y, float z, float w)
         {
             this.X = x;
@@ -491,7 +464,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-<<<<<<< HEAD
         /// Initializes a new <see cref="Quaternion"/> instance from a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="br"></param>
@@ -526,7 +498,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 Y = Mathf.RadiansToDegrees((float)Math.Asin(2 * (this.X * this.Z - this.W * this.Y))),
                 Z = Mathf.RadiansToDegrees((float)Math.Atan((2 * (this.X * this.W + this.Y * this.Z)) / 1 - (2 * (this.Z * this.Z + this.W * this.W))))
             };
-=======
+        }
+
         /// Returns a <see cref="Quaternion"/> that represents the rotation of the given matrix
         /// </summary>
         public static Quaternion FromTransformationMatrix(R3DMatrix44 matrix)
@@ -578,7 +551,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
             }
 
             return result;
->>>>>>> master
         }
     }
 
@@ -1154,7 +1126,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M44);
         }
 
-<<<<<<< HEAD
         public void AssignValues(float[,] matrix)
         {
             if (matrix.Length != 16)
@@ -1204,198 +1175,12 @@ namespace Fantome.Libraries.League.Helpers.Structures
             return matrix;
         }
 
-        public R3DMatrix44 Inverse()
-        {
-            R3DMatrix44 r = new R3DMatrix44();
-
-            /*float det;
-
-     Compute adjoint: 
-
-            dst[0] =
-                +src[5] * src[10] * src[15]
-                - src[5] * src[11] * src[14]
-                - src[9] * src[6] * src[15]
-                + src[9] * src[7] * src[14]
-                + src[13] * src[6] * src[11]
-                - src[13] * src[7] * src[10];
-
-            dst[1] =
-                -src[1] * src[10] * src[15]
-                + src[1] * src[11] * src[14]
-                + src[9] * src[2] * src[15]
-                - src[9] * src[3] * src[14]
-                - src[13] * src[2] * src[11]
-                + src[13] * src[3] * src[10];
-
-            dst[2] =
-                +src[1] * src[6] * src[15]
-                - src[1] * src[7] * src[14]
-                - src[5] * src[2] * src[15]
-                + src[5] * src[3] * src[14]
-                + src[13] * src[2] * src[7]
-                - src[13] * src[3] * src[6];
-
-            dst[3] =
-                -src[1] * src[6] * src[11]
-                + src[1] * src[7] * src[10]
-                + src[5] * src[2] * src[11]
-                - src[5] * src[3] * src[10]
-                - src[9] * src[2] * src[7]
-                + src[9] * src[3] * src[6];
-
-            dst[4] =
-                -src[4] * src[10] * src[15]
-                + src[4] * src[11] * src[14]
-                + src[8] * src[6] * src[15]
-                - src[8] * src[7] * src[14]
-                - src[12] * src[6] * src[11]
-                + src[12] * src[7] * src[10];
-
-            dst[5] =
-                +src[0] * src[10] * src[15]
-                - src[0] * src[11] * src[14]
-                - src[8] * src[2] * src[15]
-                + src[8] * src[3] * src[14]
-                + src[12] * src[2] * src[11]
-                - src[12] * src[3] * src[10];
-
-            dst[6] =
-                -src[0] * src[6] * src[15]
-                + src[0] * src[7] * src[14]
-                + src[4] * src[2] * src[15]
-                - src[4] * src[3] * src[14]
-                - src[12] * src[2] * src[7]
-                + src[12] * src[3] * src[6];
-
-            dst[7] =
-                +src[0] * src[6] * src[11]
-                - src[0] * src[7] * src[10]
-                - src[4] * src[2] * src[11]
-                + src[4] * src[3] * src[10]
-                + src[8] * src[2] * src[7]
-                - src[8] * src[3] * src[6];
-
-            dst[8] =
-                +src[4] * src[9] * src[15]
-                - src[4] * src[11] * src[13]
-                - src[8] * src[5] * src[15]
-                + src[8] * src[7] * src[13]
-                + src[12] * src[5] * src[11]
-                - src[12] * src[7] * src[9];
-
-            dst[9] =
-                -src[0] * src[9] * src[15]
-                + src[0] * src[11] * src[13]
-                + src[8] * src[1] * src[15]
-                - src[8] * src[3] * src[13]
-                - src[12] * src[1] * src[11]
-                + src[12] * src[3] * src[9];
-
-            dst[10] =
-                +src[0] * src[5] * src[15]
-                - src[0] * src[7] * src[13]
-                - src[4] * src[1] * src[15]
-                + src[4] * src[3] * src[13]
-                + src[12] * src[1] * src[7]
-                - src[12] * src[3] * src[5];
-
-            dst[11] =
-                -src[0] * src[5] * src[11]
-                + src[0] * src[7] * src[9]
-                + src[4] * src[1] * src[11]
-                - src[4] * src[3] * src[9]
-                - src[8] * src[1] * src[7]
-                + src[8] * src[3] * src[5];
-
-            dst[12] =
-                -src[4] * src[9] * src[14]
-                + src[4] * src[10] * src[13]
-                + src[8] * src[5] * src[14]
-                - src[8] * src[6] * src[13]
-                - src[12] * src[5] * src[10]
-                + src[12] * src[6] * src[9];
-
-            dst[13] =
-                +src[0] * src[9] * src[14]
-                - src[0] * src[10] * src[13]
-                - src[8] * src[1] * src[14]
-                + src[8] * src[2] * src[13]
-                + src[12] * src[1] * src[10]
-                - src[12] * src[2] * src[9];
-
-            dst[14] =
-                -src[0] * src[5] * src[14]
-                + src[0] * src[6] * src[13]
-                + src[4] * src[1] * src[14]
-                - src[4] * src[2] * src[13]
-                - src[12] * src[1] * src[6]
-                + src[12] * src[2] * src[5];
-
-            dst[15] =
-                +src[0] * src[5] * src[10]
-                - src[0] * src[6] * src[9]
-                - src[4] * src[1] * src[10]
-                + src[4] * src[2] * src[9]
-                + src[8] * src[1] * src[6]
-                - src[8] * src[2] * src[5];
-
-            Compute determinant: 
-
-            det = +src[0] * dst[0] + src[1] * dst[4] + src[2] * dst[8] + src[3] * dst[12];
-
-             Multiply adjoint with reciprocal of determinant: 
-
-            det = 1.0f / det;
-
-            dst[0] *= det;
-            dst[1] *= det;
-            dst[2] *= det;
-            dst[3] *= det;
-            dst[4] *= det;
-            dst[5] *= det;
-            dst[6] *= det;
-            dst[7] *= det;
-            dst[8] *= det;
-            dst[9] *= det;
-            dst[10] *= det;
-            dst[11] *= det;
-            dst[12] *= det;
-            dst[13] *= det;
-            dst[14] *= det;
-            dst[15] *= det;*/
-
-            return r;
-        }
-
-        public static R3DMatrix44 operator *(R3DMatrix44 right, R3DMatrix44 left)
-        {
-            return new R3DMatrix44
-                (
-                right.M11 * left.M11 + right.M12 * left.M21 + right.M13 * left.M31 + right.M14 * left.M41,
-                right.M11 * left.M12 + right.M12 * left.M22 + right.M13 * left.M32 + right.M14 * left.M42,
-                right.M11 * left.M13 + right.M12 * left.M23 + right.M13 * left.M33 + right.M14 * left.M43,
-                right.M11 * left.M14 + right.M12 * left.M24 + right.M13 * left.M34 + right.M14 * left.M44,
-                right.M21 * left.M11 + right.M22 * left.M21 + right.M23 * left.M31 + right.M24 * left.M41,
-                right.M21 * left.M12 + right.M22 * left.M22 + right.M23 * left.M32 + right.M24 * left.M42,
-                right.M21 * left.M13 + right.M22 * left.M23 + right.M23 * left.M33 + right.M24 * left.M43,
-                right.M21 * left.M14 + right.M22 * left.M24 + right.M23 * left.M34 + right.M24 * left.M44,
-                right.M31 * left.M11 + right.M32 * left.M21 + right.M33 * left.M31 + right.M34 * left.M41,
-                right.M31 * left.M12 + right.M32 * left.M22 + right.M33 * left.M32 + right.M34 * left.M42,
-                right.M31 * left.M13 + right.M32 * left.M23 + right.M33 * left.M33 + right.M34 * left.M43,
-                right.M31 * left.M14 + right.M32 * left.M24 + right.M33 * left.M34 + right.M34 * left.M44,
-                right.M41 * left.M11 + right.M42 * left.M21 + right.M43 * left.M31 + right.M44 * left.M41,
-                right.M41 * left.M12 + right.M42 * left.M22 + right.M43 * left.M32 + right.M44 * left.M42,
-                right.M41 * left.M13 + right.M42 * left.M23 + right.M43 * left.M33 + right.M44 * left.M43,
-                right.M41 * left.M14 + right.M42 * left.M24 + right.M43 * left.M34 + right.M44 * left.M44
-                );
-=======
         /// <summary>
         /// Returns the Translation Vector of this <see cref="R3DMatrix44"/>
         /// </summary>
         public Vector3 GetTranslation()
         {
-            return new Vector3(this.M14, this.M24, this.M33);
+            return new Vector3(this.M14, this.M24, this.M34);
         }
 
         /// <summary>
@@ -1457,31 +1242,31 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public R3DMatrix44 Inverse()
         {
-            float t11 = this.M23 * this.M34 * this.M42 
-                - this.M24 * this.M33 * this.M42 
-                + this.M24 * this.M32 * this.M43 
-                - this.M22 * this.M34 * this.M43 
-                - this.M23 * this.M32 * this.M44 
+            float t11 = this.M23 * this.M34 * this.M42
+                - this.M24 * this.M33 * this.M42
+                + this.M24 * this.M32 * this.M43
+                - this.M22 * this.M34 * this.M43
+                - this.M23 * this.M32 * this.M44
                 + this.M22 * this.M33 * this.M44;
 
-            float t12 = this.M14 * this.M33 * this.M42 
-                - this.M13 * this.M34 * this.M42 
-                - this.M14 * this.M32 * this.M43 
-                + this.M12 * this.M34 * this.M43 
-                + this.M13 * this.M32 * this.M44 
+            float t12 = this.M14 * this.M33 * this.M42
+                - this.M13 * this.M34 * this.M42
+                - this.M14 * this.M32 * this.M43
+                + this.M12 * this.M34 * this.M43
+                + this.M13 * this.M32 * this.M44
                 - this.M12 * this.M33 * this.M44;
 
             float t13 = this.M13 * this.M24 * this.M42
-                - this.M14 * this.M23 * this.M42 
-                + this.M14 * this.M22 * this.M43 
-                - this.M12 * this.M24 * this.M43 
-                - this.M13 * this.M22 * this.M44 
+                - this.M14 * this.M23 * this.M42
+                + this.M14 * this.M22 * this.M43
+                - this.M12 * this.M24 * this.M43
+                - this.M13 * this.M22 * this.M44
                 + this.M12 * this.M23 * this.M44;
 
-            float t14 = this.M14 * this.M23 * this.M32 
-                - this.M13 * this.M24 * this.M32 
+            float t14 = this.M14 * this.M23 * this.M32
+                - this.M13 * this.M24 * this.M32
                 - this.M14 * this.M22 * this.M33
-                + this.M12 * this.M24 * this.M33 
+                + this.M12 * this.M24 * this.M33
                 + this.M13 * this.M22 * this.M34
                 - this.M12 * this.M23 * this.M34;
 
@@ -1524,7 +1309,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 + this.M13 * this.M22 * this.M34
                 - this.M12 * this.M23 * this.M34)
 
-                 +this.M42 *
+                 + this.M42 *
                 (+this.M11 * this.M23 * this.M34
                 - this.M11 * this.M24 * this.M33
                 + this.M14 * this.M21 * this.M33
@@ -1533,7 +1318,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 - this.M14 * this.M23 * this.M31)
 
                 + this.M43 *
-               (+ this.M11 * this.M24 * this.M32
+               (+this.M11 * this.M24 * this.M32
                 - this.M11 * this.M22 * this.M34
                 - this.M14 * this.M21 * this.M32
                 + this.M12 * this.M21 * this.M34
@@ -1573,7 +1358,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 M34 = a.M41 * b.M13 + a.M42 * b.M23 + a.M43 * b.M33 + a.M44 * b.M43,
                 M44 = a.M41 * b.M14 + a.M42 * b.M24 + a.M43 * b.M34 + a.M44 * b.M44,
             };
->>>>>>> master
         }
     }
     #endregion

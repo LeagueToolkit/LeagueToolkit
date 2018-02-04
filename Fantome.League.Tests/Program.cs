@@ -4,7 +4,6 @@ using Fantome.Libraries.League.IO.AiMesh;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.Inibin;
-using Fantome.Libraries.League.IO.LeagueSoundbank;
 using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
 using Fantome.Libraries.League.IO.LightGrid;
@@ -27,11 +26,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-<<<<<<< HEAD
             SKLTest();
-=======
-          
->>>>>>> master
         }
 
         static void WGEOTest()
@@ -99,12 +94,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-<<<<<<< HEAD
             BINFile bin = new BINFile("3DC727A31637BE79.bin");
-=======
-            BINFile bin = new BINFile("880D994B89429092.bin");
->>>>>>> master
-            bin.Write("test.bin");
         }
 
         static void LightDatTest()
@@ -175,7 +165,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKLTest()
         {
-            SKLFile skl = new SKLFile("Akali.skl");
+            SKLFile skl = new SKLFile("Aatrox.skl");
 
             List<string> bones = new List<string>();
             for(int i = 0; i < skl.BoneIDs.Count; i++)
