@@ -34,7 +34,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         /// <summary>
         /// Indices of this <see cref="WGEOModel"/>
         /// </summary>
-        public List<ushort> Indices { get; set; } = new List<ushort>();
+        public List<uint> Indices { get; set; } = new List<uint>();
 
         /// <summary>
         /// Initializes an empty <see cref="WGEOModel"/>
@@ -48,7 +48,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         /// <param name="material">Material of this <see cref="WGEOModel"/></param>
         /// <param name="vertices">Vertices of this <see cref="WGEOModel"/></param>
         /// <param name="indices">Indices of this <see cref="WGEOModel"/></param>
-        public WGEOModel(string texture, string material, List<WGEOVertex> vertices, List<ushort> indices)
+        public WGEOModel(string texture, string material, List<WGEOVertex> vertices, List<uint> indices)
         {
             this.Texture = texture;
             this.Material = material;
@@ -76,9 +76,20 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             {
                 this.Vertices.Add(new WGEOVertex(br));
             }
-            for (int i = 0; i < indexCount; i++)
+
+            if(indexCount <= 65536)
             {
-                this.Indices.Add(br.ReadUInt16());
+                for (int i = 0; i < indexCount; i++)
+                {
+                    this.Indices.Add(br.ReadUInt16());
+                }
+            }
+            else
+            {
+                for (int i = 0; i < indexCount; i++)
+                {
+                    this.Indices.Add(br.ReadUInt32());
+                }
             }
         }
 
@@ -101,9 +112,20 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             {
                 vertex.Write(bw);
             }
-            foreach (ushort index in this.Indices)
+
+            if(this.Indices.Count <= 65536)
             {
-                bw.Write(index);
+                foreach (ushort index in this.Indices)
+                {
+                    bw.Write(index);
+                }
+            }
+            else
+            {
+                foreach (uint index in this.Indices)
+                {
+                    bw.Write(index);
+                }
             }
         }
 
