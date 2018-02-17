@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.Converters
                     vertices.Add(vertex.Position);
                     uvs.Add(vertex.UV);
                 }
-                yield return new OBJFile(vertices, model.Indices.Cast<uint>().ToList(), uvs);
+                yield return new OBJFile(vertices, model.Indices, uvs);
             }
         }
 
