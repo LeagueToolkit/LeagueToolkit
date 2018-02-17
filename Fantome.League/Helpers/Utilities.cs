@@ -29,6 +29,11 @@ namespace Fantome.Libraries.League.Helpers.Utilities
 
         public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
         {
+            if(fileData.Length < 4)
+            {
+                return LeagueFileType.Unknown; 
+            }
+            
             if (fileData[0] == 'r' && fileData[1] == '3' && fileData[2] == 'd' && fileData[3] == '2')
             {
                 if (fileData[4] == 'M' && fileData[5] == 'e' && fileData[6] == 's' && fileData[7] == 'h')
@@ -84,6 +89,7 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             {
                 return LeagueFileType.SKL;
             }
+            
             return LeagueFileType.Unknown;
         }
 
