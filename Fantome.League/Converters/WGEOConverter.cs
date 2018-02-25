@@ -21,7 +21,7 @@ namespace Fantome.Libraries.League.Converters
             foreach (NVRMesh mesh in nvr.Meshes)
             {
                 List<WGEOVertex> vertices = new List<WGEOVertex>();
-                List<ushort> indices = mesh.IndexedPrimitives[0].Indices.Select(x => (ushort)x).ToList();
+                List<uint> indices = mesh.IndexedPrimitives[0].Indices.Select(x => (uint)x).ToList();
 
                 foreach (NVRVertex vertex in mesh.IndexedPrimitives[0].Vertices)
                 {
