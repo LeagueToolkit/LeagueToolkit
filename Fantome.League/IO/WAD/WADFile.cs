@@ -32,9 +32,8 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         internal Stream _stream { get; private set; }
 
-        private byte _major;
-
-        private byte _minor;
+        internal byte _major;
+        internal byte _minor;
 
         private WADFile()
         {
