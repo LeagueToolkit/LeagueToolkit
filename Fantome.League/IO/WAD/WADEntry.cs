@@ -116,7 +116,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             this._wad = wad;
             this.XXHash = xxHash;
-            this.Type = EntryType.FileRedirection;
+            this.Type = EntryType.FileRedirection;  
             this.FileRedirection = fileRedirection;
         }
 
