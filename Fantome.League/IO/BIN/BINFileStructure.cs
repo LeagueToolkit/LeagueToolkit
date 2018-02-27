@@ -14,6 +14,9 @@ namespace Fantome.Libraries.League.IO.BIN
             this.Parent = parent;
 
             this.Property = br.ReadUInt32();
+            if (this.Property == 0)
+                return;
+
             uint size = br.ReadUInt32();
             ushort entryCount = br.ReadUInt16();
 
@@ -26,6 +29,9 @@ namespace Fantome.Libraries.League.IO.BIN
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.Property);
+            if (this.Property == 0)
+                return;
+
             bw.Write(GetContentSize());
             bw.Write((ushort)this.Entries.Count);
 
@@ -47,7 +53,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public uint GetSize()
         {
-            return 4 + 4 + GetContentSize();
+            return (this.Property == 0) ? 4 : 4 + 4 + GetContentSize();
         }
     }
 }
