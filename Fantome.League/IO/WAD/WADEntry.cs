@@ -102,7 +102,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             this._wad = wad;
             this.XXHash = xxHash;
-            this.Type = compressedEntry ? EntryType.ZStandardCompressed : EntryType.Uncompressed;
+            this.Type = compressedEntry ? (wad._major == 3 ? EntryType.ZStandardCompressed : EntryType.Compressed) : EntryType.Uncompressed;
             this.EditData(data);
         }
 
@@ -116,7 +116,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             this._wad = wad;
             this.XXHash = xxHash;
-            this.Type = EntryType.FileRedirection;
+            this.Type = EntryType.FileRedirection;  
             this.FileRedirection = fileRedirection;
         }
 
