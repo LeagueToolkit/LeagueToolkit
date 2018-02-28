@@ -176,7 +176,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void MgeoTest()
         {
-            MGEOFile mgeo = new MGEOFile("7F5D3FD13D7E5174");
+            MGEOFile mgeo = new MGEOFile("7F5D3FD13D7E5174.mapgeo");
             foreach (Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo))
             {
                 model.Item2.Write("mgeo//" + model.Item1 + ".obj");

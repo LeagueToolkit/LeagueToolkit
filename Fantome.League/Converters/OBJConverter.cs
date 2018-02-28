@@ -35,7 +35,7 @@ namespace Fantome.Libraries.League.Converters
 
         public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MGEOFile mgeo)
         {
-            foreach (MGEOModel model in mgeo.Meshes)
+            foreach (MGEOMesh model in mgeo.Meshes)
             {
                 int submeshCount = 0;
 
