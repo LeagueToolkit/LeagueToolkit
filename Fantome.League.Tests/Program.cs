@@ -10,6 +10,7 @@ using Fantome.Libraries.League.IO.LightGrid;
 using Fantome.Libraries.League.IO.MapObjects;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
+using Fantome.Libraries.League.IO.NavigationGrid;
 using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
@@ -27,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            NGridTest();
         }
 
         static void WGEOTest()
@@ -169,6 +170,11 @@ namespace Fantome.Libraries.League.Tests
         {
             IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
+        }
+
+        static void NGridTest()
+        {
+            NavigationGridFile navgrid = new NavigationGridFile("AIPath_MidSeasonTest.aimesh_ngrid");
         }
     }
 }
