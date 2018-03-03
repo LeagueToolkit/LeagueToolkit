@@ -16,12 +16,12 @@ namespace Fantome.Libraries.League.IO.NavigationGrid
         public float AdditionalCost { get; private set; }
         public float HintAsGoodCell { get; private set; }
         public int AdditionalCostRefCount { get; private set; }
-        public int GoodCellSessionID { get; private set; }
-        public float RefHintWeight { get; set; }
+        public int GoodCellSessionID { get; private set; } = -1;
+        public float RefHintWeight { get; set; } = 0.5f;
         public ushort Unknown2 { get; private set; }
-        public ushort ArrivalDirection { get; private set; }
+        public ushort ArrivalDirection { get; private set; } = 9;
         public ushort Flags { get; set; }
-        public short[] RefHintNodes { get; private set; } = new short[2];
+        public short[] RefHintNodes { get; private set; } = new short[2] { -1, -1 };
 
         public NavigationGridCell(BinaryReader br, byte version)
         {

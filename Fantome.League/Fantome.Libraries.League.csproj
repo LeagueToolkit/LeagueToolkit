@@ -95,6 +95,7 @@
     <Compile Include="IO\MapObjects\MOBObject.cs" />
     <Compile Include="IO\NavigationGrid\NavigationGridCell.cs" />
     <Compile Include="IO\NavigationGrid\NavigationGridFile.cs" />
+    <Compile Include="IO\NavigationGrid\NavigationGridHintNode.cs" />
     <Compile Include="IO\NVR\NVRChannel.cs" />
     <Compile Include="IO\NVR\NVRDrawIndexedPrimitive.cs" />
     <Compile Include="IO\NVR\NVRFile.cs" />

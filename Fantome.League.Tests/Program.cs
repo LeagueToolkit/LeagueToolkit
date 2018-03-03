@@ -1,4 +1,5 @@
 using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.AiMesh;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
@@ -175,6 +176,8 @@ namespace Fantome.Libraries.League.Tests
         static void NGridTest()
         {
             NavigationGridFile navgrid = new NavigationGridFile("AIPath_MidSeasonTest.aimesh_ngrid");
+            List<Vector3> vertices = new List<Vector3>();
+            List<uint> indices = new List<uint>();
         }
     }
 }

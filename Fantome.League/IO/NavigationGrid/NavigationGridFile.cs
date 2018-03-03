@@ -16,13 +16,13 @@ namespace Fantome.Libraries.League.IO.NavigationGrid
         public uint Height { get; private set; }
         public uint SampledHeightsWidth { get; private set; }
         public uint SampledHeightsHeight { get; private set; }
-        public float UnknownFloat1 { get; private set; }
-        public float UnknownFloat2 { get; private set; }
+        public float SampledHeightsDistanceX { get; private set; }
+        public float SampledHeightsDistanceY { get; private set; }
         public List<List<NavigationGridCell>> Cells { get; private set; } = new List<List<NavigationGridCell>>();
         public List<List<uint>> Unknown { get; private set; } = new List<List<uint>>();
         public List<byte[]> Unknown2 { get; private set; } = new List<byte[]>(32);
-        public List<float> SampledHeights { get; private set; } = new List<float>();
-        public List<float> Unknown4 { get; private set; } = new List<float>(810900);
+        public List<List<float>> SampledHeights { get; private set; } = new List<List<float>>();
+        public NavigationGridHintNode[] HintGrid { get; private set; } = new NavigationGridHintNode[900];
 
         public NavigationGridFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
@@ -31,7 +31,7 @@ namespace Fantome.Libraries.League.IO.NavigationGrid
             using (BinaryReader br = new BinaryReader(stream))
             {
                 byte major = br.ReadByte();
-                ushort minor = 0;
+                ushort minor;
                 if (major > 2)
                 {
                     minor = br.ReadUInt16();
@@ -108,18 +108,22 @@ namespace Fantome.Libraries.League.IO.NavigationGrid
 
                 this.SampledHeightsWidth = br.ReadUInt32();
                 this.SampledHeightsHeight = br.ReadUInt32();
-                this.UnknownFloat1 = br.ReadSingle();
-                this.UnknownFloat2 = br.ReadSingle();
+                this.SampledHeightsDistanceX = br.ReadSingle();
+                this.SampledHeightsDistanceY = br.ReadSingle();
 
-                this.SampledHeights.Capacity = (int)(this.SampledHeightsWidth * this.SampledHeightsHeight);
-                for (int i = 0; i < this.SampledHeightsWidth * this.SampledHeightsHeight; i++)
+                for (int i = 0; i < this.SampledHeightsWidth; i++)
                 {
-                    this.SampledHeights.Add(br.ReadSingle());
+                    this.SampledHeights.Add(new List<float>((int)this.SampledHeightsHeight));
+
+                    for (int j = 0; j < this.SampledHeightsHeight; j++)
+                    {
+                        this.SampledHeights[i].Add(br.ReadSingle());
+                    }
                 }
 
-                for (int i = 0; i < 810900; i++)
+                for (int i = 0; i < 900; i++)
                 {
-                    this.Unknown4.Add(br.ReadSingle());
+                    this.HintGrid[i] = new NavigationGridHintNode(br);
                 }
 
                 foreach (List<NavigationGridCell> row in this.Cells)
