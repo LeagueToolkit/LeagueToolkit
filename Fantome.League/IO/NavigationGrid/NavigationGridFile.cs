@@ -58,7 +58,7 @@ namespace Fantome.Libraries.League.IO.NavigationGrid
                     {
                         for (int j = 0; j < this.Height; j++)
                         {
-                            this.Cells[i][j].Flags = br.ReadUInt16();
+                            this.Cells[i][j].Flags = (NavigationGridCellFlags)br.ReadUInt16();
                         }
                     }
                 }
