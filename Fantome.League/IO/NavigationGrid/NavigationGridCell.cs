@@ -2,6 +2,9 @@
 
 namespace Fantome.Libraries.League.IO.NavigationGrid
 {
+    /// <summary>
+    /// Represents a navigational cell inside of a <see cref="NavigationGridFile"/>
+    /// </summary>
     public class NavigationGridCell
     {
         public float CenterHeight { get; private set; }
@@ -68,15 +71,15 @@ namespace Fantome.Libraries.League.IO.NavigationGrid
 
     public enum NavigationGridCellFlags : ushort
     {
-        CELL_HAS_GRASS = 0x1,
-        CELL_NOT_PASSABLE = 0x2,
-        CELL_BUSY = 0x4,
-        CELL_TARGETTED = 0x8,
-        CELL_MARKED = 0x10,
-        CELL_PATHED_ON = 0x20,
-        CELL_SEE_THROUGH = 0x40,
-        CELL_OTHERDIRECTION_END_TO_START = 0x80,
-        CELL_HAS_ANTI_BRUSH = 0x100,
-        CELL_HAS_TRANSPARENTTERRAIN = 0x42,
+        HasGrass = 1 << 0,
+        NotPassable = 1 << 1,
+        Busy = 1 << 2,
+        Targetted = 1 << 3,
+        Marked = 1 << 4,
+        PathedOn = 1 << 5,
+        SeeThrough = 1 << 6,
+        OtherdirectionEndToStart = 1 << 7,
+        HasAntiBrush = 1 << 8,
+        HasTransparentTerrain = NotPassable | SeeThrough
     }
 }
