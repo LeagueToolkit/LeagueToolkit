@@ -215,7 +215,11 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="minor">Which minor version this <see cref="WADFile"/> should be saved as</param>
         public void Write(string fileLocation, byte major, byte minor)
         {
-            Write(File.Create(fileLocation), major, minor);
+            FileStream fs = File.Create(fileLocation);
+
+            Write(fs, major, minor);
+
+            fs.Close();
         }
 
         /// <summary>
