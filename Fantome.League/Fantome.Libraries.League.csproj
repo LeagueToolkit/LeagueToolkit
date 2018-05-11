@@ -64,10 +64,12 @@
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
     <Compile Include="Helpers\Structures.cs" />
+    <Compile Include="Helpers\Structures\TimeGradient.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="Helpers\XXHash.cs" />
     <Compile Include="IO\AiMesh\AiMeshCell.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
+    <Compile Include="IO\Atmosphere\AtmosphereFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
     <Compile Include="IO\BIN\BINFileAdditionalData.cs" />
     <Compile Include="IO\BIN\BINFileContainer.cs" />
@@ -78,7 +80,6 @@
     <Compile Include="IO\BIN\BINFileValuePair.cs" />
     <Compile Include="IO\BIN\IBINFileValue.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
-    <Compile Include="IO\FX\FXTimeGradient.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
     <Compile Include="IO\Inibin\InibinFile.cs" />

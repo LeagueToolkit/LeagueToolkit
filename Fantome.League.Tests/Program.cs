@@ -1,5 +1,6 @@
 using Fantome.Libraries.League.Converters;
 using Fantome.Libraries.League.IO.AiMesh;
+using Fantome.Libraries.League.IO.Atmosphere;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.INI;
@@ -27,7 +28,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            AtmosphereTest();
         }
 
         static void WGEOTest()
@@ -169,6 +170,12 @@ namespace Fantome.Libraries.League.Tests
         {
             IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
+        }
+
+        static void AtmosphereTest()
+        {
+            AtmosphereFile atmosphere = new AtmosphereFile("Atmosphere.dat");
+            atmosphere.Write("kek.dat");
         }
     }
 }
