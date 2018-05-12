@@ -117,7 +117,7 @@ namespace Fantome.Libraries.League.Helpers
         /// <param name="format">Format of the vector components</param>
         public static string ConvertVector2(Vector2 vector, char separator, string format)
         {
-            return string.Format("{0}{1}{2}", vector.X.ToString(format), separator, vector.Y.ToString(format));
+            return string.Format("{0}{1}{2}", vector.X.ToString(format, CultureInfo.InvariantCulture), separator, vector.Y.ToString(format, CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Fantome.Libraries.League.Helpers
         /// <param name="format">Format of the vector components</param>
         public static string ConvertVector3(Vector3 vector, char separator, string format)
         {
-            return string.Format("{1}{0}{2}{0}{3}", separator, vector.X.ToString(format), vector.Y.ToString(format), vector.Z.ToString(format));
+            return string.Format("{1}{0}{2}{0}{3}", separator, vector.X.ToString(format, CultureInfo.InvariantCulture), vector.Y.ToString(format, CultureInfo.InvariantCulture), vector.Z.ToString(format, CultureInfo.InvariantCulture));
         }
     }
 }

@@ -144,7 +144,7 @@ namespace Fantome.Libraries.League.IO.ObjectConfig
                     else if (attribute.SerializationType == typeof(float))
                     {
                         float value = (float)property.GetValue(this);
-                        properties.Add(attribute.Name, value.ToString("0.0000"));
+                        properties.Add(attribute.Name, value.ToString("0.0000", CultureInfo.InvariantCulture));
                     }
                     else if (attribute.SerializationType == typeof(Vector2))
                     {
