@@ -29,7 +29,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="values">The Values of this <see cref="TimeGradient"/></param>
         public TimeGradient(int type, TimeGradientValue[] values)
         {
-            if(values.Length != 8)
+            if (values.Length != 8)
             {
                 throw new ArgumentException("There must be 8 values");
             }
@@ -51,9 +51,63 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 this.Values[i] = new TimeGradientValue(br);
             }
 
-            for(int i = 0; i < 8 - usedValueCount; i++)
+            for (int i = 0; i < 8 - usedValueCount; i++)
             {
                 TimeGradientValue value = new TimeGradientValue(br);
+            }
+        }
+
+        public uint GetValueCount()
+        {
+            uint count = 0;
+            for (int i = 0; i < 8; i++)
+            {
+                if (this.Values[i] != null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public Vector4 GetValue(float time)
+        {
+            if (time > 0)
+            {
+                uint valueCount = GetValueCount();
+
+                if (time < 1)
+                {
+                    int gradientValueIndex = 0;
+                    float accValue = 0;
+
+                    for (int i = 0; ; i++)
+                    {
+                        accValue = this.Values[gradientValueIndex].Value.Y;
+                        if (i >= valueCount || this.Values[gradientValueIndex].Time >= time)
+                        {
+                            break;
+                        }
+
+                        gradientValueIndex++;
+                    }
+
+                    float v7 = (time - this.Values[gradientValueIndex - 1].Value.Y) / (accValue - this.Values[gradientValueIndex - 1].Value.Y);
+                    float v8 = ((this.Values[gradientValueIndex].Value.Z - this.Values[gradientValueIndex - 1].Value.Z) * v7) + this.Values[gradientValueIndex - 1].Value.Z;
+                    float v9 = ((this.Values[gradientValueIndex].Value.W - this.Values[gradientValueIndex - 1].Value.W) * v7) + this.Values[gradientValueIndex - 1].Value.W;
+                    float v10 = ((this.Values[gradientValueIndex + 1].Time - this.Values[gradientValueIndex].Time) * v7) * this.Values[gradientValueIndex].Time;
+
+                    return new Vector4(v8, v9, v10, 0);
+                }
+                else
+                {
+                    return this.Values[valueCount].Value;
+                }
+            }
+            else
+            {
+                return this.Values[0].Value;
             }
         }
 
@@ -66,7 +120,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.Type);
 
             uint usedValueCount = 0;
-            for(int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 usedValueCount += this.Values[i] == null ? (uint)1 : 0;
             }
@@ -74,7 +128,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
 
             foreach (TimeGradientValue value in this.Values)
             {
-                if(value != null)
+                if (value != null)
                 {
                     value.Write(bw);
                 }
@@ -108,7 +162,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="value">The value of this <see cref="TimeGradientValue"/></param>
         public TimeGradientValue(float time, Vector4 value)
         {
-            if(time > 1 || time < 0)
+            if (time > 1 || time < 0)
             {
                 throw new ArgumentException("Time must be normalized in a range from 0 - 1");
             }
