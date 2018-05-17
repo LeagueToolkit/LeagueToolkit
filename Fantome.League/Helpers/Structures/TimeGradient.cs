@@ -57,6 +57,10 @@ namespace Fantome.Libraries.League.Helpers.Structures
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="TimeGradientValue"/> count of this <see cref="TimeGradient"/>
+        /// </summary>
+        /// <remarks>This method should be used instead of assuming each gradient has 8 values, as most of the gradients won't have all 8 values set</remarks>
         public uint GetValueCount()
         {
             uint count = 0;
@@ -71,6 +75,10 @@ namespace Fantome.Libraries.League.Helpers.Structures
             return count;
         }
 
+        /// <summary>
+        /// Gets a value from this <see cref="TimeGradient"/> at the specified time
+        /// </summary>
+        /// <param name="time">The time at which to get the value</param>
         public Vector4 GetValue(float time)
         {
             if (time > 0)
@@ -93,12 +101,24 @@ namespace Fantome.Libraries.League.Helpers.Structures
                         gradientValueIndex++;
                     }
 
-                    float v7 = (time - this.Values[gradientValueIndex - 1].Value.Y) / (accValue - this.Values[gradientValueIndex - 1].Value.Y);
-                    float v8 = ((this.Values[gradientValueIndex].Value.Z - this.Values[gradientValueIndex - 1].Value.Z) * v7) + this.Values[gradientValueIndex - 1].Value.Z;
-                    float v9 = ((this.Values[gradientValueIndex].Value.W - this.Values[gradientValueIndex - 1].Value.W) * v7) + this.Values[gradientValueIndex - 1].Value.W;
-                    float v10 = ((this.Values[gradientValueIndex + 1].Time - this.Values[gradientValueIndex].Time) * v7) * this.Values[gradientValueIndex].Time;
+                    float minTime = this.Values[gradientValueIndex - 1].Time;
+                    float maxTime = this.Values[gradientValueIndex].Time;
+                    float minX = this.Values[gradientValueIndex - 1].Value.X;
+                    float minY = this.Values[gradientValueIndex - 1].Value.Y;
+                    float minZ = this.Values[gradientValueIndex - 1].Value.Z;
+                    float minW = this.Values[gradientValueIndex - 1].Value.W;
+                    float maxX = this.Values[gradientValueIndex].Value.X;
+                    float maxY = this.Values[gradientValueIndex].Value.Y;
+                    float maxZ = this.Values[gradientValueIndex].Value.Z;
+                    float maxW = this.Values[gradientValueIndex].Value.W;
 
-                    return new Vector4(v8, v9, v10, 0);
+                    float timeFraction = (time - minTime) / (maxTime - minTime);
+                    float x = (maxX - minX) * timeFraction + minX;
+                    float y = (maxY - minY) * timeFraction + minY;
+                    float z = (maxZ - minZ) * timeFraction + minZ;
+                    float w = (maxW - minW) * timeFraction + minW;
+
+                    return new Vector4(x, y, z, w);
                 }
                 else
                 {

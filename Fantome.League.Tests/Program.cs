@@ -29,7 +29,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            SKNTest();
+            AtmosphereTest();
         }
 
         static void WGEOTest()
@@ -176,8 +176,8 @@ namespace Fantome.Libraries.League.Tests
         static void AtmosphereTest()
         {
             AtmosphereFile atmosphere = new AtmosphereFile("Atmosphere.dat");
-            Vector4 startEpsilon = atmosphere.SkyColor.GetValue(0.7075f);
-            Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.9f);
+            Vector4 startEpsilon = atmosphere.SkyColor.GetValue(0.5f);
+            Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.7076f);
             atmosphere.Write("kek.dat");
         }
     }
