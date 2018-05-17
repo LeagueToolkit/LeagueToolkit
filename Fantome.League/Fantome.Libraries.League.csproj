@@ -60,10 +60,12 @@
     <Compile Include="Converters\SCOConverter.cs" />
     <Compile Include="Converters\SKNConverter.cs" />
     <Compile Include="Converters\WGEOConverter.cs" />
+    <Compile Include="Helpers\Attributes\IniPropertyAttribute.cs" />
     <Compile Include="Helpers\Compression.cs" />
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
     <Compile Include="Helpers\Structures.cs" />
+    <Compile Include="Helpers\TextStructureProcessor.cs" />
     <Compile Include="Helpers\Utilities.cs" />
     <Compile Include="Helpers\XXHash.cs" />
     <Compile Include="IO\AiMesh\AiMeshCell.cs" />
@@ -103,6 +105,8 @@
     <Compile Include="IO\NVR\NVRVertex.cs" />
     <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
     <Compile Include="IO\INI\IniFile.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigFile.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigObject.cs" />
     <Compile Include="IO\OBJ\OBJFace.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
