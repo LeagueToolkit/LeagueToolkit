@@ -13,6 +13,8 @@ using Fantome.Libraries.League.IO.MapObjects;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.ObjectConfig;
+using Fantome.Libraries.League.IO.RiotArchive;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
@@ -29,7 +31,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            AtmosphereTest();
+          AtmosphereTest();
         }
 
         static void WGEOTest()
@@ -179,6 +181,13 @@ namespace Fantome.Libraries.League.Tests
             Vector4 startEpsilon = atmosphere.SkyColor.GetValue(0.5f);
             Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.7076f);
             atmosphere.Write("kek.dat");
+        }
+      
+        static void INIObjectsTest()
+        {
+            IniFile ini = new IniFile("ObjectCFG.cfg");
+            ObjectConfigFile objectConfig = new ObjectConfigFile(ini);
+            objectConfig.Write("kek.cfg");
         }
     }
 }
