@@ -1,5 +1,7 @@
 using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.AiMesh;
+using Fantome.Libraries.League.IO.Atmosphere;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.INI;
@@ -29,7 +31,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            INIObjectsTest();
+          AtmosphereTest();
         }
 
         static void WGEOTest()
@@ -47,7 +49,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Plantking.skn");
+            SKNFile skn = new SKNFile("Pyke_Base.Pyke.skn");
         }
 
         static void FXTest()
@@ -139,7 +141,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("Map19.wad.client"))
+            using (WADFile wad = new WADFile("Pyke.wad.client"))
             {
 
             }
@@ -173,6 +175,14 @@ namespace Fantome.Libraries.League.Tests
             cfg.Write("ObjectCFGWrite.cfg");
         }
 
+        static void AtmosphereTest()
+        {
+            AtmosphereFile atmosphere = new AtmosphereFile("Atmosphere.dat");
+            Vector4 startEpsilon = atmosphere.SkyColor.GetValue(0.5f);
+            Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.7076f);
+            atmosphere.Write("kek.dat");
+        }
+      
         static void INIObjectsTest()
         {
             IniFile ini = new IniFile("ObjectCFG.cfg");
