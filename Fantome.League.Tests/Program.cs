@@ -13,6 +13,7 @@ using Fantome.Libraries.League.IO.MapObjects;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.ObjectConfig;
 using Fantome.Libraries.League.IO.RiotArchive;
 using Fantome.Libraries.League.IO.SCB;
@@ -31,13 +32,20 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-          AtmosphereTest();
+            InibinTest();
         }
 
         static void WGEOTest()
         {
             WGEOFile wgeo = new WGEOFile("room.wgeo");
-            wgeo.Write("roomWrite.wgeo");
+
+            int index = 0;
+            foreach(OBJFile obj in OBJConverter.ConvertWGEOModels(wgeo))
+            {
+                obj.Write(string.Format("wgeo//{1}_{0}.obj", index, wgeo.Models[index].Material));
+
+                index++;
+            }
         }
 
         static void MOBTest()
@@ -129,7 +137,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void InibinTest()
         {
-            InibinFile inibin = new InibinFile("bestInibinMapskins.inibin");
+            InibinFile inibin = new InibinFile("Aatrox_Skin02_Passive_Death_Activate.troybin");
             inibin.AddValue("Attack", "e-xrgba", 5);
             inibin.AddValue("Attack", "kek", 10);
             inibin.AddValue("Attack", "lol", 25d);
