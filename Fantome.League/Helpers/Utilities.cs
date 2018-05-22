@@ -10,7 +10,7 @@ namespace Fantome.Libraries.League.Helpers.Utilities
     {
         public static string ByteArrayToHex(byte[] array, bool reverse)
         {
-            if(reverse)
+            if (reverse)
             {
                 array = array.Reverse().ToArray();
             }
@@ -18,7 +18,7 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             StringBuilder hexString = new StringBuilder(array.Length * 2);
             string hexAlphabeth = "0123456789ABCDEF";
 
-            for(int i = 0; i < array.Length; i++)
+            for (int i = 0; i < array.Length; i++)
             {
                 hexString.Append(hexAlphabeth[array[i] >> 4]);
                 hexString.Append(hexAlphabeth[array[i] & 0xF]);
@@ -29,6 +29,11 @@ namespace Fantome.Libraries.League.Helpers.Utilities
 
         public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
         {
+            if (fileData.Length < 4)
+            {
+                return LeagueFileType.Unknown;
+            }
+
             if (fileData[0] == 'r' && fileData[1] == '3' && fileData[2] == 'd' && fileData[3] == '2')
             {
                 if (fileData[4] == 'M' && fileData[5] == 'e' && fileData[6] == 's' && fileData[7] == 'h')
@@ -47,28 +52,44 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                 {
                     return LeagueFileType.ANM;
                 }
+                else if (fileData[4] == 1 && fileData[5] == 0 && fileData[6] == 0 && fileData[7] == 0)
+                {
+                    return LeagueFileType.WPK;
+                }
             }
-            else if (fileData[0] == 'B' && fileData[1] == 'K' && fileData[2] == 'H' && fileData[3] == 'D')
+            else if (fileData[1] == 'P' && fileData[2] == 'N' && fileData[3] == 'G')
             {
-                return LeagueFileType.BNK;
-            }
-            else if (fileData[0] == 0x33 && fileData[1] == 0x22 && fileData[2] == 0x11 && fileData[3] == 0x00)
-            {
-                return LeagueFileType.SKN;
+                return LeagueFileType.PNG;
             }
             else if (fileData[0] == 'D' && fileData[1] == 'D' && fileData[2] == 'S' && fileData[3] == 0x20)
             {
                 return LeagueFileType.DDS;
             }
+            else if (fileData[0] == 0x33 && fileData[1] == 0x22 && fileData[2] == 0x11 && fileData[3] == 0x00)
+            {
+                return LeagueFileType.SKN;
+            }
             else if (fileData[0] == 'P' && fileData[1] == 'R' && fileData[2] == 'O' && fileData[3] == 'P')
             {
                 return LeagueFileType.BIN;
+            }
+            else if (fileData[0] == 'B' && fileData[1] == 'K' && fileData[2] == 'H' && fileData[3] == 'D')
+            {
+                return LeagueFileType.BNK;
+            }
+            else if (fileData[0] == 'W' && fileData[1] == 'G' && fileData[2] == 'E' && fileData[3] == 'O')
+            {
+                return LeagueFileType.WGEO;
+            }
+            else if (fileData[0] == 'O' && fileData[1] == 'E' && fileData[2] == 'G' && fileData[3] == 'M')
+            {
+                return LeagueFileType.MAPGEO;
             }
             else if (fileData[0] == '[' && fileData[1] == 'O' && fileData[2] == 'b' && fileData[3] == 'j')
             {
                 return LeagueFileType.SCO;
             }
-            else if(fileData[1] == 'L' && fileData[2] == 'u' && fileData[3] == 'a' && fileData[4] == 'Q')
+            else if (fileData[1] == 'L' && fileData[2] == 'u' && fileData[3] == 'a' && fileData[4] == 'Q')
             {
                 return LeagueFileType.LUAOBJ;
             }
@@ -76,14 +97,15 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             {
                 return LeagueFileType.PRELOAD;
             }
-            else if (fileData[1] == 'P' && fileData[2] == 'N' && fileData[3] == 'G')
+            else if (fileData[0] == 3 && fileData[1] == 0 && fileData[2] == 0 && fileData[3] == 0)
             {
-                return LeagueFileType.PNG;
+                return LeagueFileType.LIGHTGRID;
             }
             else if (BitConverter.ToInt32(fileData.Take(4).ToArray(), 0) == fileData.Length)
             {
                 return LeagueFileType.SKL;
             }
+
             return LeagueFileType.Unknown;
         }
 
@@ -113,6 +135,14 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "skl";
                 case LeagueFileType.SKN:
                     return "skn";
+                case LeagueFileType.WPK:
+                    return "wpk";
+                case LeagueFileType.MAPGEO:
+                    return "mapgeo";
+                case LeagueFileType.WGEO:
+                    return "wgeo";
+                case LeagueFileType.LIGHTGRID:
+                    return "dat";
                 default:
                     return "";
             }
@@ -126,12 +156,16 @@ namespace Fantome.Libraries.League.Helpers.Utilities
         BIN,
         BNK,
         DDS,
+        LIGHTGRID,
         LUAOBJ,
+        MAPGEO,
         PNG,
         PRELOAD,
         SCB,
         SCO,
         SKL,
-        SKN
+        SKN,
+        WGEO,
+        WPK
     }
 }

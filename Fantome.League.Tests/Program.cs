@@ -1,5 +1,7 @@
 using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.AiMesh;
+using Fantome.Libraries.League.IO.Atmosphere;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.INI;
@@ -12,6 +14,8 @@ using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.OBJ;
+using Fantome.Libraries.League.IO.ObjectConfig;
+using Fantome.Libraries.League.IO.RiotArchive;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
@@ -53,7 +57,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Plantking.skn");
+            SKNFile skn = new SKNFile("Pyke_Base.Pyke.skn");
         }
 
         static void FXTest()
@@ -103,7 +107,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("880D994B89429092.bin");
+            BINFile bin = new BINFile("D2E417608491E1C8.bin");
             bin.Write("test.bin");
         }
 
@@ -145,7 +149,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("Map19.wad.client"))
+            using (WADFile wad = new WADFile("Pyke.wad.client"))
             {
 
             }
@@ -177,6 +181,21 @@ namespace Fantome.Libraries.League.Tests
         {
             IniFile cfg = new IniFile("ObjectCFG.cfg");
             cfg.Write("ObjectCFGWrite.cfg");
+        }
+
+        static void AtmosphereTest()
+        {
+            AtmosphereFile atmosphere = new AtmosphereFile("Atmosphere.dat");
+            Vector4 startEpsilon = atmosphere.SkyColor.GetValue(0.5f);
+            Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.7076f);
+            atmosphere.Write("kek.dat");
+        }
+      
+        static void INIObjectsTest()
+        {
+            IniFile ini = new IniFile("ObjectCFG.cfg");
+            ObjectConfigFile objectConfig = new ObjectConfigFile(ini);
+            objectConfig.Write("kek.cfg");
         }
     }
 }

@@ -32,11 +32,10 @@ namespace Fantome.Libraries.League.IO.WAD
         /// </summary>
         internal Stream _stream { get; private set; }
 
-        private byte _major;
+        internal byte _major;
+        internal byte _minor;
 
-        private byte _minor;
-
-        private WADFile()
+        public WADFile()
         {
             this.Entries = this._entries.AsReadOnly();
         }
