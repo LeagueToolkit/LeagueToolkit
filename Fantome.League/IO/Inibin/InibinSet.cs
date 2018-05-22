@@ -64,6 +64,7 @@ namespace Fantome.Libraries.League.IO.Inibin
                 hashes.Add(hash);
             }
 
+            byte boolean = 0;
             for (int i = 0; i < valueCount; i++)
             {
                 if (this.Type == InibinFlags.Int32List)
@@ -88,7 +89,6 @@ namespace Fantome.Libraries.League.IO.Inibin
                 }
                 else if (this.Type == InibinFlags.BitList)
                 {
-                    byte boolean = 0;
                     boolean = (i % 8) == 0 ? br.ReadByte() : (byte)(boolean >> 1);
                     this.Properties[hashes[i]] = Convert.ToBoolean(0x1 & boolean);
                 }
@@ -178,7 +178,7 @@ namespace Fantome.Libraries.League.IO.Inibin
                 List<bool> booleans = this.Properties.Values.Cast<bool>().ToList();
                 byte value = 0;
 
-                while((booleans.Count % 8) != 0)
+                while ((booleans.Count % 8) != 0)
                 {
                     booleans.Add(false);
                 }
