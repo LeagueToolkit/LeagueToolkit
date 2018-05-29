@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
@@ -38,6 +39,30 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.Y = y;
             this.Z = z;
             this.W = w;
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="Quaternion"/> from a <see cref="BinaryReader"/>
+        /// </summary>
+        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
+        public Quaternion(BinaryReader br)
+        {
+            this.X = br.ReadSingle();
+            this.Y = br.ReadSingle();
+            this.Z = br.ReadSingle();
+            this.W = br.ReadSingle();
+        }
+
+        /// <summary>
+        /// Writes this <see cref="Quaternion"/> into a <see cref="BinaryWriter"/>
+        /// </summary>
+        /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.X);
+            bw.Write(this.Y);
+            bw.Write(this.Z);
+            bw.Write(this.W);
         }
 
         /// <summary>
