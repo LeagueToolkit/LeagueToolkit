@@ -17,7 +17,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float Radius;
 
         /// <summary>
-        /// Initializes a new <see cref="R3DSphere"/> instance
+        /// Initializes a new <see cref="R3DSphere"/>
         /// </summary>
         /// <param name="position">Position of the sphere</param>
         /// <param name="radius">Radius of the sphere</param>
@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="R3DSphere"/> instance from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="R3DSphere"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public R3DSphere(BinaryReader br)

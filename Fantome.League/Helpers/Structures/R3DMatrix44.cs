@@ -26,7 +26,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float M44 { get; private set; }
 
         /// <summary>
-        /// Initializes a new <see cref="R3DMatrix44"/> instance
+        /// Initializes a new <see cref="R3DMatrix44"/>
         /// </summary>
         public R3DMatrix44()
         {
@@ -263,6 +263,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 + this.M12 * this.M23 * this.M31);
         }
 
+        /// <summary>
+        /// Multiplies <paramref name="a"/> and <paramref name="b"/> together
+        /// </summary>
         public static R3DMatrix44 operator *(R3DMatrix44 a, R3DMatrix44 b)
         {
             return new R3DMatrix44()

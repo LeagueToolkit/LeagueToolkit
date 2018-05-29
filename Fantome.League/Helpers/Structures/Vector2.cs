@@ -4,7 +4,7 @@ using System.IO;
 namespace Fantome.Libraries.League.Helpers.Structures
 {
     /// <summary>
-    /// Represents a Vector containing two floats
+    /// Represents a float Vector with 2 components
     /// </summary>
     public class Vector2 : IEquatable<Vector2>
     {
@@ -18,7 +18,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float Y { get; set; }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector2"/> instance
+        /// Initializes a new <see cref="Vector2"/>
         /// </summary>
         public Vector2(float x, float y)
         {
@@ -27,7 +27,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector2"/> instance by reading the components from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="Vector2"/> by reading the components from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br"><see cref="BinaryReader"/> to read from</param>
         public Vector2(BinaryReader br)
@@ -47,17 +47,16 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Determines wheter this <see cref="Vector2"/> is equal to <paramref name="other"/>
+        /// Determines whether this <see cref="Vector2"/> is equal to <paramref name="other"/>
         /// </summary>
         /// <param name="other"><see cref="Vector2"/> to compare to</param>
-        /// <returns>Wheter this <see cref="Vector2"/> is equal to <paramref name="other"/></returns>
         public bool Equals(Vector2 other)
         {
             return (this.X == other.X) && (this.Y == other.Y);
         }
 
         /// <summary>
-        /// Adds 2 <see cref="Vector2"/> togeather
+        /// Adds together the components of <paramref name="x"/> and <paramref name="y"/>
         /// </summary>
         public static Vector2 operator +(Vector2 x, Vector2 y)
         {
@@ -65,7 +64,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Subtracts 2 <see cref="Vector2"/>
+        /// Subtracts the components of <paramref name="x"/> by <paramref name="y"/>
         /// </summary>
         public static Vector2 operator -(Vector2 x, Vector2 y)
         {

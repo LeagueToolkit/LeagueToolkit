@@ -5,7 +5,7 @@ using System.IO;
 namespace Fantome.Libraries.League.Helpers.Structures
 {
     /// <summary>
-    /// Represents a Vector containing three floats
+    /// Represents a float Vector with 3 components
     /// </summary>
     public class Vector3 : IEquatable<Vector3>
     {
@@ -33,7 +33,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector3"/> instance from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="Vector3"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public Vector3(BinaryReader br)
@@ -44,7 +44,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector3"/> instance from a <see cref="StreamReader"/>
+        /// Initializes a new <see cref="Vector3"/> from a <see cref="StreamReader"/>
         /// </summary>
         /// <param name="sr">The <see cref="StreamReader"/> to read from</param>
         public Vector3(StreamReader sr)
@@ -77,8 +77,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Calculates a Cross product from two <see cref="Vector3"/>
-        /// </summary>q
+        /// Calculates the Cross product of <paramref name="x"/> and <paramref name="y"/>
+        /// </summary>
         public static Vector3 Cross(Vector3 x, Vector3 y)
         {
             return new Vector3(
@@ -90,7 +90,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// Calculates the distance between <paramref name="x"/> and <paramref name="y"/>
         /// </summary>
-        /// <returns>The distance between <paramref name="x"/> and <paramref name="y"/></returns>
         public static float Distance(Vector3 x, Vector3 y)
         {
             return (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) - Math.Pow(x.Y - y.Y, 2) - Math.Pow(x.Z - y.Z, 2));
@@ -100,14 +99,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// Determines wheter this <see cref="Vector3"/> is equal to <paramref name="other"/>
         /// </summary>
         /// <param name="other">The <see cref="Vector3"/> to compare to</param>
-        /// <returns>Wheter <paramref name="other"/> is equal to this <see cref="Vector3"/></returns>
         public bool Equals(Vector3 other)
         {
             return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
         }
 
         /// <summary>
-        /// Adds two <see cref="Vector3"/>
+        /// Adds together the components of <paramref name="x"/> and <paramref name="y"/>
         /// </summary>
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
@@ -115,7 +113,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Subtracts two <see cref="Vector3"/>
+        /// Subtracts the components of <paramref name="x"/> by <paramref name="y"/>
         /// </summary>
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {

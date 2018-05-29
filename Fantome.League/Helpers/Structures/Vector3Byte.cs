@@ -21,7 +21,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public byte Z { get; set; }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector3Byte"/> instance
+        /// Initializes a new <see cref="Vector3Byte"/>
         /// </summary>
         public Vector3Byte(byte x, byte y, byte z)
         {
@@ -31,7 +31,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector3Byte"/> instance from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="Vector3Byte"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public Vector3Byte(BinaryReader br)

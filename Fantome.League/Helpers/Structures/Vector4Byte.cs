@@ -25,7 +25,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public byte W { get; set; }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector4Byte"/> instance
+        /// Initializes a new <see cref="Vector4Byte"/>
         /// </summary>
         public Vector4Byte(byte x, byte y, byte z, byte w)
         {
@@ -36,7 +36,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector4Byte"/> instance from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="Vector4Byte"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public Vector4Byte(BinaryReader br)

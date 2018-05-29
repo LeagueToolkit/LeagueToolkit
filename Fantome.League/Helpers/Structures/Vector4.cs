@@ -4,7 +4,7 @@ using System.IO;
 namespace Fantome.Libraries.League.Helpers.Structures
 {
     /// <summary>
-    /// Represents a Vector containing four floats
+    /// Represents a float Vector with 4 components
     /// </summary>
     public class Vector4 : IEquatable<Vector4>
     {
@@ -71,7 +71,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Subtracts two <see cref="Vector4"/>
+        /// Adds together the components of <paramref name="x"/> and <paramref name="y"/>
         /// </summary>
         public static Vector4 operator +(Vector4 x, Vector4 y)
         {
@@ -79,7 +79,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Adds two <see cref="Vector4"/>
+        /// Subtracts the components of <paramref name="x"/> by <paramref name="y"/>
         /// </summary>
         public static Vector4 operator -(Vector4 x, Vector4 y)
         {

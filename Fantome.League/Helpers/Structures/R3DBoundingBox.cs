@@ -17,10 +17,10 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public Vector3 Size { get; set; }
 
         /// <summary>
-        /// Initializes a new <see cref="R3DBoundingBox"/> instance
+        /// Initializes a new <see cref="R3DBoundingBox"/>
         /// </summary>
-        /// <param name="org"></param>
-        /// <param name="size"></param>
+        /// <param name="org">The Org component</param>
+        /// <param name="size">The Size component</param>
         public R3DBoundingBox(Vector3 org, Vector3 size)
         {
             this.Org = org;
@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Initializes a new <see cref="R3DBoundingBox"/> instance from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="R3DBoundingBox"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public R3DBoundingBox(BinaryReader br)
