@@ -25,7 +25,12 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float W { get; set; }
 
         /// <summary>
-        /// Initializes a new <see cref="Quaternion"/> instance
+        /// Initializes a new <see cref="Quaternion"/>
+        /// </summary>
+        public Quaternion() { }
+
+        /// <summary>
+        /// Initializes a new <see cref="Quaternion"/>
         /// </summary>
         public Quaternion(float x, float y, float z, float w)
         {
@@ -33,6 +38,44 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.Y = y;
             this.Z = z;
             this.W = w;
+        }
+
+        /// <summary>
+        /// Returns the Conjugate of this <see cref="Quaternion"/>
+        /// </summary>
+        public Quaternion Conjugate()
+        {
+            return new Quaternion()
+            {
+                X = -this.X,
+                Y = -this.Y,
+                Z = -this.Z,
+                W = this.W
+            };
+        }
+
+        /// <summary>
+        /// Multiplies the components of this Quaternion by a scalar
+        /// </summary>
+        /// <param name="scalar">The scalar to multiply by</param>
+        public void Scale(float scalar)
+        {
+            this.X *= scalar;
+            this.Y *= scalar;
+            this.Z *= scalar;
+            this.W *= scalar;
+        }
+
+        /// <summary>
+        /// Normalizes this <see cref="Quaternion"/>
+        /// </summary>
+        public void Normalize()
+        {
+            float normalizer = (float)Math.Sqrt((this.X * this.X) + (this.Y * this.Y) + (this.Z * this.Z) + (this.W * this.W));
+            this.X /= normalizer;
+            this.Y /= normalizer;
+            this.Z /= normalizer;
+            this.W /= normalizer;
         }
 
         /// <summary>
@@ -87,6 +130,34 @@ namespace Fantome.Libraries.League.Helpers.Structures
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Adds <paramref name="x"/> and <paramref name="y"/> together
+        /// </summary>
+        public static Quaternion operator +(Quaternion x, Quaternion y)
+        {
+            return new Quaternion()
+            {
+                X = x.X + y.X,
+                Y = x.Y + y.Y,
+                Z = x.Z + y.Z,
+                W = x.W + y.W
+            };
+        }
+
+        /// <summary>
+        /// Multiplies <paramref name="x"/> and <paramref name="y"/> together
+        /// </summary>
+        public static Quaternion operator *(Quaternion x, Quaternion y)
+        {
+            return new Quaternion()
+            {
+                X = x.X * y.W + x.Y * y.Z - x.Z * y.Y + x.W * y.X,
+                Y = -x.X * y.Z + x.Y * y.W + x.Z * y.X + x.W * y.Y,
+                Z = x.X * y.Y - x.Y * y.X + x.Z * y.W + x.W * y.Z,
+                W = -x.X * y.X - x.Y * y.Y - x.Z * y.Z + x.W * y.W
+            };
         }
     }
 }
