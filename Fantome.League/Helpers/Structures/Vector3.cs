@@ -23,7 +23,12 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float Z { get; set; }
 
         /// <summary>
-        /// Initializes a new <see cref="Vector3"/> instance
+        /// Initializes a new <see cref="Vector3"/>
+        /// </summary>
+        public Vector3() { }
+
+        /// <summary>
+        /// Initializes a new <see cref="Vector3"/>
         /// </summary>
         public Vector3(float x, float y, float z)
         {
@@ -81,10 +86,12 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector3 Cross(Vector3 x, Vector3 y)
         {
-            return new Vector3(
-                (x.Y * y.Z) - (x.Z * y.Y),
-                (x.Z * y.X) - (x.X * y.Z),
-                (x.X * y.Y) - (x.Y * y.X));
+            return new Vector3()
+            {
+                X = (x.Y * y.Z) - (x.Z * y.Y),
+                Y = (x.Z * y.X) - (x.X * y.Z),
+                Z = (x.X * y.Y) - (x.Y * y.X)
+            };
         }
 
         /// <summary>
@@ -109,7 +116,12 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
-            return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
+            return new Vector3()
+            {
+                X = x.X + y.X,
+                Y = x.Y + y.Y,
+                Z = x.Z + y.Z
+            };
         }
 
         /// <summary>
@@ -117,7 +129,25 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {
-            return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
+            return new Vector3()
+            {
+                X = x.X - y.X,
+                Y = x.Y - y.Y,
+                Z = x.Z - y.Z
+            };
+        }
+
+        /// <summary>
+        /// Multiplies the components of <paramref name="x"/> and <paramref name="y"/>
+        /// </summary>
+        public static Vector3 operator *(Vector3 x, Vector3 y)
+        {
+            return new Vector3()
+            {
+                X = x.X * y.X,
+                Y = x.Y * y.Y,
+                Z = x.Z * y.Z
+            };
         }
     }
 }

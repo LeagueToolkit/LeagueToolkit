@@ -20,6 +20,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// Initializes a new <see cref="Vector2"/>
         /// </summary>
+        public Vector2() { }
+
+        /// <summary>
+        /// Initializes a new <see cref="Vector2"/>
+        /// </summary>
         public Vector2(float x, float y)
         {
             this.X = x;
@@ -60,7 +65,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector2 operator +(Vector2 x, Vector2 y)
         {
-            return new Vector2(x.X + y.X, x.Y + y.Y);
+            return new Vector2()
+            {
+                X = x.X + y.X,
+                Y = x.Y + y.Y
+            };
         }
 
         /// <summary>
@@ -68,7 +77,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector2 operator -(Vector2 x, Vector2 y)
         {
-            return new Vector2(x.X - y.X, x.Y - y.Y);
+            return new Vector2()
+            {
+                X = x.X - y.X,
+                Y = x.Y - y.Y
+            };
         }
     }
 }

@@ -26,6 +26,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float W { get; set; }
 
         /// <summary>
+        /// Initializes a new <see cref="Vector4"/>
+        /// </summary>
+        public Vector4() { }
+
+        /// <summary>
         /// Initializes a new <see cref="Vector4"/> instance
         /// </summary>
         public Vector4(float x, float y, float z, float w)
@@ -75,7 +80,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector4 operator +(Vector4 x, Vector4 y)
         {
-            return new Vector4(x.X + y.X, x.Y + y.Y, x.Z + y.Z, x.W + y.W);
+            return new Vector4()
+            {
+                X = x.X + y.X,
+                Y = x.Y + y.Y,
+                Z = x.Z + y.Z,
+                W = x.W + y.W
+            };
         }
 
         /// <summary>
@@ -83,7 +94,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Vector4 operator -(Vector4 x, Vector4 y)
         {
-            return new Vector4(x.X - y.X, x.Y - y.Y, x.Z - y.Z, x.W - y.W);
+            return new Vector4()
+            {
+                X = x.X - y.X,
+                Y = x.Y - y.Y,
+                Z = x.Z - y.Z,
+                W = x.W - y.W
+            };
         }
     }
 }
