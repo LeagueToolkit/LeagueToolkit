@@ -46,5 +46,14 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.Position.Write(bw);
             bw.Write(this.Radius);
         }
+
+        /// <summary>
+        /// Returns whether this <see cref="R3DSphere"/> contains the specified point
+        /// </summary>
+        /// <param name="point">The point which should be tested for containment</param>
+        public bool ContainsPoint(Vector3 point)
+        {
+            return Vector3.Distance(this.Position, point) < this.Radius;
+        }
     }
 }
