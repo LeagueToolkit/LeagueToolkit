@@ -131,7 +131,13 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
         /// </summary>
         public void Remove()
         {
-            if (this.Parent._folders.Contains(this))
+            if (this.Parent == null)
+            {
+                // Happens when attempting to remove the Project (root) folder
+                this._files.Clear();
+                this._folders.Clear();
+            }
+            else if (this.Parent._folders.Contains(this))
             {
                 this.Parent._folders.Remove(this);
             }

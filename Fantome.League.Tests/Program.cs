@@ -21,6 +21,7 @@ using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WorldGeometry;
+using Fantome.Libraries.League.IO.ReleaseManifest;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,7 +33,18 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            InibinTest();
+            ReleaseManifestTest();
+        }
+
+        static void ReleaseManifestTest()
+        {
+            ReleaseManifestFile relMan = new ReleaseManifestFile(new MemoryStream(new System.Net.WebClient().DownloadData("http://l3cdn.riotgames.com/releases/live/projects/lol_game_client/releases/0.0.0.0/releasemanifest")));
+            relMan.Project.Remove();
+            relMan.Write("myrealm");
+            using (FileStream fs = File.Open("myrealm2", FileMode.Create))
+            {
+                relMan.Write(fs);
+            }
         }
 
         static void WGEOTest()
@@ -40,7 +52,7 @@ namespace Fantome.Libraries.League.Tests
             WGEOFile wgeo = new WGEOFile("room.wgeo");
 
             int index = 0;
-            foreach(OBJFile obj in OBJConverter.ConvertWGEOModels(wgeo))
+            foreach (OBJFile obj in OBJConverter.ConvertWGEOModels(wgeo))
             {
                 obj.Write(string.Format("wgeo//{1}_{0}.obj", index, wgeo.Models[index].Material));
 
@@ -149,9 +161,10 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("Pyke.wad.client"))
+            using (WADFile wad = new WADFile("Zed.wad.client"))
             {
-
+                wad.RemoveEntry(wad.Entries[0]);
+                wad.Write("Zed.wad.client");
             }
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {
@@ -190,7 +203,7 @@ namespace Fantome.Libraries.League.Tests
             Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.7076f);
             atmosphere.Write("kek.dat");
         }
-      
+
         static void INIObjectsTest()
         {
             IniFile ini = new IniFile("ObjectCFG.cfg");

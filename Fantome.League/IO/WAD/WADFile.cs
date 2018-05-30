@@ -201,6 +201,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// Writes this <see cref="WADFile"/> to the specified location
         /// </summary>
+        /// <remarks>It is not possible to overwrite the opened file</remarks>
         /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
@@ -210,6 +211,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// Writes this <see cref="WADFile"/> to the specified location
         /// </summary>
+        /// <remarks>It is not possible to overwrite the opened file</remarks>
         /// <param name="fileLocation">The location to write to</param>
         /// <param name="major">Which major version this <see cref="WADFile"/> should be saved as</param>
         /// <param name="minor">Which minor version this <see cref="WADFile"/> should be saved as</param>

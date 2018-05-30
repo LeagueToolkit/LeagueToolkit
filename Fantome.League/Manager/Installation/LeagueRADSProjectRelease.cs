@@ -42,7 +42,7 @@ namespace Fantome.Libraries.League.Manager.Installation
             Directory.CreateDirectory(originalManifestFolder);
             if (!File.Exists(manifestPath))
             {
-                File.Copy(this.GameManifest.FilePath, manifestPath);
+                File.Copy(this.GetFolder() + "/releasemanifest", manifestPath);
             }
             this.OriginalManifest = new ReleaseManifestFile(manifestPath);
         }
@@ -176,7 +176,7 @@ namespace Fantome.Libraries.League.Manager.Installation
         {
             if (HasChanged)
             {
-                GameManifest.Save();
+                GameManifest.Write(this.GetFolder() + "/releasemanifest");
                 HasChanged = false;
             }
         }

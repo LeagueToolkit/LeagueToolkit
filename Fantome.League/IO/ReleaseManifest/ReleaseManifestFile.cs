@@ -11,11 +11,6 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
     public class ReleaseManifestFile
     {
         /// <summary>
-        /// File path of the parsed <see cref="ReleaseManifest"/>.
-        /// </summary>
-        public string FilePath { get; private set; }
-
-        /// <summary>
         /// Major version of the parsed <see cref="ReleaseManifest"/>.
         /// </summary>
         public short MajorVersion { get; private set; }
@@ -48,12 +43,23 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
         public ReleaseManifestFolderEntry Project { get; private set; }
 
         /// <summary>
+        /// Parses a League of Legends Release Manifest File from the specified <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="stream">Stream to read from</param>
+        public ReleaseManifestFile(Stream stream)
+        {
+            using (BinaryReader br = new BinaryReader(stream))
+            {
+                this.Read(br);
+            }
+        }
+
+        /// <summary>
         /// Parses a League of Legends Release Manifest File at <paramref name="filePath"/>.
         /// </summary>
-        /// <param name="filePath">Path to the Release Manifest</param>
+        /// <param name="filePath">Path to the Release Manifest.</param>
         public ReleaseManifestFile(string filePath)
         {
-            this.FilePath = filePath;
             using (BinaryReader br = new BinaryReader(File.OpenRead(filePath), Encoding.ASCII))
             {
                 this.Read(br);
@@ -127,26 +133,6 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
         }
 
         /// <summary>
-        /// Saves the current <see cref="ReleaseManifest"/> at the initially specified path.
-        /// </summary>
-        public void Save()
-        {
-            this.Save(this.FilePath);
-        }
-
-        /// <summary>
-        /// Saves the current <see cref="ReleaseManifest"/> at the specified path.
-        /// </summary>
-        /// <param name="filePath">Path where to save the file.</param>
-        public void Save(string filePath)
-        {
-            using (BinaryWriter bw = new BinaryWriter(new FileStream(filePath, FileMode.Create)))
-            {
-                this.Write(bw);
-            }
-        }
-
-        /// <summary>
         /// Parses Release Manifest File content from a previously initialized <see cref="BinaryReader"/>.
         /// </summary>
         /// <param name="br"><see cref="BinaryReader"/> instance holding Release Manifest File content.</param>
@@ -209,6 +195,30 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
                 fileEntry.Name = this.Names[fileEntry.NameIndex];
             }
             this.Project = folders[0];
+        }
+
+        /// <summary>
+        /// Writes this <see cref="ReleaseManifest"/> to the specified location/path.
+        /// </summary>
+        /// <param name="fileLocation">Path where to write the file.</param>
+        public void Write(string fileLocation)
+        {
+            using (BinaryWriter bw = new BinaryWriter(new FileStream(fileLocation, FileMode.Create)))
+            {
+                this.Write(bw);
+            }
+        }
+
+        /// <summary>
+        /// Writes this <see cref="ReleaseManifest"/> into a <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
+            {
+                this.Write(bw);
+            }
         }
 
         /// <summary>

@@ -28,7 +28,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Initializes a new <see cref="BINFile"/> from the specified stream
         /// </summary>
-        /// <param name="stream">Straem to read from</param>
+        /// <param name="stream">Stream to read from</param>
         public BINFile(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
