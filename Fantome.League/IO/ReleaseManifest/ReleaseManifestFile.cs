@@ -198,7 +198,7 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
         }
 
         /// <summary>
-        /// Writes the current <see cref="ReleaseManifest"/> at the specified path.
+        /// Writes this <see cref="ReleaseManifest"/> to the specified location/path.
         /// </summary>
         /// <param name="fileLocation">Path where to write the file.</param>
         public void Write(string fileLocation)
@@ -210,7 +210,7 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
         }
 
         /// <summary>
-        /// Writes the current <see cref="ReleaseManifest"/> into a <see cref="Stream"/>.
+        /// Writes this <see cref="ReleaseManifest"/> into a <see cref="Stream"/>.
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
