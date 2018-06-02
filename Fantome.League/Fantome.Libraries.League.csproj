@@ -140,6 +140,8 @@
     <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
     <Compile Include="IO\WAD\WADFile.cs" />
+    <Compile Include="IO\WorldDescription\WorldDescriptionFile.cs" />
+    <Compile Include="IO\WorldDescription\WorldDescriptionObject.cs" />
     <Compile Include="IO\WorldGeometry\WGEOBucket.cs" />
     <Compile Include="IO\WorldGeometry\WGEOBucketGeometry.cs" />
     <Compile Include="IO\WorldGeometry\WGEOFile.cs" />
