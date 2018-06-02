@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Fantome.Libraries.League.IO.WorldDescription;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -33,7 +34,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            ReleaseManifestTest();
+            WorldDescriptionTest();
         }
 
         static void ReleaseManifestTest()
@@ -209,6 +210,12 @@ namespace Fantome.Libraries.League.Tests
             IniFile ini = new IniFile("ObjectCFG.cfg");
             ObjectConfigFile objectConfig = new ObjectConfigFile(ini);
             objectConfig.Write("kek.cfg");
+        }
+
+        static void WorldDescriptionTest()
+        {
+            WorldDescriptionFile dsc = new WorldDescriptionFile("room.dsc");
+            dsc.Write("room.kek.dsc");
         }
     }
 }

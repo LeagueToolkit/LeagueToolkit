@@ -32,7 +32,7 @@ namespace Fantome.Libraries.League.IO.WorldDescription
         {
             using (StreamReader sr = new StreamReader(stream))
             {
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     this.Objects.Add(new WorldDescriptionObject(sr));
                 }
@@ -56,7 +56,7 @@ namespace Fantome.Libraries.League.IO.WorldDescription
         {
             using (StreamWriter sw = new StreamWriter(stream))
             {
-                foreach(WorldDescriptionObject worldObject in this.Objects)
+                foreach (WorldDescriptionObject worldObject in this.Objects)
                 {
                     worldObject.Write(sw);
                 }
