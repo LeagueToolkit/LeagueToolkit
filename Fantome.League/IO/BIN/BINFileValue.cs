@@ -126,9 +126,9 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = new BINFileMap(br, this);
             }
-            else if (this.Type == BINFileValueType.UnknownByte)
+            else if (this.Type == BINFileValueType.FlagsBoolean)
             {
-                this.Value = br.ReadByte();
+                this.Value = br.ReadBoolean();
             }
             else
             {
@@ -241,9 +241,9 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 (this.Value as BINFileMap).Write(bw);
             }
-            else if (this.Type == BINFileValueType.UnknownByte)
+            else if (this.Type == BINFileValueType.FlagsBoolean)
             {
-                bw.Write((byte)this.Value);
+                bw.Write((bool)this.Value);
             }
         }
 
@@ -260,7 +260,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 case BINFileValueType.Boolean:
                 case BINFileValueType.SByte:
                 case BINFileValueType.Byte:
-                case BINFileValueType.UnknownByte:
+                case BINFileValueType.FlagsBoolean:
                     size += 1;
                     break;
 
@@ -414,8 +414,8 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         Map = 23,
         /// <summary>
-        /// Represents a <see cref="byte"/> value
+        /// Represents a <see cref="bool"/>
         /// </summary>
-        UnknownByte = 24
+        FlagsBoolean = 24
     }
 }
