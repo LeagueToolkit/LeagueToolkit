@@ -34,7 +34,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            WorldDescriptionTest();
+            BINTest();
         }
 
         static void ReleaseManifestTest()
@@ -120,7 +120,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("D2E417608491E1C8.bin");
+            BINFile bin = new BINFile("4E348110B14461B3.bin");
             bin.Write("test.bin");
         }
 
