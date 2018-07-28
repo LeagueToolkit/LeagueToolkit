@@ -149,14 +149,6 @@
     <Compile Include="IO\WorldGeometry\WGEOVertex.cs" />
     <Compile Include="IO\WGT\WGTFile.cs" />
     <Compile Include="IO\WGT\WGTWeight.cs" />
-    <Compile Include="Manager\Installation\LeagueBackupArchive.cs" />
-    <Compile Include="Manager\Installation\LeagueInstallation.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSInstallation.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSProject.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSProjectRelease.cs" />
-    <Compile Include="Manager\Installation\LeagueRawInstallation.cs" />
-    <Compile Include="Manager\LeagueManager.cs" />
-    <Compile Include="Manager\LeagueRADSDeployRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
