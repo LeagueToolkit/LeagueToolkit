@@ -42,6 +42,17 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="ColorRGBVector3Byte"/> object
+        /// </summary>
+        /// <param name="colorRGBVector3Byte">The <see cref="ColorRGBVector3Byte"/> to clone</param>
+        public ColorRGBVector3Byte(ColorRGBVector3Byte colorRGBVector3Byte)
+        {
+            this.R = colorRGBVector3Byte.R;
+            this.G = colorRGBVector3Byte.G;
+            this.B = colorRGBVector3Byte.B;
+        }
+
+        /// <summary>
         /// Writes this <see cref="ColorRGBVector3Byte"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>

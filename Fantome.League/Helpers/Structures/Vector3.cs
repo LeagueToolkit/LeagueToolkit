@@ -44,6 +44,17 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="Vector3"/> object
+        /// </summary>
+        /// <param name="vector3">The <see cref="Vector3"/> to clone</param>
+        public Vector3(Vector3 vector3)
+        {
+            this.X = vector3.X;
+            this.Y = vector3.Y;
+            this.Z = vector3.Z;
+        }
+
+        /// <summary>
         /// Initializes a new <see cref="Vector3"/> instance from a <see cref="StreamReader"/>
         /// </summary>
         /// <param name="sr">The <see cref="StreamReader"/> to read from</param>
