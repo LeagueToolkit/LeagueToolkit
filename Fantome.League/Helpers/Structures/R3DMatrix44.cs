@@ -58,6 +58,30 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="R3DMatrix44"/> object
+        /// </summary>
+        /// <param name="r3dMatrix44">The <see cref="R3DMatrix44"/> to clone</param>
+        public R3DMatrix44(R3DMatrix44 r3dMatrix44)
+        {
+            this.M11 = r3dMatrix44.M11;
+            this.M12 = r3dMatrix44.M12;
+            this.M13 = r3dMatrix44.M13;
+            this.M14 = r3dMatrix44.M14;
+            this.M21 = r3dMatrix44.M21;
+            this.M22 = r3dMatrix44.M22;
+            this.M23 = r3dMatrix44.M23;
+            this.M24 = r3dMatrix44.M24;
+            this.M31 = r3dMatrix44.M31;
+            this.M32 = r3dMatrix44.M32;
+            this.M33 = r3dMatrix44.M33;
+            this.M34 = r3dMatrix44.M34;
+            this.M41 = r3dMatrix44.M41;
+            this.M42 = r3dMatrix44.M42;
+            this.M43 = r3dMatrix44.M43;
+            this.M44 = r3dMatrix44.M44;
+        }
+
+        /// <summary>
         /// Resets this <see cref="R3DMatrix44"/> to an Identity Matrix
         /// </summary>
         public void Clear()

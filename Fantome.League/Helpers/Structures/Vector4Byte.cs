@@ -48,6 +48,18 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="Vector4Byte"/> object
+        /// </summary>
+        /// <param name="vector4Byte">The <see cref="Vector4Byte"/> to clone</param>
+        public Vector4Byte(Vector4Byte vector4Byte)
+        {
+            this.X = vector4Byte.X;
+            this.Y = vector4Byte.Y;
+            this.Z = vector4Byte.Z;
+            this.W = vector4Byte.W;
+        }
+
+        /// <summary>
         /// Writes this <see cref="Vector4Byte"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>

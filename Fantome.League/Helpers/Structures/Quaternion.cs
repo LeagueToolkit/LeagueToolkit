@@ -36,6 +36,18 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="Quaternion"/> object
+        /// </summary>
+        /// <param name="quaternion">The <see cref="Quaternion"/> to clone</param>
+        public Quaternion(Quaternion quaternion)
+        {
+            this.X = quaternion.X;
+            this.Y = quaternion.Y;
+            this.Z = quaternion.Z;
+            this.W = quaternion.W;
+        }
+
+        /// <summary>
         /// Returns a <see cref="Quaternion"/> that represents the rotation of the given matrix
         /// </summary>
         public static Quaternion FromTransformationMatrix(R3DMatrix44 matrix)
