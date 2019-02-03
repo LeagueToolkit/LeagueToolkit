@@ -69,6 +69,7 @@ namespace Fantome.Libraries.League.IO.NVR
         {
             Write(File.Create(fileLocation));
         }
+
         public void Write(Stream stream)
         {
             using (BinaryWriter bw = new BinaryWriter(stream))
@@ -200,10 +201,11 @@ namespace Fantome.Libraries.League.IO.NVR
 
         private NVRNode CreateRootNode()
         {
-            // Calculate the bounding box of the entire map + bouding box of the central points of the meshes (used to split nodes).
+            // Calculate the bounding box of the entire map + bounding box of the central points of the meshes (used to split nodes).
             NVRNode rootNode = new NVRNode(this.Meshes);
             // Create children for root node and all of its children and children and children
-            rootNode.Split();
+            if (this.Meshes.Count > 1)
+                rootNode.Split();
             return rootNode;
         }
     }

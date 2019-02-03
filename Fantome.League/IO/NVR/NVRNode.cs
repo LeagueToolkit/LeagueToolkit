@@ -101,7 +101,7 @@ namespace Fantome.Libraries.League.IO.NVR
                 }
                 return new R3DBox(min, max);
             }
-            return null;
+            return new R3DBox(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
         }
 
         public void Split()

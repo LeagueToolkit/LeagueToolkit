@@ -28,17 +28,12 @@ namespace Fantome.Libraries.League.Converters
                     if (mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_4)
                     {
                         NVRVertex4 vertex4 = vertex as NVRVertex4;
-                        vertices.Add(new WGEOVertex(vertex4.Position, vertex4.UV));
+                        vertices.Add(new WGEOVertex(vertex4.Position, NVRVertex.IsGroundType(mesh.Material) ? new Vector2(0, 0) : vertex4.UV));
                     }
                     else if (mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_8)
                     {
                         NVRVertex8 vertex8 = vertex as NVRVertex8;
-                        vertices.Add(new WGEOVertex(vertex8.Position, vertex8.UV));
-                    }
-                    else if (mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_GROUND_8)
-                    {
-                        NVRVertexGround8 vertexGround8 = vertex as NVRVertexGround8;
-                        vertices.Add(new WGEOVertex(vertex.Position, new Vector2(0, 0)));
+                        vertices.Add(new WGEOVertex(vertex8.Position, NVRVertex.IsGroundType(mesh.Material) ? new Vector2(0, 0) : vertex8.UV));
                     }
                     else if (mesh.IndexedPrimitives[0].VertexType == NVRVertexType.NVRVERTEX_12)
                     {

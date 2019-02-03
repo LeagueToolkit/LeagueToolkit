@@ -44,9 +44,6 @@ namespace Fantome.Libraries.League.IO.NVR
                     case NVRVertexType.NVRVERTEX_8:
                         vertexSize = NVRVertex8.Size;
                         break;
-                    case NVRVertexType.NVRVERTEX_GROUND_8:
-                        vertexSize = NVRVertexGround8.Size;
-                        break;
                     case NVRVertexType.NVRVERTEX_12:
                         vertexSize = NVRVertex12.Size;
                         break;
@@ -65,9 +62,6 @@ namespace Fantome.Libraries.League.IO.NVR
                         break;
                     case NVRVertexType.NVRVERTEX_8:
                         newVertex = new NVRVertex8(br);
-                        break;
-                    case NVRVertexType.NVRVERTEX_GROUND_8:
-                        newVertex = new NVRVertexGround8(br);
                         break;
                     case NVRVertexType.NVRVERTEX_12:
                         newVertex = new NVRVertex12(br);
