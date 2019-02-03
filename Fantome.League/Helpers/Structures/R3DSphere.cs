@@ -38,6 +38,16 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="R3DSphere"/> object
+        /// </summary>
+        /// <param name="r3dSphere">The <see cref="R3DSphere"/> to clone</param>
+        public R3DSphere(R3DSphere r3dSphere)
+        {
+            this.Position = new Vector3(r3dSphere.Position);
+            this.Radius = r3dSphere.Radius;
+        }
+
+        /// <summary>
         /// Writes this <see cref="R3DSphere"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>

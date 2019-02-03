@@ -147,8 +147,8 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             }
             else
             {
-                Vector3 min = this.Vertices[0].Position;
-                Vector3 max = this.Vertices[0].Position;
+                Vector3 min = new Vector3(this.Vertices[0].Position);
+                Vector3 max = new Vector3(this.Vertices[0].Position);
 
                 foreach (WGEOVertex vertex in this.Vertices)
                 {

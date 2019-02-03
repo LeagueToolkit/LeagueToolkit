@@ -38,6 +38,16 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="R3DBoundingBox"/> object
+        /// </summary>
+        /// <param name="r3dBoundingBox">The <see cref="R3DBoundingBox"/> to clone</param>
+        public R3DBoundingBox(R3DBoundingBox r3dBoundingBox)
+        {
+            this.Org = new Vector3(r3dBoundingBox.Org);
+            this.Size = new Vector3(r3dBoundingBox.Size);
+        }
+
+        /// <summary>
         /// Writes this <see cref="R3DBoundingBox"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>

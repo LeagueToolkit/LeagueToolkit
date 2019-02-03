@@ -38,6 +38,16 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="R3DBox"/> object
+        /// </summary>
+        /// <param name="r3dBox">The <see cref="R3DBox"/> to clone</param>
+        public R3DBox(R3DBox r3dBox)
+        {
+            this.Min = new Vector3(r3dBox.Min);
+            this.Max = new Vector3(r3dBox.Max);
+        }
+
+        /// <summary>
         /// Writes this <see cref="R3DBox"/> into a <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw"></param>

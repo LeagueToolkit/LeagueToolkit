@@ -39,6 +39,19 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Creates a clone of a <see cref="TimeGradient"/> object
+        /// </summary>
+        /// <param name="timeGradient">The <see cref="TimeGradient"/> to clone</param>
+        public TimeGradient(TimeGradient timeGradient)
+        {
+            this.Type = timeGradient.Type;
+            for (int i = 0; i < timeGradient.Values.Length; i++)
+            {
+                this.Values[i] = new TimeGradientValue(timeGradient.Values[i]);
+            }
+        }
+
+        /// <summary>
         /// Initializes a new <see cref="TimeGradient"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
@@ -199,6 +212,16 @@ namespace Fantome.Libraries.League.Helpers.Structures
         {
             this.Time = br.ReadSingle();
             this.Value = new Vector4(br);
+        }
+
+        /// <summary>
+        /// Creates a clone of a <see cref="TimeGradientValue"/> object
+        /// </summary>
+        /// <param name="timeGradientValue">The <see cref="TimeGradientValue"/> to clone</param>
+        public TimeGradientValue(TimeGradientValue timeGradientValue)
+        {
+            this.Time = timeGradientValue.Time;
+            this.Value = new Vector4(timeGradientValue.Value);
         }
 
         /// <summary>

@@ -126,11 +126,6 @@
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />
-    <Compile Include="IO\ReleaseManifest\ReleaseManifestFile.cs" />
-    <Compile Include="IO\ReleaseManifest\ReleaseManifestFileEntry.cs" />
-    <Compile Include="IO\ReleaseManifest\ReleaseManifestFolderEntry.cs" />
-    <Compile Include="IO\RiotArchive\RAF.cs" />
-    <Compile Include="IO\RiotArchive\RAFFileEntry.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\SCO\SCOFace.cs" />
@@ -149,14 +144,6 @@
     <Compile Include="IO\WorldGeometry\WGEOVertex.cs" />
     <Compile Include="IO\WGT\WGTFile.cs" />
     <Compile Include="IO\WGT\WGTWeight.cs" />
-    <Compile Include="Manager\Installation\LeagueBackupArchive.cs" />
-    <Compile Include="Manager\Installation\LeagueInstallation.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSInstallation.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSProject.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSProjectRelease.cs" />
-    <Compile Include="Manager\Installation\LeagueRawInstallation.cs" />
-    <Compile Include="Manager\LeagueManager.cs" />
-    <Compile Include="Manager\LeagueRADSDeployRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -15,13 +15,11 @@ using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.ObjectConfig;
-using Fantome.Libraries.League.IO.RiotArchive;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WAD;
 using Fantome.Libraries.League.IO.WorldGeometry;
-using Fantome.Libraries.League.IO.ReleaseManifest;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -35,17 +33,6 @@ namespace Fantome.Libraries.League.Tests
         static void Main(string[] args)
         {
             BINTest();
-        }
-
-        static void ReleaseManifestTest()
-        {
-            ReleaseManifestFile relMan = new ReleaseManifestFile(new MemoryStream(new System.Net.WebClient().DownloadData("http://l3cdn.riotgames.com/releases/live/projects/lol_game_client/releases/0.0.0.0/releasemanifest")));
-            relMan.Project.Remove();
-            relMan.Write("myrealm");
-            using (FileStream fs = File.Open("myrealm2", FileMode.Create))
-            {
-                relMan.Write(fs);
-            }
         }
 
         static void WGEOTest()
