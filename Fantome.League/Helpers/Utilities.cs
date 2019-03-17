@@ -101,6 +101,10 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             {
                 return LeagueFileType.LIGHTGRID;
             }
+            else if (fileData[0] == 0xff && fileData[1] == 0xd8 && fileData[fileData.Length - 2] == 0xff && fileData[fileData.Length - 1] == 0xd9)
+            {
+                return LeagueFileType.JPG;
+            }
             else if (BitConverter.ToInt32(fileData.Take(4).ToArray(), 0) == fileData.Length)
             {
                 return LeagueFileType.SKL;
@@ -143,6 +147,8 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "wgeo";
                 case LeagueFileType.LIGHTGRID:
                     return "dat";
+                case LeagueFileType.JPG:
+                    return "jpg";
                 default:
                     return "";
             }
@@ -166,6 +172,7 @@ namespace Fantome.Libraries.League.Helpers.Utilities
         SKL,
         SKN,
         WGEO,
-        WPK
+        WPK,
+        JPG
     }
 }
