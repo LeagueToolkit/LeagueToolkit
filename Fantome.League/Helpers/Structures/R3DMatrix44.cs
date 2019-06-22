@@ -33,6 +33,26 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.Clear();
         }
 
+        public R3DMatrix44(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44)
+        {
+            this.M11 = m11;
+            this.M12 = m12;
+            this.M13 = m13;
+            this.M14 = m14;
+            this.M21 = m21;
+            this.M22 = m22;
+            this.M23 = m23;
+            this.M24 = m24;
+            this.M31 = m31;
+            this.M32 = m32;
+            this.M33 = m33;
+            this.M34 = m34;
+            this.M41 = m41;
+            this.M42 = m42;
+            this.M43 = m43;
+            this.M44 = m44;
+        }
+
         /// <summary>
         /// Initializes a new <see cref="R3DMatrix44"/> from a <see cref="BinaryReader"/>
         /// </summary>
