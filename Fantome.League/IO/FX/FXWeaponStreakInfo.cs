@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.FX
@@ -14,8 +15,8 @@ namespace Fantome.Libraries.League.IO.FX
         public float AlphaDecay { get; private set; }
         public int TextureMapMode { get; private set; }
         public string Texture { get; private set; }
-        public FXTimeGradient ColorOverTime { get; private set; }
-        public FXTimeGradient WidthOverTime { get; private set; }
+        public TimeGradient ColorOverTime { get; private set; }
+        public TimeGradient WidthOverTime { get; private set; }
 
         public FXWeaponStreakInfo(BinaryReader br)
         {
@@ -31,8 +32,8 @@ namespace Fantome.Libraries.League.IO.FX
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(64));
             this.Texture = this.Texture.Remove(this.Texture.IndexOf(this.Texture.Contains("\0") ? '\u0000' : '?'));
 
-            this.ColorOverTime = new FXTimeGradient(br);
-            this.WidthOverTime = new FXTimeGradient(br);
+            this.ColorOverTime = new TimeGradient(br);
+            this.WidthOverTime = new TimeGradient(br);
         }
 
         public void Write(BinaryWriter bw)

@@ -62,7 +62,7 @@ namespace Fantome.Libraries.League.Converters
             {
                 MeshGeometry3D mesh = new MeshGeometry3D();
 
-                Int32Collection indices = new Int32Collection(submesh.Indices.Cast<int>());
+                Int32Collection indices = new Int32Collection(submesh.Indices.Select(x => (int)x));
                 Point3DCollection vertices = new Point3DCollection();
                 Vector3DCollection normals = new Vector3DCollection();
                 PointCollection uvs = new PointCollection();
@@ -90,24 +90,24 @@ namespace Fantome.Libraries.League.Converters
         /// <returns>A collection of converted <see cref="WGEOModel"/></returns>
         public static IEnumerable<Tuple<string, string, MeshGeometry3D>> ConvertWGEO(WGEOFile wgeo)
         {
-            foreach (WGEOModel Model in wgeo.Models)
+            foreach (WGEOModel model in wgeo.Models)
             {
                 MeshGeometry3D mesh = new MeshGeometry3D();
 
-                Int32Collection indices = new Int32Collection(Model.Indices.Cast<int>());
+                Int32Collection indices = new Int32Collection(model.Indices.Select(x => (int)x));
                 Point3DCollection vertices = new Point3DCollection();
                 PointCollection uv = new PointCollection();
-                foreach (WGEOVertex Vertex in Model.Vertices)
+                foreach (WGEOVertex vertex in model.Vertices)
                 {
-                    vertices.Add(new Point3D(Vertex.Position.X, Vertex.Position.Y, Vertex.Position.Z));
-                    uv.Add(new Point(Vertex.UV.X, Vertex.UV.Y));
+                    vertices.Add(new Point3D(vertex.Position.X, vertex.Position.Y, vertex.Position.Z));
+                    uv.Add(new Point(vertex.UV.X, vertex.UV.Y));
                 }
 
                 mesh.TextureCoordinates = uv;
                 mesh.Positions = vertices;
                 mesh.TriangleIndices = indices;
 
-                yield return new Tuple<string, string, MeshGeometry3D>(Model.Material, Model.Texture, mesh);
+                yield return new Tuple<string, string, MeshGeometry3D>(model.Material, model.Texture, mesh);
             }
         }
     }

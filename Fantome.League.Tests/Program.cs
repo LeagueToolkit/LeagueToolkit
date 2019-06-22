@@ -1,6 +1,7 @@
-using System;
 using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.AiMesh;
+using Fantome.Libraries.League.IO.Atmosphere;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.FX;
 using Fantome.Libraries.League.IO.INI;
@@ -12,6 +13,8 @@ using Fantome.Libraries.League.IO.MapObjects;
 using Fantome.Libraries.League.IO.MapParticles;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.NVR;
+using Fantome.Libraries.League.IO.OBJ;
+using Fantome.Libraries.League.IO.ObjectConfig;
 using Fantome.Libraries.League.IO.SCB;
 using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
@@ -21,8 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Fantome.Libraries.League.IO.MapGeometry;
-using Fantome.Libraries.League.IO.OBJ;
+using Fantome.Libraries.League.IO.WorldDescription;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -30,13 +32,20 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            MgeoTest();
+            BINTest();
         }
 
         static void WGEOTest()
         {
             WGEOFile wgeo = new WGEOFile("room.wgeo");
-            wgeo.Write("roomWrite.wgeo");
+
+            int index = 0;
+            foreach (OBJFile obj in OBJConverter.ConvertWGEOModels(wgeo))
+            {
+                obj.Write(string.Format("wgeo//{1}_{0}.obj", index, wgeo.Models[index].Material));
+
+                index++;
+            }
         }
 
         static void MOBTest()
@@ -48,7 +57,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void SKNTest()
         {
-            SKNFile skn = new SKNFile("Plantking.skn");
+            SKNFile skn = new SKNFile("Pyke_Base.Pyke.skn");
         }
 
         static void FXTest()
@@ -98,7 +107,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("9AA4A24D3752A9A0");
+            BINFile bin = new BINFile("4E348110B14461B3.bin");
             bin.Write("test.bin");
         }
 
@@ -128,7 +137,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void InibinTest()
         {
-            InibinFile inibin = new InibinFile("bestInibinMapskins.inibin");
+            InibinFile inibin = new InibinFile("Aatrox_Skin02_Passive_Death_Activate.troybin");
             inibin.AddValue("Attack", "e-xrgba", 5);
             inibin.AddValue("Attack", "kek", 10);
             inibin.AddValue("Attack", "lol", 25d);
@@ -140,9 +149,10 @@ namespace Fantome.Libraries.League.Tests
 
         static void WADTest()
         {
-            using (WADFile wad = new WADFile("Map19.wad.client"))
+            using (WADFile wad = new WADFile("Zed.wad.client"))
             {
-
+                wad.RemoveEntry(wad.Entries[0]);
+                wad.Write("Zed.wad.client");
             }
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {
@@ -174,13 +184,25 @@ namespace Fantome.Libraries.League.Tests
             cfg.Write("ObjectCFGWrite.cfg");
         }
 
-        static void MgeoTest()
+        static void AtmosphereTest()
         {
-            MGEOFile mgeo = new MGEOFile("7F5D3FD13D7E5174.mapgeo");
-            foreach (Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo))
-            {
-                model.Item2.Write("mgeo//" + model.Item1 + ".obj");
-            }
+            AtmosphereFile atmosphere = new AtmosphereFile("Atmosphere.dat");
+            Vector4 startEpsilon = atmosphere.SkyColor.GetValue(0.5f);
+            Vector4 endEpsilon = atmosphere.SkyColor.GetValue(0.7076f);
+            atmosphere.Write("kek.dat");
+        }
+
+        static void INIObjectsTest()
+        {
+            IniFile ini = new IniFile("ObjectCFG.cfg");
+            ObjectConfigFile objectConfig = new ObjectConfigFile(ini);
+            objectConfig.Write("kek.cfg");
+        }
+
+        static void WorldDescriptionTest()
+        {
+            WorldDescriptionFile dsc = new WorldDescriptionFile("room.dsc");
+            dsc.Write("room.kek.dsc");
         }
     }
 }

@@ -60,22 +60,42 @@
     <Compile Include="Converters\SCOConverter.cs" />
     <Compile Include="Converters\SKNConverter.cs" />
     <Compile Include="Converters\WGEOConverter.cs" />
+    <Compile Include="Helpers\Attributes\IniPropertyAttribute.cs" />
+    <Compile Include="Helpers\Structures\ColorBGRAVector4Byte.cs" />
+    <Compile Include="Helpers\Structures\ColorRGBAVector4.cs" />
+    <Compile Include="Helpers\Structures\ColorRGBAVector4Byte.cs" />
+    <Compile Include="Helpers\Structures\ColorRGBVector3Byte.cs" />
     <Compile Include="Helpers\Compression.cs" />
     <Compile Include="Helpers\Cryptography.cs" />
     <Compile Include="Helpers\Exceptions.cs" />
-    <Compile Include="Helpers\Structures.cs" />
+    <Compile Include="Helpers\Structures\Quaternion.cs" />
+    <Compile Include="Helpers\Structures\R3DBoundingBox.cs" />
+    <Compile Include="Helpers\Structures\R3DBox.cs" />
+    <Compile Include="Helpers\Structures\R3DMatrix44.cs" />
+    <Compile Include="Helpers\Structures\R3DSphere.cs" />
+    <Compile Include="Helpers\Structures\TimeGradient.cs" />
+    <Compile Include="Helpers\Structures\Vector2.cs" />
+    <Compile Include="Helpers\Structures\Vector3.cs" />
+    <Compile Include="Helpers\Structures\Vector4.cs" />
+    <Compile Include="Helpers\TextStructureProcessor.cs" />
     <Compile Include="Helpers\Utilities.cs" />
+    <Compile Include="Helpers\Structures\Vector2Byte.cs" />
+    <Compile Include="Helpers\Structures\Vector3Byte.cs" />
+    <Compile Include="Helpers\Structures\Vector4Byte.cs" />
     <Compile Include="Helpers\XXHash.cs" />
     <Compile Include="IO\AiMesh\AiMeshCell.cs" />
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
+    <Compile Include="IO\Atmosphere\AtmosphereFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
+    <Compile Include="IO\BIN\BINFileAdditionalData.cs" />
+    <Compile Include="IO\BIN\BINFileContainer.cs" />
     <Compile Include="IO\BIN\BINFileEntry.cs" />
+    <Compile Include="IO\BIN\BINFileMap.cs" />
+    <Compile Include="IO\BIN\BINFileStructure.cs" />
     <Compile Include="IO\BIN\BINFileValue.cs" />
-    <Compile Include="IO\BIN\BINFileValueList.cs" />
     <Compile Include="IO\BIN\BINFileValuePair.cs" />
     <Compile Include="IO\BIN\IBINFileValue.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
-    <Compile Include="IO\FX\FXTimeGradient.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
     <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
     <Compile Include="IO\Inibin\InibinFile.cs" />
@@ -106,15 +126,12 @@
     <Compile Include="IO\NVR\NVRVertex.cs" />
     <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
     <Compile Include="IO\INI\IniFile.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigFile.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigObject.cs" />
     <Compile Include="IO\OBJ\OBJFace.cs" />
     <Compile Include="IO\OBJ\OBJFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
     <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />
-    <Compile Include="IO\ReleaseManifest\ReleaseManifestFile.cs" />
-    <Compile Include="IO\ReleaseManifest\ReleaseManifestFileEntry.cs" />
-    <Compile Include="IO\ReleaseManifest\ReleaseManifestFolderEntry.cs" />
-    <Compile Include="IO\RiotArchive\RAF.cs" />
-    <Compile Include="IO\RiotArchive\RAFFileEntry.cs" />
     <Compile Include="IO\SCB\SCBFace.cs" />
     <Compile Include="IO\SCB\SCBFile.cs" />
     <Compile Include="IO\SCO\SCOFace.cs" />
@@ -124,6 +141,8 @@
     <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
     <Compile Include="IO\WAD\WADEntry.cs" />
     <Compile Include="IO\WAD\WADFile.cs" />
+    <Compile Include="IO\WorldDescription\WorldDescriptionFile.cs" />
+    <Compile Include="IO\WorldDescription\WorldDescriptionObject.cs" />
     <Compile Include="IO\WorldGeometry\WGEOBucket.cs" />
     <Compile Include="IO\WorldGeometry\WGEOBucketGeometry.cs" />
     <Compile Include="IO\WorldGeometry\WGEOFile.cs" />
@@ -131,19 +150,12 @@
     <Compile Include="IO\WorldGeometry\WGEOVertex.cs" />
     <Compile Include="IO\WGT\WGTFile.cs" />
     <Compile Include="IO\WGT\WGTWeight.cs" />
-    <Compile Include="Manager\Installation\LeagueBackupArchive.cs" />
-    <Compile Include="Manager\Installation\LeagueInstallation.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSInstallation.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSProject.cs" />
-    <Compile Include="Manager\Installation\LeagueRADSProjectRelease.cs" />
-    <Compile Include="Manager\Installation\LeagueRawInstallation.cs" />
-    <Compile Include="Manager\LeagueManager.cs" />
-    <Compile Include="Manager\LeagueRADSDeployRules.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\ZstdNet.1.3.1\build\ZstdNet.targets" Condition="Exists('..\packages\ZstdNet.1.3.1\build\ZstdNet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
