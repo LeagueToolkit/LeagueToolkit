@@ -60,11 +60,12 @@
     <Compile Include="IO\BIN\BINFileEntry.cs" />
     <Compile Include="IO\BIN\BINFileValue.cs" />
     <Compile Include="IO\BIN\BINFileValueList.cs" />
-    <Compile Include="IO\BLND\BLNDAnimation.cs" />
-    <Compile Include="IO\BLND\BLNDBlend.cs" />
-    <Compile Include="IO\BLND\BLNDCategory.cs" />
-    <Compile Include="IO\BLND\BLNDEvent.cs" />
+    <Compile Include="IO\BLND\BLNDAnimationData.cs" />
+    <Compile Include="IO\BLND\BLNDBlendData.cs" />
+    <Compile Include="IO\BLND\BLNDTrack.cs" />
+    <Compile Include="IO\BLND\BLNDClass.cs" />
     <Compile Include="IO\BLND\BLNDFile.cs" />
+    <Compile Include="IO\BLND\BLNDTransitionClip.cs" />
     <Compile Include="IO\BLND\BLNDUnknown.cs" />
     <Compile Include="IO\BLND\Utilities.cs" />
     <Compile Include="IO\FX\FXFile.cs" />

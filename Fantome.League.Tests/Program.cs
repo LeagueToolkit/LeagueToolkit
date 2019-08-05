@@ -20,7 +20,7 @@ using Fantome.Libraries.League.IO.LightDat;
 using Fantome.Libraries.League.IO.LightEnvironment;
 using Fantome.Libraries.League.IO.MaterialLibrary;
 using Fantome.Libraries.League.IO.Inibin;
-using Fantome.League.IO.BLND;
+using Fantome.Libraries.League.IO.BLND;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -130,7 +130,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void BLNDTest()
         {
-            BLNDFile blnd = new BLNDFile("Aatrox.blnd");
+            BLNDFile blnd = new BLNDFile("Kalista.blnd");
         }
     }
 }
