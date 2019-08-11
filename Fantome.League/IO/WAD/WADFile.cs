@@ -35,8 +35,15 @@ namespace Fantome.Libraries.League.IO.WAD
         internal byte _major;
         internal byte _minor;
 
-        public WADFile()
+        /// <summary>
+        /// Initializes an empty <see cref="WADFile"/> with the specified <paramref name="major"/> and <paramref name="minor"/> version
+        /// </summary>
+        /// <param name="major">Major version</param>
+        /// <param name="minor">Minor version</param>
+        public WADFile(byte major, byte minor)
         {
+            this._major = major;
+            this._minor = minor;
             this.Entries = this._entries.AsReadOnly();
         }
 
@@ -50,7 +57,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Reads a <see cref="WADFile"/> from the specified stream
         /// </summary>
         /// <param name="stream">The stream to read from</param>
-        public WADFile(Stream stream) : this()
+        public WADFile(Stream stream) : this(0, 0)
         {
             this._stream = stream;
             using (BinaryReader br = new BinaryReader(stream, Encoding.ASCII, true))
