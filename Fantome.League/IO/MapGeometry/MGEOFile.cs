@@ -7,7 +7,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MGEOFile
     {
-        public List<MGEOMesh> Meshes { get; set; } = new List<MGEOMesh>();
+        public List<MGEOVertexElementGroup> VertexElementGroups = new List<MGEOVertexElementGroup>();
+        public List<MGEOObject> Objects { get; set; } = new List<MGEOObject>();
         public MGEOBucketGeometry BucketGeometry { get; set; }
 
         public MGEOFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
@@ -23,45 +24,55 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 uint version = br.ReadUInt32();
-                if (version != 5)
+                if (version != 6 && version != 7)
                 {
                     throw new Exception("Version: " + version + " of Map Geometry is not supported");
                 }
 
-                bool unknownFlag = br.ReadByte() == 1;
-
-                List<uint> unknownList = new List<uint>();
-                uint unknownCount = (br.ReadUInt32() << 7) / 4;
-                for (int i = 0; i < unknownCount; i++)
+                bool useSeparatePointLights = false;
+                if (version != 7)
                 {
-                    unknownList.Add(br.ReadUInt32());
+                    useSeparatePointLights = br.ReadBoolean();
                 }
 
-                List<uint> vertexBufferOffsets = new List<uint>();
+                uint vertexElementGroupCount = br.ReadUInt32();
+                for(int i = 0; i < vertexElementGroupCount; i++)
+                {
+                    this.VertexElementGroups.Add(new MGEOVertexElementGroup(br));
+                }
+
                 uint vertexBufferCount = br.ReadUInt32();
-                for (int i = 0; i < vertexBufferCount; i++)
+                List<long> vertexBufferOffsets = new List<long>();
+                for(int i = 0; i < vertexBufferCount; i++)
                 {
-                    uint vertexBufferSize = br.ReadUInt32();
-                    vertexBufferOffsets.Add((uint)br.BaseStream.Position - 4);
-                    br.BaseStream.Seek(vertexBufferSize, SeekOrigin.Current);
+                    uint bufferSize = br.ReadUInt32();
+
+                    vertexBufferOffsets.Add(br.BaseStream.Position);
+                    br.BaseStream.Seek(bufferSize, SeekOrigin.Current);
                 }
 
-                List<uint> indexBufferOffsets = new List<uint>();
                 uint indexBufferCount = br.ReadUInt32();
-                for (int i = 0; i < indexBufferCount; i++)
+                List<ushort[]> indexBuffers = new List<ushort[]>();
+                for(int i = 0; i < indexBufferCount; i++)
                 {
-                    uint indexBufferSize = br.ReadUInt32();
-                    indexBufferOffsets.Add((uint)br.BaseStream.Position - 4);
-                    br.BaseStream.Seek(indexBufferSize, SeekOrigin.Current);
+                    ushort[] indexBuffer;
+
+                    uint bufferSize = br.ReadUInt32();
+                    indexBuffer = new ushort[bufferSize / 2];
+
+                    for(int j = 0; j < bufferSize / 2; j++)
+                    {
+                        indexBuffer[j] = br.ReadUInt16();
+                    }
+
+                    indexBuffers.Add(indexBuffer);
                 }
 
-                uint meshCount = br.ReadUInt32();
-                for (int i = 0; i < meshCount; i++)
+                uint objectCount = br.ReadUInt32();
+                for(int i = 0; i < objectCount; i++)
                 {
-                    this.Meshes.Add(new MGEOMesh(br, vertexBufferOffsets, indexBufferOffsets, unknownFlag));
+                    this.Objects.Add(new MGEOObject(br, this.VertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
                 }
-
-                //File.WriteAllText("kek.txt", JsonConvert.SerializeObject(this.Meshes, Formatting.Indented));
 
                 this.BucketGeometry = new MGEOBucketGeometry(br);
             }

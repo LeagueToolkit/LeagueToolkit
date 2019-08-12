@@ -35,7 +35,7 @@ namespace Fantome.Libraries.League.Converters
 
         public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MGEOFile mgeo)
         {
-            foreach (MGEOMesh model in mgeo.Meshes)
+            foreach (MGEOObject model in mgeo.Objects)
             {
                 int submeshCount = 0;
 
@@ -49,9 +49,9 @@ namespace Fantome.Libraries.League.Converters
                     {
                         vertices.Add(vertex.Position);
                         normals.Add(vertex.Normal);
-                        if (vertex.UV1 != null)
+                        if (vertex.DiffuseUV != null)
                         {
-                            uvs.Add(vertex.UV1);
+                            uvs.Add(vertex.DiffuseUV);
                         }
                     }
 

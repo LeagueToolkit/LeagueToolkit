@@ -108,10 +108,12 @@
     <Compile Include="IO\LightGrid\LightGridSun.cs" />
     <Compile Include="IO\MapGeometry\MGEOBucket.cs" />
     <Compile Include="IO\MapGeometry\MGEOFile.cs" />
-    <Compile Include="IO\MapGeometry\MGEOMesh.cs" />
+    <Compile Include="IO\MapGeometry\MGEOObject.cs" />
     <Compile Include="IO\MapGeometry\MGEOSubmesh.cs" />
     <Compile Include="IO\MapGeometry\MGEOBucketGeometry.cs" />
     <Compile Include="IO\MapGeometry\MGEOVertex.cs" />
+    <Compile Include="IO\MapGeometry\MGEOVertexElement.cs" />
+    <Compile Include="IO\MapGeometry\MGEOVertexElementGroup.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
     <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
     <Compile Include="IO\MapObjects\MOBFile.cs" />
