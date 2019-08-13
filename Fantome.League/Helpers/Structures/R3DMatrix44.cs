@@ -307,6 +307,21 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 + this.M12 * this.M23 * this.M31);
         }
 
+        /// <summary>
+        /// Applies the transformation of this matrix to the specified <see cref="Vector3"/>
+        /// </summary>
+        /// <param name="vector"><see cref="Vector3"/> to transform</param>
+        /// <returns>The transformed <see cref="Vector3"/></returns>
+        public Vector3 ApplyTransformation(Vector3 vector)
+        {
+            return new Vector3
+            {
+                X = (this.M11 * vector.X) + (this.M12 * vector.Y) + (this.M13 * vector.Z) + this.M14,
+                Y = (this.M21 * vector.X) + (this.M22 * vector.Y) + (this.M23 * vector.Z) + this.M24,
+                Z = (this.M31 * vector.X) + (this.M32 * vector.Y) + (this.M33 * vector.Z) + this.M34
+            };
+        }
+
         public static R3DMatrix44 operator *(R3DMatrix44 a, R3DMatrix44 b)
         {
             return new R3DMatrix44()

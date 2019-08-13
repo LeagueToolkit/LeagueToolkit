@@ -25,6 +25,14 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// Initializes a new <see cref="Vector3"/> instance
         /// </summary>
+        public Vector3()
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="Vector3"/> instance
+        /// </summary>
         public Vector3(float x, float y, float z)
         {
             this.X = x;
