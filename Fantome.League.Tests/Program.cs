@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fantome.Libraries.League.IO.WorldDescription;
 using Fantome.Libraries.League.IO.MapGeometry;
+using System;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -208,7 +209,15 @@ namespace Fantome.Libraries.League.Tests
 
         static void MGEOTest()
         {
-            MGEOFile mgeo = new MGEOFile("5AE38EA80DCE4483.mapgeo");
+            MGEOFile mgeo = new MGEOFile("FF96052D4B8CDA61.mapgeo");
+            Directory.CreateDirectory("OBJ");
+
+            int i = 0;
+            foreach(Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo))
+            {
+                model.Item2.Write("OBJ/" + model.Item1 + ".obj");
+                i++;
+            }
         }
     }
 }

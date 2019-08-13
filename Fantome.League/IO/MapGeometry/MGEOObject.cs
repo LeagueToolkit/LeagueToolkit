@@ -11,6 +11,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
     public class MGEOObject
     {
         public string Name { get; set; }
+        public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
+        public List<ushort> Indices { get; set; } = new List<ushort>();
         public List<MGEOSubmesh> Submeshes { get; set; } = new List<MGEOSubmesh>();
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 TransformationMatrix { get; set; }
@@ -19,33 +21,41 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public string Lightmap { get; set; }
         public ColorRGBAVector4 Color { get; set; }
 
-        public MGEOObject(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBuffers, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
+        public MGEOObject(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
             uint vertexBufferCount = br.ReadUInt32();
             int vertexElementGroup = br.ReadInt32();
 
-            int[] vertexBufferIDs;
-            vertexBufferIDs = new int[vertexBufferCount];
-            for(int i = 0; i < vertexBufferCount; i++)
+            for(int i = 0; i < vertexCount; i++)
             {
-                vertexBufferIDs[i] = br.ReadInt32();
+                this.Vertices.Add(new MGEOVertex());
+            }
+
+            for (int i = 0, currentVertexElementGroup = vertexElementGroup; i < vertexBufferCount; i++, currentVertexElementGroup++)
+            {
+                int vertexBufferID = br.ReadInt32();
+                long returnPosition = br.BaseStream.Position;
+                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferID], SeekOrigin.Begin);
+
+                for (int j = 0; j < vertexCount; j++)
+                {
+                    this.Vertices[j] = MGEOVertex.Combine(this.Vertices[j], new MGEOVertex(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
+                }
+
+                br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
             }
 
             uint indexCount = br.ReadUInt32();
             int indexBuffer = br.ReadInt32();
+            this.Indices.AddRange(indexBuffers[indexBuffer]);
+
 
             uint submeshCount = br.ReadUInt32();
             for (int i = 0; i < submeshCount; i++)
             {
-                List<long> vertexBufferOffsetsSubmesh = new List<long>();
-                for(int j = 0; j < vertexBufferCount; j++)
-                {
-                    vertexBufferOffsetsSubmesh.Add(vertexBuffers[vertexBufferIDs[j]]);
-                }
-
-                this.Submeshes.Add(new MGEOSubmesh(br, vertexBufferOffsetsSubmesh, indexBuffers[indexBuffer], vertexElementGroups, vertexElementGroup));
+                this.Submeshes.Add(new MGEOSubmesh(br, this));
             }
 
             bool unknown1 = false;
@@ -78,11 +88,6 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             this.Color = new ColorRGBAVector4(br);
-
-            if(vertexBufferCount > 1)
-            {
-                
-            }
         }
     }
 }

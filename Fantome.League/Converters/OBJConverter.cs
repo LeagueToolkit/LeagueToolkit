@@ -37,27 +37,21 @@ namespace Fantome.Libraries.League.Converters
         {
             foreach (MGEOObject model in mgeo.Objects)
             {
-                int submeshCount = 0;
+                List<Vector3> vertices = new List<Vector3>();
+                List<Vector3> normals = new List<Vector3>();
+                List<Vector2> uvs = new List<Vector2>();
 
-                foreach (MGEOSubmesh submesh in model.Submeshes)
+                foreach (MGEOVertex vertex in model.Vertices)
                 {
-                    List<Vector3> vertices = new List<Vector3>();
-                    List<Vector3> normals = new List<Vector3>();
-                    List<Vector2> uvs = new List<Vector2>();
-
-                    foreach (MGEOVertex vertex in submesh.Vertices)
+                    vertices.Add(vertex.Position);
+                    normals.Add(vertex.Normal);
+                    if (vertex.DiffuseUV != null)
                     {
-                        vertices.Add(vertex.Position);
-                        normals.Add(vertex.Normal);
-                        if (vertex.DiffuseUV != null)
-                        {
-                            uvs.Add(vertex.DiffuseUV);
-                        }
+                        uvs.Add(vertex.DiffuseUV);
                     }
-
-                    yield return new Tuple<string, OBJFile>(model.Name + "_" + submeshCount, new OBJFile(vertices, submesh.Indices.Select(x => (uint)x).ToList(), uvs, normals));
-                    submeshCount++;
                 }
+
+                yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, model.Indices.Select(x => (uint)x).ToList(), uvs, normals));
             }
         }
 
