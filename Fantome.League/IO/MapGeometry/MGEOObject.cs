@@ -17,7 +17,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 TransformationMatrix { get; set; }
         public Vector3 PointLight { get; set; }
-        public R3DMatrix44[] Unknown8 { get; set; } = new R3DMatrix44[3];
+        public List<Vector3> PointLights { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; }
         public ColorRGBAVector4 Color { get; set; }
 
@@ -78,16 +78,18 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 this.PointLight = new Vector3(br);
             }
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 9; i++)
             {
-                this.Unknown8[i] = new R3DMatrix44(br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
-                                                   br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
-                                                   br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), 0,
-                                                   0, 0, 0, 1);
+                this.PointLights.Add(new Vector3(br));
             }
 
             this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             this.Color = new ColorRGBAVector4(br);
+
+            if(this.Lightmap == "")
+            {
+
+            }
         }
     }
 }
