@@ -7,7 +7,6 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MGEOFile
     {
-        public List<MGEOVertexElementGroup> VertexElementGroups = new List<MGEOVertexElementGroup>();
         public List<MGEOObject> Objects { get; set; } = new List<MGEOObject>();
         public MGEOBucketGeometry BucketGeometry { get; set; }
 
@@ -35,10 +34,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     useSeparatePointLights = br.ReadBoolean();
                 }
 
+                List<MGEOVertexElementGroup> vertexElementGroups = new List<MGEOVertexElementGroup>();
                 uint vertexElementGroupCount = br.ReadUInt32();
                 for(int i = 0; i < vertexElementGroupCount; i++)
                 {
-                    this.VertexElementGroups.Add(new MGEOVertexElementGroup(br));
+                    vertexElementGroups.Add(new MGEOVertexElementGroup(br));
                 }
 
                 uint vertexBufferCount = br.ReadUInt32();
@@ -71,7 +71,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 uint objectCount = br.ReadUInt32();
                 for(int i = 0; i < objectCount; i++)
                 {
-                    this.Objects.Add(new MGEOObject(br, this.VertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
+                    this.Objects.Add(new MGEOObject(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
                 }
 
                 this.BucketGeometry = new MGEOBucketGeometry(br);
