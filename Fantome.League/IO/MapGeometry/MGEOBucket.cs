@@ -20,5 +20,15 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.InsideFaceCount = br.ReadUInt16();
             this.StickingOutFaceCount = br.ReadUInt16();
         }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.MaxStickOutX);
+            bw.Write(this.MaxStickOutY);
+            bw.Write(this.StartIndex);
+            bw.Write(this.Vertex);
+            bw.Write(this.InsideFaceCount);
+            bw.Write(this.StickingOutFaceCount);
+        }
     }
 }

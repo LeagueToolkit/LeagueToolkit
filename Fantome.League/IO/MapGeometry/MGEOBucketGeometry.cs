@@ -1,4 +1,5 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -49,6 +50,42 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 for (int j = 0; j < bucketsPerSide; j++)
                 {
                     this.Buckets[i, j] = new MGEOBucket(br);
+                }
+            }
+        }
+
+        public void Write(BinaryWriter bw)
+        {
+            bw.Write(this.MinX);
+            bw.Write(this.MinZ);
+
+            bw.Write(this.MaxX);
+            bw.Write(this.MaxZ);
+
+            bw.Write(this.CenterX);
+            bw.Write(this.CenterZ);
+
+            bw.Write(this.MinY);
+            bw.Write(this.MaxY);
+
+            uint bucketsPerSide = (uint)Math.Sqrt(this.Buckets.Length);
+            bw.Write(bucketsPerSide);
+            bw.Write(this.Vertices.Count);
+            bw.Write(this.Indices.Count);
+
+            foreach (Vector3 vertex in this.Vertices)
+            {
+                vertex.Write(bw);
+            }
+            foreach (ushort index in this.Indices)
+            {
+                bw.Write(index);
+            }
+            for (int i = 0; i < bucketsPerSide; i++)
+            {
+                for (int j = 0; j < bucketsPerSide; j++)
+                {
+                    this.Buckets[i, j].Write(bw);
                 }
             }
         }

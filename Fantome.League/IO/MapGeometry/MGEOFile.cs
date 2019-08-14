@@ -77,5 +77,142 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 this.BucketGeometry = new MGEOBucketGeometry(br);
             }
         }
+
+        public void Write(string fileLocation, uint version)
+        {
+            Write(File.Create(fileLocation), version);
+        }
+
+        public void Write(Stream stream, uint version)
+        {
+            if(version != 6 && version != 7)
+            {
+                throw new Exception("Unsupported version");
+            }
+
+            using (BinaryWriter bw = new BinaryWriter(stream))
+            {
+                bw.Write(Encoding.ASCII.GetBytes("OEGM"));
+                bw.Write(version);
+
+                bool usesSeparatePointLights = false;
+                if(version != 7)
+                {
+                    usesSeparatePointLights = UsesSeparatePointLights();
+                    bw.Write(usesSeparatePointLights);
+                }
+
+                List<MGEOVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
+                bw.Write(vertexElementGroups.Count);
+                foreach(MGEOVertexElementGroup vertexElementGroup in vertexElementGroups)
+                {
+                    vertexElementGroup.Write(bw);
+                }
+
+                List<float[]> vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
+                bw.Write(vertexBuffers.Count);
+                foreach(float[] vertexBuffer in vertexBuffers)
+                {
+                    bw.Write(vertexBuffer.Length * 4);
+
+                    for(int i = 0; i < vertexBuffer.Length; i++)
+                    {
+                        bw.Write(vertexBuffer[i]);
+                    }
+                }
+
+                List<ushort[]> indexBuffers = GenerateIndexBuffers();
+                bw.Write(indexBuffers.Count);
+                foreach(ushort[] indexBuffer in indexBuffers)
+                {
+                    bw.Write(indexBuffer.Length * 2);
+
+                    for (int i = 0; i < indexBuffer.Length; i++)
+                    {
+                        bw.Write(indexBuffer[i]);
+                    }
+                }
+
+                bw.Write(this.Objects.Count);
+                foreach(MGEOObject model in this.Objects)
+                {
+                    model.Write(bw, usesSeparatePointLights, version);
+                }
+
+                this.BucketGeometry.Write(bw);
+            }
+        }
+
+        private bool UsesSeparatePointLights()
+        {
+            foreach(MGEOObject model in this.Objects)
+            {
+                if (model.SeparatePointLight != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private List<MGEOVertexElementGroup> GenerateVertexElementGroups()
+        {
+            List<MGEOVertexElementGroup> vertexElementGroups = new List<MGEOVertexElementGroup>();
+
+            foreach(MGEOObject model in this.Objects)
+            {
+                MGEOVertexElementGroup vertexElementGroup = new MGEOVertexElementGroup(model.Vertices[0]);
+
+                if(!vertexElementGroups.Contains(vertexElementGroup))
+                {
+                    vertexElementGroups.Add(vertexElementGroup);
+                }
+
+                model._vertexElementGroupID = vertexElementGroups.IndexOf(vertexElementGroup);
+            }
+
+            return vertexElementGroups;
+        }
+
+        private List<float[]> GenerateVertexBuffers(List<MGEOVertexElementGroup> vertexElementGroups)
+        {
+            List<float[]> vertexBuffers = new List<float[]>();
+            int vertexBufferID = 0;
+
+            foreach(MGEOObject model in this.Objects)
+            {
+                uint vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
+                float[] vertexBuffer = new float[(vertexSize / 4) * model.Vertices.Count];
+
+                for(int i = 0; i < model.Vertices.Count; i++)
+                {
+                    float[] vertexArray = model.Vertices[i].ToFloatArray(vertexSize);
+                    Array.Copy(vertexArray, 0, vertexBuffer, (vertexSize / 4) * i, vertexArray.Length);
+                }
+
+                vertexBuffers.Add(vertexBuffer);
+                model._vertexBufferID = vertexBufferID;
+                vertexBufferID++;
+            }
+
+            return vertexBuffers;
+        }
+
+        private List<ushort[]> GenerateIndexBuffers()
+        {
+            List<ushort[]> indexBuffers = new List<ushort[]>();
+            int indexBufferID = 0;
+
+            foreach(MGEOObject model in this.Objects)
+            {
+                indexBuffers.Add(model.Indices.ToArray());
+
+                model._indexBufferID = indexBufferID;
+                indexBufferID++;
+            }
+
+            return indexBuffers;
+        }
     }
 }

@@ -41,6 +41,37 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
         }
 
+        internal float[] ToFloatArray(uint vertexSize)
+        {
+            float[] array = new float[vertexSize / 4];
+            int currentPosition = 0;
+
+            if(this.Position != null)
+            {
+                array[currentPosition++] = this.Position.X;
+                array[currentPosition++] = this.Position.Y;
+                array[currentPosition++] = this.Position.Z;
+            }
+            if(this.Normal != null)
+            {
+                array[currentPosition++] = this.Normal.X;
+                array[currentPosition++] = this.Normal.Y;
+                array[currentPosition++] = this.Normal.Z;
+            }
+            if (this.DiffuseUV != null)
+            {
+                array[currentPosition++] = this.DiffuseUV.X;
+                array[currentPosition++] = this.DiffuseUV.Y;
+            }
+            if (this.LightmapUV != null)
+            {
+                array[currentPosition++] = this.LightmapUV.X;
+                array[currentPosition++] = this.LightmapUV.Y;
+            }
+
+            return array;
+        }
+
         public static MGEOVertex Combine(MGEOVertex a, MGEOVertex b)
         {
             MGEOVertex vertex = new MGEOVertex();

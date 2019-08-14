@@ -14,12 +14,19 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
         public List<ushort> Indices { get; set; } = new List<ushort>();
         public List<MGEOSubmesh> Submeshes { get; set; } = new List<MGEOSubmesh>();
+        public bool Unknown1 { get; set; }
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 TransformationMatrix { get; set; }
-        public Vector3 PointLight { get; set; }
+        public byte Unknown2 { get; set; }
+        public byte Unknown3 { get; set; } = 0xFF;
+        public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> PointLights { get; set; } = new List<Vector3>();
-        public string Lightmap { get; set; }
+        public string Lightmap { get; set; } = "";
         public ColorRGBAVector4 Color { get; set; }
+
+        internal int _vertexElementGroupID;
+        internal int _vertexBufferID;
+        internal int _indexBufferID;
 
         public MGEOObject(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
@@ -67,16 +74,15 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.BoundingBox = new R3DBox(br);
             this.TransformationMatrix = new R3DMatrix44(br);
 
-            byte unknown2 = br.ReadByte();
-            byte unknown3 = 0;
+            this.Unknown2 = br.ReadByte();
             if(version == 7)
             {
-                unknown3 = br.ReadByte();
+                this.Unknown3 = br.ReadByte();
             }
 
             if (useSeparatePointLights)
             {
-                this.PointLight = new Vector3(br);
+                this.SeparatePointLight = new Vector3(br);
             }
             for (int i = 0; i < 9; i++)
             {
@@ -85,11 +91,61 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             this.Color = new ColorRGBAVector4(br);
+        }
 
-            if(this.Lightmap == "")
+        public void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
+        {
+            bw.Write(this.Name.Length);
+            bw.Write(Encoding.ASCII.GetBytes(this.Name));
+
+            bw.Write(this.Vertices.Count);
+            bw.Write((uint)1);
+            bw.Write(this._vertexElementGroupID);
+            bw.Write(this._vertexBufferID); //we only have one vertex buffer
+
+            bw.Write(this.Indices.Count);
+            bw.Write(this._indexBufferID);
+
+            bw.Write(this.Submeshes.Count);
+            foreach(MGEOSubmesh submesh in this.Submeshes)
             {
-
+                submesh.Write(bw);
             }
+
+            bw.Write(this.Unknown1);
+            this.BoundingBox.Write(bw);
+            this.TransformationMatrix.Write(bw);
+            bw.Write(this.Unknown2);
+
+            if(version == 7)
+            {
+                bw.Write(this.Unknown3);
+            }
+
+            if(useSeparatePointLights)
+            {
+                if(this.SeparatePointLight == null)
+                {
+                    new Vector3(0, 0, 0).Write(bw);
+                }
+                else
+                {
+                    this.SeparatePointLight.Write(bw);
+                }
+            }
+
+            foreach (Vector3 pointLight in this.PointLights)
+            {
+                pointLight.Write(bw);
+            }
+            for(int i = 0; i < 9 - this.PointLights.Count; i++)
+            {
+                new Vector3(0, 0, 0).Write(bw);
+            }
+
+            bw.Write(this.Lightmap.Length);
+            bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+            this.Color.Write(bw);
         }
     }
 }

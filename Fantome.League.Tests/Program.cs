@@ -209,7 +209,8 @@ namespace Fantome.Libraries.League.Tests
 
         static void MGEOTest()
         {
-            MGEOFile mgeo = new MGEOFile("86F121BAF48DF346.mapgeo");
+            MGEOFile mgeo = new MGEOFile("86F121BAF48DF346_write.mapgeo");
+            //mgeo.Write("86F121BAF48DF346_write.mapgeo", 6);
             Directory.CreateDirectory("OBJ");
 
             int i = 0;
