@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOVertexElementGroup
+    public class MGEOVertexElementGroup : IEquatable<MGEOVertexElementGroup>
     {
         public MGEOVertexElementGroupUsage Usage { get; private set; }
         public List<MGEOVertexElement> VertexElements { get; private set; } = new List<MGEOVertexElement>();

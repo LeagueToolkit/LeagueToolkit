@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOVertexElement
+    public class MGEOVertexElement : IEquatable<MGEOVertexElement>
     {
         public MGEOVertexElementName Name { get; set; }
         public MGEOVertexElementFormat Format { get; set; }
