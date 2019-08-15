@@ -214,7 +214,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Return the Scale of this <see cref="R3DMatrix44"/>
+        /// Returns the Scale of this <see cref="R3DMatrix44"/>
         /// </summary>
         public Vector3 GetScale()
         {
@@ -224,6 +224,24 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 Y = new Vector3(this.M21, this.M22, this.M23).Magnitude,
                 Z = new Vector3(this.M31, this.M32, this.M33).Magnitude
             };
+        }
+
+        /// <summary>
+        /// Returns the fourth row of this <see cref="R3DMatrix44"/>
+        /// </summary>
+        public Vector3 GetFourthRow()
+        {
+            return new Vector3(this.M41, this.M42, this.M43);
+        }
+
+        /// <summary>
+        /// Inserts a <see cref="Vector3"/> into the 4th row of this <see cref="R3DMatrix44"/>
+        /// </summary>
+        public void InsertFourthRow(Vector3 row)
+        {
+            this.M41 = row.X;
+            this.M42 = row.Y;
+            this.M43 = row.Z;
         }
 
         /// <summary>

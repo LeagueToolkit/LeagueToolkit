@@ -217,7 +217,9 @@ namespace Fantome.Libraries.League.Tests
                 Vector3 position = model.TransformationMatrix.GetTranslation();
                 Vector3 rotation = model.TransformationMatrix.GetRotation().ToEuler();
                 Vector3 scale = model.TransformationMatrix.GetScale();
+                Vector3 sunPositionOrSomeShit = model.TransformationMatrix.GetFourthRow();
                 R3DMatrix44 mat = R3DMatrix44.CreateTransformation(position, rotation, scale);
+                mat.InsertFourthRow(sunPositionOrSomeShit);
 
                 if(mat.M11 != 1 || mat.M22 != 1 || mat.M33 != 1)
                 {
