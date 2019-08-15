@@ -153,6 +153,16 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                     return "";
             }
         }
+
+        public static float ToDegrees(float radian)
+        {
+            return radian * (180 / (float)Math.PI);
+        }
+
+        public static float ToRadian(float degrees)
+        {
+            return degrees * ((float)Math.PI / 180);
+        }
     }
 
     public enum LeagueFileType

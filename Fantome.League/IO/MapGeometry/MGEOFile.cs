@@ -23,7 +23,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 uint version = br.ReadUInt32();
-                if (version != 6 && version != 7)
+                if (version != 5 && version != 6 && version != 7)
                 {
                     throw new Exception("Version: " + version + " of Map Geometry is not supported");
                 }

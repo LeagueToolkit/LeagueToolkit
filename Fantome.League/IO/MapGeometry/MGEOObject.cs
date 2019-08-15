@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.OBJ;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
@@ -21,12 +22,17 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public byte Unknown3 { get; set; } = 0xFF;
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> PointLights { get; set; } = new List<Vector3>();
-        public string Lightmap { get; set; } = "";
+        public string Lightmap { get; set; }
         public ColorRGBAVector4 Color { get; set; }
 
         internal int _vertexElementGroupID;
         internal int _vertexBufferID;
         internal int _indexBufferID;
+
+        public MGEOObject(string name, OBJFile obj, List<MGEOSubmesh> submeshes)
+        {
+
+        }
 
         public MGEOObject(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
@@ -146,6 +152,31 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write(this.Lightmap.Length);
             bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
             this.Color.Write(bw);
+        }
+
+        public R3DBox CalculateBoundingBox()
+        {
+            if (this.Vertices == null || this.Vertices.Count == 0)
+            {
+                return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+            }
+            else
+            {
+                Vector3 min = new Vector3(this.Vertices[0].Position);
+                Vector3 max = new Vector3(this.Vertices[0].Position);
+
+                foreach (MGEOVertex vertex in this.Vertices)
+                {
+                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
+                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
+                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
+                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
+                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
+                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+                }
+
+                return new R3DBox(min, max);
+            }
         }
     }
 }

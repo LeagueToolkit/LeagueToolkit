@@ -33,6 +33,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.Clear();
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="R3DMatrix44"/> instance
+        /// </summary>
         public R3DMatrix44(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44)
         {
             this.M11 = m11;
@@ -153,7 +156,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public Vector3 GetTranslation()
         {
-            return new Vector3(this.M14, this.M24, this.M33);
+            return new Vector3(this.M14, this.M24, this.M34);
         }
 
         /// <summary>
@@ -208,6 +211,19 @@ namespace Fantome.Libraries.League.Helpers.Structures
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Return the Scale of this <see cref="R3DMatrix44"/>
+        /// </summary>
+        public Vector3 GetScale()
+        {
+            return new Vector3()
+            {
+                X = new Vector3(this.M11, this.M12, this.M13).Magnitude,
+                Y = new Vector3(this.M21, this.M22, this.M23).Magnitude,
+                Z = new Vector3(this.M31, this.M32, this.M33).Magnitude
+            };
         }
 
         /// <summary>
@@ -320,6 +336,75 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 Y = (this.M21 * vector.X) + (this.M22 * vector.Y) + (this.M23 * vector.Z) + this.M24,
                 Z = (this.M31 * vector.X) + (this.M32 * vector.Y) + (this.M33 * vector.Z) + this.M34
             };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Translation
+        /// </summary>
+        public static R3DMatrix44 FromTranslation(Vector3 translation)
+        {
+            return new R3DMatrix44()
+            {
+                M14 = translation.X,
+                M24 = translation.Y,
+                M34 = translation.Z
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Rotation
+        /// </summary>
+        public static R3DMatrix44 FromRotation(Vector3 rotation)
+        {
+            return FromRotation(Quaternion.FromEuler(rotation));
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Rotation
+        /// </summary>
+        public static R3DMatrix44 FromRotation(Quaternion q)
+        {
+            return new R3DMatrix44()
+            {
+                M11 = 1 - 2 * (q.Y * q.Y + q.Z * q.Z),
+                M12 = 2 * (q.X * q.Y + q.Z * q.W),
+                M13 = 2 * (q.X * q.Z - q.Y * q.W),
+                M21 = 2 * (q.X * q.Y - q.Z * q.W),
+                M22 = 1 - 2 * (q.X * q.X + q.Z * q.Z),
+                M23 = 2 * (q.Y * q.Z + q.X * q.W),
+                M31 = 2 * (q.X * q.Z + q.Y * q.W),
+                M32 = 2 * (q.Y * q.Z - q.X * q.W),
+                M33 = 1 - 2 * (q.X * q.X + q.Y * q.Y),
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Scale
+        /// </summary>
+        public static R3DMatrix44 FromScale(Vector3 scale)
+        {
+            return new R3DMatrix44()
+            {
+                M11 = scale.X,
+                M22 = scale.Y,
+                M33 = scale.Z
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/>
+        /// </summary>
+        public static R3DMatrix44 CreateTransformation(Vector3 translation, Vector3 rotation, Vector3 scale)
+        {
+            return CreateTransformation(translation, Quaternion.FromEuler(rotation), scale);
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/>
+        /// </summary>
+        public static R3DMatrix44 CreateTransformation(Vector3 translation, Quaternion rotation, Vector3 scale)
+        {
+            return FromTranslation(translation) * FromRotation(rotation) * FromScale(scale);
         }
 
         public static R3DMatrix44 operator *(R3DMatrix44 a, R3DMatrix44 b)

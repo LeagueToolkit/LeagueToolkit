@@ -1,4 +1,5 @@
 ﻿using System;
+using Utils = Fantome.Libraries.League.Helpers.Utilities.Utilities;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
@@ -27,6 +28,14 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// Initializes a new <see cref="Quaternion"/> instance
         /// </summary>
+        public Quaternion()
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="Quaternion"/> instance
+        /// </summary>
         public Quaternion(float x, float y, float z, float w)
         {
             this.X = x;
@@ -45,6 +54,50 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.Y = quaternion.Y;
             this.Z = quaternion.Z;
             this.W = quaternion.W;
+        }
+
+        /// <summary>
+        /// Returns the rotation of this <see cref="Quaternion"/> in euler angles
+        /// </summary>
+        public Vector3 ToEuler()
+        {
+            float sqrY = this.Y * this.Y;
+            float t0 = -2 * (sqrY + this.Z * this.Z) + 1;
+            float t1 = +2 * (this.X * this.Y - this.W * this.Z);
+            float t2 = -2 * (this.X * this.Z + this.W * this.Y);
+            float t3 = +2 * (this.Y * this.Z - this.W * this.X);
+            float t4 = -2 * (this.X * this.X + sqrY) + 1;
+
+            t2 = t2 > 1 ? 1 : t2;
+            t2 = t2 < -1 ? -1 : t2;
+
+            return new Vector3()
+            {
+                X = Utils.ToDegrees((float)Math.Atan2(t3, t4)),
+                Y = Utils.ToDegrees((float)Math.Atan2(t1, t0)),
+                Z = Utils.ToDegrees((float)Math.Asin(t2))
+            };
+        }
+
+        /// <summary>
+        /// Return a Rotation Quaternion from the specified <see cref="Vector3"/>
+        /// </summary>
+        public static Quaternion FromEuler(Vector3 v)
+        {
+            float t0 = (float)Math.Cos(v.Y * 0.5f);
+            float t1 = (float)Math.Sin(v.Y * 0.5f);
+            float t2 = (float)Math.Cos(v.X * 0.5f);
+            float t3 = (float)Math.Sin(v.X * 0.5f);
+            float t4 = (float)Math.Cos(v.Z * 0.5f);
+            float t5 = (float)Math.Sin(v.Z * 0.5f);
+
+            return new Quaternion()
+            {
+                W = (t0 * t2 * t4) + (t1 * t3 * t5),
+                X = (t0 * t3 * t4) - (t1 * t2 * t5),
+                Y = (t0 * t2 * t5) + (t1 * t3 * t4),
+                Z = (t1 * t2 * t4) - (t0 * t3 * t5)
+            };
         }
 
         /// <summary>

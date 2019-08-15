@@ -23,6 +23,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float Z { get; set; }
 
         /// <summary>
+        /// Length of this <see cref="Vector3"/>
+        /// </summary>
+        public float Magnitude { get => (float)Math.Sqrt((this.X * this.X) + (this.Y * this.Y) + (this.Z * this.Z)); }
+
+        /// <summary>
         /// Initializes a new <see cref="Vector3"/> instance
         /// </summary>
         public Vector3()

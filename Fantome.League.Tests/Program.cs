@@ -209,12 +209,28 @@ namespace Fantome.Libraries.League.Tests
 
         static void MGEOTest()
         {
-            MGEOFile mgeo = new MGEOFile("86F121BAF48DF346.mapgeo");
-            mgeo.Write("86F121BAF48DF346_write.mapgeo", 6);
+            MGEOFile mgeo1 = new MGEOFile("8344CE0DA88EE35A.mapgeo");
+            MGEOFile mgeo2 = new MGEOFile("389B5E76F6E4896E.mapgeo");
+
+            foreach(MGEOObject model in mgeo1.Objects)
+            {
+                Vector3 position = model.TransformationMatrix.GetTranslation();
+                Vector3 rotation = model.TransformationMatrix.GetRotation().ToEuler();
+                Vector3 scale = model.TransformationMatrix.GetScale();
+                R3DMatrix44 mat = R3DMatrix44.CreateTransformation(position, rotation, scale);
+
+                if(mat.M11 != 1 || mat.M22 != 1 || mat.M33 != 1)
+                {
+
+                }
+
+            }
+
+            //mgeo2.Write("389B5E76F6E4896E.mapgeo_write.mapgeo", 6);
             Directory.CreateDirectory("OBJ");
 
             int i = 0;
-            foreach(Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo))
+            foreach(Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo1))
             {
                 model.Item2.Write("OBJ/" + model.Item1 + ".obj");
                 i++;
