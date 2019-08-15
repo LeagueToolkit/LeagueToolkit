@@ -57,26 +57,78 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Normalizes this <see cref="Quaternion"/>
+        /// </summary>
+        public Quaternion GetNormalized()
+        {
+            float magnitude = (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z + this.W * this.W);
+
+            return new Quaternion()
+            {
+                X = this.X / magnitude,
+                Y = this.Y / magnitude,
+                Z = this.Z / magnitude,
+                W = this.W / magnitude
+            };
+        }
+
+        /// <summary>
         /// Returns the rotation of this <see cref="Quaternion"/> in euler angles
         /// </summary>
         public Vector3 ToEuler()
         {
-            float sqrY = this.Y * this.Y;
-            float t0 = -2 * (sqrY + this.Z * this.Z) + 1;
-            float t1 = +2 * (this.X * this.Y - this.W * this.Z);
-            float t2 = -2 * (this.X * this.Z + this.W * this.Y);
-            float t3 = +2 * (this.Y * this.Z - this.W * this.X);
-            float t4 = -2 * (this.X * this.X + sqrY) + 1;
+            /*float sinX = 2 * (this.W * this.X + this.Y * this.Z);
+            float cosX = 1 - 2 * (this.X * this.X + this.Y * this.Y);
+            float sinY = 2 * (this.W * this.Y - this.Z * this.X);
+            float sinZ = 2 * (this.W * this.Z + this.X * this.Y);
+            float cosZ = 1 - 2 * (this.Y * this.Y + this.Z * this.Z);
 
-            t2 = t2 > 1 ? 1 : t2;
-            t2 = t2 < -1 ? -1 : t2;
+            float y = 0;
+            if(Math.Abs(sinY) >= 1)
+            {
+                if(sinY < 0)
+                {
+                    y = -(float)(Math.PI / 2);
+                }
+                else
+                {
+                    y = (float)(Math.PI / 2);
+                }
+            }
+            else
+            {
+                y = (float)Math.Asin(sinY);
+            }
 
             return new Vector3()
             {
-                X = Utils.ToDegrees((float)Math.Atan2(t3, t4)),
-                Y = Utils.ToDegrees((float)Math.Atan2(t1, t0)),
-                Z = Utils.ToDegrees((float)Math.Asin(t2))
-            };
+                X = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(sinX, cosX)), 4),
+                Y = (float)Math.Round(Utils.ToDegrees(y), 4),
+                Z = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(sinZ, cosZ)), 4)
+            };*/
+
+            R3DMatrix44 m = R3DMatrix44.FromRotation(this);
+
+            float sy = (float)Math.Sqrt(m.M11 * m.M11 + m.M21 * m.M21);
+
+            bool singular = sy < 1e-6;
+            float x = 0;
+            float y = 0;
+            float z = 0;
+            if(!singular)
+            {
+                x = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(m.M32, m.M33)), 4);
+                y = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(-m.M31, sy)), 4);
+                z = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(m.M21, m.M11)), 4);
+            }
+            else
+            {
+                x = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(-m.M23, m.M22)), 4);
+                y = (float)Math.Round(Utils.ToDegrees((float)Math.Atan2(-m.M31, sy)), 4);
+                z = 0;
+            }
+
+            return new Vector3(x, y, z);
         }
 
         /// <summary>
@@ -84,19 +136,20 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public static Quaternion FromEuler(Vector3 v)
         {
-            float t0 = (float)Math.Cos(v.Y * 0.5f);
-            float t1 = (float)Math.Sin(v.Y * 0.5f);
-            float t2 = (float)Math.Cos(v.X * 0.5f);
-            float t3 = (float)Math.Sin(v.X * 0.5f);
-            float t4 = (float)Math.Cos(v.Z * 0.5f);
-            float t5 = (float)Math.Sin(v.Z * 0.5f);
+            float c1 = (float)Math.Cos(Utils.ToRadian(v.X) / 2);
+            float c2 = (float)Math.Cos(Utils.ToRadian(v.Y) / 2);
+            float c3 = (float)Math.Cos(Utils.ToRadian(v.Z) / 2);
+
+            float s1 = (float)Math.Sin(Utils.ToRadian(v.X) / 2);
+            float s2 = (float)Math.Sin(Utils.ToRadian(v.Y) / 2);
+            float s3 = (float)Math.Sin(Utils.ToRadian(v.Z) / 2);
 
             return new Quaternion()
             {
-                W = (t0 * t2 * t4) + (t1 * t3 * t5),
-                X = (t0 * t3 * t4) - (t1 * t2 * t5),
-                Y = (t0 * t2 * t5) + (t1 * t3 * t4),
-                Z = (t1 * t2 * t4) - (t0 * t3 * t5)
+                X = s1 * c2 * c3 + c1 * s2 * s3,
+                Y = c1 * s2 * c3 - s1 * c2 * s3,
+                Z = c1 * c2 * s3 + s1 * s2 * c3,
+                W = c1 * c2 * c3 - s1 * s2 * s3
             };
         }
 
@@ -151,7 +204,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 result.W = (matrix.M12 - matrix.M21) * half;
             }
 
-            return result;
+            return result.GetNormalized();
         }
     }
 }

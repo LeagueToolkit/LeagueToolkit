@@ -43,7 +43,7 @@ namespace Fantome.Libraries.League.Converters
 
                 foreach (MGEOVertex vertex in model.Vertices)
                 {
-                    vertices.Add(model.TransformationMatrix.ApplyTransformation(vertex.Position));
+                    vertices.Add(model.Transformation.ApplyTransformation(vertex.Position));
                     normals.Add(vertex.Normal);
                     if (vertex.DiffuseUV != null)
                     {

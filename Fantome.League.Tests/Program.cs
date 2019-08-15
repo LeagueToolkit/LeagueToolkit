@@ -214,13 +214,17 @@ namespace Fantome.Libraries.League.Tests
 
             foreach(MGEOObject model in mgeo1.Objects)
             {
-                Vector3 position = model.TransformationMatrix.GetTranslation();
-                Vector3 rotation = model.TransformationMatrix.GetRotation().ToEuler();
-                Vector3 scale = model.TransformationMatrix.GetScale();
-                Vector3 sunPositionOrSomeShit = model.TransformationMatrix.GetFourthRow();
+                Vector3 position = model.Transformation.Translation;
+                Vector3 rotation = model.Transformation.Rotation.ToEuler();
+                Vector3 scale = model.Transformation.Scale;
+                Vector3 sunPositionOrSomeShit = model.Transformation.FourthRow;
                 R3DMatrix44 mat = R3DMatrix44.CreateTransformation(position, rotation, scale);
-                mat.InsertFourthRow(sunPositionOrSomeShit);
+                mat.FourthRow = sunPositionOrSomeShit;
 
+                Vector3 rot = new Vector3(50, 90, 27);
+                Quaternion rot3 = new Quaternion(0.4449967f, 0.5495252f, 0.4449967f, 0.5495252f);
+                Vector3 rot2 = rot3.ToEuler();
+                Quaternion rot4 = Quaternion.FromEuler(rot2);
                 if(mat.M11 != 1 || mat.M22 != 1 || mat.M33 != 1)
                 {
 

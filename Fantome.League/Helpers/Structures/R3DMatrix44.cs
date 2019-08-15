@@ -25,6 +25,89 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float M43 { get; private set; }
         public float M44 { get; private set; }
 
+        public Vector3 Translation
+        {
+            get
+            {
+                return new Vector3(this.M14, this.M24, this.M34);
+            }
+        }
+        public Quaternion Rotation
+        {
+            get
+            {
+                Quaternion result = new Quaternion(0, 0, 0, 0);
+                float sqrt;
+                float half;
+                float scale = this.M11 + this.M22 + this.M33;
+
+                if (scale > 0.0f)
+                {
+                    sqrt = (float)Math.Sqrt(scale + 1.0f);
+                    result.W = sqrt * 0.5f;
+                    sqrt = 0.5f / sqrt;
+
+                    result.X = (this.M23 - this.M32) * sqrt;
+                    result.Y = (this.M31 - this.M13) * sqrt;
+                    result.Z = (this.M12 - this.M21) * sqrt;
+                }
+                else if ((this.M11 >= this.M22) && (this.M11 >= this.M33))
+                {
+                    sqrt = (float)Math.Sqrt(1.0f + this.M11 - this.M22 - this.M33);
+                    half = 0.5f / sqrt;
+
+                    result.X = 0.5f * sqrt;
+                    result.Y = (this.M12 + this.M21) * half;
+                    result.Z = (this.M13 + this.M31) * half;
+                    result.W = (this.M23 - this.M32) * half;
+                }
+                else if (this.M22 > this.M33)
+                {
+                    sqrt = (float)Math.Sqrt(1.0f + this.M22 - this.M11 - this.M33);
+                    half = 0.5f / sqrt;
+
+                    result.X = (this.M21 + this.M12) * half;
+                    result.Y = 0.5f * sqrt;
+                    result.Z = (this.M32 + this.M23) * half;
+                    result.W = (this.M31 - this.M13) * half;
+                }
+                else
+                {
+                    sqrt = (float)Math.Sqrt(1.0f + this.M33 - this.M11 - this.M22);
+                    half = 0.5f / sqrt;
+
+                    result.X = (this.M31 + this.M13) * half;
+                    result.Y = (this.M32 + this.M23) * half;
+                    result.Z = 0.5f * sqrt;
+                    result.W = (this.M12 - this.M21) * half;
+                }
+
+                return result;
+            }
+        }
+        public Vector3 Scale
+        {
+            get
+            {
+                return new Vector3()
+                {
+                    X = new Vector3(this.M11, this.M12, this.M13).Magnitude,
+                    Y = new Vector3(this.M21, this.M22, this.M23).Magnitude,
+                    Z = new Vector3(this.M31, this.M32, this.M33).Magnitude
+                };
+            }
+        }
+        public Vector3 FourthRow
+        {
+            get => new Vector3(this.M41, this.M42, this.M43);
+            set
+            {
+                this.M41 = value.X;
+                this.M42 = value.Y;
+                this.M43 = value.Z;
+            }
+    }
+
         /// <summary>
         /// Initializes a new <see cref="R3DMatrix44"/> instance
         /// </summary>
@@ -149,99 +232,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M42);
             bw.Write(this.M43);
             bw.Write(this.M44);
-        }
-
-        /// <summary>
-        /// Returns the Translation Vector of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public Vector3 GetTranslation()
-        {
-            return new Vector3(this.M14, this.M24, this.M34);
-        }
-
-        /// <summary>
-        /// Returns the Rotation of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public Quaternion GetRotation()
-        {
-            Quaternion result = new Quaternion(0, 0, 0, 0);
-            float sqrt;
-            float half;
-            float scale = this.M11 + this.M22 + this.M33;
-
-            if (scale > 0.0f)
-            {
-                sqrt = (float)Math.Sqrt(scale + 1.0f);
-                result.W = sqrt * 0.5f;
-                sqrt = 0.5f / sqrt;
-
-                result.X = (this.M23 - this.M32) * sqrt;
-                result.Y = (this.M31 - this.M13) * sqrt;
-                result.Z = (this.M12 - this.M21) * sqrt;
-            }
-            else if ((this.M11 >= this.M22) && (this.M11 >= this.M33))
-            {
-                sqrt = (float)Math.Sqrt(1.0f + this.M11 - this.M22 - this.M33);
-                half = 0.5f / sqrt;
-
-                result.X = 0.5f * sqrt;
-                result.Y = (this.M12 + this.M21) * half;
-                result.Z = (this.M13 + this.M31) * half;
-                result.W = (this.M23 - this.M32) * half;
-            }
-            else if (this.M22 > this.M33)
-            {
-                sqrt = (float)Math.Sqrt(1.0f + this.M22 - this.M11 - this.M33);
-                half = 0.5f / sqrt;
-
-                result.X = (this.M21 + this.M12) * half;
-                result.Y = 0.5f * sqrt;
-                result.Z = (this.M32 + this.M23) * half;
-                result.W = (this.M31 - this.M13) * half;
-            }
-            else
-            {
-                sqrt = (float)Math.Sqrt(1.0f + this.M33 - this.M11 - this.M22);
-                half = 0.5f / sqrt;
-
-                result.X = (this.M31 + this.M13) * half;
-                result.Y = (this.M32 + this.M23) * half;
-                result.Z = 0.5f * sqrt;
-                result.W = (this.M12 - this.M21) * half;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Returns the Scale of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public Vector3 GetScale()
-        {
-            return new Vector3()
-            {
-                X = new Vector3(this.M11, this.M12, this.M13).Magnitude,
-                Y = new Vector3(this.M21, this.M22, this.M23).Magnitude,
-                Z = new Vector3(this.M31, this.M32, this.M33).Magnitude
-            };
-        }
-
-        /// <summary>
-        /// Returns the fourth row of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public Vector3 GetFourthRow()
-        {
-            return new Vector3(this.M41, this.M42, this.M43);
-        }
-
-        /// <summary>
-        /// Inserts a <see cref="Vector3"/> into the 4th row of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public void InsertFourthRow(Vector3 row)
-        {
-            this.M41 = row.X;
-            this.M42 = row.Y;
-            this.M43 = row.Z;
         }
 
         /// <summary>

@@ -163,6 +163,11 @@ namespace Fantome.Libraries.League.Helpers.Utilities
         {
             return degrees * ((float)Math.PI / 180);
         }
+
+        public static float Clamp(float value, float min, float max)
+        {
+            return Math.Max(min, Math.Min(max, value));
+        }
     }
 
     public enum LeagueFileType

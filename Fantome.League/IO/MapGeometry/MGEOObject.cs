@@ -17,7 +17,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public List<MGEOSubmesh> Submeshes { get; set; } = new List<MGEOSubmesh>();
         public bool Unknown1 { get; set; }
         public R3DBox BoundingBox { get; set; }
-        public R3DMatrix44 TransformationMatrix { get; set; }
+        public R3DMatrix44 Transformation { get; set; }
         public byte Unknown2 { get; set; }
         public byte Unknown3 { get; set; } = 0xFF;
         public Vector3 SeparatePointLight { get; set; }
@@ -78,7 +78,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
 
             this.BoundingBox = new R3DBox(br);
-            this.TransformationMatrix = new R3DMatrix44(br);
+            this.Transformation = new R3DMatrix44(br);
 
             this.Unknown2 = br.ReadByte();
             if(version == 7)
@@ -120,7 +120,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             bw.Write(this.Unknown1);
             this.BoundingBox.Write(bw);
-            this.TransformationMatrix.Write(bw);
+            this.Transformation.Write(bw);
             bw.Write(this.Unknown2);
 
             if(version == 7)
