@@ -11,10 +11,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public float MinZ { get; set; }
         public float MaxX { get; set; }
         public float MaxZ { get; set; }
-        public float CenterX { get; set; }
-        public float CenterZ { get; set; }
-        public float MinY { get; set; }
-        public float MaxY { get; set; }
+        public float MaxOutStickX { get; set; }
+        public float MaxOutStickZ { get; set; }
+        public float BucketSizeX { get; set; }
+        public float BucketSizeZ { get; set; }
         public List<Vector3> Vertices{ get; set; } = new List<Vector3>();
         public List<ushort> Indices { get; set; } = new List<ushort>();
         public MGEOBucket[,] Buckets { get; set; }
@@ -25,10 +25,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.MinZ = br.ReadSingle();
             this.MaxX = br.ReadSingle();
             this.MaxZ = br.ReadSingle();
-            this.CenterX = br.ReadSingle();
-            this.CenterZ = br.ReadSingle();
-            this.MinY = br.ReadSingle();
-            this.MaxY = br.ReadSingle();
+            this.MaxOutStickX = br.ReadSingle();
+            this.MaxOutStickZ = br.ReadSingle();
+            this.BucketSizeX = br.ReadSingle();
+            this.BucketSizeZ = br.ReadSingle();
 
             uint bucketsPerSide = br.ReadUInt32();
             uint vertexCount = br.ReadUInt32();
@@ -62,11 +62,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write(this.MaxX);
             bw.Write(this.MaxZ);
 
-            bw.Write(this.CenterX);
-            bw.Write(this.CenterZ);
+            bw.Write(this.MaxOutStickX);
+            bw.Write(this.MaxOutStickZ);
 
-            bw.Write(this.MinY);
-            bw.Write(this.MaxY);
+            bw.Write(this.BucketSizeX);
+            bw.Write(this.BucketSizeZ);
 
             uint bucketsPerSide = (uint)Math.Sqrt(this.Buckets.Length);
             bw.Write(bucketsPerSide);

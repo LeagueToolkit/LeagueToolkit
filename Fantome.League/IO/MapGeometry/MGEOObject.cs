@@ -21,7 +21,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public byte Unknown2 { get; set; }
         public byte Unknown3 { get; set; } = 0xFF;
         public Vector3 SeparatePointLight { get; set; }
-        public List<Vector3> PointLights { get; set; } = new List<Vector3>();
+        public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; }
         public ColorRGBAVector4 Color { get; set; }
 
@@ -64,23 +64,21 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             int indexBuffer = br.ReadInt32();
             this.Indices.AddRange(indexBuffers[indexBuffer]);
 
-
             uint submeshCount = br.ReadUInt32();
             for (int i = 0; i < submeshCount; i++)
             {
                 this.Submeshes.Add(new MGEOSubmesh(br, this));
             }
 
-            bool unknown1 = false;
             if(version != 5)
             {
-                unknown1 = br.ReadBoolean();
+                this.Unknown1 = br.ReadBoolean();
             }
 
             this.BoundingBox = new R3DBox(br);
             this.Transformation = new R3DMatrix44(br);
-
             this.Unknown2 = br.ReadByte();
+
             if(version == 7)
             {
                 this.Unknown3 = br.ReadByte();
@@ -92,7 +90,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
             for (int i = 0; i < 9; i++)
             {
-                this.PointLights.Add(new Vector3(br));
+                this.UnknownFloats.Add(new Vector3(br));
             }
 
             this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
@@ -118,7 +116,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 submesh.Write(bw);
             }
 
-            bw.Write(this.Unknown1);
+            if(version != 5)
+            {
+                bw.Write(this.Unknown1);
+            }
+
             this.BoundingBox.Write(bw);
             this.Transformation.Write(bw);
             bw.Write(this.Unknown2);
@@ -140,11 +142,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
             }
 
-            foreach (Vector3 pointLight in this.PointLights)
+            foreach (Vector3 pointLight in this.UnknownFloats)
             {
                 pointLight.Write(bw);
             }
-            for(int i = 0; i < 9 - this.PointLights.Count; i++)
+            for(int i = 0; i < 9 - this.UnknownFloats.Count; i++)
             {
                 new Vector3(0, 0, 0).Write(bw);
             }

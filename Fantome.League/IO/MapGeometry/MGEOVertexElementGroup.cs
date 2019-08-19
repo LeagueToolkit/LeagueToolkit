@@ -100,8 +100,19 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
     public enum MGEOVertexElementGroupUsage : uint
     {
+        /// <summary>
+        /// Static Vertex Data
+        /// </summary>
         Static,
+
+        /// <summary>
+        /// Dynamic Vertex Data (can be changed frequently)
+        /// </summary>
         Dynamic,
+
+        /// <summary>
+        /// Streaming Vertex Data (changed every frame)
+        /// </summary>
         Stream
     }
 }

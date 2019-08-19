@@ -209,38 +209,24 @@ namespace Fantome.Libraries.League.Tests
 
         static void MGEOTest()
         {
-            MGEOFile mgeo1 = new MGEOFile("8344CE0DA88EE35A.mapgeo");
-            MGEOFile mgeo2 = new MGEOFile("389B5E76F6E4896E.mapgeo");
+            MGEOFile mgeo1 = new MGEOFile(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo");
 
             foreach(MGEOObject model in mgeo1.Objects)
             {
-                Vector3 position = model.Transformation.Translation;
-                Vector3 rotation = model.Transformation.Rotation.ToEuler();
-                Vector3 scale = model.Transformation.Scale;
-                Vector3 sunPositionOrSomeShit = model.Transformation.FourthRow;
-                R3DMatrix44 mat = R3DMatrix44.CreateTransformation(position, rotation, scale);
-                mat.FourthRow = sunPositionOrSomeShit;
-
-                Vector3 rot = new Vector3(50, 90, 27);
-                Quaternion rot3 = new Quaternion(0.4449967f, 0.5495252f, 0.4449967f, 0.5495252f);
-                Vector3 rot2 = rot3.ToEuler();
-                Quaternion rot4 = Quaternion.FromEuler(rot2);
-                if(mat.M11 != 1 || mat.M22 != 1 || mat.M33 != 1)
+                foreach(Vector3 vector in model.UnknownFloats)
                 {
-
+                    vector.X = 0;
+                    vector.Y = 0;
+                    vector.Z = 0;
                 }
-
             }
 
-            //mgeo2.Write("389B5E76F6E4896E.mapgeo_write.mapgeo", 6);
-            Directory.CreateDirectory("OBJ");
-
-            int i = 0;
-            foreach(Tuple<string, OBJFile> model in OBJConverter.ConvertMGEOModels(mgeo1))
+            /*for(int i = 100; i < mgeo1.Objects.Count; i++)
             {
-                model.Item2.Write("OBJ/" + model.Item1 + ".obj");
-                i++;
-            }
+                mgeo1.Objects.RemoveAt(i);
+            }*/
+
+            mgeo1.Write(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo", 7);
         }
     }
 }

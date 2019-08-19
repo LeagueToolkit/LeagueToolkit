@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fantome.Libraries.League.Helpers.Utilities
+namespace Fantome.Libraries.League.Helpers
 {
     public static class Utilities
     {
@@ -159,7 +159,7 @@ namespace Fantome.Libraries.League.Helpers.Utilities
             return radian * (180 / (float)Math.PI);
         }
 
-        public static float ToRadian(float degrees)
+        public static float ToRadians(float degrees)
         {
             return degrees * ((float)Math.PI / 180);
         }

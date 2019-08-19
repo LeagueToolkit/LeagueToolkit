@@ -101,8 +101,28 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
+        /// Returns a normalized <see cref="Vector3"/>
+        /// </summary>
+        public Vector3 Normalized()
+        {
+            if(this.Magnitude == 0)
+            {
+                return this;
+            }
+            else
+            {
+                return new Vector3()
+                {
+                    X = this.X / this.Magnitude,
+                    Y = this.Y / this.Magnitude,
+                    Z = this.Z / this.Magnitude
+                };
+            }
+        }
+
+        /// <summary>
         /// Calculates a Cross product from two <see cref="Vector3"/>
-        /// </summary>q
+        /// </summary>
         public static Vector3 Cross(Vector3 x, Vector3 y)
         {
             return new Vector3(
@@ -118,6 +138,20 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public static float Distance(Vector3 x, Vector3 y)
         {
             return (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) - Math.Pow(x.Y - y.Y, 2) - Math.Pow(x.Z - y.Z, 2));
+        }
+
+        public static Vector3 FromRotationMatrix(R3DMatrix44 m)
+        {
+            float x = 0;
+            float y = Utilities.Clamp(m.M13, -1, 1);
+            float z = 0;
+
+            return new Vector3()
+            {
+                X = (float)Math.Round(Utilities.ToDegrees(x), 4),
+                Y = (float)Math.Round(Utilities.ToDegrees(x), 4),
+                Z = (float)Math.Round(Utilities.ToDegrees(x), 4)
+            };
         }
 
         /// <summary>

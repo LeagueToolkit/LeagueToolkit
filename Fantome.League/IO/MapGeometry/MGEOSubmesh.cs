@@ -11,38 +11,38 @@ namespace Fantome.Libraries.League.IO.MapGeometry
     public class MGEOSubmesh
     {
         public MGEOObject Parent { get; internal set; }
-        public uint Unknown { get; internal set; } = 0;
-        public string Name { get; set; }
+        public uint Hash { get; internal set; } = 0;
+        public string Material { get; set; }
         public int StartIndex { get; internal set; }
         public uint IndexCount { get; internal set; }
-        public uint StartVertex { get; internal set; }
-        public uint EndVertex { get; internal set; }
+        public uint MinVertex { get; internal set; }
+        public uint MaxVertex { get; internal set; }
 
         public MGEOSubmesh(BinaryReader br, MGEOObject parent)
         {
             this.Parent = parent;
-            this.Unknown = br.ReadUInt32();
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            this.Hash = br.ReadUInt32();
+            this.Material = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             this.StartIndex = br.ReadInt32();
             this.IndexCount = br.ReadUInt32();
-            this.StartVertex = br.ReadUInt32();
-            this.EndVertex = br.ReadUInt32() + 1;
+            this.MinVertex = br.ReadUInt32();
+            this.MaxVertex = br.ReadUInt32() + 1;
 
-            if (this.StartVertex != 0)
+            if (this.MinVertex != 0)
             {
-                this.StartVertex--;
+                this.MinVertex--;
             }
         }
 
         public void Write(BinaryWriter bw)
         {
-            bw.Write(this.Unknown);
-            bw.Write(this.Name.Length);
-            bw.Write(Encoding.ASCII.GetBytes(this.Name));
+            bw.Write(this.Hash);
+            bw.Write(this.Material.Length);
+            bw.Write(Encoding.ASCII.GetBytes(this.Material));
             bw.Write(this.StartIndex);
             bw.Write(this.IndexCount);
-            bw.Write((this.StartVertex == 0) ? this.StartVertex : this.StartVertex + 1); //edit later
-            bw.Write(this.EndVertex - 1); //edit later
+            bw.Write((this.MinVertex == 0) ? this.MinVertex : this.MinVertex + 1); //edit later
+            bw.Write(this.MaxVertex - 1); //edit later
         }
     }
 }

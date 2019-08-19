@@ -34,56 +34,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
         public Quaternion Rotation
         {
-            get
-            {
-                Quaternion result = new Quaternion(0, 0, 0, 0);
-                float sqrt;
-                float half;
-                float scale = this.M11 + this.M22 + this.M33;
-
-                if (scale > 0.0f)
-                {
-                    sqrt = (float)Math.Sqrt(scale + 1.0f);
-                    result.W = sqrt * 0.5f;
-                    sqrt = 0.5f / sqrt;
-
-                    result.X = (this.M23 - this.M32) * sqrt;
-                    result.Y = (this.M31 - this.M13) * sqrt;
-                    result.Z = (this.M12 - this.M21) * sqrt;
-                }
-                else if ((this.M11 >= this.M22) && (this.M11 >= this.M33))
-                {
-                    sqrt = (float)Math.Sqrt(1.0f + this.M11 - this.M22 - this.M33);
-                    half = 0.5f / sqrt;
-
-                    result.X = 0.5f * sqrt;
-                    result.Y = (this.M12 + this.M21) * half;
-                    result.Z = (this.M13 + this.M31) * half;
-                    result.W = (this.M23 - this.M32) * half;
-                }
-                else if (this.M22 > this.M33)
-                {
-                    sqrt = (float)Math.Sqrt(1.0f + this.M22 - this.M11 - this.M33);
-                    half = 0.5f / sqrt;
-
-                    result.X = (this.M21 + this.M12) * half;
-                    result.Y = 0.5f * sqrt;
-                    result.Z = (this.M32 + this.M23) * half;
-                    result.W = (this.M31 - this.M13) * half;
-                }
-                else
-                {
-                    sqrt = (float)Math.Sqrt(1.0f + this.M33 - this.M11 - this.M22);
-                    half = 0.5f / sqrt;
-
-                    result.X = (this.M31 + this.M13) * half;
-                    result.Y = (this.M32 + this.M23) * half;
-                    result.Z = 0.5f * sqrt;
-                    result.W = (this.M12 - this.M21) * half;
-                }
-
-                return result;
-            }
+            get => Quaternion.FromTransformationMatrix(this);
         }
         public Vector3 Scale
         {
@@ -413,6 +364,31 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public static R3DMatrix44 CreateTransformation(Vector3 translation, Quaternion rotation, Vector3 scale)
         {
             return FromTranslation(translation) * FromRotation(rotation) * FromScale(scale);
+        }
+
+        public static R3DMatrix44 RotationAxis(Vector3 axis, float angle)
+        {
+            Vector3 nAxis = axis.Normalized();
+            float rAngle = Utilities.ToRadians(angle);
+            float sinA = (float)Math.Sin(rAngle);
+            float cosA = (float)Math.Cos(rAngle);
+            float cDiff = 1 - cosA;
+
+            return new R3DMatrix44()
+            {
+                M11 = cDiff * nAxis.X * nAxis.X + cosA,
+                M21 = cDiff * nAxis.X * nAxis.Y - sinA * nAxis.Z,
+                M31 = cDiff * nAxis.X * nAxis.Z + sinA * nAxis.Y,
+                M41 = 0.0f,
+                M12 = cDiff * nAxis.Y * nAxis.X + sinA * nAxis.Z,
+                M22 = cDiff * nAxis.Y * nAxis.Y + cosA,
+                M32 = cDiff * nAxis.Y * nAxis.Z - sinA * nAxis.X,
+                M42 = 0.0f,
+                M13 = cDiff * nAxis.Z * nAxis.X - sinA * nAxis.Y,
+                M23 = cDiff * nAxis.Z * nAxis.Y + sinA * nAxis.X,
+                M33 = cDiff * nAxis.Z * nAxis.Z + cosA,
+                M43 = 0.0f,
+            };
         }
 
         public static R3DMatrix44 operator *(R3DMatrix44 a, R3DMatrix44 b)
