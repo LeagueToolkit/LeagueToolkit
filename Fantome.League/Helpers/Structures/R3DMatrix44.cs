@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// <summary>
     /// Represents a transformation Matrix
     /// </summary>
-    public class R3DMatrix44
+    public class R3DMatrix44 : IEquatable<R3DMatrix44>
     {
         public float M11 { get; private set; }
         public float M12 { get; private set; }
@@ -285,6 +285,14 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 + this.M13 * this.M21 * this.M32
                 - this.M12 * this.M21 * this.M33
                 + this.M12 * this.M23 * this.M31);
+        }
+
+        public bool Equals(R3DMatrix44 other)
+        {
+            return this.M11 == other.M11 && this.M12 == other.M12 && this.M13 == other.M13 && this.M14 == other.M14 &&
+                   this.M21 == other.M21 && this.M22 == other.M22 && this.M23 == other.M23 && this.M24 == other.M24 &&
+                   this.M31 == other.M31 && this.M32 == other.M32 && this.M33 == other.M33 && this.M34 == other.M34 &&
+                   this.M41 == other.M41 && this.M42 == other.M42 && this.M43 == other.M43 && this.M44 == other.M44;
         }
 
         public static R3DMatrix44 operator *(R3DMatrix44 a, R3DMatrix44 b)

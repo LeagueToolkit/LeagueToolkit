@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
     /// <summary>
     /// Represents a 32-bit RGBA Color using bytes
     /// </summary>
-    public class ColorRGBAVector4Byte
+    public class ColorRGBAVector4Byte : IEquatable<ColorRGBAVector4Byte>
     {
         /// <summary>
         /// Red
@@ -79,6 +80,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public void Write(StreamWriter sw, string format)
         {
             sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
+        }
+
+        public bool Equals(ColorRGBAVector4Byte other)
+        {
+            return this.R == other.R && this.G == other.G && this.B == other.B && this.A == other.A;
         }
     }
 }
