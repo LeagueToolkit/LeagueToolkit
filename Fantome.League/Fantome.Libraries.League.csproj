@@ -95,7 +95,6 @@
     <Compile Include="IO\BIN\BINMap.cs" />
     <Compile Include="IO\BIN\BINStructure.cs" />
     <Compile Include="IO\BIN\BINValue.cs" />
-    <Compile Include="IO\BIN\BINValuePair.cs" />
     <Compile Include="IO\BIN\IBINValue.cs" />
     <Compile Include="IO\FX\FXFile.cs" />
     <Compile Include="IO\FX\FXTrack.cs" />
