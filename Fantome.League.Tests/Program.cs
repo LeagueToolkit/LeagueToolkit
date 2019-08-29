@@ -107,8 +107,112 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("4E348110B14461B3.bin");
-            bin.Write("test.bin");
+            BINFile bin = new BINFile("929042894B990D88.bin");
+            List<string> paths = new List<string>();
+
+            foreach(BINEntry entry in bin.Entries)
+            {
+                paths.AddRange(ProcessBINEntry(entry));
+            }
+
+            List<BINValue> values = new List<BINValue>();
+            foreach(string path in paths)
+            {
+                string entryPath = path.Substring(0, path.IndexOf('/'));
+                string valuePath = path.Substring(path.IndexOf('/') + 1);
+
+                values.Add(bin[entryPath, valuePath]);
+            }
+
+            List<string> paths2 = new List<string>();
+            foreach (BINValue value in values)
+            {
+                paths2.Add(value.GetPath(false));
+            }
+
+
+            IEnumerable<string> ProcessBINEntry(BINEntry entry)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in entry.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINValue(BINValue value)
+            {
+                List<string> strings = new List<string>();
+
+                if (value.Type == BINFileValueType.OptionalData)
+                {
+                    strings.AddRange(ProcessBINAdditionalData(value.Value as BINOptionalData));
+                }
+                else if (value.Type == BINFileValueType.Container)
+                {
+                    strings.AddRange(ProcessBINContainer(value.Value as BINContainer));
+                }
+                else if (value.Type == BINFileValueType.Embedded || value.Type == BINFileValueType.Structure)
+                {
+                    strings.AddRange(ProcessBINStructure(value.Value as BINStructure));
+                }
+                else if (value.Type == BINFileValueType.Map)
+                {
+                    strings.AddRange(ProcessBINMap(value.Value as BINMap));
+                }
+                else
+                {
+                    strings.Add(value.GetPath(false));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINAdditionalData(BINOptionalData additionalData)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in additionalData.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINContainer(BINContainer container)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in container.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINStructure(BINStructure structure)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in structure.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINMap(BINMap map)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (KeyValuePair<BINValue, BINValue> valuePair in map.Values)
+                {
+                    strings.AddRange(ProcessBINValue(valuePair.Key));
+                }
+
+                return strings;
+            }
         }
 
         static void LightDatTest()

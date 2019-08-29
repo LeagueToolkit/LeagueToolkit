@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.BIN
@@ -18,6 +20,23 @@ namespace Fantome.Libraries.League.IO.BIN
         /// A Collection of <see cref="BINEntry"/>
         /// </summary>
         public List<BINEntry> Entries { get; private set; } = new List<BINEntry>();
+        public BINValue this[string entryPath, string valuePath]
+        {
+            get
+            {
+                uint entryHash;
+                if(entryPath.Contains('/'))
+                {
+                    entryHash = Cryptography.FNV32Hash(entryPath.ToLower());
+                }
+                else
+                {
+                    entryHash = uint.Parse(entryPath);
+                }
+
+                return this.Entries.Find(x => x.Property == entryHash)[valuePath];
+            }
+        }
 
         /// <summary>
         /// Initializes a new <see cref="BINFile"/> from the specified location
@@ -91,7 +110,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((uint)this.Entries.Count);
                 foreach (BINEntry entry in this.Entries)
                 {
-                    bw.Write(entry.Type);
+                    bw.Write(entry.Class);
                 }
                 foreach (BINEntry entry in this.Entries)
                 {
