@@ -66,6 +66,7 @@
     <Compile Include="Diffing\BIN\BINDiffer.cs" />
     <Compile Include="Diffing\BIN\BINDiffInfo.cs" />
     <Compile Include="Helpers\Attributes\IniPropertyAttribute.cs" />
+    <Compile Include="Helpers\BIN\BINHelper.cs" />
     <Compile Include="Helpers\Structures\ColorBGRAVector4Byte.cs" />
     <Compile Include="Helpers\Structures\ColorRGBAVector4.cs" />
     <Compile Include="Helpers\Structures\ColorRGBAVector4Byte.cs" />

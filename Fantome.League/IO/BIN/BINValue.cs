@@ -90,7 +90,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
                     BINStructure structure = (structureIndex == null) ? this.Value as BINStructure : (this.Value as BINContainer).Values[(int)structureIndex].Value as BINStructure;
                     BINValue fieldValue = structure[fieldHash];
-                    if(properties.Length == 1)
+                    if(nextPath != string.Empty)
                     {
                         return structure[fieldHash];
                     }
@@ -455,7 +455,6 @@ namespace Fantome.Libraries.League.IO.BIN
 
             if (this.Property == 0 && this.Parent is BINContainer)
             {
-                int index = (this.Parent as BINContainer).Values.IndexOf(this);
                 path += string.Format("{0}/[{1}]", this.Parent.GetPath(excludeEntry), (this.Parent as BINContainer).Values.IndexOf(this));
             }
             else if(this.Property == 0 && this.Parent is BINMap)
