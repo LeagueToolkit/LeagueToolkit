@@ -40,13 +40,14 @@ namespace Fantome.Libraries.League.IO.BIN
                 //Determine the property type
                 if(Regex.IsMatch(property, @"^\[\d+\]"))
                 {
-                    int valueIndex = int.Parse(property.Substring(property.IndexOf('[') + 1, property.Length - property.IndexOf(']')));
+                    int valueIndex = int.Parse(property.Substring(1, property.IndexOf(']') - 1));
 
                     return (this.Value as BINContainer).Values[valueIndex];
                 }
                 else if(property.Contains('[') && !property.Contains('.'))
                 {
-                    int valueIndex = int.Parse(property.Substring(property.IndexOf('[') + 1, property.Length - property.IndexOf(']')));
+                    int startIndex = property.IndexOf('[');
+                    int valueIndex = int.Parse(property.Substring(startIndex + 1, property.IndexOf(']') - startIndex - 1));
 
                     if(this.Type == BINFileValueType.Container && 
                         (this.Value as BINContainer).EntryType == BINFileValueType.Embedded ||
@@ -71,7 +72,8 @@ namespace Fantome.Libraries.League.IO.BIN
                     //Check if structure property has an array index
                     if(structureProperty.Contains('['))
                     {
-                        structureIndex = int.Parse(structureProperty.Substring(structureProperty.IndexOf('[') + 1, structureProperty.Length - structureProperty.IndexOf(']')));
+                        int startIndex = structureProperty.IndexOf('[');
+                        structureIndex = int.Parse(structureProperty.Substring(startIndex + 1, structureProperty.IndexOf(']') - startIndex - 1));
                         structureProperty = structureProperty.Remove(structureProperty.IndexOf('['));
                     }
 
@@ -87,7 +89,15 @@ namespace Fantome.Libraries.League.IO.BIN
                     }
 
                     BINStructure structure = (structureIndex == null) ? this.Value as BINStructure : (this.Value as BINContainer).Values[(int)structureIndex].Value as BINStructure;
-                    return structure[fieldHash];
+                    BINValue fieldValue = structure[fieldHash];
+                    if(properties.Length == 1)
+                    {
+                        return structure[fieldHash];
+                    }
+                    else
+                    {
+                        return structure[fieldHash][nextPath];
+                    }
                 }
                 else if(this.Type == BINFileValueType.Map)
                 {
@@ -445,6 +455,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
             if (this.Property == 0 && this.Parent is BINContainer)
             {
+                int index = (this.Parent as BINContainer).Values.IndexOf(this);
                 path += string.Format("{0}/[{1}]", this.Parent.GetPath(excludeEntry), (this.Parent as BINContainer).Values.IndexOf(this));
             }
             else if(this.Property == 0 && this.Parent is BINMap)

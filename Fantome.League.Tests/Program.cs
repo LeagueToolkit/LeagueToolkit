@@ -116,20 +116,44 @@ namespace Fantome.Libraries.League.Tests
             }
 
             List<BINValue> values = new List<BINValue>();
+            int j2 = 0;
             foreach(string path in paths)
             {
                 string entryPath = path.Substring(0, path.IndexOf('/'));
                 string valuePath = path.Substring(path.IndexOf('/') + 1);
 
+                if(j2 == 247)
+                {
+
+                }
+
                 values.Add(bin[entryPath, valuePath]);
+
+                j2++;
             }
 
             List<string> paths2 = new List<string>();
+            int j = 0;
             foreach (BINValue value in values)
             {
+                if(j == 247)
+                {
+
+                }
+
                 paths2.Add(value.GetPath(false));
+
+                j++;
             }
 
+            for(int i = 0; i < paths.Count; i++)
+            {
+                if(paths[i] != paths2[i])
+                {
+                    //450496931/2257500010/164488258[0].2646858022/2010092456.3857869021/1759261366.3031705514
+                    //450496931/2257500010/164488258[0].2646858022/2010092456.3857869021
+                }
+            }
 
             IEnumerable<string> ProcessBINEntry(BINEntry entry)
             {
