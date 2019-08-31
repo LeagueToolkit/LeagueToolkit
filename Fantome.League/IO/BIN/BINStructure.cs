@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Cryptography;
+﻿using Fantome.Libraries.League.Helpers.BIN;
+using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -78,12 +79,12 @@ namespace Fantome.Libraries.League.IO.BIN
             if(this.Parent.Parent is BINContainer)
             {
                 BINContainer container = this.Parent.Parent as BINContainer;
-                path = string.Format("{0}/{1}[{2}]", this.Parent.Parent.GetPath(excludeEntry), this.Property, container.Values.IndexOf(this.Parent as BINValue));
+                path = string.Format("{0}/{1}[{2}]", this.Parent.Parent.GetPath(excludeEntry), BINHelper.GetClass(this.Property), container.Values.IndexOf(this.Parent as BINValue));
 
             }
             else
             {
-                path = string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), this.Property);
+                path = string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetClass(this.Property));
             }
 
             return path;

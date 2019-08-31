@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Cryptography;
+﻿using Fantome.Libraries.League.Helpers.BIN;
+using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -141,7 +142,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public string GetPath(bool excludeEntry = true)
         {
-            return this.Property.ToString();
+            return BINHelper.GetEntry(this.Property);
         }
 
         public bool Equals(BINEntry other)

@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Cryptography;
+﻿using Fantome.Libraries.League.Helpers.BIN;
+using Fantome.Libraries.League.Helpers.Cryptography;
 using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
@@ -92,11 +93,11 @@ namespace Fantome.Libraries.League.IO.BIN
                     BINValue fieldValue = structure[fieldHash];
                     if(nextPath != string.Empty)
                     {
-                        return structure[fieldHash];
+                        return structure[fieldHash][nextPath];
                     }
                     else
                     {
-                        return structure[fieldHash][nextPath];
+                        return structure[fieldHash];
                     }
                 }
                 else if(this.Type == BINFileValueType.Map)
@@ -502,11 +503,15 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if(this.Parent is BINStructure)
             {
-                path += string.Format("{0}.{1}", this.Parent.GetPath(excludeEntry), this.Property);
+                path += string.Format("{0}.{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetField(this.Property));
+            }
+            else if(this.Parent is BINEntry)
+            {
+                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetField(this.Property));
             }
             else
             {
-                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), this.Property);
+                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetClass(this.Property));
             }
 
             return excludeEntry ? path.Remove(0, path.IndexOf('/') + 1) : path;

@@ -25,6 +25,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fantome.Libraries.League.IO.WorldDescription;
+using Fantome.Libraries.League.Helpers.BIN;
+using Fantome.Libraries.League.Helpers.Cryptography;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -108,8 +110,26 @@ namespace Fantome.Libraries.League.Tests
         static void BINTest()
         {
             BINFile bin = new BINFile("929042894B990D88.bin");
-            List<string> paths = new List<string>();
+            Dictionary<uint, string> classNames = new Dictionary<uint, string>();
+            Dictionary<uint, string> fieldNames = new Dictionary<uint, string>();
 
+            List<string> classNamesRaw = File.ReadAllLines("hashes.bintypes.txt").ToList();
+            foreach (string classNameRaw in classNamesRaw)
+            {
+                string className = classNameRaw.Split(' ')[1];
+                classNames.Add(Cryptography.FNV32Hash(className), className);
+            }
+
+            List<string> fieldNamesRaw = File.ReadAllLines("hashes.binfields.txt").ToList();
+            foreach (string fieldNameRaw in fieldNamesRaw)
+            {
+                string fieldName = fieldNameRaw.Split(' ')[1];
+                fieldNames.Add(Cryptography.FNV32Hash(fieldName), fieldName);
+            }
+
+            BINHelper.SetHashmap(new Dictionary<uint, string>(), classNames, fieldNames);
+
+            List<string> paths = new List<string>();
             foreach(BINEntry entry in bin.Entries)
             {
                 paths.AddRange(ProcessBINEntry(entry));
@@ -122,7 +142,7 @@ namespace Fantome.Libraries.League.Tests
                 string entryPath = path.Substring(0, path.IndexOf('/'));
                 string valuePath = path.Substring(path.IndexOf('/') + 1);
 
-                if(j2 == 247)
+                if(j2 == 141)
                 {
 
                 }
