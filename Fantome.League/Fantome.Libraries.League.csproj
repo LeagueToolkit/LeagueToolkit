@@ -63,6 +63,8 @@
     <Compile Include="Converters\SCOConverter.cs" />
     <Compile Include="Converters\SKNConverter.cs" />
     <Compile Include="Converters\WGEOConverter.cs" />
+    <Compile Include="Diffing\BIN\BINDiffer.cs" />
+    <Compile Include="Diffing\BIN\BINDiffInfo.cs" />
     <Compile Include="Helpers\Attributes\IniPropertyAttribute.cs" />
     <Compile Include="Helpers\BIN\BINGlobal.cs" />
     <Compile Include="Helpers\Structures\ColorBGRAVector4Byte.cs" />
