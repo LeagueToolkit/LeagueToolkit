@@ -109,7 +109,8 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("929042894B990D88.bin");
+            //BINFile bin = new BINFile("929042894B990D88.bin");
+            BINFile bin = new BINFile("AAFA250508F27EEF.bin");
             Dictionary<uint, string> classNames = new Dictionary<uint, string>();
             Dictionary<uint, string> fieldNames = new Dictionary<uint, string>();
 
@@ -127,7 +128,7 @@ namespace Fantome.Libraries.League.Tests
                 fieldNames.Add(Cryptography.FNV32Hash(fieldName), fieldName);
             }
 
-            BINHelper.SetHashmap(new Dictionary<uint, string>(), classNames, fieldNames);
+            BINGlobal.SetHashmap(new Dictionary<uint, string>(), classNames, fieldNames);
 
             List<string> paths = new List<string>();
             foreach(BINEntry entry in bin.Entries)

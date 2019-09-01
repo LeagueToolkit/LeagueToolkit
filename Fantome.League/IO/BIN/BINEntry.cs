@@ -142,7 +142,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public string GetPath(bool excludeEntry = true)
         {
-            return BINHelper.GetEntry(this.Property);
+            return BINGlobal.GetEntry(this.Property);
         }
 
         public bool Equals(BINEntry other)

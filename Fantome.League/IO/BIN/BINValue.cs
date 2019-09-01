@@ -58,10 +58,6 @@ namespace Fantome.Libraries.League.IO.BIN
 
                         return container.Values[valueIndex];
                     }
-                    else
-                    {
-
-                    }
                 }
                 else if(property.Contains('.'))
                 {
@@ -82,11 +78,11 @@ namespace Fantome.Libraries.League.IO.BIN
                     uint fieldHash;
                     if (structureIndex == null && !uint.TryParse(structureProperty, out structureHash))
                     {
-                        structureHash = Cryptography.FNV32Hash(structureProperty.ToLower());
+                        structureHash = Cryptography.FNV32Hash(structureProperty);
                     }
                     if (!uint.TryParse(fieldProperty, out fieldHash))
                     {
-                        fieldHash = Cryptography.FNV32Hash(fieldProperty.ToLower());
+                        fieldHash = Cryptography.FNV32Hash(fieldProperty);
                     }
 
                     BINStructure structure = (structureIndex == null) ? this.Value as BINStructure : (this.Value as BINContainer).Values[(int)structureIndex].Value as BINStructure;
@@ -134,17 +130,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     }
 
                 }
-                else
-                {
-                    uint hash;
-                    if (!uint.TryParse(property, out hash))
-                    {
-                        hash = Cryptography.FNV32Hash(property.ToLower());
-                    }
-                }
-
                 
-
                 return null;
             }
         }
@@ -503,15 +489,15 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if(this.Parent is BINStructure)
             {
-                path += string.Format("{0}.{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetField(this.Property));
+                path += string.Format("{0}.{1}", this.Parent.GetPath(excludeEntry), BINGlobal.GetField(this.Property));
             }
             else if(this.Parent is BINEntry)
             {
-                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetField(this.Property));
+                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINGlobal.GetField(this.Property));
             }
             else
             {
-                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINHelper.GetClass(this.Property));
+                path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINGlobal.GetClass(this.Property));
             }
 
             return excludeEntry ? path.Remove(0, path.IndexOf('/') + 1) : path;
