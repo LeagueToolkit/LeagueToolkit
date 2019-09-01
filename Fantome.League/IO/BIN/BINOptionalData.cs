@@ -9,7 +9,7 @@ namespace Fantome.Libraries.League.IO.BIN
     public class BINOptionalData : IBINValue, IEquatable<BINOptionalData>
     {
         public IBINValue Parent { get; private set; }
-        public BINFileValueType EntryType { get; private set; }
+        public BINValueType EntryType { get; private set; }
         public List<BINValue> Values { get; private set; } = new List<BINValue>();
         public BINValue this[uint hash] => throw new NotImplementedException();
         public BINValue this[string path] => throw new NotImplementedException();
@@ -17,7 +17,7 @@ namespace Fantome.Libraries.League.IO.BIN
         public BINOptionalData(BinaryReader br, IBINValue parent)
         {
             this.Parent = parent;
-            this.EntryType = (BINFileValueType)br.ReadByte();
+            this.EntryType = (BINValueType)br.ReadByte();
             byte valueCount = br.ReadByte();
 
             for (int i = 0; i < valueCount; i++)

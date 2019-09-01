@@ -191,19 +191,19 @@ namespace Fantome.Libraries.League.Tests
             {
                 List<string> strings = new List<string>();
 
-                if (value.Type == BINFileValueType.OptionalData)
+                if (value.Type == BINValueType.OptionalData)
                 {
                     strings.AddRange(ProcessBINAdditionalData(value.Value as BINOptionalData));
                 }
-                else if (value.Type == BINFileValueType.Container)
+                else if (value.Type == BINValueType.Container)
                 {
                     strings.AddRange(ProcessBINContainer(value.Value as BINContainer));
                 }
-                else if (value.Type == BINFileValueType.Embedded || value.Type == BINFileValueType.Structure)
+                else if (value.Type == BINValueType.Embedded || value.Type == BINValueType.Structure)
                 {
                     strings.AddRange(ProcessBINStructure(value.Value as BINStructure));
                 }
-                else if (value.Type == BINFileValueType.Map)
+                else if (value.Type == BINValueType.Map)
                 {
                     strings.AddRange(ProcessBINMap(value.Value as BINMap));
                 }

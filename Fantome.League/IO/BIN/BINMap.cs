@@ -9,8 +9,8 @@ namespace Fantome.Libraries.League.IO.BIN
     public class BINMap : IBINValue, IEquatable<BINMap>
     {
         public IBINValue Parent { get; private set; }
-        public BINFileValueType KeyType { get; private set; }
-        public BINFileValueType ValueType { get; private set; }
+        public BINValueType KeyType { get; private set; }
+        public BINValueType ValueType { get; private set; }
         public Dictionary<BINValue, BINValue> Values { get; private set; } = new Dictionary<BINValue, BINValue>();
         public BINValue this[uint hash] => throw new NotImplementedException();
         public BINValue this[string path] => throw new NotImplementedException();
@@ -22,7 +22,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
-        public BINMap(IBINValue parent, BINFileValueType keyType, BINFileValueType valueType, Dictionary<BINValue, BINValue> values)
+        public BINMap(IBINValue parent, BINValueType keyType, BINValueType valueType, Dictionary<BINValue, BINValue> values)
         {
             this.Parent = parent;
             this.KeyType = keyType;
@@ -34,8 +34,8 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             this.Parent = parent;
 
-            this.KeyType = (BINFileValueType)br.ReadByte();
-            this.ValueType = (BINFileValueType)br.ReadByte();
+            this.KeyType = (BINValueType)br.ReadByte();
+            this.ValueType = (BINValueType)br.ReadByte();
             uint size = br.ReadUInt32();
             uint valueCount = br.ReadUInt32();
 

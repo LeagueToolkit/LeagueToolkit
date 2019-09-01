@@ -9,7 +9,7 @@ namespace Fantome.Libraries.League.IO.BIN
     public class BINContainer : IBINValue, IEquatable<BINContainer>
     {
         public IBINValue Parent { get; private set; }
-        public BINFileValueType EntryType { get; private set; }
+        public BINValueType EntryType { get; private set; }
         public List<BINValue> Values { get; private set; } = new List<BINValue>();
 
         public BINValue this[string path] => throw new NotImplementedException();
@@ -26,7 +26,7 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             this.Parent = parent;
 
-            this.EntryType = (BINFileValueType)br.ReadByte();
+            this.EntryType = (BINValueType)br.ReadByte();
             uint size = br.ReadUInt32();
             uint valueCount = br.ReadUInt32();
 
