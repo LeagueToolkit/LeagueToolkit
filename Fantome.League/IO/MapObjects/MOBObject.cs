@@ -23,6 +23,10 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// </summary>
         public uint SkinID { get; set; }
         /// <summary>
+        /// Collision flag of this <see cref="MOBObject"/>
+        /// </summary>
+        public bool IgnoreCollisionOnPlacement { get; set; }
+        /// <summary>
         /// Position of this <see cref="MOBObject"/>
         /// </summary>
         public Vector3 Position { get; set; }
@@ -44,16 +48,18 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// </summary>
         /// <param name="name">Name of this <see cref="MOBObject"/></param>
         /// <param name="type">Type of this <see cref="MOBObject"/></param>
+        /// <param name="skinID">Skin ID of this <see cref="MOBObject"/></param>
+        /// <param name="ignoreCollisionOnPlacement">Collision flag of this <see cref="MOBObject"/></param>
         /// <param name="position">Position of this <see cref="MOBObject"/></param>
         /// <param name="rotation">Scale of this <see cref="MOBObject"/></param>
         /// <param name="scale">Scale of this <see cref="MOBObject"/></param>
-        /// <param name="reservedVector1">Used to store additional Vector data of this <see cref="MOBObject"/></param>
-        /// <param name="reservedVector2">Used to store additional Vector data of this <see cref="MOBObject"/></param>
-        public MOBObject(string name, MOBObjectType type, uint skinID, Vector3 position, Vector3 rotation, Vector3 scale, R3DBoundingBox boundingBox)
+        /// <param name="boundingBox">Bounding Box of this <see cref="MOBObject"/></param>
+        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, R3DBoundingBox boundingBox)
         {
             this.Name = name;
             this.Type = type;
             this.SkinID = skinID;
+            this.IgnoreCollisionOnPlacement = ignoreCollisionOnPlacement;
             this.Position = position;
             this.Rotation = rotation;
             this.Scale = scale;
@@ -68,6 +74,7 @@ namespace Fantome.Libraries.League.IO.MapObjects
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(62)).Replace("\0", "");
             this.Type = (MOBObjectType)br.ReadByte();
+            this.IgnoreCollisionOnPlacement = br.ReadBoolean();
             this.Position = new Vector3(br);
             this.Rotation = new Vector3(br);
             this.Scale = new Vector3(br);
@@ -83,6 +90,7 @@ namespace Fantome.Libraries.League.IO.MapObjects
         {
             bw.Write(Encoding.ASCII.GetBytes(this.Name.PadRight(62, '\u0000')));
             bw.Write((byte)this.Type);
+            bw.Write(this.IgnoreCollisionOnPlacement);
             this.Position.Write(bw);
             this.Rotation.Write(bw);
             this.Scale.Write(bw);
