@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.IO.BIN
     public class BINOptional : IBINValue, IEquatable<BINOptional>
     {
         public IBINValue Parent { get; private set; }
-        public BINValueType EntryType { get; private set; }
+        public BINValueType Type { get; private set; }
         public BINValue Value { get; private set; }
         public BINValue this[uint hash] => throw new NotImplementedException();
         public BINValue this[string path] => throw new NotImplementedException();
@@ -14,7 +14,7 @@ namespace Fantome.Libraries.League.IO.BIN
         public BINOptional(BinaryReader br, IBINValue parent)
         {
             this.Parent = parent;
-            this.EntryType = (BINValueType)br.ReadByte();
+            this.Type = (BINValueType)br.ReadByte();
             byte valueCount = br.ReadByte(); //????
 
             if(valueCount > 1)
@@ -22,12 +22,12 @@ namespace Fantome.Libraries.League.IO.BIN
                 throw new Exception("Encountered an Optional value with Value Count: " + valueCount);
             }
 
-            this.Value = new BINValue(br, this, this.EntryType);
+            this.Value = new BINValue(br, this, this.Type);
         }
 
         public void Write(BinaryWriter bw)
         {
-            bw.Write((byte)this.EntryType);
+            bw.Write((byte)this.Type);
             bw.Write((byte)1);
             this.Value.Write(bw, false);
         }
@@ -44,7 +44,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public bool Equals(BINOptional other)
         {
-            if(this.EntryType != other.EntryType)
+            if(this.Type != other.Type)
             {
                 return false;
             }
