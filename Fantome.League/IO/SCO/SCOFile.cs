@@ -99,17 +99,17 @@ namespace Fantome.Libraries.League.IO.SCO
                 sw.WriteLine("Name= " + this.Name);
 
                 Vector3 centralPoint = CalculateCentralPoint();
-                sw.WriteLine(string.Format("CentralPoint= {0} {1} {2}", centralPoint.X, centralPoint.Y, centralPoint.Z));
+                sw.WriteLine("CentralPoint= {0} {1} {2}", centralPoint.X, centralPoint.Y, centralPoint.Z);
 
                 if (this.PivotPoint != null)
                 {
-                    sw.WriteLine(string.Format("PivotPoint= {0} {1} {2}", this.PivotPoint.X, this.PivotPoint.Y, this.PivotPoint.Z));
+                    sw.WriteLine("PivotPoint= {0} {1} {2}", this.PivotPoint.X, this.PivotPoint.Y, this.PivotPoint.Z);
                 }
 
                 sw.WriteLine("Verts= " + this.Vertices.Count);
                 foreach (Vector3 vertex in this.Vertices)
                 {
-                    sw.WriteLine(string.Format("{0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
+                    sw.WriteLine("{0} {1} {2}", vertex.X, vertex.Y, vertex.Z);
                 }
 
                 uint faceCount = 0;

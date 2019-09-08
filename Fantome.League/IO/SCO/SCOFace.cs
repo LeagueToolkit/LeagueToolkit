@@ -44,7 +44,7 @@ namespace Fantome.Libraries.League.IO.SCO
         {
             string indices = string.Format("{0} {1} {2}", this.Indices[0], this.Indices[1], this.Indices[2]);
             string uvs = string.Format("{0} {1} {2} {3} {4} {5}", this.UVs[0].X, this.UVs[1].X, this.UVs[2].X, this.UVs[0].Y, this.UVs[1].Y, this.UVs[2].Y);
-            sw.WriteLine(string.Format("3 {0} {1} {2}", indices, this.Material, uvs));
+            sw.WriteLine("3 {0} {1} {2}", indices, this.Material, uvs);
         }
     }
 }

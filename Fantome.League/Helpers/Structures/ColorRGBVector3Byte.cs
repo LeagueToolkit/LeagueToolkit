@@ -70,7 +70,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="format">Format that should be used for writing</param>
         public void Write(StreamWriter sw, string format)
         {
-            sw.Write(string.Format(format, this.R, this.G, this.B));
+            sw.Write(format, this.R, this.G, this.B);
         }
     }
 }

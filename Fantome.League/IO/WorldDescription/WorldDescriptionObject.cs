@@ -52,7 +52,7 @@ namespace Fantome.Libraries.League.IO.WorldDescription
         /// <param name="sw">The <see cref="StreamWriter"/> to write to</param>
         public void Write(StreamWriter sw)
         {
-            sw.WriteLine(string.Format("{0} {1}", this.Name, this.WorldQuality));
+            sw.WriteLine("{0} {1}", this.Name, this.WorldQuality);
         }
     }
 }

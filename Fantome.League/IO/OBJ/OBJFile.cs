@@ -76,15 +76,15 @@ namespace Fantome.Libraries.League.IO.OBJ
                 }
                 foreach (Vector3 vertex in this.Vertices)
                 {
-                    sw.WriteLine(string.Format("v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
+                    sw.WriteLine("v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z);
                 }
                 foreach (Vector2 uv in this.UVs)
                 {
-                    sw.WriteLine(string.Format("vt {0} {1}", uv.X, 1 - uv.Y));
+                    sw.WriteLine("vt {0} {1}", uv.X, 1 - uv.Y);
                 }
                 foreach (Vector3 normal in this.Normals)
                 {
-                    sw.WriteLine(string.Format("vn {0} {1} {2}", normal.X, normal.Y, normal.Z));
+                    sw.WriteLine("vn {0} {1} {2}", normal.X, normal.Y, normal.Z);
                 }
                 foreach (OBJFace face in this.Faces)
                 {

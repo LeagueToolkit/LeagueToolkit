@@ -98,10 +98,10 @@ namespace Fantome.Libraries.League.IO.INI
             {
                 foreach (KeyValuePair<string, Dictionary<string, string>> entry in this.Sections)
                 {
-                    sw.WriteLine(string.Format("[{0}]", entry.Key));
+                    sw.WriteLine("[{0}]", entry.Key);
                     foreach (KeyValuePair<string, string> value in entry.Value)
                     {
-                        sw.WriteLine(string.Format("{0}={1}", value.Key, value.Value));
+                        sw.WriteLine("{0}={1}", value.Key, value.Value);
                     }
                 }
             }

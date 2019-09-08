@@ -30,7 +30,7 @@ namespace Fantome.Libraries.League.IO.OBJ
         {
             if (this.UVIndices != null && this.NormalIndices == null)
             {
-                sw.WriteLine(string.Format(
+                sw.WriteLine(
                     "f {0}/{1} {2}/{3} {4}/{5}",
                     this.VertexIndices[0] + 1,
                     this.UVIndices[0] + 1,
@@ -38,11 +38,11 @@ namespace Fantome.Libraries.League.IO.OBJ
                     this.UVIndices[1] + 1,
                     this.VertexIndices[2] + 1,
                     this.UVIndices[2] + 1
-                    ));
+                    );
             }
             else if (this.UVIndices != null && this.NormalIndices != null)
             {
-                sw.WriteLine(string.Format(
+                sw.WriteLine(
                     "f {0}/{1}/{2} {3}/{4}/{5} {6}/{7}/{8}",
                     this.VertexIndices[0] + 1,
                     this.UVIndices[0] + 1,
@@ -53,11 +53,11 @@ namespace Fantome.Libraries.League.IO.OBJ
                     this.VertexIndices[2] + 1,
                     this.UVIndices[2] + 1,
                     this.NormalIndices[2] + 1
-                    ));
+                    );
             }
             else
             {
-                sw.WriteLine(string.Format("f {0} {1} {2}", this.VertexIndices[0] + 1, this.VertexIndices[1] + 1, this.VertexIndices[2] + 1));
+                sw.WriteLine("f {0} {1} {2}", this.VertexIndices[0] + 1, this.VertexIndices[1] + 1, this.VertexIndices[2] + 1);
             }
         }
     }
