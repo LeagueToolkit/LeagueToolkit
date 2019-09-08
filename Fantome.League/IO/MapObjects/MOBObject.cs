@@ -19,6 +19,14 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// </summary>
         public MOBObjectType Type { get; set; }
         /// <summary>
+        /// Skin ID of this <see cref="MOBObject"/>
+        /// </summary>
+        public uint SkinID { get; set; }
+        /// <summary>
+        /// Collision flag of this <see cref="MOBObject"/>
+        /// </summary>
+        public bool IgnoreCollisionOnPlacement { get; set; }
+        /// <summary>
         /// Position of this <see cref="MOBObject"/>
         /// </summary>
         public Vector3 Position { get; set; }
@@ -31,33 +39,31 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// </summary>
         public Vector3 Scale { get; set; }
         /// <summary>
-        /// Used to store additional Vector data of this <see cref="MOBObject"/>
+        /// Bounding Box of this <see cref="MOBObject"/>
         /// </summary>
-        public Vector3 ReservedVector1 { get; set; }
-        /// <summary>
-        /// Used to store additional Vector data of this <see cref="MOBObject"/>
-        /// </summary>
-        public Vector3 ReservedVector2 { get; set; }
+        public R3DBoundingBox BoundingBox { get; set; }
 
         /// <summary>
         /// Initializes a new <see cref="MOBObject"/>
         /// </summary>
         /// <param name="name">Name of this <see cref="MOBObject"/></param>
         /// <param name="type">Type of this <see cref="MOBObject"/></param>
+        /// <param name="skinID">Skin ID of this <see cref="MOBObject"/></param>
+        /// <param name="ignoreCollisionOnPlacement">Collision flag of this <see cref="MOBObject"/></param>
         /// <param name="position">Position of this <see cref="MOBObject"/></param>
         /// <param name="rotation">Scale of this <see cref="MOBObject"/></param>
         /// <param name="scale">Scale of this <see cref="MOBObject"/></param>
-        /// <param name="reservedVector1">Used to store additional Vector data of this <see cref="MOBObject"/></param>
-        /// <param name="reservedVector2">Used to store additional Vector data of this <see cref="MOBObject"/></param>
-        public MOBObject(string name, MOBObjectType type, Vector3 position, Vector3 rotation, Vector3 scale, Vector3 reservedVector1, Vector3 reservedVector2)
+        /// <param name="boundingBox">Bounding Box of this <see cref="MOBObject"/></param>
+        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, R3DBoundingBox boundingBox)
         {
             this.Name = name;
             this.Type = type;
+            this.SkinID = skinID;
+            this.IgnoreCollisionOnPlacement = ignoreCollisionOnPlacement;
             this.Position = position;
             this.Rotation = rotation;
             this.Scale = scale;
-            this.ReservedVector1 = reservedVector1;
-            this.ReservedVector2 = reservedVector2;
+            this.BoundingBox = boundingBox;
         }
 
         /// <summary>
@@ -66,15 +72,14 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public MOBObject(BinaryReader br)
         {
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(60)).Replace("\0", "");
-            br.ReadUInt16();
-            this.Type = (MOBObjectType)br.ReadUInt16();
+            this.Name = Encoding.ASCII.GetString(br.ReadBytes(62)).Replace("\0", "");
+            this.Type = (MOBObjectType)br.ReadByte();
+            this.IgnoreCollisionOnPlacement = br.ReadBoolean();
             this.Position = new Vector3(br);
             this.Rotation = new Vector3(br);
             this.Scale = new Vector3(br);
-            this.ReservedVector1 = new Vector3(br);
-            this.ReservedVector2 = new Vector3(br);
-            br.ReadUInt32();
+            this.BoundingBox = new R3DBoundingBox(br);
+            this.SkinID = br.ReadUInt32();
         }
 
         /// <summary>
@@ -83,22 +88,21 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            bw.Write(Encoding.ASCII.GetBytes(this.Name.PadRight(60, '\u0000')));
-            bw.Write((ushort)0);
-            bw.Write((ushort)this.Type);
+            bw.Write(Encoding.ASCII.GetBytes(this.Name.PadRight(62, '\u0000')));
+            bw.Write((byte)this.Type);
+            bw.Write(this.IgnoreCollisionOnPlacement);
             this.Position.Write(bw);
             this.Rotation.Write(bw);
             this.Scale.Write(bw);
-            this.ReservedVector1.Write(bw);
-            this.ReservedVector2.Write(bw);
-            bw.Write(0);
+            this.BoundingBox.Write(bw);
+            bw.Write(this.SkinID);
         }
     }
 
     /// <summary>
     /// <see cref="MOBObject"/> types
     /// </summary>
-    public enum MOBObjectType : ushort
+    public enum MOBObjectType : byte
     {
         /// <summary>
         /// Represents a <see cref="MOBObject"/> where minions spawn

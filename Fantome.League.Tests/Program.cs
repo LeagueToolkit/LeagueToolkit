@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 using Fantome.Libraries.League.IO.WorldDescription;
 using Fantome.Libraries.League.IO.MapGeometry;
 using System;
+using Fantome.Libraries.League.Helpers.BIN;
+using Fantome.Libraries.League.Helpers.Cryptography;
 
 namespace Fantome.Libraries.League.Tests
 {
@@ -109,8 +111,155 @@ namespace Fantome.Libraries.League.Tests
 
         static void BINTest()
         {
-            BINFile bin = new BINFile("4E348110B14461B3.bin");
-            bin.Write("test.bin");
+            //BINFile bin = new BINFile("929042894B990D88.bin");
+            BINFile bin = new BINFile("AAFA250508F27EEF.bin");
+            Dictionary<uint, string> classNames = new Dictionary<uint, string>();
+            Dictionary<uint, string> fieldNames = new Dictionary<uint, string>();
+
+            List<string> classNamesRaw = File.ReadAllLines("hashes.bintypes.txt").ToList();
+            foreach (string classNameRaw in classNamesRaw)
+            {
+                string className = classNameRaw.Split(' ')[1];
+                classNames.Add(Cryptography.FNV32Hash(className), className);
+            }
+
+            List<string> fieldNamesRaw = File.ReadAllLines("hashes.binfields.txt").ToList();
+            foreach (string fieldNameRaw in fieldNamesRaw)
+            {
+                string fieldName = fieldNameRaw.Split(' ')[1];
+                fieldNames.Add(Cryptography.FNV32Hash(fieldName), fieldName);
+            }
+
+            BINGlobal.SetHashmap(new Dictionary<uint, string>(), classNames, fieldNames);
+
+            List<string> paths = new List<string>();
+            foreach(BINEntry entry in bin.Entries)
+            {
+                paths.AddRange(ProcessBINEntry(entry));
+            }
+
+            List<BINValue> values = new List<BINValue>();
+            int j2 = 0;
+            foreach(string path in paths)
+            {
+                string entryPath = path.Substring(0, path.IndexOf('/'));
+                string valuePath = path.Substring(path.IndexOf('/') + 1);
+
+                if(j2 == 141)
+                {
+
+                }
+
+                values.Add(bin[entryPath, valuePath]);
+
+                j2++;
+            }
+
+            List<string> paths2 = new List<string>();
+            int j = 0;
+            foreach (BINValue value in values)
+            {
+                if(j == 247)
+                {
+
+                }
+
+                paths2.Add(value.GetPath(false));
+
+                j++;
+            }
+
+            for(int i = 0; i < paths.Count; i++)
+            {
+                if(paths[i] != paths2[i])
+                {
+                    //450496931/2257500010/164488258[0].2646858022/2010092456.3857869021/1759261366.3031705514
+                    //450496931/2257500010/164488258[0].2646858022/2010092456.3857869021
+                }
+            }
+
+            IEnumerable<string> ProcessBINEntry(BINEntry entry)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in entry.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINValue(BINValue value)
+            {
+                List<string> strings = new List<string>();
+
+                if (value.Type == BINValueType.OptionalData)
+                {
+                    strings.AddRange(ProcessBINAdditionalData(value.Value as BINOptionalData));
+                }
+                else if (value.Type == BINValueType.Container)
+                {
+                    strings.AddRange(ProcessBINContainer(value.Value as BINContainer));
+                }
+                else if (value.Type == BINValueType.Embedded || value.Type == BINValueType.Structure)
+                {
+                    strings.AddRange(ProcessBINStructure(value.Value as BINStructure));
+                }
+                else if (value.Type == BINValueType.Map)
+                {
+                    strings.AddRange(ProcessBINMap(value.Value as BINMap));
+                }
+                else
+                {
+                    strings.Add(value.GetPath(false));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINAdditionalData(BINOptionalData additionalData)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in additionalData.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINContainer(BINContainer container)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in container.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINStructure(BINStructure structure)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (BINValue value in structure.Values)
+                {
+                    strings.AddRange(ProcessBINValue(value));
+                }
+
+                return strings;
+            }
+            IEnumerable<string> ProcessBINMap(BINMap map)
+            {
+                List<string> strings = new List<string>();
+
+                foreach (KeyValuePair<BINValue, BINValue> valuePair in map.Values)
+                {
+                    strings.AddRange(ProcessBINValue(valuePair.Key));
+                }
+
+                return strings;
+            }
         }
 
         static void LightDatTest()

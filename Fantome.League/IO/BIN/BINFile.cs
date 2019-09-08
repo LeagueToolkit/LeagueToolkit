@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.BIN
@@ -15,9 +17,26 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         public List<string> LinkedFiles { get; private set; } = new List<string>();
         /// <summary>
-        /// A Collection of <see cref="BINFileEntry"/>
+        /// A Collection of <see cref="BINEntry"/>
         /// </summary>
-        public List<BINFileEntry> Entries { get; private set; } = new List<BINFileEntry>();
+        public List<BINEntry> Entries { get; private set; } = new List<BINEntry>();
+        public BINValue this[string entryPath, string valuePath]
+        {
+            get
+            {
+                uint entryHash;
+                if(entryPath.Contains('/'))
+                {
+                    entryHash = Cryptography.FNV32Hash(entryPath.ToLower());
+                }
+                else
+                {
+                    entryHash = uint.Parse(entryPath);
+                }
+
+                return this.Entries.Find(x => x.Property == entryHash)[valuePath];
+            }
+        }
 
         /// <summary>
         /// Initializes a new <see cref="BINFile"/> from the specified location
@@ -52,10 +71,10 @@ namespace Fantome.Libraries.League.IO.BIN
                 uint entryCount = br.ReadUInt32();
                 for (int i = 0; i < entryCount; i++)
                 {
-                    this.Entries.Add(new BINFileEntry(br));
+                    this.Entries.Add(new BINEntry(br));
                 }
 
-                foreach (BINFileEntry entry in this.Entries)
+                foreach (BINEntry entry in this.Entries)
                 {
                     entry.ReadData(br);
                 }
@@ -89,11 +108,11 @@ namespace Fantome.Libraries.League.IO.BIN
                 }
 
                 bw.Write((uint)this.Entries.Count);
-                foreach (BINFileEntry entry in this.Entries)
+                foreach (BINEntry entry in this.Entries)
                 {
-                    bw.Write(entry.Type);
+                    bw.Write(entry.Class);
                 }
-                foreach (BINFileEntry entry in this.Entries)
+                foreach (BINEntry entry in this.Entries)
                 {
                     entry.Write(bw);
                 }
