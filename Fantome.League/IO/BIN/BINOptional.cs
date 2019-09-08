@@ -22,19 +22,29 @@ namespace Fantome.Libraries.League.IO.BIN
                 throw new Exception("Encountered an Optional value with Value Count: " + valueCount);
             }
 
-            this.Value = new BINValue(br, this, this.Type);
+            if(valueCount == 1)
+            {
+                this.Value = new BINValue(br, this, this.Type);
+            }
         }
 
         public void Write(BinaryWriter bw)
         {
             bw.Write((byte)this.Type);
-            bw.Write((byte)1);
-            this.Value.Write(bw, false);
+            bw.Write(this.Value == null ? (byte)0 : (byte)1);
+            this.Value?.Write(bw, false);
         }
 
         public uint GetSize()
         {
-            return 2 + this.Value.GetSize();
+            uint size = 2;
+
+            if(this.Value != null)
+            {
+                size += this.Value.GetSize();
+            }
+
+            return size;
         }
 
         public string GetPath(bool excludeEntry = true)
