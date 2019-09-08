@@ -29,11 +29,6 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         internal int _vertexBufferID;
         internal int _indexBufferID;
 
-        public MGEOObject(string name, OBJFile obj, List<MGEOSubmesh> submeshes)
-        {
-
-        }
-
         public MGEOObject(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));

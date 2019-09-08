@@ -86,10 +86,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
         public void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
-            this.Normal.Write(bw);
-            this.DiffuseUV.Write(bw);
-            this.LightmapUV.Write(bw);
+            this.Position?.Write(bw);
+            this.Normal?.Write(bw);
+            this.DiffuseUV?.Write(bw);
+            this.LightmapUV?.Write(bw);
         }
     }
 }
