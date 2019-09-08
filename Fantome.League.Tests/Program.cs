@@ -193,9 +193,9 @@ namespace Fantome.Libraries.League.Tests
             {
                 List<string> strings = new List<string>();
 
-                if (value.Type == BINValueType.OptionalData)
+                if (value.Type == BINValueType.Optional)
                 {
-                    strings.AddRange(ProcessBINAdditionalData(value.Value as BINOptionalData));
+                    strings.AddRange(ProcessBINAdditionalData(value.Value as BINOptional));
                 }
                 else if (value.Type == BINValueType.Container)
                 {
@@ -216,14 +216,11 @@ namespace Fantome.Libraries.League.Tests
 
                 return strings;
             }
-            IEnumerable<string> ProcessBINAdditionalData(BINOptionalData additionalData)
+            IEnumerable<string> ProcessBINAdditionalData(BINOptional additionalData)
             {
                 List<string> strings = new List<string>();
 
-                foreach (BINValue value in additionalData.Values)
-                {
-                    strings.AddRange(ProcessBINValue(value));
-                }
+                strings.AddRange(ProcessBINValue(additionalData.Value));
 
                 return strings;
             }

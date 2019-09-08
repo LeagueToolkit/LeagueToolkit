@@ -91,7 +91,7 @@
     <Compile Include="IO\AiMesh\AiMeshFile.cs" />
     <Compile Include="IO\Atmosphere\AtmosphereFile.cs" />
     <Compile Include="IO\BIN\BINFile.cs" />
-    <Compile Include="IO\BIN\BINOptionalData.cs" />
+    <Compile Include="IO\BIN\BINOptional.cs" />
     <Compile Include="IO\BIN\BINContainer.cs" />
     <Compile Include="IO\BIN\BINEntry.cs" />
     <Compile Include="IO\BIN\BINMap.cs" />

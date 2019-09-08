@@ -1,50 +1,40 @@
-﻿using Fantome.Libraries.League.Helpers.Cryptography;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace Fantome.Libraries.League.IO.BIN
 {
-    public class BINOptionalData : IBINValue, IEquatable<BINOptionalData>
+    public class BINOptional : IBINValue, IEquatable<BINOptional>
     {
         public IBINValue Parent { get; private set; }
         public BINValueType EntryType { get; private set; }
-        public List<BINValue> Values { get; private set; } = new List<BINValue>();
+        public BINValue Value { get; private set; }
         public BINValue this[uint hash] => throw new NotImplementedException();
         public BINValue this[string path] => throw new NotImplementedException();
 
-        public BINOptionalData(BinaryReader br, IBINValue parent)
+        public BINOptional(BinaryReader br, IBINValue parent)
         {
             this.Parent = parent;
             this.EntryType = (BINValueType)br.ReadByte();
-            byte valueCount = br.ReadByte();
+            byte valueCount = br.ReadByte(); //????
 
-            for (int i = 0; i < valueCount; i++)
+            if(valueCount > 1)
             {
-                this.Values.Add(new BINValue(br, this, this.EntryType));
+                throw new Exception("Encountered an Optional value with Value Count: " + valueCount);
             }
+
+            this.Value = new BINValue(br, this, this.EntryType);
         }
 
         public void Write(BinaryWriter bw)
         {
             bw.Write((byte)this.EntryType);
-            bw.Write((byte)this.Values.Count);
-
-            foreach (BINValue value in this.Values)
-            {
-                value.Write(bw, false);
-            }
+            bw.Write((byte)1);
+            this.Value.Write(bw, false);
         }
 
         public uint GetSize()
         {
-            uint size = 2;
-            foreach (BINValue value in this.Values)
-            {
-                size += value.GetSize();
-            }
-            return size;
+            return 2 + this.Value.GetSize();
         }
 
         public string GetPath(bool excludeEntry = true)
@@ -52,20 +42,17 @@ namespace Fantome.Libraries.League.IO.BIN
             return this.Parent.GetPath(excludeEntry);
         }
 
-        public bool Equals(BINOptionalData other)
+        public bool Equals(BINOptional other)
         {
-            if(this.EntryType != other.EntryType || this.Values.Count != other.Values.Count)
+            if(this.EntryType != other.EntryType)
             {
                 return false;
             }
             else
             {
-                foreach (BINValue binValue in this.Values)
+                if(!this.Value.Equals(other.Value))
                 {
-                    if (!other.Values.Contains(binValue))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
                 return true;

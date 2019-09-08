@@ -120,7 +120,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     {
                         return map[map.Values.Keys.Where(x => string.Equals(property, x.Value)).First()];
                     }
-                    else if (map.KeyType == BINValueType.StringHash)
+                    else if (map.KeyType == BINValueType.Hash)
                     {
                         return map[map.Values.Keys.Where(x => uint.Parse(property).Equals(x.Value)).First()];
                     }
@@ -231,7 +231,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
             }
-            else if (this.Type == BINValueType.StringHash)
+            else if (this.Type == BINValueType.Hash)
             {
                 this.Value = br.ReadUInt32();
             }
@@ -247,9 +247,9 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 this.Value = br.ReadUInt32();
             }
-            else if (this.Type == BINValueType.OptionalData)
+            else if (this.Type == BINValueType.Optional)
             {
-                this.Value = new BINOptionalData(br, this);
+                this.Value = new BINOptional(br, this);
             }
             else if (this.Type == BINValueType.Map)
             {
@@ -343,7 +343,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 bw.Write((ushort)value.Length);
                 bw.Write(Encoding.ASCII.GetBytes(value));
             }
-            else if (this.Type == BINValueType.StringHash)
+            else if (this.Type == BINValueType.Hash)
             {
                 bw.Write((uint)this.Value);
             }
@@ -359,9 +359,9 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write((uint)this.Value);
             }
-            else if (this.Type == BINValueType.OptionalData)
+            else if (this.Type == BINValueType.Optional)
             {
-                (this.Value as BINOptionalData).Write(bw);
+                (this.Value as BINOptional).Write(bw);
             }
             else if (this.Type == BINValueType.Map)
             {
@@ -396,7 +396,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
                 case BINValueType.Int32:
                 case BINValueType.UInt32:
-                case BINValueType.StringHash:
+                case BINValueType.Hash:
                 case BINValueType.LinkOffset:
                 case BINValueType.Float:
                 case BINValueType.Color:
@@ -427,7 +427,7 @@ namespace Fantome.Libraries.League.IO.BIN
                 case BINValueType.Container:
                 case BINValueType.Structure:
                 case BINValueType.Embedded:
-                case BINValueType.OptionalData:
+                case BINValueType.Optional:
                 case BINValueType.Map:
                     size += (this.Value as IBINValue).GetSize();
                     break;
@@ -473,7 +473,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     {
                         path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), (string)this.Value);
                     }
-                    else if (map.KeyType == BINValueType.StringHash)
+                    else if (map.KeyType == BINValueType.Hash)
                     {
                         path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), (uint)this.Value);
                     }
@@ -483,7 +483,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     }
                 }
             }
-            else if(this.Property == 0 && this.Parent is BINOptionalData)
+            else if(this.Property == 0 && this.Parent is BINOptional)
             {
                 path += this.Parent.GetPath(excludeEntry);
             }
@@ -578,7 +578,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 return (string)this.Value == (string)other.Value;
             }
-            else if (this.Type == BINValueType.StringHash)
+            else if (this.Type == BINValueType.Hash)
             {
                 return (uint)this.Value == (uint)other.Value;
             }
@@ -594,9 +594,9 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 return (uint)this.Value == (uint)other.Value;
             }
-            else if (this.Type == BINValueType.OptionalData)
+            else if (this.Type == BINValueType.Optional)
             {
-                return (this.Value as BINOptionalData).Equals(other.Value as BINOptionalData);
+                return (this.Value as BINOptional).Equals(other.Value as BINOptional);
             }
             else if (this.Type == BINValueType.Map)
             {
@@ -689,7 +689,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// Represents a <see cref="uint"/> value which is a hash
         /// </summary>
-        StringHash = 17,
+        Hash = 17,
         /// <summary>
         /// Represents a Value Container
         /// </summary>
@@ -707,9 +707,9 @@ namespace Fantome.Libraries.League.IO.BIN
         /// </summary>
         LinkOffset = 21,
         /// <summary>
-        /// Represents Optional Data
+        /// Represents an Optional Value
         /// </summary>
-        OptionalData = 22,
+        Optional = 22,
         /// <summary>
         /// Represents a List which holds Key-Value values
         /// </summary>
