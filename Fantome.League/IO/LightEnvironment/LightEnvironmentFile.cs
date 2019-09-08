@@ -38,7 +38,7 @@ namespace Fantome.Libraries.League.IO.LightEnvironment
         private void Write(Stream stream)
         {
             using (StreamWriter sw = new StreamWriter(stream))
-            { 
+            {
                 sw.WriteLine("3");
 
                 foreach(LightEnvironmentLight light in this.Lights)

@@ -28,7 +28,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   met:
     * Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
- 
+
     * Redistributions in binary form must reproduce the above
       copyright notice, this list of conditions and the following disclaimer
       in the documentation and/or other materials provided with the
@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- 
+
   You can contact the author at :
   - xxHash source repository : https://github.com/Cyan4973/xxHash
 """
@@ -96,13 +96,13 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         /*
         XXH_rotl32() :
             Rotates unsigned 32-bits integer "x" to the left by the number of bits specified in the "r" parameter.
-            
+
             Original C implementation definition:
               #define XXH_rotl32(x,r) ((x << r) | (x >> (32 - r)))
-         
+
         XXH_rotl64() :
             Rotates unsigned 64-bits integer "x" to the left by the number of bits specified in the "r" parameter.
-            
+
             Original C implementation definition:
               #define XXH_rotl64(x,r) ((x << r) | (x >> (64 - r)))
         */
@@ -177,14 +177,14 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
             Calculate the 32-bits hash of sequence "length" bytes stored at memory address "input".
             The memory between offset & offset+length in "input" must be valid (allocated and read-accessible).
             "seed" can be used to alter the result predictably.
-            
+
             Original C implementation definition:
               unsigned int       XXH32 (const void* input, size_t length, unsigned seed);
-            
+
         XXH64() :
             Calculate the 64-bits hash of sequence "length" bytes stored at memory address "input".
             Faster on 64-bits systems. Slower on 32-bits systems.
-            
+
             Original C implementation definition:
               unsigned long long XXH64 (const void* input, size_t length, unsigned long long seed);
         */
@@ -399,11 +399,11 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
 
         /* These structures allow static allocation of XXH states.
          * States must then be initialized using ResetStateXX() before first use.
-         
+
          class State32 :
              Original C implementation definition:
                typedef struct { long long ll[ 6]; } XXH32_state_t;
-         
+
          class State64 :
              Original C implementation definition:
                typedef struct { long long ll[11]; } XXH64_state_t;
@@ -478,24 +478,24 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
 
         /* These functions calculate the xxHash of an input provided in multiple smaller packets,
          * as opposed to an input provided as a single block.
-         * 
+         *
          * XXH state space must first be allocated.
-         * 
+         *
          * Start a new hash by initializing state with a seed, using ResetStateXX().
-         * 
+         *
          * Then, feed the hash state by calling UpdateStateXX() as many times as necessary.
          * Obviously, input must be valid, meaning allocated and read accessible.
          * The function returns an error code, with 0 meaning OK, and any other value meaning there is an error.
-         * 
+         *
          * Finally, you can produce a hash anytime, by using DigestStateXX().
          * This function returns the final XX-bits hash.
          * You can nonetheless continue feeding the hash state with more input,
          * and therefore get some new hashes, by calling again DigestStateXX().
-         
+
         ResetState32(),
         UpdateState32(),
         DigestState32() :
-            
+
             Original C implementation definition:
               XXH_errorcode XXH32_reset  (XXH32_state_t* statePtr, unsigned seed);
               XXH_errorcode XXH32_update (XXH32_state_t* statePtr, const void* input, size_t length);
@@ -503,7 +503,7 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         ResetState64(),
         UpdateState64(),
         DigestState64() :
-            
+
             Original C implementation definition:
               XXH_errorcode      XXH64_reset  (XXH64_state_t* statePtr, unsigned long long seed);
               XXH_errorcode      XXH64_update (XXH64_state_t* statePtr, const void* input, size_t length);
@@ -992,7 +992,7 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
                 Skip(4);
                 return value;
             }
-            // Reads an 8-byte unsigned integer from the current stream and advances the position of the stream by 
+            // Reads an 8-byte unsigned integer from the current stream and advances the position of the stream by
             // eight bytes.
             public ulong ReadUInt64()
             {
@@ -1003,7 +1003,7 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
                 Skip(8);
                 return value;
             }
-            // Reads the next byte from the current stream and advances the current position of the stream by one 
+            // Reads the next byte from the current stream and advances the current position of the stream by one
             // byte.
             public byte ReadByte()
             {

@@ -74,7 +74,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
                 normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
             }
-            
+
             //Creates SKNVertex list from componets
             List<SKNVertex> sknVertices = new List<SKNVertex>();
             for (int i = 0; i < vertices.Count; i++)

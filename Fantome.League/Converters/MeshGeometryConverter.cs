@@ -84,7 +84,7 @@ namespace Fantome.Libraries.League.Converters
         }
 
         /// <summary>
-        /// Converts <paramref name="wgeo"/> to a list of <see cref="MeshGeometry3D"/> 
+        /// Converts <paramref name="wgeo"/> to a list of <see cref="MeshGeometry3D"/>
         /// </summary>
         /// <param name="wgeo">The <see cref="WGEOFile"/> to convert to a <c>Tuple{string, string, MeshGeometry3D}(materialName, textureName, modelData)</c></param>
         /// <returns>A collection of converted <see cref="WGEOModel"/></returns>

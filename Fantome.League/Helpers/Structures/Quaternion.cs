@@ -8,19 +8,19 @@ namespace Fantome.Libraries.League.Helpers.Structures
     public class Quaternion
     {
         /// <summary>
-        /// The X component 
+        /// The X component
         /// </summary>
         public float X { get; set; }
         /// <summary>
-        /// The Y component 
+        /// The Y component
         /// </summary>
         public float Y { get; set; }
         /// <summary>
-        /// The Z component 
+        /// The Z component
         /// </summary>
         public float Z { get; set; }
         /// <summary>
-        /// The W component 
+        /// The W component
         /// </summary>
         public float W { get; set; }
 
@@ -227,7 +227,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 X = a.W * b.W - a.X * b.X - a.Y * b.Y - a.Z * b.Z,
                 Y = a.W * b.X + a.X * b.W + a.Y * b.Z - a.Z * b.Y,
                 Z = a.W * b.Y - a.X * b.Z + a.Y * b.W + a.Z * b.X,
-                W = a.W * b.Z + a.X * b.Y - a.Y * b.X + a.Z * b.W 
+                W = a.W * b.Z + a.X * b.Y - a.Y * b.X + a.Z * b.W
             };
         }
     }

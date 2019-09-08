@@ -255,7 +255,7 @@ namespace Fantome.Libraries.League.IO.WAD
                 bw.Write(major);
                 bw.Write(minor);
 
-                // Writing signatures 
+                // Writing signatures
                 if (major == 2)
                 {
                     bw.Write(new byte[84]);

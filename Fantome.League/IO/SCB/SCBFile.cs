@@ -48,7 +48,7 @@ namespace Fantome.Libraries.League.IO.SCB
 
                 ushort major = br.ReadUInt16();
                 ushort minor = br.ReadUInt16();
-                if (major != 3 && major != 2 && minor != 1) //There are versions [2][1] and [1][1] aswell 
+                if (major != 3 && major != 2 && minor != 1) //There are versions [2][1] and [1][1] aswell
                 {
                     throw new Exception(string.Format("The Version: {0}.{1} is not supported", major, minor));
                 }

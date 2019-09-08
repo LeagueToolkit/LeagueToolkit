@@ -30,7 +30,7 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 return;
             }
-            
+
             uint size = br.ReadUInt32();
             ushort valueCount = br.ReadUInt16();
 

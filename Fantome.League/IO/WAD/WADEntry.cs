@@ -9,7 +9,7 @@ namespace Fantome.Libraries.League.IO.WAD
 {
     /// <summary>
     /// Represents an entry in a <see cref="WADFile"/>
-    /// </summary> 
+    /// </summary>
     public class WADEntry : IComparable<WADEntry>
     {
         /// <summary>
@@ -33,7 +33,7 @@ namespace Fantome.Libraries.League.IO.WAD
         public EntryType Type { get; private set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public ushort Unknown1 { get; set; }
 
@@ -107,7 +107,7 @@ namespace Fantome.Libraries.League.IO.WAD
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="wad"></param>
         /// <param name="xxHash"></param>
@@ -116,7 +116,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             this._wad = wad;
             this.XXHash = xxHash;
-            this.Type = EntryType.FileRedirection;  
+            this.Type = EntryType.FileRedirection;
             this.FileRedirection = fileRedirection;
         }
 

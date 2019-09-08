@@ -390,7 +390,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 M43 = 0.0f,
             };
         }
-        
+
         public bool Equals(R3DMatrix44 other)
         {
             return this.M11 == other.M11 && this.M12 == other.M12 && this.M13 == other.M13 && this.M14 == other.M14 &&

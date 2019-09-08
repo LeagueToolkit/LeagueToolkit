@@ -30,7 +30,7 @@ namespace Fantome.Libraries.League.IO.AiMesh
         public AiMeshFile(string fileLocation)
             : this(File.OpenRead(fileLocation))
         {
-           
+
         }
 
         /// <summary>

@@ -76,7 +76,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         }
 
         /// <summary>
-        /// Assigns the specified <see cref="SKNFile"/> to this <see cref="SKNSubmesh"/> 
+        /// Assigns the specified <see cref="SKNFile"/> to this <see cref="SKNSubmesh"/>
         /// </summary>
         /// <param name="skn"><see cref="SKNFile"/> this <see cref="SKNSubmesh"/> belongs to</param>
         public void AssignSimpleSkin(SKNFile skn)

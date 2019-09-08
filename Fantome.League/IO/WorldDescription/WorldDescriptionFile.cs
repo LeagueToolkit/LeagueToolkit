@@ -14,7 +14,7 @@ namespace Fantome.Libraries.League.IO.WorldDescription
         public List<WorldDescriptionObject> Objects { get; set; } = new List<WorldDescriptionObject>();
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public WorldDescriptionFile() { }
 

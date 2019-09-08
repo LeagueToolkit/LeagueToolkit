@@ -78,7 +78,7 @@ namespace Fantome.Libraries.League.IO.NVR
             }
             else
             {
-                // No meshes inside, set bounding box to 
+                // No meshes inside, set bounding box to
                 return new R3DBox(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
             }
         }

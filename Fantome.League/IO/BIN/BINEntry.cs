@@ -74,10 +74,10 @@ namespace Fantome.Libraries.League.IO.BIN
             }
         }
 
-        public BINEntry(string type, string property, List<BINValue> values) 
+        public BINEntry(string type, string property, List<BINValue> values)
             : this(Cryptography.FNV32Hash(type.ToLower()), Cryptography.FNV32Hash(property.ToLower()), values)
         {
-            
+
         }
 
         public BINEntry(uint type, uint property, List<BINValue> values)

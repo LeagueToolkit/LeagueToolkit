@@ -50,7 +50,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     int startIndex = property.IndexOf('[');
                     int valueIndex = int.Parse(property.Substring(startIndex + 1, property.IndexOf(']') - startIndex - 1));
 
-                    if(this.Type == BINValueType.Container && 
+                    if(this.Type == BINValueType.Container &&
                         (this.Value as BINContainer).EntryType == BINValueType.Embedded ||
                         (this.Value as BINContainer).EntryType == BINValueType.Structure)
                     {
@@ -130,7 +130,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     }
 
                 }
-                
+
                 return null;
             }
         }
