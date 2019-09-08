@@ -105,7 +105,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public Vector3 Normalized()
         {
-            if(this.Magnitude == 0)
+            if (this.Magnitude == 0)
             {
                 return this;
             }

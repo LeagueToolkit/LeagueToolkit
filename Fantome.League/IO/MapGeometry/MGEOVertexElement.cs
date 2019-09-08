@@ -30,11 +30,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             uint size = 0;
 
-            if(this.Format == MGEOVertexElementFormat.XYZ_Float32)
+            if (this.Format == MGEOVertexElementFormat.XYZ_Float32)
             {
                 size = 12;
             }
-            else if(this.Format == MGEOVertexElementFormat.XY_Float32)
+            else if (this.Format == MGEOVertexElementFormat.XY_Float32)
             {
                 size = 8;
             }

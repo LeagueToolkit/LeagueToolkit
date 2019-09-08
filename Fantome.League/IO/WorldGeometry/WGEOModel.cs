@@ -77,7 +77,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 this.Vertices.Add(new WGEOVertex(br));
             }
 
-            if(indexCount <= 65536)
+            if (indexCount <= 65536)
             {
                 for (int i = 0; i < indexCount; i++)
                 {
@@ -113,7 +113,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 vertex.Write(bw);
             }
 
-            if(this.Indices.Count <= 65536)
+            if (this.Indices.Count <= 65536)
             {
                 foreach (ushort index in this.Indices)
                 {
@@ -141,7 +141,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         /// </summary>
         public R3DBox CalculateBoundingBox()
         {
-            if(this.Vertices == null || this.Vertices.Count == 0)
+            if (this.Vertices == null || this.Vertices.Count == 0)
             {
                 return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
             }

@@ -16,13 +16,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
         public MGEOVertex(BinaryReader br, List<MGEOVertexElement> elements)
         {
-            foreach(MGEOVertexElement element in elements)
+            foreach (MGEOVertexElement element in elements)
             {
-                if(element.Name == MGEOVertexElementName.Position)
+                if (element.Name == MGEOVertexElementName.Position)
                 {
                     this.Position = new Vector3(br);
                 }
-                else if(element.Name == MGEOVertexElementName.Normal)
+                else if (element.Name == MGEOVertexElementName.Normal)
                 {
                     this.Normal = new Vector3(br);
                 }
@@ -30,7 +30,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 {
                     this.DiffuseUV = new Vector2(br);
                 }
-                else if(element.Name == MGEOVertexElementName.LightmapUV)
+                else if (element.Name == MGEOVertexElementName.LightmapUV)
                 {
                     this.LightmapUV = new Vector2(br);
                 }
@@ -46,13 +46,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             float[] array = new float[vertexSize / 4];
             int currentPosition = 0;
 
-            if(this.Position != null)
+            if (this.Position != null)
             {
                 array[currentPosition++] = this.Position.X;
                 array[currentPosition++] = this.Position.Y;
                 array[currentPosition++] = this.Position.Z;
             }
-            if(this.Normal != null)
+            if (this.Normal != null)
             {
                 array[currentPosition++] = this.Normal.X;
                 array[currentPosition++] = this.Normal.Y;

@@ -36,14 +36,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 List<MGEOVertexElementGroup> vertexElementGroups = new List<MGEOVertexElementGroup>();
                 uint vertexElementGroupCount = br.ReadUInt32();
-                for(int i = 0; i < vertexElementGroupCount; i++)
+                for (int i = 0; i < vertexElementGroupCount; i++)
                 {
                     vertexElementGroups.Add(new MGEOVertexElementGroup(br));
                 }
 
                 uint vertexBufferCount = br.ReadUInt32();
                 List<long> vertexBufferOffsets = new List<long>();
-                for(int i = 0; i < vertexBufferCount; i++)
+                for (int i = 0; i < vertexBufferCount; i++)
                 {
                     uint bufferSize = br.ReadUInt32();
 
@@ -53,14 +53,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 uint indexBufferCount = br.ReadUInt32();
                 List<ushort[]> indexBuffers = new List<ushort[]>();
-                for(int i = 0; i < indexBufferCount; i++)
+                for (int i = 0; i < indexBufferCount; i++)
                 {
                     ushort[] indexBuffer;
 
                     uint bufferSize = br.ReadUInt32();
                     indexBuffer = new ushort[bufferSize / 2];
 
-                    for(int j = 0; j < bufferSize / 2; j++)
+                    for (int j = 0; j < bufferSize / 2; j++)
                     {
                         indexBuffer[j] = br.ReadUInt16();
                     }
@@ -69,7 +69,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 uint objectCount = br.ReadUInt32();
-                for(int i = 0; i < objectCount; i++)
+                for (int i = 0; i < objectCount; i++)
                 {
                     this.Objects.Add(new MGEOObject(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
                 }
@@ -85,7 +85,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
         public void Write(Stream stream, uint version)
         {
-            if(version != 6 && version != 7)
+            if (version != 6 && version != 7)
             {
                 throw new Exception("Unsupported version");
             }
@@ -96,7 +96,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 bw.Write(version);
 
                 bool usesSeparatePointLights = false;
-                if(version != 7)
+                if (version != 7)
                 {
                     usesSeparatePointLights = UsesSeparatePointLights();
                     bw.Write(usesSeparatePointLights);
@@ -104,18 +104,18 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 List<MGEOVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
                 bw.Write(vertexElementGroups.Count);
-                foreach(MGEOVertexElementGroup vertexElementGroup in vertexElementGroups)
+                foreach (MGEOVertexElementGroup vertexElementGroup in vertexElementGroups)
                 {
                     vertexElementGroup.Write(bw);
                 }
 
                 List<float[]> vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
                 bw.Write(vertexBuffers.Count);
-                foreach(float[] vertexBuffer in vertexBuffers)
+                foreach (float[] vertexBuffer in vertexBuffers)
                 {
                     bw.Write(vertexBuffer.Length * 4);
 
-                    for(int i = 0; i < vertexBuffer.Length; i++)
+                    for (int i = 0; i < vertexBuffer.Length; i++)
                     {
                         bw.Write(vertexBuffer[i]);
                     }
@@ -123,7 +123,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 List<ushort[]> indexBuffers = GenerateIndexBuffers();
                 bw.Write(indexBuffers.Count);
-                foreach(ushort[] indexBuffer in indexBuffers)
+                foreach (ushort[] indexBuffer in indexBuffers)
                 {
                     bw.Write(indexBuffer.Length * 2);
 
@@ -134,7 +134,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 bw.Write(this.Objects.Count);
-                foreach(MGEOObject model in this.Objects)
+                foreach (MGEOObject model in this.Objects)
                 {
                     model.Write(bw, usesSeparatePointLights, version);
                 }
@@ -145,7 +145,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
         private bool UsesSeparatePointLights()
         {
-            foreach(MGEOObject model in this.Objects)
+            foreach (MGEOObject model in this.Objects)
             {
                 if (model.SeparatePointLight != null)
                 {
@@ -160,11 +160,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             List<MGEOVertexElementGroup> vertexElementGroups = new List<MGEOVertexElementGroup>();
 
-            foreach(MGEOObject model in this.Objects)
+            foreach (MGEOObject model in this.Objects)
             {
                 MGEOVertexElementGroup vertexElementGroup = new MGEOVertexElementGroup(model.Vertices[0]);
 
-                if(!vertexElementGroups.Contains(vertexElementGroup))
+                if (!vertexElementGroups.Contains(vertexElementGroup))
                 {
                     vertexElementGroups.Add(vertexElementGroup);
                 }
@@ -180,12 +180,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             List<float[]> vertexBuffers = new List<float[]>();
             int vertexBufferID = 0;
 
-            foreach(MGEOObject model in this.Objects)
+            foreach (MGEOObject model in this.Objects)
             {
                 uint vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
                 float[] vertexBuffer = new float[(vertexSize / 4) * model.Vertices.Count];
 
-                for(int i = 0; i < model.Vertices.Count; i++)
+                for (int i = 0; i < model.Vertices.Count; i++)
                 {
                     float[] vertexArray = model.Vertices[i].ToFloatArray(vertexSize);
                     Array.Copy(vertexArray, 0, vertexBuffer, (vertexSize / 4) * i, vertexArray.Length);
@@ -204,7 +204,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             List<ushort[]> indexBuffers = new List<ushort[]>();
             int indexBufferID = 0;
 
-            foreach(MGEOObject model in this.Objects)
+            foreach (MGEOObject model in this.Objects)
             {
                 indexBuffers.Add(model.Indices.ToArray());
 

@@ -133,19 +133,19 @@ namespace Fantome.Libraries.League.Tests
             BINGlobal.SetHashmap(new Dictionary<uint, string>(), classNames, fieldNames);
 
             List<string> paths = new List<string>();
-            foreach(BINEntry entry in bin.Entries)
+            foreach (BINEntry entry in bin.Entries)
             {
                 paths.AddRange(ProcessBINEntry(entry));
             }
 
             List<BINValue> values = new List<BINValue>();
             int j2 = 0;
-            foreach(string path in paths)
+            foreach (string path in paths)
             {
                 string entryPath = path.Substring(0, path.IndexOf('/'));
                 string valuePath = path.Substring(path.IndexOf('/') + 1);
 
-                if(j2 == 141)
+                if (j2 == 141)
                 {
 
                 }
@@ -159,7 +159,7 @@ namespace Fantome.Libraries.League.Tests
             int j = 0;
             foreach (BINValue value in values)
             {
-                if(j == 247)
+                if (j == 247)
                 {
 
                 }
@@ -169,9 +169,9 @@ namespace Fantome.Libraries.League.Tests
                 j++;
             }
 
-            for(int i = 0; i < paths.Count; i++)
+            for (int i = 0; i < paths.Count; i++)
             {
-                if(paths[i] != paths2[i])
+                if (paths[i] != paths2[i])
                 {
                     //450496931/2257500010/164488258[0].2646858022/2010092456.3857869021/1759261366.3031705514
                     //450496931/2257500010/164488258[0].2646858022/2010092456.3857869021
@@ -305,11 +305,11 @@ namespace Fantome.Libraries.League.Tests
             /*using (WADFile wad = new WADFile("Jinx.wad.client"))
             {
                 Dictionary<ulong, byte[]> entries = new Dictionary<ulong, byte[]>();
-                foreach(WADEntry entry in wad.Entries)
+                foreach (WADEntry entry in wad.Entries)
                 {
                     entries.Add(entry.XXHash, entry.GetContent(true));
                 }
-                Parallel.ForEach(entries, (entry) =>
+                Parallel.ForEach (entries, (entry) =>
                 {
                     File.WriteAllBytes("lol//" + entry.Key.ToString(), entry.Value);
                 });
@@ -357,9 +357,9 @@ namespace Fantome.Libraries.League.Tests
         {
             MGEOFile mgeo1 = new MGEOFile(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo");
 
-            foreach(MGEOObject model in mgeo1.Objects)
+            foreach (MGEOObject model in mgeo1.Objects)
             {
-                foreach(Vector3 vector in model.UnknownFloats)
+                foreach (Vector3 vector in model.UnknownFloats)
                 {
                     vector.X = 0;
                     vector.Y = 0;
@@ -367,7 +367,7 @@ namespace Fantome.Libraries.League.Tests
                 }
             }
 
-            /*for(int i = 100; i < mgeo1.Objects.Count; i++)
+            /*for (int i = 100; i < mgeo1.Objects.Count; i++)
             {
                 mgeo1.Objects.RemoveAt(i);
             }*/

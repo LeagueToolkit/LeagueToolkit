@@ -147,14 +147,14 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public bool Equals(BINEntry other)
         {
-            if(this.Class != other.Class || this.Property != other.Property || this.Values.Count != other.Values.Count)
+            if (this.Class != other.Class || this.Property != other.Property || this.Values.Count != other.Values.Count)
             {
                 return false;
             }
 
-            foreach(BINValue binValue in this.Values)
+            foreach (BINValue binValue in this.Values)
             {
-                if(!other.Values.Contains(binValue))
+                if (!other.Values.Contains(binValue))
                 {
                     return false;
                 }

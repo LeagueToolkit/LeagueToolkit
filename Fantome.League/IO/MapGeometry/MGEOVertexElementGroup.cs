@@ -14,7 +14,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Usage = (MGEOVertexElementGroupUsage)br.ReadUInt32();
 
             uint vertexElementCount = br.ReadUInt32();
-            for(int i = 0; i < vertexElementCount; i++)
+            for (int i = 0; i < vertexElementCount; i++)
             {
                 this.VertexElements.Add(new MGEOVertexElement(br));
             }
@@ -26,7 +26,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             this.Usage = MGEOVertexElementGroupUsage.Static;
 
-            if(vertex.Position != null)
+            if (vertex.Position != null)
             {
                 this.VertexElements.Add(new MGEOVertexElement(MGEOVertexElementName.Position, MGEOVertexElementFormat.XYZ_Float32));
             }
@@ -49,12 +49,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write((uint)this.Usage);
             bw.Write(this.VertexElements.Count);
 
-            foreach(MGEOVertexElement vertexElement in this.VertexElements)
+            foreach (MGEOVertexElement vertexElement in this.VertexElements)
             {
                 vertexElement.Write(bw);
             }
 
-            for(int i = 0; i < 15 - this.VertexElements.Count; i++)
+            for (int i = 0; i < 15 - this.VertexElements.Count; i++)
             {
                 new MGEOVertexElement(MGEOVertexElementName.Position, MGEOVertexElementFormat.XYZW_Float32).Write(bw);
             }
@@ -64,7 +64,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             uint size = 0;
 
-            foreach(MGEOVertexElement vertexElement in this.VertexElements)
+            foreach (MGEOVertexElement vertexElement in this.VertexElements)
             {
                 size += vertexElement.GetElementSize();
             }

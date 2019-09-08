@@ -32,7 +32,7 @@ namespace Fantome.Libraries.League.Helpers.BIN
 
         public static string GetEntry(uint hash)
         {
-            if(_entryNames.TryGetValue(hash, out string entryName))
+            if (_entryNames.TryGetValue(hash, out string entryName))
             {
                 return entryName;
             }

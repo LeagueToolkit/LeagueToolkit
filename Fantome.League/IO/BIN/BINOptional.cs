@@ -17,12 +17,12 @@ namespace Fantome.Libraries.League.IO.BIN
             this.Type = (BINValueType)br.ReadByte();
             byte valueCount = br.ReadByte(); //????
 
-            if(valueCount > 1)
+            if (valueCount > 1)
             {
                 throw new Exception("Encountered an Optional value with Value Count: " + valueCount);
             }
 
-            if(valueCount == 1)
+            if (valueCount == 1)
             {
                 this.Value = new BINValue(br, this, this.Type);
             }
@@ -39,7 +39,7 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             uint size = 2;
 
-            if(this.Value != null)
+            if (this.Value != null)
             {
                 size += this.Value.GetSize();
             }
@@ -54,13 +54,13 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public bool Equals(BINOptional other)
         {
-            if(this.Type != other.Type)
+            if (this.Type != other.Type)
             {
                 return false;
             }
             else
             {
-                if(!this.Value.Equals(other.Value))
+                if (!this.Value.Equals(other.Value))
                 {
                     return false;
                 }

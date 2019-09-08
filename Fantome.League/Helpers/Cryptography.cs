@@ -39,7 +39,7 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
             UInt32 hash = 0;
             section = section.ToLower();
             property = property.ToLower();
-            for(int i = 0; i < section.Length; i++)
+            for (int i = 0; i < section.Length; i++)
             {
                 hash = section[i] + 65599 * hash;
             }

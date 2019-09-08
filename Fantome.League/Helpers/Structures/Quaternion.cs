@@ -83,9 +83,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
             float cosZ = 1 - 2 * (this.Y * this.Y + this.Z * this.Z);
 
             float y = 0;
-            if(Math.Abs(sinY) >= 1)
+            if (Math.Abs(sinY) >= 1)
             {
-                if(sinY < 0)
+                if (sinY < 0)
                 {
                     y = -(float)(Math.PI / 2);
                 }
@@ -114,7 +114,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
             float x = 0;
             float y = 0;
             float z = 0;
-            if(!singular)
+            if (!singular)
             {
                 x = (float)Math.Round(Utilities.ToDegrees((float)Math.Atan2(m.M32, m.M33)), 4);
                 y = (float)Math.Round(Utilities.ToDegrees((float)Math.Atan2(-m.M31, sy)), 4);

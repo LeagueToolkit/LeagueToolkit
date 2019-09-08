@@ -241,7 +241,7 @@ namespace Fantome.Libraries.League.IO.WAD
             bw.Write((byte)this.Type);
             bw.Write(this._isDuplicated);
             bw.Write(this.Unknown1);
-            if(major >= 2)
+            if (major >= 2)
             {
                 bw.Write(this.SHA);
             }

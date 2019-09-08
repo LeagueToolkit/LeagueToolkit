@@ -36,7 +36,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             uint vertexBufferCount = br.ReadUInt32();
             int vertexElementGroup = br.ReadInt32();
 
-            for(int i = 0; i < vertexCount; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 this.Vertices.Add(new MGEOVertex());
             }
@@ -65,7 +65,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 this.Submeshes.Add(new MGEOSubmesh(br, this));
             }
 
-            if(version != 5)
+            if (version != 5)
             {
                 this.Unknown1 = br.ReadBoolean();
             }
@@ -74,7 +74,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Transformation = new R3DMatrix44(br);
             this.Unknown2 = br.ReadByte();
 
-            if(version == 7)
+            if (version == 7)
             {
                 this.Unknown3 = br.ReadByte();
             }
@@ -106,12 +106,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write(this._indexBufferID);
 
             bw.Write(this.Submeshes.Count);
-            foreach(MGEOSubmesh submesh in this.Submeshes)
+            foreach (MGEOSubmesh submesh in this.Submeshes)
             {
                 submesh.Write(bw);
             }
 
-            if(version != 5)
+            if (version != 5)
             {
                 bw.Write(this.Unknown1);
             }
@@ -120,14 +120,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Transformation.Write(bw);
             bw.Write(this.Unknown2);
 
-            if(version == 7)
+            if (version == 7)
             {
                 bw.Write(this.Unknown3);
             }
 
-            if(useSeparatePointLights)
+            if (useSeparatePointLights)
             {
-                if(this.SeparatePointLight == null)
+                if (this.SeparatePointLight == null)
                 {
                     new Vector3(0, 0, 0).Write(bw);
                 }
@@ -141,7 +141,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 pointLight.Write(bw);
             }
-            for(int i = 0; i < 9 - this.UnknownFloats.Count; i++)
+            for (int i = 0; i < 9 - this.UnknownFloats.Count; i++)
             {
                 new Vector3(0, 0, 0).Write(bw);
             }

@@ -129,7 +129,7 @@ namespace Fantome.Libraries.League.Converters
             List<Vector2> uv = new List<Vector2>();
             List<Vector3> normals = new List<Vector3>();
 
-            foreach(SKNSubmesh submesh in model.Submeshes)
+            foreach (SKNSubmesh submesh in model.Submeshes)
             {
                 indices.AddRange(submesh.Indices.Cast<uint>());
                 foreach (SKNVertex vertex in submesh.Vertices)

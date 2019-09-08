@@ -64,7 +64,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 uint modelCount = br.ReadUInt32();
                 uint faceCount = br.ReadUInt32();
 
-                for(int i = 0; i < modelCount; i++)
+                for (int i = 0; i < modelCount; i++)
                 {
                     this.Models.Add(new WGEOModel(br));
                 }

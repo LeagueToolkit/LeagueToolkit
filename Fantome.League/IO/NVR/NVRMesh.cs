@@ -24,7 +24,7 @@ namespace Fantome.Libraries.League.IO.NVR
         public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
         {
             this.QualityLevel = (NVRMeshQuality)br.ReadInt32();
-            if(!readOld)
+            if (!readOld)
             {
                 this.Flag = br.ReadInt32();
             }

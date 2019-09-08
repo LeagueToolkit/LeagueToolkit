@@ -41,7 +41,7 @@ namespace Fantome.Libraries.League.IO.LightEnvironment
             {
                 sw.WriteLine("3");
 
-                foreach(LightEnvironmentLight light in this.Lights)
+                foreach (LightEnvironmentLight light in this.Lights)
                 {
                     light.Write(sw);
                 }

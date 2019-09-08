@@ -70,15 +70,15 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public bool Equals(BINContainer other)
         {
-            if(this.EntryType != other.EntryType || this.Values.Count != other.Values.Count)
+            if (this.EntryType != other.EntryType || this.Values.Count != other.Values.Count)
             {
                 return false;
             }
             else
             {
-                foreach(BINValue binValue in this.Values)
+                foreach (BINValue binValue in this.Values)
                 {
-                    if(!other.Values.Contains(binValue))
+                    if (!other.Values.Contains(binValue))
                     {
                         return false;
                     }

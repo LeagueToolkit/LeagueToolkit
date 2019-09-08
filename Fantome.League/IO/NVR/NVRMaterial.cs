@@ -19,7 +19,7 @@ namespace Fantome.Libraries.League.IO.NVR
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
             this.Type = (NVRMaterialType)br.ReadInt32();
-            if(readOld)
+            if (readOld)
             {
                 ColorRGBAVector4 diffuseColor = new ColorRGBAVector4(br);
                 string diffuseName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");

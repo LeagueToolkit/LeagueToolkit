@@ -76,7 +76,7 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             string path = "";
 
-            if(this.Parent.Parent is BINContainer)
+            if (this.Parent.Parent is BINContainer)
             {
                 BINContainer container = this.Parent.Parent as BINContainer;
                 path = string.Format("{0}/{1}[{2}]", this.Parent.Parent.GetPath(excludeEntry), BINGlobal.GetClass(this.Property), container.Values.IndexOf(this.Parent as BINValue));
@@ -92,7 +92,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public bool Equals(BINStructure other)
         {
-            if(this.Property != other.Property || this.Values.Count != other.Values.Count)
+            if (this.Property != other.Property || this.Values.Count != other.Values.Count)
             {
                 return false;
             }

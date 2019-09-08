@@ -25,7 +25,7 @@ namespace Fantome.Libraries.League.IO.BIN
             get
             {
                 uint entryHash;
-                if(entryPath.Contains('/'))
+                if (entryPath.Contains('/'))
                 {
                     entryHash = Cryptography.FNV32Hash(entryPath.ToLower());
                 }

@@ -39,18 +39,18 @@ namespace Fantome.Libraries.League.IO.BIN
                 }
 
                 //Determine the property type
-                if(Regex.IsMatch(property, @"^\[\d+\]"))
+                if (Regex.IsMatch(property, @"^\[\d+\]"))
                 {
                     int valueIndex = int.Parse(property.Substring(1, property.IndexOf(']') - 1));
 
                     return (this.Value as BINContainer).Values[valueIndex];
                 }
-                else if(property.Contains('[') && !property.Contains('.'))
+                else if (property.Contains('[') && !property.Contains('.'))
                 {
                     int startIndex = property.IndexOf('[');
                     int valueIndex = int.Parse(property.Substring(startIndex + 1, property.IndexOf(']') - startIndex - 1));
 
-                    if(this.Type == BINValueType.Container &&
+                    if (this.Type == BINValueType.Container &&
                         (this.Value as BINContainer).EntryType == BINValueType.Embedded ||
                         (this.Value as BINContainer).EntryType == BINValueType.Structure)
                     {
@@ -59,7 +59,7 @@ namespace Fantome.Libraries.League.IO.BIN
                         return container.Values[valueIndex];
                     }
                 }
-                else if(property.Contains('.'))
+                else if (property.Contains('.'))
                 {
                     string[] structureProperties = property.Split('.');
                     string structureProperty = structureProperties[0];
@@ -67,7 +67,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     int? structureIndex = null;
 
                     //Check if structure property has an array index
-                    if(structureProperty.Contains('['))
+                    if (structureProperty.Contains('['))
                     {
                         int startIndex = structureProperty.IndexOf('[');
                         structureIndex = int.Parse(structureProperty.Substring(startIndex + 1, structureProperty.IndexOf(']') - startIndex - 1));
@@ -87,7 +87,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
                     BINStructure structure = (structureIndex == null) ? this.Value as BINStructure : (this.Value as BINContainer).Values[(int)structureIndex].Value as BINStructure;
                     BINValue fieldValue = structure[fieldHash];
-                    if(nextPath != string.Empty)
+                    if (nextPath != string.Empty)
                     {
                         return structure[fieldHash][nextPath];
                     }
@@ -96,15 +96,15 @@ namespace Fantome.Libraries.League.IO.BIN
                         return structure[fieldHash];
                     }
                 }
-                else if(this.Type == BINValueType.Map)
+                else if (this.Type == BINValueType.Map)
                 {
                     BINMap map = this.Value as BINMap;
 
-                    if(map.KeyType == BINValueType.Byte)
+                    if (map.KeyType == BINValueType.Byte)
                     {
                         return map[map.Values.Keys.Where(x => byte.Parse(property).Equals(x.Value)).First()];
                     }
-                    else if(map.KeyType == BINValueType.UInt16)
+                    else if (map.KeyType == BINValueType.UInt16)
                     {
                         return map[map.Values.Keys.Where(x => ushort.Parse(property).Equals(x.Value)).First()];
                     }
@@ -444,10 +444,10 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 path += string.Format("{0}/[{1}]", this.Parent.GetPath(excludeEntry), (this.Parent as BINContainer).Values.IndexOf(this));
             }
-            else if(this.Property == 0 && this.Parent is BINMap)
+            else if (this.Property == 0 && this.Parent is BINMap)
             {
                 BINMap map = this.Parent as BINMap;
-                if(map.Values.ContainsValue(this))
+                if (map.Values.ContainsValue(this))
                 {
                     path += map.Values.First(x => x.Value == this).Key.GetPath(excludeEntry);
                 }
@@ -483,15 +483,15 @@ namespace Fantome.Libraries.League.IO.BIN
                     }
                 }
             }
-            else if(this.Property == 0 && this.Parent is BINOptional)
+            else if (this.Property == 0 && this.Parent is BINOptional)
             {
                 path += this.Parent.GetPath(excludeEntry);
             }
-            else if(this.Parent is BINStructure)
+            else if (this.Parent is BINStructure)
             {
                 path += string.Format("{0}.{1}", this.Parent.GetPath(excludeEntry), BINGlobal.GetField(this.Property));
             }
-            else if(this.Parent is BINEntry)
+            else if (this.Parent is BINEntry)
             {
                 path += string.Format("{0}/{1}", this.Parent.GetPath(excludeEntry), BINGlobal.GetField(this.Property));
             }
@@ -505,7 +505,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public bool Equals(BINValue other)
         {
-            if(this.Property != other.Property || this.Type != other.Type)
+            if (this.Property != other.Property || this.Type != other.Type)
             {
                 return false;
             }
