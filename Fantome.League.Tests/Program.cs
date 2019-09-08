@@ -25,6 +25,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Fantome.Libraries.League.IO.WorldDescription;
+using Fantome.Libraries.League.IO.MapGeometry;
+using System;
 using Fantome.Libraries.League.Helpers.BIN;
 using Fantome.Libraries.League.Helpers.Cryptography;
 
@@ -34,7 +36,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            MGEOTest();
         }
 
         static void WGEOTest()
@@ -352,6 +354,28 @@ namespace Fantome.Libraries.League.Tests
         {
             WorldDescriptionFile dsc = new WorldDescriptionFile("room.dsc");
             dsc.Write("room.kek.dsc");
+        }
+
+        static void MGEOTest()
+        {
+            MGEOFile mgeo1 = new MGEOFile(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo");
+
+            foreach(MGEOObject model in mgeo1.Objects)
+            {
+                foreach(Vector3 vector in model.UnknownFloats)
+                {
+                    vector.X = 0;
+                    vector.Y = 0;
+                    vector.Z = 0;
+                }
+            }
+
+            /*for(int i = 100; i < mgeo1.Objects.Count; i++)
+            {
+                mgeo1.Objects.RemoveAt(i);
+            }*/
+
+            mgeo1.Write(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo", 7);
         }
     }
 }

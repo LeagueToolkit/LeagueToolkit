@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fantome.Libraries.League.Helpers.Utilities
+namespace Fantome.Libraries.League.Helpers
 {
     public static class Utilities
     {
@@ -152,6 +152,21 @@ namespace Fantome.Libraries.League.Helpers.Utilities
                 default:
                     return "";
             }
+        }
+
+        public static float ToDegrees(float radian)
+        {
+            return radian * (180 / (float)Math.PI);
+        }
+
+        public static float ToRadians(float degrees)
+        {
+            return degrees * ((float)Math.PI / 180);
+        }
+
+        public static float Clamp(float value, float min, float max)
+        {
+            return Math.Max(min, Math.Min(max, value));
         }
     }
 

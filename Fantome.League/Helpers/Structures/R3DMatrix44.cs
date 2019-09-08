@@ -25,12 +25,69 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public float M43 { get; private set; }
         public float M44 { get; private set; }
 
+        public Vector3 Translation
+        {
+            get
+            {
+                return new Vector3(this.M14, this.M24, this.M34);
+            }
+        }
+        public Quaternion Rotation
+        {
+            get => Quaternion.FromTransformationMatrix(this);
+        }
+        public Vector3 Scale
+        {
+            get
+            {
+                return new Vector3()
+                {
+                    X = new Vector3(this.M11, this.M12, this.M13).Magnitude,
+                    Y = new Vector3(this.M21, this.M22, this.M23).Magnitude,
+                    Z = new Vector3(this.M31, this.M32, this.M33).Magnitude
+                };
+            }
+        }
+        public Vector3 FourthRow
+        {
+            get => new Vector3(this.M41, this.M42, this.M43);
+            set
+            {
+                this.M41 = value.X;
+                this.M42 = value.Y;
+                this.M43 = value.Z;
+            }
+    }
+
         /// <summary>
         /// Initializes a new <see cref="R3DMatrix44"/> instance
         /// </summary>
         public R3DMatrix44()
         {
             this.Clear();
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="R3DMatrix44"/> instance
+        /// </summary>
+        public R3DMatrix44(float m11, float m12, float m13, float m14, float m21, float m22, float m23, float m24, float m31, float m32, float m33, float m34, float m41, float m42, float m43, float m44)
+        {
+            this.M11 = m11;
+            this.M12 = m12;
+            this.M13 = m13;
+            this.M14 = m14;
+            this.M21 = m21;
+            this.M22 = m22;
+            this.M23 = m23;
+            this.M24 = m24;
+            this.M31 = m31;
+            this.M32 = m32;
+            this.M33 = m33;
+            this.M34 = m34;
+            this.M41 = m41;
+            this.M42 = m42;
+            this.M43 = m43;
+            this.M44 = m44;
         }
 
         /// <summary>
@@ -126,68 +183,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
             bw.Write(this.M42);
             bw.Write(this.M43);
             bw.Write(this.M44);
-        }
-
-        /// <summary>
-        /// Returns the Translation Vector of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public Vector3 GetTranslation()
-        {
-            return new Vector3(this.M14, this.M24, this.M33);
-        }
-
-        /// <summary>
-        /// Returns the Rotation of this <see cref="R3DMatrix44"/>
-        /// </summary>
-        public Quaternion GetRotation()
-        {
-            Quaternion result = new Quaternion(0, 0, 0, 0);
-            float sqrt;
-            float half;
-            float scale = this.M11 + this.M22 + this.M33;
-
-            if (scale > 0.0f)
-            {
-                sqrt = (float)Math.Sqrt(scale + 1.0f);
-                result.W = sqrt * 0.5f;
-                sqrt = 0.5f / sqrt;
-
-                result.X = (this.M23 - this.M32) * sqrt;
-                result.Y = (this.M31 - this.M13) * sqrt;
-                result.Z = (this.M12 - this.M21) * sqrt;
-            }
-            else if ((this.M11 >= this.M22) && (this.M11 >= this.M33))
-            {
-                sqrt = (float)Math.Sqrt(1.0f + this.M11 - this.M22 - this.M33);
-                half = 0.5f / sqrt;
-
-                result.X = 0.5f * sqrt;
-                result.Y = (this.M12 + this.M21) * half;
-                result.Z = (this.M13 + this.M31) * half;
-                result.W = (this.M23 - this.M32) * half;
-            }
-            else if (this.M22 > this.M33)
-            {
-                sqrt = (float)Math.Sqrt(1.0f + this.M22 - this.M11 - this.M33);
-                half = 0.5f / sqrt;
-
-                result.X = (this.M21 + this.M12) * half;
-                result.Y = 0.5f * sqrt;
-                result.Z = (this.M32 + this.M23) * half;
-                result.W = (this.M31 - this.M13) * half;
-            }
-            else
-            {
-                sqrt = (float)Math.Sqrt(1.0f + this.M33 - this.M11 - this.M22);
-                half = 0.5f / sqrt;
-
-                result.X = (this.M31 + this.M13) * half;
-                result.Y = (this.M32 + this.M23) * half;
-                result.Z = 0.5f * sqrt;
-                result.W = (this.M12 - this.M21) * half;
-            }
-
-            return result;
         }
 
         /// <summary>
@@ -287,6 +282,115 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 + this.M12 * this.M23 * this.M31);
         }
 
+        /// <summary>
+        /// Applies the transformation of this matrix to the specified <see cref="Vector3"/>
+        /// </summary>
+        /// <param name="vector"><see cref="Vector3"/> to transform</param>
+        /// <returns>The transformed <see cref="Vector3"/></returns>
+        public Vector3 ApplyTransformation(Vector3 vector)
+        {
+            return new Vector3
+            {
+                X = (this.M11 * vector.X) + (this.M12 * vector.Y) + (this.M13 * vector.Z) + this.M14,
+                Y = (this.M21 * vector.X) + (this.M22 * vector.Y) + (this.M23 * vector.Z) + this.M24,
+                Z = (this.M31 * vector.X) + (this.M32 * vector.Y) + (this.M33 * vector.Z) + this.M34
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Translation
+        /// </summary>
+        public static R3DMatrix44 FromTranslation(Vector3 translation)
+        {
+            return new R3DMatrix44()
+            {
+                M14 = translation.X,
+                M24 = translation.Y,
+                M34 = translation.Z
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Rotation
+        /// </summary>
+        public static R3DMatrix44 FromRotation(Vector3 rotation)
+        {
+            return FromRotation(Quaternion.FromEuler(rotation));
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Rotation
+        /// </summary>
+        public static R3DMatrix44 FromRotation(Quaternion q)
+        {
+            return new R3DMatrix44()
+            {
+                M11 = 1 - 2 * (q.Y * q.Y + q.Z * q.Z),
+                M12 = 2 * (q.X * q.Y + q.Z * q.W),
+                M13 = 2 * (q.X * q.Z - q.Y * q.W),
+                M21 = 2 * (q.X * q.Y - q.Z * q.W),
+                M22 = 1 - 2 * (q.X * q.X + q.Z * q.Z),
+                M23 = 2 * (q.Y * q.Z + q.X * q.W),
+                M31 = 2 * (q.X * q.Z + q.Y * q.W),
+                M32 = 2 * (q.Y * q.Z - q.X * q.W),
+                M33 = 1 - 2 * (q.X * q.X + q.Y * q.Y),
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/> from Scale
+        /// </summary>
+        public static R3DMatrix44 FromScale(Vector3 scale)
+        {
+            return new R3DMatrix44()
+            {
+                M11 = scale.X,
+                M22 = scale.Y,
+                M33 = scale.Z
+            };
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/>
+        /// </summary>
+        public static R3DMatrix44 CreateTransformation(Vector3 translation, Vector3 rotation, Vector3 scale)
+        {
+            return CreateTransformation(translation, Quaternion.FromEuler(rotation), scale);
+        }
+
+        /// <summary>
+        /// Creates a Transformation <see cref="R3DMatrix44"/>
+        /// </summary>
+        public static R3DMatrix44 CreateTransformation(Vector3 translation, Quaternion rotation, Vector3 scale)
+        {
+            return FromTranslation(translation) * FromRotation(rotation) * FromScale(scale);
+        }
+
+        public static R3DMatrix44 RotationAxis(Vector3 axis, float angle)
+        {
+            Vector3 nAxis = axis.Normalized();
+            float rAngle = Utilities.ToRadians(angle);
+            float sinA = (float)Math.Sin(rAngle);
+            float cosA = (float)Math.Cos(rAngle);
+            float cDiff = 1 - cosA;
+
+            return new R3DMatrix44()
+            {
+                M11 = cDiff * nAxis.X * nAxis.X + cosA,
+                M21 = cDiff * nAxis.X * nAxis.Y - sinA * nAxis.Z,
+                M31 = cDiff * nAxis.X * nAxis.Z + sinA * nAxis.Y,
+                M41 = 0.0f,
+                M12 = cDiff * nAxis.Y * nAxis.X + sinA * nAxis.Z,
+                M22 = cDiff * nAxis.Y * nAxis.Y + cosA,
+                M32 = cDiff * nAxis.Y * nAxis.Z - sinA * nAxis.X,
+                M42 = 0.0f,
+                M13 = cDiff * nAxis.Z * nAxis.X - sinA * nAxis.Y,
+                M23 = cDiff * nAxis.Z * nAxis.Y + sinA * nAxis.X,
+                M33 = cDiff * nAxis.Z * nAxis.Z + cosA,
+                M43 = 0.0f,
+            };
+        }
+        
         public bool Equals(R3DMatrix44 other)
         {
             return this.M11 == other.M11 && this.M12 == other.M12 && this.M13 == other.M13 && this.M14 == other.M14 &&

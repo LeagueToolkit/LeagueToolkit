@@ -8,11 +8,11 @@ namespace Fantome.Libraries.League.IO.OBJ
 {
     public class OBJFile
     {
-        public List<string> Comments { get; private set; } = new List<string>();
-        public List<Vector3> Vertices { get; private set; } = new List<Vector3>();
-        public List<Vector2> UVs { get; private set; } = new List<Vector2>();
-        public List<Vector3> Normals { get; private set; } = new List<Vector3>();
-        public List<OBJFace> Faces { get; private set; } = new List<OBJFace>();
+        public List<string> Comments { get; set; } = new List<string>();
+        public List<Vector3> Vertices { get; set; } = new List<Vector3>();
+        public List<Vector2> UVs { get; set; } = new List<Vector2>();
+        public List<Vector3> Normals { get; set; } = new List<Vector3>();
+        public List<OBJFace> Faces { get; set; } = new List<OBJFace>();
 
         public OBJFile(List<Vector3> vertices, List<uint> indices)
         {
@@ -102,7 +102,7 @@ namespace Fantome.Libraries.League.IO.OBJ
             }
             if (input[0] == "#")
             {
-                this.Comments.Add(String.Join(" ", input).Remove(0, 1));
+                this.Comments.Add(string.Join(" ", input).Remove(0, 1));
             }
             else if (input[0] == "v")
             {
