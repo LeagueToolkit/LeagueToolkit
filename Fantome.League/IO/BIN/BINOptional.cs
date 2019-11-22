@@ -14,7 +14,7 @@ namespace Fantome.Libraries.League.IO.BIN
         public BINOptional(BinaryReader br, IBINValue parent)
         {
             this.Parent = parent;
-            this.Type = (BINValueType)br.ReadByte();
+            this.Type = BINValue.ByteToBINValueType(br.ReadByte());;
             byte valueCount = br.ReadByte(); //????
 
             if(valueCount > 1)

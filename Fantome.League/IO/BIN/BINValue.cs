@@ -50,7 +50,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     int startIndex = property.IndexOf('[');
                     int valueIndex = int.Parse(property.Substring(startIndex + 1, property.IndexOf(']') - startIndex - 1));
 
-                    if(this.Type == BINValueType.Container && 
+                    if(this.Type == BINValueType.Container &&
                         (this.Value as BINContainer).EntryType == BINValueType.Embedded ||
                         (this.Value as BINContainer).EntryType == BINValueType.Structure)
                     {
@@ -130,7 +130,7 @@ namespace Fantome.Libraries.League.IO.BIN
                     }
 
                 }
-                
+
                 return null;
             }
         }
@@ -159,7 +159,7 @@ namespace Fantome.Libraries.League.IO.BIN
             if (this.Type == null)
             {
                 this.Property = br.ReadUInt32();
-                this.Type = (BINValueType)br.ReadByte();
+                this.Type = BINValue.ByteToBINValueType(br.ReadByte());
                 this._typeRead = true;
             }
 
@@ -610,6 +610,11 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 return false;
             }
+        }
+
+        public static BINValueType ByteToBINValueType(byte value)
+        {
+            return (value >= 0x80) ? (BINValueType) (value - 0x80 + 18) : (BINValueType) value;
         }
     }
 

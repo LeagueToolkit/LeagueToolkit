@@ -34,8 +34,8 @@ namespace Fantome.Libraries.League.IO.BIN
         {
             this.Parent = parent;
 
-            this.KeyType = (BINValueType)br.ReadByte();
-            this.ValueType = (BINValueType)br.ReadByte();
+            this.KeyType = BINValue.ByteToBINValueType(br.ReadByte());
+            this.ValueType = BINValue.ByteToBINValueType(br.ReadByte());
             uint size = br.ReadUInt32();
             uint valueCount = br.ReadUInt32();
 
