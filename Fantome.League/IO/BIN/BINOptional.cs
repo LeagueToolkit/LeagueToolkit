@@ -14,7 +14,7 @@ namespace Fantome.Libraries.League.IO.BIN
         public BINOptional(BinaryReader br, IBINValue parent)
         {
             this.Parent = parent;
-            this.Type = (BINValueType)br.ReadByte();
+            this.Type = BINUtilities.UnpackType((BINValueType)br.ReadByte());
             byte valueCount = br.ReadByte(); //????
 
             if(valueCount > 1)
@@ -30,7 +30,7 @@ namespace Fantome.Libraries.League.IO.BIN
 
         public void Write(BinaryWriter bw)
         {
-            bw.Write((byte)this.Type);
+            bw.Write((byte)BINUtilities.PackType(this.Type));
             bw.Write(this.Value == null ? (byte)0 : (byte)1);
             this.Value?.Write(bw, false);
         }

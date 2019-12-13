@@ -35,7 +35,7 @@ namespace Fantome.Libraries.League.IO.BIN
             this.Parent = parent;
 
             this.KeyType = (BINValueType)br.ReadByte();
-            this.ValueType = (BINValueType)br.ReadByte();
+            this.ValueType = BINUtilities.UnpackType((BINValueType)br.ReadByte());
             uint size = br.ReadUInt32();
             uint valueCount = br.ReadUInt32();
 
@@ -48,7 +48,7 @@ namespace Fantome.Libraries.League.IO.BIN
         public void Write(BinaryWriter bw)
         {
             bw.Write((byte)this.KeyType);
-            bw.Write((byte)this.ValueType);
+            bw.Write((byte)BINUtilities.PackType(this.ValueType));
             bw.Write(GetContentSize());
             bw.Write(this.Values.Count);
 

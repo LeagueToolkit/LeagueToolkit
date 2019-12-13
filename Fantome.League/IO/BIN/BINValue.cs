@@ -12,8 +12,6 @@ namespace Fantome.Libraries.League.IO.BIN
 {
     public class BINValue : IBINValue, IEquatable<BINValue>
     {
-        private const int COMPLEX_TYPE_FLAG = 128;
-
         public BINValueType? Type { get; private set; }
         public IBINValue Parent { get; private set; }
         public uint Property { get; set; }
@@ -161,14 +159,8 @@ namespace Fantome.Libraries.League.IO.BIN
             if (this.Type == null)
             {
                 this.Property = br.ReadUInt32();
-                this.Type = (BINValueType)br.ReadByte();
+                this.Type = BINUtilities.UnpackType((BINValueType)br.ReadByte());
                 this._typeRead = true;
-            }
-
-            if(((int)this.Type & COMPLEX_TYPE_FLAG) == COMPLEX_TYPE_FLAG)
-            {
-                this.Type -= COMPLEX_TYPE_FLAG;
-                this.Type += 18;
             }
 
             if (this.Type == BINValueType.None)
@@ -278,15 +270,7 @@ namespace Fantome.Libraries.League.IO.BIN
             if (writeType)
             {
                 bw.Write(this.Property);
-
-                if((int)this.Type >= 18 && (int)this.Type <= 23)
-                {
-                    bw.Write((byte)(((int)this.Type - 18) | COMPLEX_TYPE_FLAG));
-                }
-                else
-                {
-                    bw.Write((byte)this.Type);
-                }
+                bw.Write((byte)BINUtilities.PackType(this.Type.Value));
             }
 
             if (this.Type == BINValueType.None)
