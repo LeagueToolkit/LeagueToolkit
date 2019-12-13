@@ -36,7 +36,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            MGEOTest();
+            BINTest();
         }
 
         static void WGEOTest()
@@ -112,7 +112,7 @@ namespace Fantome.Libraries.League.Tests
         static void BINTest()
         {
             //BINFile bin = new BINFile("929042894B990D88.bin");
-            BINFile bin = new BINFile("AAFA250508F27EEF.bin");
+            BINFile bin = new BINFile("F249DF6458E9244D.bin");
             Dictionary<uint, string> classNames = new Dictionary<uint, string>();
             Dictionary<uint, string> fieldNames = new Dictionary<uint, string>();
 
