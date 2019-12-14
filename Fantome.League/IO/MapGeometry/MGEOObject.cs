@@ -19,7 +19,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 Transformation { get; set; }
         public byte Unknown2 { get; set; }
-        public byte Unknown3 { get; set; } = 0xFF;
+        public byte LayerMask { get; set; } = 0xFF;
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; }
@@ -76,7 +76,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             if(version == 7)
             {
-                this.Unknown3 = br.ReadByte();
+                this.LayerMask = br.ReadByte();
             }
 
             if (useSeparatePointLights)
@@ -122,7 +122,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             if(version == 7)
             {
-                bw.Write(this.Unknown3);
+                bw.Write(this.LayerMask);
             }
 
             if(useSeparatePointLights)
