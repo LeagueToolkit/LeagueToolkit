@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{80F5DF93-19A2-4731-8CD1-982F165D7361}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Fantome.Libraries.League</RootNamespace>
+    <AssemblyName>Fantome.Libraries.League</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Fantome.Libraries.League.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ZstdNet, Version=1.3.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ZstdNet.1.3.1\lib\net45\ZstdNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Converters\MeshGeometryConverter.cs" />
+    <Compile Include="Converters\OBJConverter.cs" />
+    <Compile Include="Converters\SCBConverter.cs" />
+    <Compile Include="Converters\SCOConverter.cs" />
+    <Compile Include="Converters\SKNConverter.cs" />
+    <Compile Include="Converters\WGEOConverter.cs" />
+    <Compile Include="Helpers\Attributes\IniPropertyAttribute.cs" />
+    <Compile Include="Helpers\BIN\BINGlobal.cs" />
+    <Compile Include="Helpers\Structures\ColorBGRAVector4Byte.cs" />
+    <Compile Include="Helpers\Structures\ColorRGBAVector4.cs" />
+    <Compile Include="Helpers\Structures\ColorRGBAVector4Byte.cs" />
+    <Compile Include="Helpers\Structures\ColorRGBVector3Byte.cs" />
+    <Compile Include="Helpers\Compression.cs" />
+    <Compile Include="Helpers\Cryptography.cs" />
+    <Compile Include="Helpers\Exceptions.cs" />
+    <Compile Include="Helpers\Structures\Quaternion.cs" />
+    <Compile Include="Helpers\Structures\R3DBoundingBox.cs" />
+    <Compile Include="Helpers\Structures\R3DBox.cs" />
+    <Compile Include="Helpers\Structures\R3DMatrix44.cs" />
+    <Compile Include="Helpers\Structures\R3DSphere.cs" />
+    <Compile Include="Helpers\Structures\TimeGradient.cs" />
+    <Compile Include="Helpers\Structures\Vector2.cs" />
+    <Compile Include="Helpers\Structures\Vector3.cs" />
+    <Compile Include="Helpers\Structures\Vector4.cs" />
+    <Compile Include="Helpers\TextStructureProcessor.cs" />
+    <Compile Include="Helpers\Utilities.cs" />
+    <Compile Include="Helpers\Structures\Vector2Byte.cs" />
+    <Compile Include="Helpers\Structures\Vector3Byte.cs" />
+    <Compile Include="Helpers\Structures\Vector4Byte.cs" />
+    <Compile Include="Helpers\XXHash.cs" />
+    <Compile Include="IO\AiMesh\AiMeshCell.cs" />
+    <Compile Include="IO\AiMesh\AiMeshFile.cs" />
+    <Compile Include="IO\Atmosphere\AtmosphereFile.cs" />
+    <Compile Include="IO\BIN\BINFile.cs" />
+    <Compile Include="IO\BIN\BINOptional.cs" />
+    <Compile Include="IO\BIN\BINContainer.cs" />
+    <Compile Include="IO\BIN\BINEntry.cs" />
+    <Compile Include="IO\BIN\BINMap.cs" />
+    <Compile Include="IO\BIN\BINStructure.cs" />
+    <Compile Include="IO\BIN\BINUtilities.cs" />
+    <Compile Include="IO\BIN\BINValue.cs" />
+    <Compile Include="IO\BIN\IBINValue.cs" />
+    <Compile Include="IO\FX\FXFile.cs" />
+    <Compile Include="IO\FX\FXTrack.cs" />
+    <Compile Include="IO\FX\FXWeaponStreakInfo.cs" />
+    <Compile Include="IO\Inibin\InibinFile.cs" />
+    <Compile Include="IO\Inibin\InibinSet.cs" />
+    <Compile Include="IO\LightDat\LightDatFile.cs" />
+    <Compile Include="IO\LightDat\LightDatLight.cs" />
+    <Compile Include="IO\LightEnvironment\LightEnvironmentFile.cs" />
+    <Compile Include="IO\LightEnvironment\LightEnvironmentLight.cs" />
+    <Compile Include="IO\LightGrid\LightGridFile.cs" />
+    <Compile Include="IO\LightGrid\LightGridSun.cs" />
+    <Compile Include="IO\MapGeometry\MGEOBucket.cs" />
+    <Compile Include="IO\MapGeometry\MGEOFile.cs" />
+    <Compile Include="IO\MapGeometry\MGEOObject.cs" />
+    <Compile Include="IO\MapGeometry\MGEOSubmesh.cs" />
+    <Compile Include="IO\MapGeometry\MGEOBucketGeometry.cs" />
+    <Compile Include="IO\MapGeometry\MGEOVertex.cs" />
+    <Compile Include="IO\MapGeometry\MGEOVertexElement.cs" />
+    <Compile Include="IO\MapGeometry\MGEOVertexElementGroup.cs" />
+    <Compile Include="IO\MaterialLibrary\MaterialLibraryFile.cs" />
+    <Compile Include="IO\MaterialLibrary\MaterialLibraryMaterial.cs" />
+    <Compile Include="IO\MapObjects\MOBFile.cs" />
+    <Compile Include="IO\MapObjects\MOBObject.cs" />
+    <Compile Include="IO\NVR\NVRChannel.cs" />
+    <Compile Include="IO\NVR\NVRDrawIndexedPrimitive.cs" />
+    <Compile Include="IO\NVR\NVRFile.cs" />
+    <Compile Include="IO\NVR\NVRIndexBuffer.cs" />
+    <Compile Include="IO\NVR\NVRMaterial.cs" />
+    <Compile Include="IO\NVR\NVRMesh.cs" />
+    <Compile Include="IO\NVR\NVRNode.cs" />
+    <Compile Include="IO\NVR\NVRVertex.cs" />
+    <Compile Include="IO\NVR\NVRVertexBuffer.cs" />
+    <Compile Include="IO\INI\IniFile.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigFile.cs" />
+    <Compile Include="IO\ObjectConfig\ObjectConfigObject.cs" />
+    <Compile Include="IO\OBJ\OBJFace.cs" />
+    <Compile Include="IO\OBJ\OBJFile.cs" />
+    <Compile Include="IO\MapParticles\MapParticlesFile.cs" />
+    <Compile Include="IO\MapParticles\MapParticlesParticle.cs" />
+    <Compile Include="IO\SCB\SCBFace.cs" />
+    <Compile Include="IO\SCB\SCBFile.cs" />
+    <Compile Include="IO\SCO\SCOFace.cs" />
+    <Compile Include="IO\SCO\SCOFile.cs" />
+    <Compile Include="IO\SimpleSkin\SKNFile.cs" />
+    <Compile Include="IO\SimpleSkin\SKNSubmesh.cs" />
+    <Compile Include="IO\SimpleSkin\SKNVertex.cs" />
+    <Compile Include="IO\WAD\WADEntry.cs" />
+    <Compile Include="IO\WAD\WADFile.cs" />
+    <Compile Include="IO\WorldDescription\WorldDescriptionFile.cs" />
+    <Compile Include="IO\WorldDescription\WorldDescriptionObject.cs" />
+    <Compile Include="IO\WorldGeometry\WGEOBucket.cs" />
+    <Compile Include="IO\WorldGeometry\WGEOBucketGeometry.cs" />
+    <Compile Include="IO\WorldGeometry\WGEOFile.cs" />
+    <Compile Include="IO\WorldGeometry\WGEOModel.cs" />
+    <Compile Include="IO\WorldGeometry\WGEOVertex.cs" />
+    <Compile Include="IO\WGT\WGTFile.cs" />
+    <Compile Include="IO\WGT\WGTWeight.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\ZstdNet.1.3.1\build\ZstdNet.targets" Condition="Exists('..\packages\ZstdNet.1.3.1\build\ZstdNet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\ZstdNet.1.3.1\build\ZstdNet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ZstdNet.1.3.1\build\ZstdNet.targets'))" />
+  </Target>
+</Project>
