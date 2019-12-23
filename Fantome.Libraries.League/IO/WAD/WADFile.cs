@@ -123,21 +123,6 @@ namespace Fantome.Libraries.League.IO.WAD
         }
 
         /// <summary>
-        /// Adds a new <see cref="WADEntry"/> to this <see cref="WADFile"/>
-        /// </summary>
-        /// <param name="path">The virtual path of the file being added</param>
-        /// <param name="data">Data of file being added</param>
-        /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
-        /// <param name="compressedData">Whether the data buffer is already compressed</param>
-        public void AddEntry(string path, byte[] data, bool compressedEntry, bool compressedData)
-        {
-            using (XXHash64 xxHash = XXHash64.Create())
-            {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), data, compressedEntry, compressedData);
-            }
-        }
-
-        /// <summary>
         /// Adds a new <see cref="EntryType.FileRedirection"/> <see cref="WADEntry"/> to this <see cref="WADFile"/>
         /// </summary>
         /// <param name="xxHash">The hash of the virtual path being added</param>
@@ -150,13 +135,41 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <summary>
         /// Adds a new <see cref="WADEntry"/> to this <see cref="WADFile"/>
         /// </summary>
+        /// <param name="path">The virtual path of the file being added</param>
+        /// <param name="data">Data of file being added</param>
+        /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
+        public void AddEntry(string path, byte[] data, bool compressedEntry)
+        {
+            using (XXHash64 xxHash = XXHash64.Create())
+            {
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), data, compressedEntry);
+            }
+        }
+
+        /// <summary>
+        /// Adds a new <see cref="WADEntry"/> to this <see cref="WADFile"/>
+        /// </summary>
         /// <param name="xxHash">The hash of the virtual path being added</param>
         /// <param name="data">Data of file being added</param>
         /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
-        /// <param name="compressedData">Whether the data buffer is already compressed</param>
-        public void AddEntry(ulong xxHash, byte[] data, bool compressedEntry, bool compressedData)
+        public void AddEntry(ulong xxHash, byte[] data, bool compressedEntry)
         {
-            AddEntry(new WADEntry(this, xxHash, data, compressedEntry, compressedData));
+            AddEntry(new WADEntry(this, xxHash, data, compressedEntry));
+        }
+
+        public void AddEntryCompressed(string path, byte[] data, uint uncompressedSize, EntryType compressionType)
+        {
+            AddEntryCompressed(XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower())), data, uncompressedSize, compressionType);
+        }
+
+        public void AddEntryCompressed(ulong xxHash, byte[] data, uint uncompressedSize, EntryType compressionType)
+        {
+            if(compressionType != EntryType.Compressed || compressionType != EntryType.ZStandardCompressed)
+            {
+                throw new Exception("Invalid compression type");
+            }
+
+            AddEntry(new WADEntry(this, xxHash, data, compressionType, uncompressedSize));
         }
 
         /// <summary>

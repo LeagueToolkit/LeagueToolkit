@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Fantome.Libraries.League</id>
-    <version>1.0.2.0</version>
+    <version>1.0.2.1</version>
     <title>Fantome.Libraries.League</title>
     <authors>Crauzer</authors>
     <owners>Crauzer</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/LoL-Fantome/Fantome.Libraries.League</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Library to parse and edit files from League of Legends</description>
-    <releaseNotes>Added the option to pass compressed data to a WAD Entry</releaseNotes>
+    <releaseNotes>Resets stream position when reading a WAD</releaseNotes>
     <copyright>Copyright 2019</copyright>
     <tags>fantome league of legends wad skn skl anm map wgeo mapgeo parser editing</tags>
     <dependencies>

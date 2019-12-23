@@ -98,12 +98,27 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="xxHash">The XXHash of this new entry.</param>
         /// <param name="data">Data of this new entry.</param>
         /// <param name="compressedEntry">Whether the data needs to be ZStandard compressed inside WAD</param>
-        public WADEntry(WADFile wad, ulong xxHash, byte[] data, bool compressedEntry, bool compressedData = false)
+        public WADEntry(WADFile wad, ulong xxHash, byte[] data, bool compressedEntry)
         {
             this._wad = wad;
             this.XXHash = xxHash;
             this.Type = compressedEntry ? (wad._major == 3 ? EntryType.ZStandardCompressed : EntryType.Compressed) : EntryType.Uncompressed;
-            EditData(data, compressedData);
+            EditData(data);
+        }
+
+        /// <summary>
+        /// Initializes a new compressed <see cref="WADEntry"/>
+        /// </summary>
+        /// <param name="wad"><see cref="WADFile"/> this new entry belongs to.</param>
+        /// <param name="xxHash">The XXHash of this new entry.</param>
+        /// <param name="data">Data of this new entry.</param>
+        /// <param name="compressionType">Whether the data needs to be ZStandard compressed inside WAD</param>
+        public WADEntry(WADFile wad, ulong xxHash, byte[] compressedData, EntryType compressionType, uint uncompressedSize)
+        {   
+            this._wad = wad;
+            this.XXHash = xxHash;
+            this.Type = compressionType;
+            EditData(compressedData, uncompressedSize);
         }
 
         /// <summary>
@@ -154,9 +169,9 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Replaces this <see cref="WADEntry"/>'s data
         /// </summary>
         /// <param name="data"></param>
-        public void EditData(byte[] data, bool isCompressed = false)
+        public void EditData(byte[] data, uint uncompressedSize = 0)
         {
-            if(isCompressed)
+            if(uncompressedSize != 0)
             {
                 this._newData = data;
             }
@@ -181,7 +196,7 @@ namespace Fantome.Libraries.League.IO.WAD
             }
 
             this.CompressedSize = (uint)this._newData.Length;
-            this.UncompressedSize = (uint)data.Length;
+            this.UncompressedSize = uncompressedSize == 0 ? (uint)data.Length : uncompressedSize;
             using (SHA256 sha256 = SHA256.Create())
             {
                 this.SHA = sha256.ComputeHash(this._newData).Take(8).ToArray();
