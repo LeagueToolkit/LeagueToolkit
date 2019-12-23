@@ -126,11 +126,12 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="path">The virtual path of the file being added</param>
         /// <param name="data">Data of file being added</param>
         /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
-        public void AddEntry(string path, byte[] data, bool compressedEntry)
+        /// <param name="compressedData">Whether the data buffer is already compressed</param>
+        public void AddEntry(string path, byte[] data, bool compressedEntry, bool compressedData)
         {
             using (XXHash64 xxHash = XXHash64.Create())
             {
-                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), data, compressedEntry);
+                AddEntry(BitConverter.ToUInt64(xxHash.ComputeHash(Encoding.ASCII.GetBytes(path.ToLower(new CultureInfo("en-US")))), 0), data, compressedEntry, compressedData);
             }
         }
 
@@ -150,9 +151,10 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="xxHash">The hash of the virtual path being added</param>
         /// <param name="data">Data of file being added</param>
         /// <param name="compressedEntry">Whether the data needs to be GZip compressed inside WAD</param>
-        public void AddEntry(ulong xxHash, byte[] data, bool compressedEntry)
+        /// <param name="compressedData">Whether the data buffer is already compressed</param>
+        public void AddEntry(ulong xxHash, byte[] data, bool compressedEntry, bool compressedData)
         {
-            AddEntry(new WADEntry(this, xxHash, data, compressedEntry));
+            AddEntry(new WADEntry(this, xxHash, data, compressedEntry, compressedData));
         }
 
         /// <summary>

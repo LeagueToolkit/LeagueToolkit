@@ -252,3 +252,4 @@ paket-files/
 *.sln.iml
 *.nuspec
 Fantome.Libraries.League/Fantome.Libraries.League.nuspec
+*.nuspec
