@@ -59,6 +59,8 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="stream">The stream to read from</param>
         public WADFile(Stream stream) : this(0, 0)
         {
+            stream.Position = 0;
+
             this._stream = stream;
             using (BinaryReader br = new BinaryReader(stream, Encoding.ASCII, true))
             {
