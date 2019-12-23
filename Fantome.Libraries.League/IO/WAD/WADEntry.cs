@@ -114,7 +114,12 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="data">Data of this new entry.</param>
         /// <param name="compressionType">Whether the data needs to be ZStandard compressed inside WAD</param>
         public WADEntry(WADFile wad, ulong xxHash, byte[] compressedData, EntryType compressionType, uint uncompressedSize)
-        {   
+        {
+            if (compressionType != EntryType.Compressed && compressionType != EntryType.ZStandardCompressed)
+            {
+                throw new Exception("Invalid compression type");
+            }
+
             this._wad = wad;
             this.XXHash = xxHash;
             this.Type = compressionType;

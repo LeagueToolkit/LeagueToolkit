@@ -164,7 +164,7 @@ namespace Fantome.Libraries.League.IO.WAD
 
         public void AddEntryCompressed(ulong xxHash, byte[] data, uint uncompressedSize, EntryType compressionType)
         {
-            if(compressionType != EntryType.Compressed || compressionType != EntryType.ZStandardCompressed)
+            if(compressionType != EntryType.Compressed && compressionType != EntryType.ZStandardCompressed)
             {
                 throw new Exception("Invalid compression type");
             }
