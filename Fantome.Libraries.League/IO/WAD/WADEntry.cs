@@ -98,12 +98,12 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="xxHash">The XXHash of this new entry.</param>
         /// <param name="data">Data of this new entry.</param>
         /// <param name="compressedEntry">Whether the data needs to be ZStandard compressed inside WAD</param>
-        public WADEntry(WADFile wad, ulong xxHash, byte[] data, bool compressedEntry)
+        public WADEntry(WADFile wad, ulong xxHash, byte[] data, bool compressedEntry, bool compressedData = false)
         {
             this._wad = wad;
             this.XXHash = xxHash;
             this.Type = compressedEntry ? (wad._major == 3 ? EntryType.ZStandardCompressed : EntryType.Compressed) : EntryType.Uncompressed;
-            this.EditData(data);
+            EditData(data, compressedData);
         }
 
         /// <summary>
@@ -154,23 +154,30 @@ namespace Fantome.Libraries.League.IO.WAD
         /// Replaces this <see cref="WADEntry"/>'s data
         /// </summary>
         /// <param name="data"></param>
-        public void EditData(byte[] data)
+        public void EditData(byte[] data, bool isCompressed = false)
         {
-            if (this.Type == EntryType.FileRedirection)
+            if(isCompressed)
             {
-                throw new Exception("You cannot edit the data of a FileRedirection Entry");
-            }
-            else if (this.Type == EntryType.Compressed)
-            {
-                this._newData = Compression.CompressGZip(data);
-            }
-            else if (this.Type == EntryType.ZStandardCompressed)
-            {
-                this._newData = Compression.CompressZStandard(data);
+                this._newData = data;
             }
             else
             {
-                this._newData = data;
+                if (this.Type == EntryType.FileRedirection)
+                {
+                    throw new Exception("You cannot edit the data of a FileRedirection Entry");
+                }
+                else if (this.Type == EntryType.Compressed)
+                {
+                    this._newData = Compression.CompressGZip(data);
+                }
+                else if (this.Type == EntryType.ZStandardCompressed)
+                {
+                    this._newData = Compression.CompressZStandard(data);
+                }
+                else
+                {
+                    this._newData = data;
+                }
             }
 
             this.CompressedSize = (uint)this._newData.Length;
