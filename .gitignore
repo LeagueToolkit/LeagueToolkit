@@ -250,3 +250,5 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+*.nuspec
+Fantome.Libraries.League/Fantome.Libraries.League.nuspec
