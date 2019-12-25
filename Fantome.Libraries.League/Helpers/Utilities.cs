@@ -8,23 +8,18 @@ namespace Fantome.Libraries.League.Helpers
 {
     public static class Utilities
     {
-        public static string ByteArrayToHex(byte[] array, bool reverse)
+        public static string ByteArrayToHex(byte[] array)
         {
-            if (reverse)
-            {
-                array = array.Reverse().ToArray();
-            }
-
-            StringBuilder hexString = new StringBuilder(array.Length * 2);
-            string hexAlphabeth = "0123456789ABCDEF";
-
+            char[] c = new char[array.Length * 2];
             for (int i = 0; i < array.Length; i++)
             {
-                hexString.Append(hexAlphabeth[array[i] >> 4]);
-                hexString.Append(hexAlphabeth[array[i] & 0xF]);
+                int b = array[i] >> 4;
+                c[i * 2] = (char)(55 + b + (((b - 10) >> 31) & -7));
+                b = array[i] & 0xF;
+                c[i * 2 + 1] = (char)(55 + b + (((b - 10) >> 31) & -7));
             }
 
-            return hexString.ToString();
+            return new string(c);
         }
 
         public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
@@ -101,6 +96,14 @@ namespace Fantome.Libraries.League.Helpers
             {
                 return LeagueFileType.LIGHTGRID;
             }
+            else if (fileData[0] == 'R' && fileData[1] == 'S' && fileData[2] == 'T')
+            {
+                return LeagueFileType.RST;
+            }
+            else if (fileData[0] == 'P' && fileData[1] == 'T' && fileData[2] == 'C' && fileData[3] == 'H')
+            {
+                return LeagueFileType.PATCHBIN;
+            }
             else if (fileData[0] == 0xff && fileData[1] == 0xd8 && fileData[fileData.Length - 2] == 0xff && fileData[fileData.Length - 1] == 0xd9)
             {
                 return LeagueFileType.JPG;
@@ -147,6 +150,10 @@ namespace Fantome.Libraries.League.Helpers
                     return "wgeo";
                 case LeagueFileType.LIGHTGRID:
                     return "dat";
+                case LeagueFileType.RST:
+                    return "txt";
+                case LeagueFileType.PATCHBIN:
+                    return "bin";
                 case LeagueFileType.JPG:
                     return "jpg";
                 default:
@@ -188,6 +195,8 @@ namespace Fantome.Libraries.League.Helpers
         SKN,
         WGEO,
         WPK,
-        JPG
+        JPG,
+        RST,
+        PATCHBIN
     }
 }
