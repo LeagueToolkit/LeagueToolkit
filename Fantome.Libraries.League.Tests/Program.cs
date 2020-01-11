@@ -36,7 +36,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            BINTest();
+            MGEOTest();
         }
 
         static void WGEOTest()
@@ -355,24 +355,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void MGEOTest()
         {
-            MGEOFile mgeo1 = new MGEOFile(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo");
-
-            foreach(MGEOObject model in mgeo1.Objects)
-            {
-                foreach(Vector3 vector in model.UnknownFloats)
-                {
-                    vector.X = 0;
-                    vector.Y = 0;
-                    vector.Z = 0;
-                }
-            }
-
-            /*for(int i = 100; i < mgeo1.Objects.Count; i++)
-            {
-                mgeo1.Objects.RemoveAt(i);
-            }*/
-
-            mgeo1.Write(@"C:\Riot Games\League of Legends\Game\MOD\DATA\Maps\MapGeometry\Map12\Base.mapgeo", 7);
+            MGEOFile mgeo1 = new MGEOFile(@"C:\Users\Crauzer\Desktop\New folder\data\Maps\MapGeometry\SR\Base_SRX.mapgeo");
         }
     }
 }

@@ -30,7 +30,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.BucketSizeX = br.ReadSingle();
             this.BucketSizeZ = br.ReadSingle();
 
-            uint bucketsPerSide = br.ReadUInt32();
+            ushort bucketsPerSide = br.ReadUInt16();
+            ushort unknown = br.ReadUInt16();
             uint vertexCount = br.ReadUInt32();
             uint indexCount = br.ReadUInt32();
 

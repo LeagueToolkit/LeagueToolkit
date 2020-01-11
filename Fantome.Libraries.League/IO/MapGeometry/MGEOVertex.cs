@@ -13,7 +13,16 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public Vector2 LightmapUV { get; set; }
 
         public MGEOVertex() { }
-
+        public MGEOVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV)
+        {
+            this.Position = position;
+            this.Normal = normal;
+            this.DiffuseUV = diffuseUV;
+        }
+        public MGEOVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV, Vector2 lightmapUV) : this(position, normal, diffuseUV)
+        {
+            this.LightmapUV = lightmapUV;
+        }
         public MGEOVertex(BinaryReader br, List<MGEOVertexElement> elements)
         {
             foreach(MGEOVertexElement element in elements)
