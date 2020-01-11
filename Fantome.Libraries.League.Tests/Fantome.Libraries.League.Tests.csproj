@@ -4,14 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E3DE789F-E563-4857-90D8-70483E0B60BB}</ProjectGuid>
+    <ProjectGuid>{8274CE80-8871-4AA7-B274-E849CC912EE0}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Fantome.Libraries.League.Tests</RootNamespace>
     <AssemblyName>Fantome.Libraries.League.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Fantome.Libraries.League\Fantome.Libraries.League.csproj">
-      <Project>{80f5df93-19a2-4731-8cd1-982f165d7361}</Project>
-      <Name>Fantome.Libraries.League</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
