@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.4</Version>
-    <PackageReleaseNotes>Fixed an issue with the MGEO Reader and added additional functionality for editing MGEO files</PackageReleaseNotes>
+    <Version>1.0.5</Version>
+    <PackageReleaseNotes>Fixed an issue with WAD files not being flushed after Writing</PackageReleaseNotes>
     <PackageIcon>fantome.png</PackageIcon>
     <PackageIconUrl />
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
@@ -12,6 +12,7 @@
     <Authors>Crauzer</Authors>
     <Company>Fantome</Company>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

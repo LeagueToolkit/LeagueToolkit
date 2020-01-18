@@ -348,6 +348,8 @@ namespace Fantome.Libraries.League.IO.WAD
             }
 
             this.Dispose();
+            stream.Flush();
+
             this._stream = stream;
             this._major = major;
             this._minor = minor;
