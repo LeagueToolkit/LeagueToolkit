@@ -1,9 +1,11 @@
-﻿using Fantome.Libraries.League.Helpers.Compression;
+﻿using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.Helpers.Compression;
 using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using XXHash64 = Fantome.Libraries.League.Helpers.Cryptography.XXHash;
 
 namespace Fantome.Libraries.League.IO.WAD
 {
@@ -91,6 +93,27 @@ namespace Fantome.Libraries.League.IO.WAD
 
         internal readonly WADFile _wad;
 
+        public WADEntry(WADFile wad, ulong xxHash, string fileLocation, bool detectEntryType = true)
+        {
+            this._wad = wad;
+            this.XXHash = xxHash;
+            this.Type = detectEntryType ? Utilities.GetExtensionCompressionType(Path.GetExtension(fileLocation)) : EntryType.ZStandardCompressed;
+            EditData(File.ReadAllBytes(fileLocation));
+        }
+        public WADEntry(WADFile wad, ulong xxHash, byte[] data, bool detectEntryType = true, string extension = "")
+        {
+            this._wad = wad;
+            this.XXHash = xxHash;
+
+            if (string.IsNullOrEmpty(extension))
+            {
+                extension = Utilities.GetEntryExtension(Utilities.GetLeagueFileExtensionType(data));
+            }
+
+            this.Type = detectEntryType ? Utilities.GetExtensionCompressionType(extension) : EntryType.ZStandardCompressed;
+            EditData(data);
+        }
+
         /// <summary>
         /// Initializes a new <see cref="WADEntry"/>
         /// </summary>
@@ -136,7 +159,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             this._wad = wad;
             this.XXHash = xxHash;
-            this.Type = EntryType.FileRedirection;  
+            this.Type = EntryType.FileRedirection;
             this.FileRedirection = fileRedirection;
         }
 
@@ -176,7 +199,7 @@ namespace Fantome.Libraries.League.IO.WAD
         /// <param name="data"></param>
         public void EditData(byte[] data, uint uncompressedSize = 0)
         {
-            if(uncompressedSize != 0)
+            if (uncompressedSize != 0)
             {
                 this._newData = data;
             }
@@ -268,7 +291,7 @@ namespace Fantome.Libraries.League.IO.WAD
             bw.Write((byte)this.Type);
             bw.Write(this._isDuplicated);
             bw.Write(this.Unknown1);
-            if(major >= 2)
+            if (major >= 2)
             {
                 bw.Write(this.SHA);
             }

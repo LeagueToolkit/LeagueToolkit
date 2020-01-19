@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.IO.WAD;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -115,7 +116,6 @@ namespace Fantome.Libraries.League.Helpers
 
             return LeagueFileType.Unknown;
         }
-
         public static string GetEntryExtension(LeagueFileType extensionType)
         {
             switch (extensionType)
@@ -160,12 +160,48 @@ namespace Fantome.Libraries.League.Helpers
                     return "";
             }
         }
+        public static EntryType GetExtensionCompressionType(string extension)
+        {
+            if (string.IsNullOrEmpty(extension))
+            {
+                return EntryType.Uncompressed;
+            }
+            else
+            {
+                if (extension[0] == '.')
+                {
+                    extension = extension.Remove(0, 1);
+                }
+
+                if (extension.Contains("glsl"))
+                {
+                    return EntryType.Uncompressed;
+                }
+                if (extension.Contains("dx9"))
+                {
+                    return EntryType.Uncompressed;
+                }
+
+                switch (extension)
+                {
+                    case "wpk":
+                    case "bnk":
+                    case "troybin":
+                    case "inibin":
+                    case "gfx":
+                    case "png":
+                    case "preload":
+                        return EntryType.Uncompressed;
+                    default:
+                        return EntryType.ZStandardCompressed;
+                }
+            }
+        }
 
         public static float ToDegrees(float radian)
         {
             return radian * (180 / (float)Math.PI);
         }
-
         public static float ToRadians(float degrees)
         {
             return degrees * ((float)Math.PI / 180);

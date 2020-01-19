@@ -161,15 +161,23 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             AddEntryCompressed(XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower())), data, uncompressedSize, compressionType);
         }
-
         public void AddEntryCompressed(ulong xxHash, byte[] data, uint uncompressedSize, EntryType compressionType)
         {
-            if(compressionType != EntryType.Compressed && compressionType != EntryType.ZStandardCompressed)
+            if (compressionType != EntryType.Compressed && compressionType != EntryType.ZStandardCompressed)
             {
                 throw new Exception("Invalid compression type");
             }
 
             AddEntry(new WADEntry(this, xxHash, data, compressionType, uncompressedSize));
+        }
+
+        public void AddEntryAutomatic(string path, byte[] data, string extension = "")
+        {
+            AddEntryAutomatic(XXHash.XXH64(Encoding.ASCII.GetBytes(path)), data, extension);
+        }
+        public void AddEntryAutomatic(ulong xxHash, byte[] data, string extension = "")
+        {
+            AddEntry(new WADEntry(this, xxHash, data, true, extension));
         }
 
         /// <summary>

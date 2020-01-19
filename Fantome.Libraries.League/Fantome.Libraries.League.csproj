@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.5</Version>
-    <PackageReleaseNotes>Fixed an issue with WAD files not being flushed after Writing</PackageReleaseNotes>
+    <Version>1.0.6</Version>
+    <PackageReleaseNotes>WAD File can now detect compression type for new entries</PackageReleaseNotes>
     <PackageIcon>fantome.png</PackageIcon>
     <PackageIconUrl />
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
@@ -12,7 +12,8 @@
     <Authors>Crauzer</Authors>
     <Company>Fantome</Company>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
-    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <FileVersion>1.0.6.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
