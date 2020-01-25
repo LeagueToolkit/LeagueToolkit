@@ -173,7 +173,7 @@ namespace Fantome.Libraries.League.IO.WAD
 
         public void AddEntryAutomatic(string path, byte[] data, string extension = "")
         {
-            AddEntryAutomatic(XXHash.XXH64(Encoding.ASCII.GetBytes(path)), data, extension);
+            AddEntryAutomatic(XXHash.XXH64(Encoding.ASCII.GetBytes(path.ToLower())), data, extension);
         }
         public void AddEntryAutomatic(ulong xxHash, byte[] data, string extension = "")
         {
@@ -355,7 +355,7 @@ namespace Fantome.Libraries.League.IO.WAD
                 }
             }
 
-            this.Dispose();
+            Dispose();
             stream.Flush();
 
             this._stream = stream;
