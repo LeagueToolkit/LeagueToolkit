@@ -107,7 +107,7 @@ namespace Fantome.Libraries.League.IO.WAD
 
             if (string.IsNullOrEmpty(extension))
             {
-                extension = Utilities.GetExtension(Utilities.GetLeagueFileExtensionType(data));
+                extension = Utilities.GetExtension(Utilities.GetExtensionType(data));
             }
 
             this.Type = detectEntryType ? Utilities.GetExtensionCompressionType(extension) : EntryType.ZStandardCompressed;

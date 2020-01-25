@@ -23,7 +23,7 @@ namespace Fantome.Libraries.League.Helpers
             return new string(c);
         }
 
-        public static LeagueFileType GetLeagueFileExtensionType(byte[] fileData)
+        public static LeagueFileType GetExtensionType(byte[] fileData)
         {
             if (fileData.Length < 4)
             {
@@ -116,6 +116,45 @@ namespace Fantome.Libraries.League.Helpers
 
             return LeagueFileType.Unknown;
         }
+        public static LeagueFileType GetExtensionType(string extension)
+        {
+            if (string.IsNullOrEmpty(extension))
+            {
+                return LeagueFileType.Unknown;
+            }
+            else
+            {
+                if (extension[0] == '.')
+                {
+                    extension = extension.Remove(0, 1);
+                }
+
+                switch (extension)
+                {
+                    case "anm": return LeagueFileType.ANM;
+                    case "bin": return LeagueFileType.BIN;
+                    case "bnk": return LeagueFileType.BNK;
+                    case "dds": return LeagueFileType.DDS;
+                    case "luaobj": return LeagueFileType.LUAOBJ;
+                    case "mapgeo": return LeagueFileType.MAPGEO;
+                    case "png": return LeagueFileType.PNG;
+                    case "preload": return LeagueFileType.PRELOAD;
+                    case "scb": return LeagueFileType.SCB;
+                    case "sco": return LeagueFileType.SCO;
+                    case "skl": return LeagueFileType.SKL;
+                    case "skn": return LeagueFileType.SKN;
+                    case "wgeo": return LeagueFileType.WGEO;
+                    case "wpk": return LeagueFileType.WPK;
+                    case "jpg": return LeagueFileType.JPG;
+                    case "rst": return LeagueFileType.RST;
+                    default: return LeagueFileType.Unknown;
+                }
+            }
+        }
+        public static string GetExtension(byte[] fileData)
+        {
+            return GetExtension(GetExtensionType(fileData));
+        }
         public static string GetExtension(LeagueFileType extensionType)
         {
             switch (extensionType)
@@ -194,41 +233,6 @@ namespace Fantome.Libraries.League.Helpers
                         return EntryType.Uncompressed;
                     default:
                         return EntryType.ZStandardCompressed;
-                }
-            }
-        }
-        public static LeagueFileType GetExtensionType(string extension)
-        {
-            if (string.IsNullOrEmpty(extension))
-            {
-                return LeagueFileType.Unknown;
-            }
-            else
-            {
-                if (extension[0] == '.')
-                {
-                    extension = extension.Remove(0, 1);
-                }
-
-                switch (extension)
-                {
-                    case ".anm": return LeagueFileType.ANM;
-                    case ".bin": return LeagueFileType.BIN;
-                    case ".bnk": return LeagueFileType.BNK;
-                    case ".dds": return LeagueFileType.DDS;
-                    case ".luaobj": return LeagueFileType.LUAOBJ;
-                    case ".mapgeo": return LeagueFileType.MAPGEO;
-                    case ".png": return LeagueFileType.PNG;
-                    case ".preload": return LeagueFileType.PRELOAD;
-                    case ".scb": return LeagueFileType.SCB;
-                    case ".sco": return LeagueFileType.SCO;
-                    case ".skl": return LeagueFileType.SKL;
-                    case ".skn": return LeagueFileType.SKN;
-                    case ".wgeo": return LeagueFileType.WGEO;
-                    case ".wpk": return LeagueFileType.WPK;
-                    case ".jpg": return LeagueFileType.JPG;
-                    case ".rst": return LeagueFileType.RST;
-                    default: return LeagueFileType.Unknown;
                 }
             }
         }
