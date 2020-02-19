@@ -24,6 +24,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public float A { get; set; }
 
+        public ColorRGBAVector4()
+        {
+
+        }
+
         /// <summary>
         /// Initializes a new <see cref="ColorRGBAVector4"/>
         /// </summary>

@@ -65,6 +65,14 @@ namespace Fantome.Libraries.League.Helpers.Structures
             return this.Max - this.Min;
         }
 
+        public Vector3 GetCentralPoint()
+        {
+            return new Vector3(
+                0.5f * (this.Min.X + this.Max.X),
+                0.5f * (this.Min.Y + this.Max.Y),
+                0.5f * (this.Min.Z + this.Max.Z));
+        }
+
         /// <summary>
         /// Determines wheter this <see cref="R3DBox"/> contains the <see cref="Vector3"/> <paramref name="point"/>
         /// </summary>
@@ -72,7 +80,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <returns>Wheter this <see cref="R3DBox"/> contains the <see cref="Vector3"/> <paramref name="point"/></returns>
         public bool ContainsPoint(Vector3 point)
         {
-            return ((point.X >= this.Min.X) && (point.X <= this.Max.X) && (point.Y >= this.Min.Y) && (point.Y <= this.Max.Y) && (point.Z >= this.Min.Z) && (point.Z <= this.Max.Z));
+            return (point.X >= this.Min.X) && (point.X <= this.Max.X)
+                && (point.Y >= this.Min.Y) && (point.Y <= this.Max.Y) 
+                && (point.Z >= this.Min.Z) && (point.Z <= this.Max.Z);
         }
     }
 }

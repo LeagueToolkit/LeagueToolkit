@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 
 namespace Fantome.Libraries.League.Helpers.Structures
@@ -8,21 +9,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class ColorRGBAVector4Byte : IEquatable<ColorRGBAVector4Byte>
     {
-        /// <summary>
-        /// Red
-        /// </summary>
         public byte R { get; set; }
-        /// <summary>
-        /// Green
-        /// </summary>
         public byte G { get; set; }
-        /// <summary>
-        /// Blue
-        /// </summary>
         public byte B { get; set; }
-        /// <summary>
-        /// Alpha
-        /// </summary>
         public byte A { get; set; }
 
         /// <summary>
@@ -46,6 +35,15 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.G = br.ReadByte();
             this.B = br.ReadByte();
             this.A = br.ReadByte();
+        }
+
+        public ColorRGBAVector4Byte(StreamReader sr)
+        {
+            string[] input = sr.ReadLine().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            this.R = byte.Parse(input[0], CultureInfo.InvariantCulture.NumberFormat);
+            this.G = byte.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat);
+            this.B = byte.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat);
+            this.A = byte.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat);
         }
 
         /// <summary>
@@ -77,8 +75,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         /// <param name="sw">The <see cref="StreamWriter"/> to write to</param>
         /// <param name="format">Format that should be used for writing</param>
-        public void Write(StreamWriter sw, string format)
+        public void Write(StreamWriter sw, bool newLine = false, string format = "{0} {1} {2} {3}")
         {
+            if(newLine)
+            {
+                format += '\n';
+            }
+
             sw.Write(string.Format(format, this.R, this.G, this.B, this.A));
         }
 

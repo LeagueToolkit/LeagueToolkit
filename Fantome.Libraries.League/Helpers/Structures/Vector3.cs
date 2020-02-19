@@ -9,31 +9,20 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class Vector3 : IEquatable<Vector3>
     {
-        /// <summary>
-        /// The X component
-        /// </summary>
         public float X { get; set; }
-        /// <summary>
-        /// The Y component
-        /// </summary>
         public float Y { get; set; }
-        /// <summary>
-        /// The Z component
-        /// </summary>
         public float Z { get; set; }
+
+        public static readonly Vector3 Zero = new Vector3(0, 0, 0);
+        public static readonly Vector3 Infinity = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+        public static readonly Vector3 NegativeInfinity = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
 
         /// <summary>
         /// Length of this <see cref="Vector3"/>
         /// </summary>
-        public float Magnitude { get => (float)Math.Sqrt((this.X * this.X) + (this.Y * this.Y) + (this.Z * this.Z)); }
+        public float Magnitude => (float)Math.Sqrt((this.X * this.X) + (this.Y * this.Y) + (this.Z * this.Z));
 
-        /// <summary>
-        /// Initializes a new <see cref="Vector3"/> instance
-        /// </summary>
-        public Vector3()
-        {
-
-        }
+        public Vector3() { }
 
         /// <summary>
         /// Initializes a new <see cref="Vector3"/> instance
@@ -43,6 +32,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
             this.X = x;
             this.Y = y;
             this.Z = z;
+        }
+
+        public Vector3(string x, string y, string z)
+        {
+            this.X = float.Parse(x, CultureInfo.InvariantCulture.NumberFormat);
+            this.Y = float.Parse(y, CultureInfo.InvariantCulture.NumberFormat);
+            this.Z = float.Parse(z, CultureInfo.InvariantCulture.NumberFormat);
         }
 
         /// <summary>
@@ -73,7 +69,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="sr">The <see cref="StreamReader"/> to read from</param>
         public Vector3(StreamReader sr)
         {
-            string[] input = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] input = sr.ReadLine().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             this.X = float.Parse(input[0], CultureInfo.InvariantCulture.NumberFormat);
             this.Y = float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat);
             this.Z = float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat);
@@ -95,8 +91,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         /// <param name="sw"><see cref="StreamWriter"/> to write to</param>
         /// <param name="format">Format that should be used for writing</param>
-        public void Write(StreamWriter sw, string format)
+        public void Write(StreamWriter sw, bool newLine = false, string format = "{0} {1} {2}")
         {
+            if (newLine)
+            {
+                format += '\n';
+            }
+
             sw.Write(string.Format(format, this.X, this.Y, this.Z));
         }
 
@@ -154,30 +155,30 @@ namespace Fantome.Libraries.League.Helpers.Structures
             };
         }
 
-        /// <summary>
-        /// Determines wheter this <see cref="Vector3"/> is equal to <paramref name="other"/>
-        /// </summary>
-        /// <param name="other">The <see cref="Vector3"/> to compare to</param>
-        /// <returns>Wheter <paramref name="other"/> is equal to this <see cref="Vector3"/></returns>
         public bool Equals(Vector3 other)
         {
             return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
         }
+        public override string ToString()
+        {
+            return string.Format("{0} {1} {2}", this.X, this.Y, this.Z);
+        }
 
-        /// <summary>
-        /// Adds two <see cref="Vector3"/>
-        /// </summary>
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
         }
-
-        /// <summary>
-        /// Subtracts two <see cref="Vector3"/>
-        /// </summary>
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
+        }
+        public static bool operator ==(Vector3 x, Vector3 y)
+        {
+            return x.Equals(y);
+        }
+        public static bool operator !=(Vector3 x, Vector3 y)
+        {
+            return !x.Equals(y);
         }
     }
 }

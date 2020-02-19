@@ -1,5 +1,4 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
-using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
@@ -17,79 +16,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         /// Models of this <see cref="SKNFile"/>
         /// </summary>
         public List<SKNSubmesh> Submeshes { get; private set; } = new List<SKNSubmesh>();
-
-        /// <summary>
-        /// Initializes a new <see cref="SKNFile"/> from legacy files
-        /// </summary>
-        /// <param name="weightsFile">Weights of this <see cref="SKNFile"/></param>
-        /// <param name="modelFile">Model Data of this <see cref="SKNFile"/></param>
-        public SKNFile(WGTFile weightsFile, SCOFile modelFile)
-        {
-            List<Vector3> vertices = new List<Vector3>();
-            List<Vector4Byte> boneIndices = new List<Vector4Byte>();
-            List<Vector4> weights = new List<Vector4>();
-            List<Vector2> uvs = new List<Vector2>();
-            List<uint> indices = new List<uint>();
-
-            foreach (WGTWeight weight in weightsFile.Weights)
-            {
-                boneIndices.Add(weight.BoneIndices);
-                weights.Add(weight.Weights);
-            }
-
-            foreach (KeyValuePair<string, List<SCOFace>> material in modelFile.Materials)
-            {
-                foreach (SCOFace face in material.Value)
-                {
-                    indices.AddRange(face.Indices);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        vertices.Add(modelFile.Vertices[(int)face.Indices[i]]);
-                        uvs.Add(face.UVs[i]);
-                    }
-                }
-            }
-
-            //Calculates smooth normals for the mesh
-            List<Vector3> normals = new List<Vector3>(new Vector3[vertices.Count]);
-            for (int i = 0; i < indices.Count; i += 3)
-            {
-                uint a = indices[i];
-                uint b = indices[i + 1];
-                uint c = indices[i + 2];
-
-                Vector3 edgeA = vertices[(int)a] - vertices[(int)b];
-                Vector3 edgeB = vertices[(int)c] - vertices[(int)b];
-                Vector3 normal = Vector3.Cross(edgeA, edgeB);
-
-                normals[(int)a] = normal;
-                normals[(int)b] = normal;
-                normals[(int)c] = normal;
-            }
-
-            //Normalizes normals
-            for (int j = 0; j < normals.Count; j++)
-            {
-                Vector3 normalNormalize = normals[j];
-                float sum = normalNormalize.X + normalNormalize.Y + normalNormalize.Z;
-                normals[j] = new Vector3(normalNormalize.X / sum, normalNormalize.Y / sum, normalNormalize.Z / sum);
-            }
-            
-            //Creates SKNVertex list from componets
-            List<SKNVertex> sknVertices = new List<SKNVertex>();
-            for (int i = 0; i < vertices.Count; i++)
-            {
-                sknVertices.Add(new SKNVertex(vertices[i], boneIndices[i], weights[i], normals[i], uvs[i]));
-            }
-
-            //Creates Submeshes based on the Materials in the SCO File
-            int indexOffset = 0;
-            foreach (KeyValuePair<string, List<SCOFace>> material in modelFile.Materials)
-            {
-                this.Submeshes.Add(new SKNSubmesh(material.Key, indices.GetRange(indexOffset, material.Value.Count).Cast<ushort>().ToList(),
-                    sknVertices.GetRange(indexOffset, material.Value.Count), this));
-            }
-        }
 
         /// <summary>
         /// Initializes a new <see cref="SKNFile"/> from the specified location
