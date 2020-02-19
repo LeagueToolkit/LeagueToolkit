@@ -1,32 +1,37 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
-using Fantome.Libraries.League.IO.SCB;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
-namespace Fantome.Libraries.League.IO.SCO
+namespace Fantome.Libraries.League.IO.StaticObject
 {
-    public class SCOFace
+    internal class StaticObjectFace
     {
         public uint[] Indices { get; private set; }
         public string Material { get; private set; }
         public Vector2[] UVs { get; private set; }
 
-        public SCOFace(SCBFace face)
-        {
-            this.Indices = face.Indices;
-            this.Material = face.Material;
-            this.UVs = face.UVs;
-        }
-
-        public SCOFace(uint[] indices, string material, Vector2[] uvs)
+        public StaticObjectFace(uint[] indices, string material, Vector2[] uvs)
         {
             this.Indices = indices;
             this.Material = material;
             this.UVs = uvs;
         }
+        public StaticObjectFace(BinaryReader br)
+        {
+            this.Indices = new uint[] { br.ReadUInt32(), br.ReadUInt32(), br.ReadUInt32() };
+            this.Material = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
 
-        public SCOFace(StreamReader sr)
+            float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
+            this.UVs = new Vector2[]
+            {
+                new Vector2(uvs[0], uvs[3]),
+                new Vector2(uvs[1], uvs[4]),
+                new Vector2(uvs[2], uvs[5])
+            };
+        }
+        public StaticObjectFace(StreamReader sr)
         {
             string[] input = sr.ReadLine().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -40,6 +45,24 @@ namespace Fantome.Libraries.League.IO.SCO
             };
         }
 
+        public void Write(BinaryWriter bw)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                bw.Write(this.Indices[i]);
+            }
+
+            bw.Write(this.Material.PadRight(64, '\u0000').ToCharArray());
+
+            for (int i = 0; i < 3; i++)
+            {
+                bw.Write(this.UVs[i].X);
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                bw.Write(this.UVs[i].Y);
+            }
+        }
         public void Write(StreamWriter sw)
         {
             string indices = string.Format("{0} {1} {2}", this.Indices[0], this.Indices[1], this.Indices[2]);

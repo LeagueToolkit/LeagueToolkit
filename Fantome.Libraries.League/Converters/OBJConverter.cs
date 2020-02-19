@@ -1,7 +1,5 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.OBJ;
-using Fantome.Libraries.League.IO.SCB;
-using Fantome.Libraries.League.IO.SCO;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using System;
@@ -35,7 +33,7 @@ namespace Fantome.Libraries.League.Converters
 
         public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MGEOFile mgeo)
         {
-            foreach (MGEOObject model in mgeo.Objects)
+            foreach (MGEOModel model in mgeo.Models)
             {
                 List<Vector3> vertices = new List<Vector3>();
                 List<Vector3> normals = new List<Vector3>();
@@ -54,8 +52,6 @@ namespace Fantome.Libraries.League.Converters
                 yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, model.Indices.Select(x => (uint)x).ToList(), uvs, normals));
             }
         }
-
-
 
         //public static OBJFile VisualiseNVRNodes(NVRFile Nvr)
         //{
@@ -166,48 +162,6 @@ namespace Fantome.Libraries.League.Converters
 
                 yield return new Tuple<string, OBJFile>(submesh.Name, new OBJFile(vertices, indices, uv, normals));
             }
-        }
-
-        /// <summary>
-        /// Converts <paramref name="scb"/> to the <see cref="OBJFile"/> format
-        /// </summary>
-        /// <param name="scb">The <see cref="SCBFile"/> to convert to an <see cref="OBJFile"/></param>
-        /// <returns>An <see cref="OBJFile"/> converted from <paramref name="scb"/></returns>
-        public static OBJFile ConvertSCB(SCBFile scb)
-        {
-            List<uint> indices = new List<uint>();
-            List<Vector2> uv = new List<Vector2>();
-
-            foreach (KeyValuePair<string, List<SCBFace>> material in scb.Materials)
-            {
-                foreach (SCBFace face in material.Value)
-                {
-                    indices.AddRange(face.Indices);
-                    uv.AddRange(face.UVs);
-                }
-            }
-            return new OBJFile(scb.Vertices, indices, uv);
-        }
-
-        /// <summary>
-        /// Converts <paramref name="sco"/> to the <see cref="OBJFile"/> format
-        /// </summary>
-        /// <param name="sco">The <see cref="SCOFile"/> to convert to an <see cref="OBJFile"/></param>
-        /// <returns>An <see cref="OBJFile"/> converted from <paramref name="sco"/></returns>
-        public static OBJFile ConvertSCO(SCOFile sco)
-        {
-            List<uint> indices = new List<uint>();
-            List<Vector2> uv = new List<Vector2>();
-
-            foreach (KeyValuePair<string, List<SCOFace>> material in sco.Materials)
-            {
-                foreach (SCOFace face in material.Value)
-                {
-                    indices.AddRange(face.Indices);
-                    uv.AddRange(face.UVs);
-                }
-            }
-            return new OBJFile(sco.Vertices, indices, uv);
         }
     }
 }

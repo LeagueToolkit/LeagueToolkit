@@ -17,11 +17,11 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         public static UInt32 FNV32Hash(string toHash)
         {
             toHash = toHash.ToLower();
-            UInt32 hash = 2166136261;
+            uint hash = 2166136261;
             for (int i = 0; i < toHash.Length; i++)
             {
-                hash = hash ^ toHash[i];
-                hash = hash * 16777619;
+                hash ^= toHash[i];
+                hash *= 16777619;
             }
 
             return hash;

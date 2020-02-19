@@ -41,7 +41,7 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// <summary>
         /// Bounding Box of this <see cref="MOBObject"/>
         /// </summary>
-        public R3DBoundingBox BoundingBox { get; set; }
+        public R3DBox BoundingBox { get; set; }
 
         /// <summary>
         /// Initializes a new <see cref="MOBObject"/>
@@ -54,7 +54,7 @@ namespace Fantome.Libraries.League.IO.MapObjects
         /// <param name="rotation">Scale of this <see cref="MOBObject"/></param>
         /// <param name="scale">Scale of this <see cref="MOBObject"/></param>
         /// <param name="boundingBox">Bounding Box of this <see cref="MOBObject"/></param>
-        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, R3DBoundingBox boundingBox)
+        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, R3DBox boundingBox)
         {
             this.Name = name;
             this.Type = type;
@@ -78,7 +78,7 @@ namespace Fantome.Libraries.League.IO.MapObjects
             this.Position = new Vector3(br);
             this.Rotation = new Vector3(br);
             this.Scale = new Vector3(br);
-            this.BoundingBox = new R3DBoundingBox(br);
+            this.BoundingBox = new R3DBox(br);
             this.SkinID = br.ReadUInt32();
         }
 

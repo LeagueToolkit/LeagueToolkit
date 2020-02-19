@@ -9,65 +9,63 @@ using Fantome.Libraries.League.IO.OBJ;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOObject
+    public class MGEOModel
     {
         public string Name { get; set; }
         public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
         public List<ushort> Indices { get; set; } = new List<ushort>();
         public List<MGEOSubmesh> Submeshes { get; set; } = new List<MGEOSubmesh>();
-        public bool Unknown1 { get; set; }
+        public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
-        public R3DMatrix44 Transformation { get; set; }
+        public R3DMatrix44 Transformation { get; set; } = new R3DMatrix44();
         public byte Unknown2 { get; set; }
         public MGEOLayer Layer { get; set; } = MGEOLayer.AllLayers;
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
-        public string Lightmap { get; set; }
-        public ColorRGBAVector4 Color { get; set; }
+        public string Lightmap { get; set; } = string.Empty;
+        public ColorRGBAVector4 Color { get; set; } = new ColorRGBAVector4();
 
         internal int _vertexElementGroupID;
         internal int _vertexBufferID;
         internal int _indexBufferID;
 
-        public MGEOObject(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes)
+        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes)
         {
             this.Name = name;
             this.Vertices = vertices;
             this.Indices = indices;
             this.Submeshes = submeshes;
+
+            foreach(MGEOSubmesh submesh in submeshes)
+            {
+                submesh.Parent = this;
+            }
+
+            this.BoundingBox = CalculateBoundingBox();
         }
-        public MGEOObject(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, MGEOLayer layer)
+        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, MGEOLayer layer)
+            : this(name, vertices, indices, submeshes)
         {
-            this.Name = name;
-            this.Vertices = vertices;
-            this.Indices = indices;
-            this.Submeshes = submeshes;
             this.Layer = layer;
         }
-        public MGEOObject(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, R3DMatrix44 transformation)
+        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, R3DMatrix44 transformation)
+            : this(name, vertices, indices, submeshes)
         {
-            this.Name = name;
-            this.Vertices = vertices;
-            this.Indices = indices;
-            this.Submeshes = submeshes;
             this.Transformation = transformation;
         }
-        public MGEOObject(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, MGEOLayer layer, R3DMatrix44 transformation)
+        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, MGEOLayer layer, R3DMatrix44 transformation)
+            : this(name, vertices, indices, submeshes)
         {
-            this.Name = name;
-            this.Vertices = vertices;
-            this.Indices = indices;
-            this.Submeshes = submeshes;
             this.Layer = layer;
             this.Transformation = transformation;
         }
-        public MGEOObject(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, string lightmap, ColorRGBAVector4 color)
+        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, string lightmap, ColorRGBAVector4 color)
             : this(name, vertices, indices, submeshes)
         {
             this.Lightmap = lightmap;
             this.Color = color;
         }
-        public MGEOObject(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
+        public MGEOModel(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
@@ -105,7 +103,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             if (version != 5)
             {
-                this.Unknown1 = br.ReadBoolean();
+                this.FlipNormals = br.ReadBoolean();
             }
 
             this.BoundingBox = new R3DBox(br);
@@ -130,12 +128,6 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Color = new ColorRGBAVector4(br);
         }
 
-        public void AssignLightmap(string lightmap, ColorRGBAVector4 color)
-        {
-            this.Lightmap = lightmap;
-            this.Color = color;
-        }
-
         public void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
         {
             bw.Write(this.Name.Length);
@@ -157,7 +149,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             if (version != 5)
             {
-                bw.Write(this.Unknown1);
+                bw.Write(this.FlipNormals);
             }
 
             this.BoundingBox.Write(bw);
@@ -193,6 +185,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write(this.Lightmap.Length);
             bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
             this.Color.Write(bw);
+        }
+
+        public void AssignLightmap(string lightmap, ColorRGBAVector4 color)
+        {
+            this.Lightmap = lightmap;
+            this.Color = color;
         }
 
         public R3DBox CalculateBoundingBox()
