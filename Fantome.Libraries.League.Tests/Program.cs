@@ -82,9 +82,11 @@ namespace Fantome.Libraries.League.Tests
 
         static void TestStaticObject()
         {
-            StaticObject sco = StaticObject.ReadSCO("aatrox_base_w_ground_ring.write.sco");
-            //scb.WriteSCB("aatrox_base_w_ground_ring.write.scb");
-            //scb.WriteSCO("aatrox_base_w_ground_ring.write.sco");
+            StaticObject sco = StaticObject.ReadSCB("aatrox_base_w_ground_ring.scb");
+            sco.WriteSCO(@"C:\Users\Crauzer\Desktop\zzzz.sco");
+
+            StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
+            
         }
     }
 }

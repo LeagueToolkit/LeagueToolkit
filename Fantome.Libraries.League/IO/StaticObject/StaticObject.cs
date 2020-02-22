@@ -243,7 +243,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 bw.Write((ushort)3);
                 bw.Write((ushort)2);
                 bw.Write(Encoding.ASCII.GetBytes(this.Name.PadRight(128, '\u0000')));
-
+                bw.Write(vertices.Count);
                 bw.Write(faces.Count);
                 bw.Write((uint)flags);
                 GetBoundingBox().Write(bw);
@@ -310,6 +310,8 @@ namespace Fantome.Libraries.League.IO.StaticObject
 
                 sw.WriteLine("Verts= " + vertices.Count);
                 vertices.ForEach(vertex => vertex.Position.Write(sw, true));
+
+                
 
                 if (hasVertexColors)
                 {
