@@ -1,43 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+using FlatSharp.Attributes;
 
 namespace Fantome.Libraries.League.IO.RMAN
 {
-    public class RMANDirectory
+    [FlatBufferTable]
+    public class RMANDirectory : object
     {
-        public string Name { get; private set; }
-        public ulong DirectoryID { get; private set; }
-        public ulong? ParentID { get; private set; } = null;
-
-        public RMANDirectory(BinaryReader br)
-        {
-            int offsetTableOffset = br.ReadInt32();
-            long position = br.BaseStream.Position;
-
-            br.BaseStream.Seek(position - offsetTableOffset, SeekOrigin.Begin);
-
-            ushort directoryIDOffset = br.ReadUInt16();
-            ushort parentIDOffset = br.ReadUInt16();
-
-            br.BaseStream.Seek(position, SeekOrigin.Begin);
-
-            uint nameOffset = br.ReadUInt32();
-
-            if (directoryIDOffset > 0)
-            {
-                this.DirectoryID = br.ReadUInt64();
-            }
-            if(parentIDOffset > 0)
-            {
-                this.ParentID = br.ReadUInt64();
-            }
-
-            br.BaseStream.Seek(position + nameOffset, SeekOrigin.Begin);
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-        }
+        [FlatBufferItem(0)] public virtual ulong Id { get; set; }
+        [FlatBufferItem(1)] public virtual ulong ParentId { get; set; }
+        [FlatBufferItem(2)] public virtual string Name { get; set; }
     }
 }
