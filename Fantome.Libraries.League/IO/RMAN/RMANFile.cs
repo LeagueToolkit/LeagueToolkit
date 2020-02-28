@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using ZstdNet;
 using FlatSharp;
 using Fantome.Libraries.League.Helpers.Compression;
 
@@ -37,10 +36,6 @@ namespace Fantome.Libraries.League.IO.RMAN
                 br.BaseStream.Seek(contentOffset, SeekOrigin.Begin);
                 byte[] compressedFile = br.ReadBytes((int)compressedContentSize);
                 byte[] uncompressedFile = Compression.DecompressZStandard(compressedFile);
-                using (Decompressor decompressor = new Decompressor())
-                {
-                    uncompressedFile = decompressor.Unwrap(compressedFile);
-                }
                 this.Body = FlatBufferSerializer.Default.Parse<RMANBody>(uncompressedFile);
             }
         }
