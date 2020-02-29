@@ -1,7 +1,7 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.OBJ;
-using Fantome.Libraries.League.IO.RMAN;
+using Fantome.Libraries.League.IO.ReleaseManifest;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.StaticObject;
 using Fantome.Libraries.League.IO.WorldGeometry;
@@ -16,7 +16,27 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            TestStaticObject();
+            ReleaseManifest rman = new ReleaseManifest("20030AA7D8D35CB4.manifest");
+
+            foreach (ReleaseManifestFile file in rman.Files)
+            {
+                if(file.Unk8 != 0)
+                {
+
+                }
+                if (file.Unknown10 != 0)
+                {
+
+                }
+                if (file.Unknown5 != 0)
+                {
+
+                }
+                if (file.Unknown6 != 0)
+                {
+
+                }
+            }
         }
 
         static void TestMapgeo()
