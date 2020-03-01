@@ -7,13 +7,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class R3DBox
     {
-        /// <summary>
-        /// The Min component
-        /// </summary>
+        public static readonly R3DBox Infinite = new R3DBox(Vector3.NegativeInfinity, Vector3.Infinity);
+
         public Vector3 Min { get; private set; }
-        /// <summary>
-        /// The Max component
-        /// </summary>
         public Vector3 Max { get; private set; }
 
         /// <summary>
@@ -64,13 +60,18 @@ namespace Fantome.Libraries.League.Helpers.Structures
         {
             return this.Max - this.Min;
         }
-
         public Vector3 GetCentralPoint()
         {
             return new Vector3(
                 0.5f * (this.Min.X + this.Max.X),
                 0.5f * (this.Min.Y + this.Max.Y),
                 0.5f * (this.Min.Z + this.Max.Z));
+        }
+        public R3DSphere GetBoundingSphere()
+        {
+            Vector3 centralPoint = GetCentralPoint();
+
+            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, this.Max));
         }
 
         /// <summary>

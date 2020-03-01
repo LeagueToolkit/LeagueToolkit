@@ -116,19 +116,19 @@ namespace Fantome.Libraries.League.Converters
         /// <summary>
         /// Converts <paramref name="model"/> to an <see cref="OBJFile"/>
         /// </summary>
-        /// <param name="model">The <see cref="SKNFile"/> to convert to a <see cref="OBJFile"/></param>
+        /// <param name="model">The <see cref="SimpleSkin"/> to convert to a <see cref="OBJFile"/></param>
         /// <returns>An <see cref="OBJFile"/> converted from <paramref name="model"/></returns>
-        public static OBJFile ConvertSKN(SKNFile model)
+        public static OBJFile ConvertSKN(SimpleSkin model)
         {
             List<uint> indices = new List<uint>();
             List<Vector3> vertices = new List<Vector3>();
             List<Vector2> uv = new List<Vector2>();
             List<Vector3> normals = new List<Vector3>();
 
-            foreach(SKNSubmesh submesh in model.Submeshes)
+            foreach(SimpleSkinSubmesh submesh in model.Submeshes)
             {
                 indices.AddRange(submesh.Indices.Cast<uint>());
-                foreach (SKNVertex vertex in submesh.Vertices)
+                foreach (SimpleSkinVertex vertex in submesh.Vertices)
                 {
                     vertices.Add(vertex.Position);
                     uv.Add(vertex.UV);
@@ -141,19 +141,19 @@ namespace Fantome.Libraries.League.Converters
         }
 
         /// <summary>
-        /// Converts the Submeshes of the specified <see cref="SKNFile"/> into a List of <see cref="OBJFile"/>
+        /// Converts the Submeshes of the specified <see cref="SimpleSkin"/> into a List of <see cref="OBJFile"/>
         /// </summary>
-        /// <param name="model"><see cref="SKNFile"/> to convert</param>
-        public static IEnumerable<Tuple<string, OBJFile>> ConvertSKNModels(SKNFile model)
+        /// <param name="model"><see cref="SimpleSkin"/> to convert</param>
+        public static IEnumerable<Tuple<string, OBJFile>> ConvertSKNModels(SimpleSkin model)
         {
-            foreach (SKNSubmesh submesh in model.Submeshes)
+            foreach (SimpleSkinSubmesh submesh in model.Submeshes)
             {
                 List<uint> indices = new List<uint>();
                 List<Vector3> vertices = new List<Vector3>();
                 List<Vector2> uv = new List<Vector2>();
                 List<Vector3> normals = new List<Vector3>();
                 indices.AddRange(submesh.Indices.Select(i => (uint)i));
-                foreach (SKNVertex vertex in submesh.Vertices)
+                foreach (SimpleSkinVertex vertex in submesh.Vertices)
                 {
                     vertices.Add(vertex.Position);
                     uv.Add(vertex.UV);

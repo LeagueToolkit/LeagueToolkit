@@ -7,13 +7,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class R3DSphere
     {
-        /// <summary>
-        /// The position of the <see cref="R3DSphere"/>
-        /// </summary>
+        public static readonly R3DSphere Infinite = new R3DSphere(Vector3.Zero, float.PositiveInfinity);
+
         public Vector3 Position;
-        /// <summary>
-        /// The radius of the <see cref="R3DSphere"/>
-        /// </summary>
         public float Radius;
 
         /// <summary>

@@ -16,27 +16,9 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            ReleaseManifest rman = new ReleaseManifest("20030AA7D8D35CB4.manifest");
-
-            foreach (ReleaseManifestFile file in rman.Files)
-            {
-                if(file.Unk8 != 0)
-                {
-
-                }
-                if (file.Unknown10 != 0)
-                {
-
-                }
-                if (file.Unknown5 != 0)
-                {
-
-                }
-                if (file.Unknown6 != 0)
-                {
-
-                }
-            }
+            SimpleSkin simpleSkin = new SimpleSkin("aatrox.skn");
+            simpleSkin.Write("aatrox2.skn");
+            SimpleSkin simpleSkin2 = new SimpleSkin("aatrox2.skn");
         }
 
         static void TestMapgeo()
