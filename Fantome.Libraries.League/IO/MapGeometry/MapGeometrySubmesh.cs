@@ -8,9 +8,9 @@ using Fantome.Libraries.League.Helpers.Structures;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOSubmesh
+    public class MapGeometrySubmesh
     {
-        public MGEOModel Parent { get; internal set; }
+        public MapGeometryModel Parent { get; internal set; }
         public uint Hash { get; internal set; } = 0;
         public string Material { get; set; }
         public uint StartIndex { get; set; }
@@ -18,7 +18,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public uint StartVertex { get; set; }
         public uint VertexCount { get; set; }
 
-        public MGEOSubmesh(string material, uint startIndex, uint indexCount, uint startVertex, uint vertexCount)
+        public MapGeometrySubmesh(string material, uint startIndex, uint indexCount, uint startVertex, uint vertexCount)
         {
             this.Material = material;
             this.StartIndex = startIndex;
@@ -26,7 +26,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.StartVertex = startVertex;
             this.VertexCount = vertexCount;
         }
-        public MGEOSubmesh(BinaryReader br, MGEOModel parent)
+        public MapGeometrySubmesh(BinaryReader br, MapGeometryModel parent)
         {
             this.Parent = parent;
             this.Hash = br.ReadUInt32();
@@ -42,9 +42,9 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
         }
 
-        public Tuple<List<ushort>, List<MGEOVertex>> GetData(bool normalize = true)
+        public (List<ushort>, List<MapGeometryVertex>) GetData(bool normalize = true)
         {
-            return new Tuple<List<ushort>, List<MGEOVertex>>(GetIndices(normalize), GetVertices());
+            return (GetIndices(normalize), GetVertices());
         }
         public List<ushort> GetIndices(bool normalize = true)
         {
@@ -61,7 +61,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 return indices;
             }
         }
-        public List<MGEOVertex> GetVertices()
+        public List<MapGeometryVertex> GetVertices()
         {
             return this.Parent.Vertices.GetRange((int)this.StartVertex, (int)(this.VertexCount - this.StartVertex));
         }

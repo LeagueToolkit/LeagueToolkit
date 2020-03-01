@@ -9,17 +9,17 @@ using Fantome.Libraries.League.IO.OBJ;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOModel
+    public class MapGeometryModel
     {
         public string Name { get; set; }
-        public List<MGEOVertex> Vertices { get; set; } = new List<MGEOVertex>();
+        public List<MapGeometryVertex> Vertices { get; set; } = new List<MapGeometryVertex>();
         public List<ushort> Indices { get; set; } = new List<ushort>();
-        public List<MGEOSubmesh> Submeshes { get; set; } = new List<MGEOSubmesh>();
+        public List<MapGeometrySubmesh> Submeshes { get; set; } = new List<MapGeometrySubmesh>();
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 Transformation { get; set; } = new R3DMatrix44();
         public byte Unknown2 { get; set; }
-        public MGEOLayer Layer { get; set; } = MGEOLayer.AllLayers;
+        public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; } = string.Empty;
@@ -29,43 +29,43 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         internal int _vertexBufferID;
         internal int _indexBufferID;
 
-        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes)
+        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes)
         {
             this.Name = name;
             this.Vertices = vertices;
             this.Indices = indices;
             this.Submeshes = submeshes;
 
-            foreach(MGEOSubmesh submesh in submeshes)
+            foreach(MapGeometrySubmesh submesh in submeshes)
             {
                 submesh.Parent = this;
             }
 
-            this.BoundingBox = CalculateBoundingBox();
+            this.BoundingBox = GetBoundingBox();
         }
-        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, MGEOLayer layer)
+        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, MapGeometryLayer layer)
             : this(name, vertices, indices, submeshes)
         {
             this.Layer = layer;
         }
-        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, R3DMatrix44 transformation)
+        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, R3DMatrix44 transformation)
             : this(name, vertices, indices, submeshes)
         {
             this.Transformation = transformation;
         }
-        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, MGEOLayer layer, R3DMatrix44 transformation)
+        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, MapGeometryLayer layer, R3DMatrix44 transformation)
             : this(name, vertices, indices, submeshes)
         {
             this.Layer = layer;
             this.Transformation = transformation;
         }
-        public MGEOModel(string name, List<MGEOVertex> vertices, List<ushort> indices, List<MGEOSubmesh> submeshes, string lightmap, ColorRGBAVector4 color)
+        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, string lightmap, ColorRGBAVector4 color)
             : this(name, vertices, indices, submeshes)
         {
             this.Lightmap = lightmap;
             this.Color = color;
         }
-        public MGEOModel(BinaryReader br, List<MGEOVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
+        public MapGeometryModel(BinaryReader br, List<MapGeometryVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
@@ -74,7 +74,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             for (int i = 0; i < vertexCount; i++)
             {
-                this.Vertices.Add(new MGEOVertex());
+                this.Vertices.Add(new MapGeometryVertex());
             }
 
             for (int i = 0, currentVertexElementGroup = vertexElementGroup; i < vertexBufferCount; i++, currentVertexElementGroup++)
@@ -85,7 +85,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 for (int j = 0; j < vertexCount; j++)
                 {
-                    this.Vertices[j] = MGEOVertex.Combine(this.Vertices[j], new MGEOVertex(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
+                    this.Vertices[j] = MapGeometryVertex.Combine(this.Vertices[j], new MapGeometryVertex(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
                 }
 
                 br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
@@ -98,7 +98,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             uint submeshCount = br.ReadUInt32();
             for (int i = 0; i < submeshCount; i++)
             {
-                this.Submeshes.Add(new MGEOSubmesh(br, this));
+                this.Submeshes.Add(new MapGeometrySubmesh(br, this));
             }
 
             if (version != 5)
@@ -112,7 +112,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             if (version == 7)
             {
-                this.Layer = (MGEOLayer)br.ReadByte();
+                this.Layer = (MapGeometryLayer)br.ReadByte();
             }
 
             if (useSeparatePointLights)
@@ -142,7 +142,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write(this._indexBufferID);
 
             bw.Write(this.Submeshes.Count);
-            foreach (MGEOSubmesh submesh in this.Submeshes)
+            foreach (MapGeometrySubmesh submesh in this.Submeshes)
             {
                 submesh.Write(bw);
             }
@@ -193,7 +193,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Color = color;
         }
 
-        public R3DBox CalculateBoundingBox()
+        public R3DBox GetBoundingBox()
         {
             if (this.Vertices == null || this.Vertices.Count == 0)
             {
@@ -204,7 +204,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 Vector3 min = new Vector3(this.Vertices[0].Position);
                 Vector3 max = new Vector3(this.Vertices[0].Position);
 
-                foreach (MGEOVertex vertex in this.Vertices)
+                foreach (MapGeometryVertex vertex in this.Vertices)
                 {
                     if (min.X > vertex.Position.X) min.X = vertex.Position.X;
                     if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
@@ -220,7 +220,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
     }
 
     [Flags]
-    public enum MGEOLayer : byte
+    public enum MapGeometryLayer : byte
     {
         NoLayer = 0,
         Layer1 = 1,

@@ -7,48 +7,48 @@ using Fantome.Libraries.League.Helpers.Structures;
 namespace Fantome.Libraries.League.IO.WorldGeometry
 {
     /// <summary>
-    /// Represents a <see cref="WGEOModel"/> inside of a <see cref="WGEOFile"/>
+    /// Represents a <see cref="WorldGeometryModel"/> inside of a <see cref="WorldGeometry"/>
     /// </summary>
-    public class WGEOModel
+    public class WorldGeometryModel
     {
         /// <summary>
-        /// Texture Path of this <see cref="WGEOModel"/>
+        /// Texture Path of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public string Texture { get; set; }
         /// <summary>
-        /// Material of this <see cref="WGEOModel"/>
+        /// Material of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public string Material { get; set; }
         /// <summary>
-        /// Bounding Sphere of this <see cref="WGEOModel"/>
+        /// Bounding Sphere of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public R3DSphere Sphere { get; private set; }
         /// <summary>
-        /// Axis Aligned Bounding Box of this <see cref="WGEOModel"/>
+        /// Axis Aligned Bounding Box of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public R3DBox BoundingBox { get; private set; }
         /// <summary>
-        /// Vertices of this <see cref="WGEOModel"/>
+        /// Vertices of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public List<WGEOVertex> Vertices { get; set; } = new List<WGEOVertex>();
+        public List<WorldGeometryVertex> Vertices { get; set; } = new List<WorldGeometryVertex>();
         /// <summary>
-        /// Indices of this <see cref="WGEOModel"/>
+        /// Indices of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public List<uint> Indices { get; set; } = new List<uint>();
 
         /// <summary>
-        /// Initializes an empty <see cref="WGEOModel"/>
+        /// Initializes an empty <see cref="WorldGeometryModel"/>
         /// </summary>
-        public WGEOModel() { }
+        public WorldGeometryModel() { }
 
         /// <summary>
-        /// Initializes a new <see cref="WGEOModel"/>
+        /// Initializes a new <see cref="WorldGeometryModel"/>
         /// </summary>
-        /// <param name="texture">Texture Path of this <see cref="WGEOModel"/></param>
-        /// <param name="material">Material of this <see cref="WGEOModel"/></param>
-        /// <param name="vertices">Vertices of this <see cref="WGEOModel"/></param>
-        /// <param name="indices">Indices of this <see cref="WGEOModel"/></param>
-        public WGEOModel(string texture, string material, List<WGEOVertex> vertices, List<uint> indices)
+        /// <param name="texture">Texture Path of this <see cref="WorldGeometryModel"/></param>
+        /// <param name="material">Material of this <see cref="WorldGeometryModel"/></param>
+        /// <param name="vertices">Vertices of this <see cref="WorldGeometryModel"/></param>
+        /// <param name="indices">Indices of this <see cref="WorldGeometryModel"/></param>
+        public WorldGeometryModel(string texture, string material, List<WorldGeometryVertex> vertices, List<uint> indices)
         {
             this.Texture = texture;
             this.Material = material;
@@ -59,10 +59,10 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Initializes a new <see cref="WGEOModel"/> from a <see cref="BinaryReader"/>
+        /// Initializes a new <see cref="WorldGeometryModel"/> from a <see cref="BinaryReader"/>
         /// </summary>
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
-        public WGEOModel(BinaryReader br)
+        public WorldGeometryModel(BinaryReader br)
         {
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(64));
@@ -74,7 +74,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             uint indexCount = br.ReadUInt32();
             for (int i = 0; i < vertexCount; i++)
             {
-                this.Vertices.Add(new WGEOVertex(br));
+                this.Vertices.Add(new WorldGeometryVertex(br));
             }
 
             if(indexCount <= 65536)
@@ -94,7 +94,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Writes this <see cref="WGEOModel"/> into the specified <see cref="BinaryWriter"/>
+        /// Writes this <see cref="WorldGeometryModel"/> into the specified <see cref="BinaryWriter"/>
         /// </summary>
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
@@ -108,7 +108,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
 
             bw.Write(this.Vertices.Count);
             bw.Write(this.Indices.Count);
-            foreach (WGEOVertex vertex in this.Vertices)
+            foreach (WorldGeometryVertex vertex in this.Vertices)
             {
                 vertex.Write(bw);
             }
@@ -137,7 +137,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Calculates the Axis Aligned Bounding Box of this <see cref="WGEOModel"/>
+        /// Calculates the Axis Aligned Bounding Box of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public R3DBox CalculateBoundingBox()
         {
@@ -150,7 +150,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 Vector3 min = new Vector3(this.Vertices[0].Position);
                 Vector3 max = new Vector3(this.Vertices[0].Position);
 
-                foreach (WGEOVertex vertex in this.Vertices)
+                foreach (WorldGeometryVertex vertex in this.Vertices)
                 {
                     if (min.X > vertex.Position.X) min.X = vertex.Position.X;
                     if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
@@ -165,7 +165,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Calculates the Bounding Sphere of this <see cref="WGEOModel"/>
+        /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public R3DSphere CalculateSphere()
         {
@@ -178,7 +178,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Calculates the Bounding Sphere of this <see cref="WGEOModel"/> from the specified <see cref="R3DBox"/>
+        /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/> from the specified <see cref="R3DBox"/>
         /// </summary>
         /// <param name="box"><see cref="R3DBox"/> to use for calculation</param>
         public R3DSphere CalculateSphere(R3DBox box)

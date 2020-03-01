@@ -3,21 +3,21 @@ using System.IO;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOVertexElement : IEquatable<MGEOVertexElement>
+    public class MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>
     {
-        public MGEOVertexElementName Name { get; set; }
-        public MGEOVertexElementFormat Format { get; set; }
+        public MapGeometryVertexElementName Name { get; set; }
+        public MapGeometryVertexElementFormat Format { get; set; }
 
-        public MGEOVertexElement(MGEOVertexElementName name, MGEOVertexElementFormat format)
+        public MapGeometryVertexElement(MapGeometryVertexElementName name, MapGeometryVertexElementFormat format)
         {
             this.Name = name;
             this.Format = format;
         }
 
-        public MGEOVertexElement(BinaryReader br)
+        public MapGeometryVertexElement(BinaryReader br)
         {
-            this.Name = (MGEOVertexElementName)br.ReadUInt32();
-            this.Format = (MGEOVertexElementFormat)br.ReadUInt32();
+            this.Name = (MapGeometryVertexElementName)br.ReadUInt32();
+            this.Format = (MapGeometryVertexElementFormat)br.ReadUInt32();
         }
 
         public void Write(BinaryWriter bw)
@@ -30,11 +30,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             uint size = 0;
 
-            if(this.Format == MGEOVertexElementFormat.XYZ_Float32)
+            if(this.Format == MapGeometryVertexElementFormat.XYZ_Float32)
             {
                 size = 12;
             }
-            else if(this.Format == MGEOVertexElementFormat.XY_Float32)
+            else if(this.Format == MapGeometryVertexElementFormat.XY_Float32)
             {
                 size = 8;
             }
@@ -42,13 +42,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             return size;
         }
 
-        public bool Equals(MGEOVertexElement other)
+        public bool Equals(MapGeometryVertexElement other)
         {
             return (this.Name == other.Name) && (this.Format == other.Format);
         }
     }
 
-    public enum MGEOVertexElementName : uint
+    public enum MapGeometryVertexElementName : uint
     {
         Position,
         BlendWeight,
@@ -68,7 +68,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         StreamIndexCount
     }
 
-    public enum MGEOVertexElementFormat : uint
+    public enum MapGeometryVertexElementFormat : uint
     {
         X_Float32,
         XY_Float32,

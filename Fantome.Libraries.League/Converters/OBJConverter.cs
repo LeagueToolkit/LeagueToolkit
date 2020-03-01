@@ -14,15 +14,15 @@ namespace Fantome.Libraries.League.Converters
         /// <summary>
         /// Converts the models of <paramref name="wgeo"/> into the <see cref="OBJFile"/> format
         /// </summary>
-        /// <param name="wgeo">The <see cref="WGEOFile"/> to convert models from</param>
-        /// <returns>Converted <see cref="WGEOModel"/> models in the <see cref="OBJFile"/> format</returns>
-        public static IEnumerable<OBJFile> ConvertWGEOModels(WGEOFile wgeo)
+        /// <param name="wgeo">The <see cref="WorldGeometry"/> to convert models from</param>
+        /// <returns>Converted <see cref="WorldGeometryModel"/> models in the <see cref="OBJFile"/> format</returns>
+        public static IEnumerable<OBJFile> ConvertWGEOModels(WorldGeometry wgeo)
         {
-            foreach (WGEOModel model in wgeo.Models)
+            foreach (WorldGeometryModel model in wgeo.Models)
             {
                 List<Vector3> vertices = new List<Vector3>();
                 List<Vector2> uvs = new List<Vector2>();
-                foreach (WGEOVertex vertex in model.Vertices)
+                foreach (WorldGeometryVertex vertex in model.Vertices)
                 {
                     vertices.Add(vertex.Position);
                     uvs.Add(vertex.UV);
@@ -31,15 +31,15 @@ namespace Fantome.Libraries.League.Converters
             }
         }
 
-        public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MGEOFile mgeo)
+        public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MapGeometry mgeo)
         {
-            foreach (MGEOModel model in mgeo.Models)
+            foreach (MapGeometryModel model in mgeo.Models)
             {
                 List<Vector3> vertices = new List<Vector3>();
                 List<Vector3> normals = new List<Vector3>();
                 List<Vector2> uvs = new List<Vector2>();
 
-                foreach (MGEOVertex vertex in model.Vertices)
+                foreach (MapGeometryVertex vertex in model.Vertices)
                 {
                     vertices.Add(model.Transformation.ApplyTransformation(vertex.Position));
                     normals.Add(vertex.Normal);

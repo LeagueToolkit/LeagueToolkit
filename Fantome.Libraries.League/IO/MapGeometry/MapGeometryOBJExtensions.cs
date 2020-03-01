@@ -6,14 +6,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public static class MapGeometryOBJExtensions
     {
-        public static (List<ushort>, List<MGEOVertex>) GetMGEOData(this OBJFile obj)
+        public static (List<ushort>, List<MapGeometryVertex>) GetMGEOData(this OBJFile obj)
         {
             List<ushort> indices = new List<ushort>();
-            List<MGEOVertex> vertices = new List<MGEOVertex>();
+            List<MapGeometryVertex> vertices = new List<MapGeometryVertex>();
 
             foreach (Vector3 vertex in obj.Vertices)
             {
-                vertices.Add(new MGEOVertex() { Position = vertex });
+                vertices.Add(new MapGeometryVertex() { Position = vertex });
             }
 
             foreach (OBJFace face in obj.Faces)

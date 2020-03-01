@@ -10,15 +10,15 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
     public class SimpleSkinSubmesh
     {
         public string Name { get; set; }
-        public IList<SimpleSkinVertex> Vertices { get; set; }
-        public IList<ushort> Indices { get; set; }
+        public List<SimpleSkinVertex> Vertices { get; set; }
+        public List<ushort> Indices { get; set; }
 
         internal uint _startVertex;
         internal uint _vertexCount;
         internal uint _startIndex;
         internal uint _indexCount;
 
-        public SimpleSkinSubmesh(string name, IList<ushort> indices, IList<SimpleSkinVertex> vertices)
+        public SimpleSkinSubmesh(string name, List<ushort> indices, List<SimpleSkinVertex> vertices)
         {
             this.Name = name;
             this.Indices = indices;

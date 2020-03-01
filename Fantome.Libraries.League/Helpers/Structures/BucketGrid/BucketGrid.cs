@@ -1,11 +1,12 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
-namespace Fantome.Libraries.League.IO.MapGeometry
+namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
 {
-    public class MGEOBucketGeometry
+    public class BucketGrid
     {
         public float MinX { get; set; }
         public float MinZ { get; set; }
@@ -15,11 +16,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public float MaxOutStickZ { get; set; }
         public float BucketSizeX { get; set; }
         public float BucketSizeZ { get; set; }
-        public List<Vector3> Vertices{ get; set; } = new List<Vector3>();
-        public List<ushort> Indices { get; set; } = new List<ushort>();
-        public MGEOBucket[,] Buckets { get; set; }
+        public IList<Vector3> Vertices { get; set; } = new List<Vector3>();
+        public IList<ushort> Indices { get; set; } = new List<ushort>();
+        public BucketGridBucket[,] Buckets { get; set; }
 
-        public MGEOBucketGeometry(BinaryReader br)
+        public BucketGrid(BinaryReader br)
         {
             this.MinX = br.ReadSingle();
             this.MinZ = br.ReadSingle();
@@ -45,12 +46,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 this.Indices.Add(br.ReadUInt16());
             }
 
-            this.Buckets = new MGEOBucket[bucketsPerSide, bucketsPerSide];
+            this.Buckets = new BucketGridBucket[bucketsPerSide, bucketsPerSide];
             for (int i = 0; i < bucketsPerSide; i++)
             {
                 for (int j = 0; j < bucketsPerSide; j++)
                 {
-                    this.Buckets[i, j] = new MGEOBucket(br);
+                    this.Buckets[i, j] = new BucketGridBucket(br);
                 }
             }
         }

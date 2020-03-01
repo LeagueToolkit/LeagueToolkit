@@ -5,41 +5,41 @@ using System.IO;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOVertex
+    public class MapGeometryVertex
     {
         public Vector3 Position { get; set; }
         public Vector3 Normal { get; set; }
         public Vector2 DiffuseUV { get; set; }
         public Vector2 LightmapUV { get; set; }
 
-        public MGEOVertex() { }
-        public MGEOVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV)
+        public MapGeometryVertex() { }
+        public MapGeometryVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV)
         {
             this.Position = position;
             this.Normal = normal;
             this.DiffuseUV = diffuseUV;
         }
-        public MGEOVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV, Vector2 lightmapUV) : this(position, normal, diffuseUV)
+        public MapGeometryVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV, Vector2 lightmapUV) : this(position, normal, diffuseUV)
         {
             this.LightmapUV = lightmapUV;
         }
-        public MGEOVertex(BinaryReader br, List<MGEOVertexElement> elements)
+        public MapGeometryVertex(BinaryReader br, List<MapGeometryVertexElement> elements)
         {
-            foreach(MGEOVertexElement element in elements)
+            foreach(MapGeometryVertexElement element in elements)
             {
-                if(element.Name == MGEOVertexElementName.Position)
+                if(element.Name == MapGeometryVertexElementName.Position)
                 {
                     this.Position = new Vector3(br);
                 }
-                else if(element.Name == MGEOVertexElementName.Normal)
+                else if(element.Name == MapGeometryVertexElementName.Normal)
                 {
                     this.Normal = new Vector3(br);
                 }
-                else if (element.Name == MGEOVertexElementName.DiffuseUV)
+                else if (element.Name == MapGeometryVertexElementName.DiffuseUV)
                 {
                     this.DiffuseUV = new Vector2(br);
                 }
-                else if(element.Name == MGEOVertexElementName.LightmapUV)
+                else if(element.Name == MapGeometryVertexElementName.LightmapUV)
                 {
                     this.LightmapUV = new Vector2(br);
                 }
@@ -81,16 +81,15 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             return array;
         }
 
-        public static MGEOVertex Combine(MGEOVertex a, MGEOVertex b)
+        public static MapGeometryVertex Combine(MapGeometryVertex a, MapGeometryVertex b)
         {
-            MGEOVertex vertex = new MGEOVertex();
-
-            vertex.Position = (a.Position == null && b.Position != null) ? b.Position : a.Position;
-            vertex.Normal = (a.Normal == null && b.Normal != null) ? b.Normal : a.Normal;
-            vertex.DiffuseUV = (a.DiffuseUV == null && b.DiffuseUV != null) ? b.DiffuseUV : a.DiffuseUV;
-            vertex.LightmapUV = (a.LightmapUV == null && b.LightmapUV != null) ? b.LightmapUV : a.LightmapUV;
-
-            return vertex;
+            return new MapGeometryVertex() 
+            {
+                Position = (a.Position == null && b.Position != null) ? b.Position : a.Position,
+                Normal = (a.Normal == null && b.Normal != null) ? b.Normal : a.Normal,
+                DiffuseUV = (a.DiffuseUV == null && b.DiffuseUV != null) ? b.DiffuseUV : a.DiffuseUV,
+                LightmapUV = (a.LightmapUV == null && b.LightmapUV != null) ? b.LightmapUV : a.LightmapUV
+            };
         }
 
         public void Write(BinaryWriter bw)

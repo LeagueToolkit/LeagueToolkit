@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -8,44 +9,44 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
     /// <summary>
     /// Represents a World Geometry (WGEO) file
     /// </summary>
-    public class WGEOFile
+    public class WorldGeometry
     {
         /// <summary>
-        /// Models of this <see cref="WGEOFile"/>
+        /// Models of this <see cref="WorldGeometry"/>
         /// </summary>
-        public List<WGEOModel> Models { get; set; } = new List<WGEOModel>();
+        public List<WorldGeometryModel> Models { get; set; } = new List<WorldGeometryModel>();
         /// <summary>
-        /// <see cref="WGEOBucketGeometry"/> of this <see cref="WGEOFile"/>
+        /// <see cref="WGEOBucketGeometry"/> of this <see cref="WorldGeometry"/>
         /// </summary>
-        public WGEOBucketGeometry BucketGeometry { get; set; }
+        public BucketGrid BucketGrid { get; set; }
 
         /// <summary>
-        /// Initializes a new empty <see cref="WGEOFile"/>
+        /// Initializes a new empty <see cref="WorldGeometry"/>
         /// </summary>
-        public WGEOFile() { }
+        public WorldGeometry() { }
 
         /// <summary>
-        /// Initializes a new <see cref="WGEOFile"/>
+        /// Initializes a new <see cref="WorldGeometry"/>
         /// </summary>
-        /// <param name="models">Models of this <see cref="WGEOFile"/></param>
-        /// <param name="bucketGeometry"><see cref="WGEOBucketGeometry"/> of this <see cref="WGEOFile"/></param>
-        public WGEOFile(List<WGEOModel> models, WGEOBucketGeometry bucketGeometry)
+        /// <param name="models">Models of this <see cref="WorldGeometry"/></param>
+        /// <param name="bucketGrid"><see cref="BucketGrid"/> of this <see cref="WorldGeometry"/></param>
+        public WorldGeometry(List<WorldGeometryModel> models, BucketGrid bucketGrid)
         {
             this.Models = models;
-            this.BucketGeometry = bucketGeometry;
+            this.BucketGrid = bucketGrid;
         }
 
         /// <summary>
-        /// Initalizes a new <see cref="WGEOFile"/> from the specified location
+        /// Initalizes a new <see cref="WorldGeometry"/> from the specified location
         /// </summary>
         /// <param name="fileLocation">Location to read from</param>
-        public WGEOFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+        public WorldGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
         /// <summary>
-        /// Initializes a new <see cref="WGEOFile"/> from a <see cref="Stream"/>
+        /// Initializes a new <see cref="WorldGeometry"/> from a <see cref="Stream"/>
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to read from</param>
-        public WGEOFile(Stream stream)
+        public WorldGeometry(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
             {
@@ -66,18 +67,18 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
 
                 for(int i = 0; i < modelCount; i++)
                 {
-                    this.Models.Add(new WGEOModel(br));
+                    this.Models.Add(new WorldGeometryModel(br));
                 }
 
                 if (version == 5)
                 {
-                    this.BucketGeometry = new WGEOBucketGeometry(br);
+                    this.BucketGrid = new BucketGrid(br);
                 }
             }
         }
 
         /// <summary>
-        /// Writes this <see cref="WGEOFile"/> to the specified location
+        /// Writes this <see cref="WorldGeometry"/> to the specified location
         /// </summary>
         /// <param name="fileLocation">Location to write to</param>
         public void Write(string fileLocation)
@@ -86,7 +87,7 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Writes this <see cref="WGEOFile"/> into the specified stream
+        /// Writes this <see cref="WorldGeometry"/> into the specified stream
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
@@ -95,20 +96,20 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             {
                 uint faceCount = 0;
                 bw.Write(Encoding.ASCII.GetBytes("WGEO"));
-                bw.Write(this.BucketGeometry == null ? 4 : 5);
+                bw.Write(this.BucketGrid == null ? 4 : 5);
                 bw.Write(this.Models.Count);
-                foreach (WGEOModel model in this.Models)
+                foreach (WorldGeometryModel model in this.Models)
                 {
                     faceCount += (uint)model.Indices.Count / 3;
                 }
                 bw.Write(faceCount);
 
-                foreach (WGEOModel model in this.Models)
+                foreach (WorldGeometryModel model in this.Models)
                 {
                     model.Write(bw);
                 }
 
-                this.BucketGeometry?.Write(bw);
+                this.BucketGrid?.Write(bw);
             }
         }
     }

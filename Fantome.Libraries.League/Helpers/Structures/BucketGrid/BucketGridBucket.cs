@@ -1,8 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
-namespace Fantome.Libraries.League.IO.MapGeometry
+namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
 {
-    public class MGEOBucket
+    public class BucketGridBucket
     {
         public float MaxStickOutX { get; set; }
         public float MaxStickOutZ { get; set; }
@@ -11,7 +14,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public ushort InsideFaceCount { get; set; }
         public ushort StickingOutFaceCount { get; set; }
 
-        public MGEOBucket(BinaryReader br)
+        public BucketGridBucket(BinaryReader br)
         {
             this.MaxStickOutX = br.ReadSingle();
             this.MaxStickOutZ = br.ReadSingle();

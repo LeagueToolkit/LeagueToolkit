@@ -9,9 +9,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 {
     public class SimpleSkin
     {
-        public IList<SimpleSkinSubmesh> Submeshes { get; private set; } = new List<SimpleSkinSubmesh>();
+        public List<SimpleSkinSubmesh> Submeshes { get; private set; } = new List<SimpleSkinSubmesh>();
 
-        public SimpleSkin(IList<SimpleSkinSubmesh> submeshes)
+        public SimpleSkin(List<SimpleSkinSubmesh> submeshes)
         {
             this.Submeshes = submeshes;
         }

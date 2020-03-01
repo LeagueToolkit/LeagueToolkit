@@ -21,7 +21,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void TestMapgeo()
         {
-            MGEOFile mgeo = new MGEOFile("base_srx.mapgeo");
+            MapGeometry mgeo = new MapGeometry("base_srx.mapgeo");
 
             string randomMaterialName = mgeo.Models[180].Submeshes[0].Material;
 
@@ -45,8 +45,8 @@ namespace Fantome.Libraries.League.Tests
 
                 R3DMatrix44 transformation = R3DMatrix44.FromTranslation(new Vector3(0, 50, 100));
 
-                MGEOSubmesh submesh = new MGEOSubmesh("", 0, (uint)indices.Count, 0, (uint)vertices.Count);
-                MGEOModel model1 = new MGEOModel(name, vertices, indices, new List<MGEOSubmesh>() { submesh }, MGEOLayer.AllLayers);
+                MapGeometrySubmesh submesh = new MapGeometrySubmesh("", 0, (uint)indices.Count, 0, (uint)vertices.Count);
+                MapGeometryModel model1 = new MapGeometryModel(name, vertices, indices, new List<MapGeometrySubmesh>() { submesh }, MapGeometryLayer.AllLayers);
 
                 mgeo.AddModel(model1);
             }
@@ -54,7 +54,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void TestWGEO()
         {
-            WGEOFile wgeo = new WGEOFile("room.wgeo");
+            WorldGeometry wgeo = new WorldGeometry("room.wgeo");
             Directory.CreateDirectory("kek");
 
             for(int i = 0; i < 128; i++)

@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
-    public class MGEOFile
+    public class MapGeometry
     {
-        public List<MGEOModel> Models { get; set; } = new List<MGEOModel>();
-        public MGEOBucketGeometry BucketGeometry { get; set; }
+        public IList<MapGeometryModel> Models { get; set; } = new List<MapGeometryModel>();
+        public BucketGrid BucketGrid { get; set; }
 
-        public MGEOFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-        public MGEOFile(Stream stream)
+        public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+        public MapGeometry(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
             {
@@ -33,11 +34,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     useSeparatePointLights = br.ReadBoolean();
                 }
 
-                List<MGEOVertexElementGroup> vertexElementGroups = new List<MGEOVertexElementGroup>();
+                List<MapGeometryVertexElementGroup> vertexElementGroups = new List<MapGeometryVertexElementGroup>();
                 uint vertexElementGroupCount = br.ReadUInt32();
                 for (int i = 0; i < vertexElementGroupCount; i++)
                 {
-                    vertexElementGroups.Add(new MGEOVertexElementGroup(br));
+                    vertexElementGroups.Add(new MapGeometryVertexElementGroup(br));
                 }
 
                 uint vertexBufferCount = br.ReadUInt32();
@@ -70,10 +71,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 uint objectCount = br.ReadUInt32();
                 for (int i = 0; i < objectCount; i++)
                 {
-                    this.Models.Add(new MGEOModel(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
+                    this.Models.Add(new MapGeometryModel(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
                 }
 
-                this.BucketGeometry = new MGEOBucketGeometry(br);
+                this.BucketGrid = new BucketGrid(br);
             }
         }
 
@@ -100,9 +101,9 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     bw.Write(usesSeparatePointLights);
                 }
 
-                List<MGEOVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
+                List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
                 bw.Write(vertexElementGroups.Count);
-                foreach (MGEOVertexElementGroup vertexElementGroup in vertexElementGroups)
+                foreach (MapGeometryVertexElementGroup vertexElementGroup in vertexElementGroups)
                 {
                     vertexElementGroup.Write(bw);
                 }
@@ -132,23 +133,23 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 bw.Write(this.Models.Count);
-                foreach (MGEOModel model in this.Models)
+                foreach (MapGeometryModel model in this.Models)
                 {
                     model.Write(bw, usesSeparatePointLights, version);
                 }
 
-                this.BucketGeometry.Write(bw);
+                this.BucketGrid.Write(bw);
             }
         }
 
-        public void AddModel(MGEOModel model)
+        public void AddModel(MapGeometryModel model)
         {
             this.Models.Add(model);
         }
 
         private bool UsesSeparatePointLights()
         {
-            foreach (MGEOModel model in this.Models)
+            foreach (MapGeometryModel model in this.Models)
             {
                 if (model.SeparatePointLight != null)
                 {
@@ -159,13 +160,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             return false;
         }
 
-        private List<MGEOVertexElementGroup> GenerateVertexElementGroups()
+        private List<MapGeometryVertexElementGroup> GenerateVertexElementGroups()
         {
-            List<MGEOVertexElementGroup> vertexElementGroups = new List<MGEOVertexElementGroup>();
+            List<MapGeometryVertexElementGroup> vertexElementGroups = new List<MapGeometryVertexElementGroup>();
 
-            foreach (MGEOModel model in this.Models)
+            foreach (MapGeometryModel model in this.Models)
             {
-                MGEOVertexElementGroup vertexElementGroup = new MGEOVertexElementGroup(model.Vertices[0]);
+                MapGeometryVertexElementGroup vertexElementGroup = new MapGeometryVertexElementGroup(model.Vertices[0]);
 
                 if (!vertexElementGroups.Contains(vertexElementGroup))
                 {
@@ -177,12 +178,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             return vertexElementGroups;
         }
-        private List<float[]> GenerateVertexBuffers(List<MGEOVertexElementGroup> vertexElementGroups)
+        private List<float[]> GenerateVertexBuffers(List<MapGeometryVertexElementGroup> vertexElementGroups)
         {
             List<float[]> vertexBuffers = new List<float[]>();
             int vertexBufferID = 0;
 
-            foreach (MGEOModel model in this.Models)
+            foreach (MapGeometryModel model in this.Models)
             {
                 uint vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
                 float[] vertexBuffer = new float[(vertexSize / 4) * model.Vertices.Count];
@@ -205,7 +206,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             List<ushort[]> indexBuffers = new List<ushort[]>();
             int indexBufferID = 0;
 
-            foreach (MGEOModel model in this.Models)
+            foreach (MapGeometryModel model in this.Models)
             {
                 indexBuffers.Add(model.Indices.ToArray());
 
