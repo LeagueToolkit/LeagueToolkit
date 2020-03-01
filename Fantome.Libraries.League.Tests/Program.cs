@@ -16,9 +16,7 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            SimpleSkin simpleSkin = new SimpleSkin("aatrox.skn");
-            simpleSkin.Write("aatrox2.skn");
-            SimpleSkin simpleSkin2 = new SimpleSkin("aatrox2.skn");
+            TestMapgeo();
         }
 
         static void TestMapgeo()

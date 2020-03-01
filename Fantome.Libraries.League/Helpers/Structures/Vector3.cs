@@ -7,7 +7,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// <summary>
     /// Represents a Vector containing three floats
     /// </summary>
-    public class Vector3 : IEquatable<Vector3>
+    public class Vector3
     {
         public float X { get; set; }
         public float Y { get; set; }
@@ -155,10 +155,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
             };
         }
 
-        public bool Equals(Vector3 other)
-        {
-            return (this.X == other.X) && (this.Y == other.Y) && (this.Z == other.Z);
-        }
         public override string ToString()
         {
             return string.Format("{0} {1} {2}", this.X, this.Y, this.Z);
@@ -171,14 +167,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
-        }
-        public static bool operator ==(Vector3 x, Vector3 y)
-        {
-            return x.Equals(y);
-        }
-        public static bool operator !=(Vector3 x, Vector3 y)
-        {
-            return !x.Equals(y);
         }
     }
 }
