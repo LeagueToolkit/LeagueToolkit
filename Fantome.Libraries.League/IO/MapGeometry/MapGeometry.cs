@@ -68,8 +68,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     indexBuffers.Add(indexBuffer);
                 }
 
-                uint objectCount = br.ReadUInt32();
-                for (int i = 0; i < objectCount; i++)
+                uint modelCount = br.ReadUInt32();
+                for (int i = 0; i < modelCount; i++)
                 {
                     this.Models.Add(new MapGeometryModel(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
                 }

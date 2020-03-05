@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Fantome.Libraries.League.Helpers.Structures;
-using Fantome.Libraries.League.IO.OBJ;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
@@ -18,7 +15,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 Transformation { get; set; } = new R3DMatrix44();
-        public byte Unknown2 { get; set; }
+        public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
@@ -108,7 +105,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             this.BoundingBox = new R3DBox(br);
             this.Transformation = new R3DMatrix44(br);
-            this.Unknown2 = br.ReadByte();
+            this.Flags = (MapGeometryModelFlags)br.ReadByte();
 
             if (version == 7)
             {
@@ -154,7 +151,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             this.BoundingBox.Write(bw);
             this.Transformation.Write(bw);
-            bw.Write(this.Unknown2);
+            bw.Write(this.Flags);
 
             if (version == 7)
             {
@@ -232,5 +229,17 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         Layer7 = 64,
         Layer8 = 128,
         AllLayers = 255
+    }
+
+    [Flags]
+    public enum MapGeometryModelFlags : byte
+    {
+        UnknownTransparency = 1,
+        UnknownLightning = 2,
+        Unknown3 = 4,
+        Unknown4 = 8,
+        UnknownConst1 = 16,
+
+        GenericObject = UnknownTransparency | UnknownLightning | Unknown3 | Unknown4 | UnknownConst1
     }
 }
