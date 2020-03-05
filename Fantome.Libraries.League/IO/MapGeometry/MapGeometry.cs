@@ -8,7 +8,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MapGeometry
     {
-        public IList<MapGeometryModel> Models { get; set; } = new List<MapGeometryModel>();
+        public List<MapGeometryModel> Models { get; set; } = new List<MapGeometryModel>();
         public BucketGrid BucketGrid { get; set; }
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
