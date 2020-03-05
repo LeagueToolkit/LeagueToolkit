@@ -1,4 +1,5 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
 using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.ReleaseManifest;
@@ -41,7 +42,7 @@ namespace Fantome.Libraries.League.Tests
             {
                 //We will add each object 2 times just for fun to see how transformation works
 
-                (List<ushort> indices, List<MGEOVertex> vertices) = obj.GetMGEOData();
+                (List<ushort> indices, List<MapGeometryVertex> vertices) = obj.GetMGEOData();
 
                 R3DMatrix44 transformation = R3DMatrix44.FromTranslation(new Vector3(0, 50, 100));
 
@@ -61,9 +62,9 @@ namespace Fantome.Libraries.League.Tests
             {
                 for (int j = 0; j < 128; j++)
                 {
-                    WGEOBucket bucket = wgeo.BucketGeometry.Buckets[i, j];
+                    BucketGridBucket bucket = wgeo.BucketGrid.Buckets[i, j];
 
-                    List<uint> indices = wgeo.BucketGeometry.Indices
+                    List<uint> indices = wgeo.BucketGrid.Indices
                         .GetRange((int)bucket.StartIndex,(bucket.InsideFaceCount + bucket.StickingOutFaceCount) * 3)
                         .Select(x => (uint)x)
                         .ToList();
@@ -72,7 +73,7 @@ namespace Fantome.Libraries.League.Tests
                     {
                         int startVertex = (int)indices.Min();
                         int vertexCount = (int)indices.Max() - startVertex;
-                        List<Vector3> vertices = wgeo.BucketGeometry.Vertices.GetRange(startVertex + (int)bucket.Vertex, vertexCount);
+                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(startVertex + (int)bucket.BaseVertex, vertexCount);
 
                         new OBJFile(vertices, indices).Write(string.Format("kek/bucket{0}_{1}.obj", i, j));
                     } 

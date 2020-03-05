@@ -16,8 +16,8 @@ namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
         public float MaxOutStickZ { get; set; }
         public float BucketSizeX { get; set; }
         public float BucketSizeZ { get; set; }
-        public IList<Vector3> Vertices { get; set; } = new List<Vector3>();
-        public IList<ushort> Indices { get; set; } = new List<ushort>();
+        public List<Vector3> Vertices { get; set; } = new List<Vector3>();
+        public List<ushort> Indices { get; set; } = new List<ushort>();
         public BucketGridBucket[,] Buckets { get; set; }
 
         public BucketGrid(BinaryReader br)
