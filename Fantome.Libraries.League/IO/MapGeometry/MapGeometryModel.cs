@@ -127,16 +127,22 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
             }
 
-            this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            
 
-            if(version >= 9)
+            if(version < 9)
             {
-                this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            }
-
-            if (version < 9)
-            {
+                this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.Color = new ColorRGBAVector4(br);
+            }
+            else if(version >= 9)
+            {
+                this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+
+                br.ReadBytes(16); //Padding ?
+
+                this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+
+                br.ReadBytes(16); //Padding ?
             }
         }
 
@@ -168,12 +174,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Transformation.Write(bw);
             bw.Write((byte)this.Flags);
 
-            if (version == 7)
+            if (version >= 7)
             {
                 bw.Write((byte)this.Layer);
             }
 
-            if (useSeparatePointLights)
+            if (version < 9 && useSeparatePointLights)
             {
                 if (this.SeparatePointLight == null)
                 {
@@ -185,18 +191,40 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
             }
 
-            foreach (Vector3 pointLight in this.UnknownFloats)
+            if(version < 9)
             {
-                pointLight.Write(bw);
+                foreach (Vector3 pointLight in this.UnknownFloats)
+                {
+                    pointLight.Write(bw);
+                }
+                for (int i = 0; i < 9 - this.UnknownFloats.Count; i++)
+                {
+                    new Vector3(0, 0, 0).Write(bw);
+                }
             }
-            for (int i = 0; i < 9 - this.UnknownFloats.Count; i++)
+            
+            if(version < 9)
             {
-                new Vector3(0, 0, 0).Write(bw);
+                bw.Write(this.Lightmap.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+            }
+            else if(version >= 9)
+            {
+                bw.Write(this.Lightmap.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+
+                bw.Write(new byte[16]); //Padding ?
+
+                bw.Write(this.UnknownTexture.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture));
+
+                bw.Write(new byte[16]); //Padding ?
             }
 
-            bw.Write(this.Lightmap.Length);
-            bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
-            this.Color.Write(bw);
+            if(version < 9)
+            {
+                this.Color.Write(bw);
+            }
         }
 
         public void AssignLightmap(string lightmap, ColorRGBAVector4 color)
