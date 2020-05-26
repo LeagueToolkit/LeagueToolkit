@@ -90,7 +90,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         }
         public void Write(Stream stream, uint version)
         {
-            if (version != 6 && version != 7)
+            if (version != 6 && version != 7 && version != 9)
             {
                 throw new Exception("Unsupported version");
             }
