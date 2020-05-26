@@ -20,12 +20,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; } = string.Empty;
+        public string UnknownTexture { get; set; } = string.Empty;
         public ColorRGBAVector4 Color { get; set; } = new ColorRGBAVector4();
 
         internal int _vertexElementGroupID;
         internal int _vertexBufferID;
         internal int _indexBufferID;
 
+        public MapGeometryModel() { }
         public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes)
         {
             this.Name = name;
@@ -107,7 +109,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Transformation = new R3DMatrix44(br);
             this.Flags = (MapGeometryModelFlags)br.ReadByte();
 
-            if (version == 7)
+            if (version >= 7)
             {
                 this.Layer = (MapGeometryLayer)br.ReadByte();
             }
@@ -116,13 +118,26 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 this.SeparatePointLight = new Vector3(br);
             }
-            for (int i = 0; i < 9; i++)
+
+            if(version < 9)
             {
-                this.UnknownFloats.Add(new Vector3(br));
+                for (int i = 0; i < 9; i++)
+                {
+                    this.UnknownFloats.Add(new Vector3(br));
+                }
             }
 
             this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            this.Color = new ColorRGBAVector4(br);
+
+            if(version >= 9)
+            {
+                this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            }
+
+            if (version < 9)
+            {
+                this.Color = new ColorRGBAVector4(br);
+            }
         }
 
         public void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)

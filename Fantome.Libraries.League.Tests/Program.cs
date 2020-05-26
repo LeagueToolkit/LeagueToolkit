@@ -22,7 +22,7 @@ namespace Fantome.Libraries.League.Tests
 
         static void TestMapgeo()
         {
-            MapGeometry mgeo = new MapGeometry("base_srx.mapgeo");
+            MapGeometry mgeo = new MapGeometry(@"C:/Users/Crauzer/Downloads/base_srx(1).mapgeo");
 
             string randomMaterialName = mgeo.Models[180].Submeshes[0].Material;
 

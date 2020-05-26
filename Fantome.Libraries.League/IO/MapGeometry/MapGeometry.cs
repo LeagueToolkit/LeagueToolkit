@@ -8,6 +8,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MapGeometry
     {
+        public string UnknownString { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new List<MapGeometryModel>();
         public BucketGrid BucketGrid { get; set; }
 
@@ -23,15 +24,20 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 uint version = br.ReadUInt32();
-                if (version != 5 && version != 6 && version != 7)
+                if (version != 5 && version != 6 && version != 7 && version != 9)
                 {
                     throw new Exception("Version: " + version + " of Map Geometry is not supported");
                 }
 
                 bool useSeparatePointLights = false;
-                if (version != 7)
+                if (version < 7)
                 {
                     useSeparatePointLights = br.ReadBoolean();
+                }
+
+                if(version >= 9)
+                {
+                    this.UnknownString = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 }
 
                 List<MapGeometryVertexElementGroup> vertexElementGroups = new List<MapGeometryVertexElementGroup>();
