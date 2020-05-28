@@ -8,7 +8,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MapGeometry
     {
-        public string UnknownString { get; set; } = string.Empty;
+        public string UnknownString1 { get; set; } = string.Empty;
+        public string UnknownString2 { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new List<MapGeometryModel>();
         public BucketGrid BucketGrid { get; set; }
 
@@ -37,7 +38,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 if(version >= 9)
                 {
-                    this.UnknownString = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.UnknownString1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+
+                    if(version >= 11)
+                    {
+                        this.UnknownString2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    }
                 }
 
                 List<MapGeometryVertexElementGroup> vertexElementGroups = new List<MapGeometryVertexElementGroup>();
@@ -90,7 +96,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         }
         public void Write(Stream stream, uint version)
         {
-            if (version != 6 && version != 7 && version != 9)
+            if (version != 6 && version != 7 && version != 9 && version != 11)
             {
                 throw new Exception("Unsupported version");
             }
@@ -109,7 +115,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 if (version >= 9)
                 {
-                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownString));
+                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownString1));
+
+                    if(version >= 11)
+                    {
+                        bw.Write(Encoding.ASCII.GetBytes(this.UnknownString2));
+                    }
                 }
 
                 List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();

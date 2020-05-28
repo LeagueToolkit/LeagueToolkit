@@ -17,6 +17,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public R3DMatrix44 Transformation { get; set; } = new R3DMatrix44();
         public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
+        public byte UnknownByte { get; set; }
         public Vector3 SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; } = string.Empty;
@@ -112,9 +113,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             if (version >= 7)
             {
                 this.Layer = (MapGeometryLayer)br.ReadByte();
+            
+                if(version >= 11)
+                {
+                    this.UnknownByte = br.ReadByte();
+                }
             }
 
-            if (useSeparatePointLights)
+            if (useSeparatePointLights && (version < 7))
             {
                 this.SeparatePointLight = new Vector3(br);
             }
@@ -125,12 +131,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 {
                     this.UnknownFloats.Add(new Vector3(br));
                 }
-            }
 
-            
-
-            if(version < 9)
-            {
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.Color = new ColorRGBAVector4(br);
             }
@@ -177,22 +178,27 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             if (version >= 7)
             {
                 bw.Write((byte)this.Layer);
-            }
-
-            if (version < 9 && useSeparatePointLights)
-            {
-                if (this.SeparatePointLight == null)
+                
+                if(version >= 11)
                 {
-                    new Vector3(0, 0, 0).Write(bw);
-                }
-                else
-                {
-                    this.SeparatePointLight.Write(bw);
+                    bw.Write(this.UnknownByte);
                 }
             }
-
+            
             if(version < 9)
             {
+                if(useSeparatePointLights)
+                {
+                    if (this.SeparatePointLight == null)
+                    {
+                        new Vector3(0, 0, 0).Write(bw);
+                    }
+                    else
+                    {
+                        this.SeparatePointLight.Write(bw);
+                    }
+                }
+
                 foreach (Vector3 pointLight in this.UnknownFloats)
                 {
                     pointLight.Write(bw);
@@ -201,29 +207,20 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 {
                     new Vector3(0, 0, 0).Write(bw);
                 }
-            }
-            
-            if(version < 9)
-            {
+
                 bw.Write(this.Lightmap.Length);
                 bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+                this.Color.Write(bw);
             }
             else if(version >= 9)
             {
                 bw.Write(this.Lightmap.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
-
+                if (this.Lightmap.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.Lightmap)); }
                 bw.Write(new byte[16]); //Padding ?
 
                 bw.Write(this.UnknownTexture.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture));
-
+                if (this.UnknownTexture.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture)); }
                 bw.Write(new byte[16]); //Padding ?
-            }
-
-            if(version < 9)
-            {
-                this.Color.Write(bw);
             }
         }
 
