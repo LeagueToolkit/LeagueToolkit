@@ -101,7 +101,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 bw.Write(version);
 
                 bool usesSeparatePointLights = false;
-                if (version != 7)
+                if (version < 7)
                 {
                     usesSeparatePointLights = UsesSeparatePointLights();
                     bw.Write(usesSeparatePointLights);
