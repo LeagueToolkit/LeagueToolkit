@@ -107,6 +107,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     bw.Write(usesSeparatePointLights);
                 }
 
+                if (version >= 9)
+                {
+                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownString));
+                }
+
                 List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
                 bw.Write(vertexElementGroups.Count);
                 foreach (MapGeometryVertexElementGroup vertexElementGroup in vertexElementGroups)
