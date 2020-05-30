@@ -115,10 +115,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 if (version >= 9)
                 {
+                    bw.Write(this.UnknownString1.Length);
                     bw.Write(Encoding.ASCII.GetBytes(this.UnknownString1));
 
                     if(version >= 11)
                     {
+                        bw.Write(this.UnknownString2.Length);
                         bw.Write(Encoding.ASCII.GetBytes(this.UnknownString2));
                     }
                 }
