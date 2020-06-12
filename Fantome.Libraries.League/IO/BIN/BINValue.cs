@@ -694,29 +694,30 @@ namespace Fantome.Libraries.League.IO.BIN
         /// Represents a Value Container
         /// </summary>
         Container = 18,
+        Container2 = 19,
         /// <summary>
         /// Represents a Structure
         /// </summary>
-        Structure = 19,
+        Structure = 19 + 1,
         /// <summary>
         /// Represents an Embedded Structure
         /// </summary>
-        Embedded = 20,
+        Embedded = 20 + 1,
         /// <summary>
         /// Represents a <see cref="uint"/> value which links to another entry
         /// </summary>
-        LinkOffset = 21,
+        LinkOffset = 21 + 1,
         /// <summary>
         /// Represents an Optional Value
         /// </summary>
-        Optional = 22,
+        Optional = 22 + 1,
         /// <summary>
         /// Represents a List which holds Key-Value values
         /// </summary>
-        Map = 23,
+        Map = 23 + 1,
         /// <summary>
         /// Represents a <see cref="bool"/>
         /// </summary>
-        FlagsBoolean = 24
+        FlagsBoolean = 24 + 1
     }
 }

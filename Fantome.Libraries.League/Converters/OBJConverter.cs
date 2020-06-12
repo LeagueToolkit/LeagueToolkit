@@ -125,15 +125,18 @@ namespace Fantome.Libraries.League.Converters
             List<Vector2> uv = new List<Vector2>();
             List<Vector3> normals = new List<Vector3>();
 
+            uint indexOffset = 0;
             foreach(SimpleSkinSubmesh submesh in model.Submeshes)
             {
-                indices.AddRange(submesh.Indices.Cast<uint>());
+                indices.AddRange(submesh.Indices.Select(x => x + indexOffset));
                 foreach (SimpleSkinVertex vertex in submesh.Vertices)
                 {
                     vertices.Add(vertex.Position);
                     uv.Add(vertex.UV);
                     normals.Add(vertex.Normal);
                 }
+
+                indexOffset += submesh.Indices.Min();
             }
 
 

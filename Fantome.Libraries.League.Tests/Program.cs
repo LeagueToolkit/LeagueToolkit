@@ -1,5 +1,7 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Converters;
+using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.NavigationGridOverlay;
 using Fantome.Libraries.League.IO.OBJ;
@@ -18,7 +20,11 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            NavigationGridOverlay x = new NavigationGridOverlay(@"C:/Users/Crauzer/Downloads/navgrid_mountain.ngrid_overla");
+            //SimpleSkin skn = new SimpleSkin("C:/dev/proxy/kek.skn");
+            //
+            //OBJConverter.ConvertSKN(skn).Write("C:/dev/proxy/kek.obj");
+
+            MapGeometry mgeo = new MapGeometry("C:/users/crauzer/downloads/base_srx(2).mapgeo");
         }
 
         static void TestMapgeo()

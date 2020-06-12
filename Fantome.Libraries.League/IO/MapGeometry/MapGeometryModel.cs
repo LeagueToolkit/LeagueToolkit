@@ -23,6 +23,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public string Lightmap { get; set; } = string.Empty;
         public string UnknownTexture { get; set; } = string.Empty;
         public ColorRGBAVector4 Color { get; set; } = new ColorRGBAVector4();
+        public ColorRGBAVector4 Color2 { get; set; } = new ColorRGBAVector4();
 
         internal int _vertexElementGroupID;
         internal int _vertexBufferID;
@@ -138,12 +139,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             else if(version >= 9)
             {
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-
-                br.ReadBytes(16); //Padding ?
+                this.Color = new ColorRGBAVector4(br);
 
                 this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-
-                br.ReadBytes(16); //Padding ?
+                this.Color2 = new ColorRGBAVector4(br);
             }
         }
 
@@ -216,11 +215,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 bw.Write(this.Lightmap.Length);
                 if (this.Lightmap.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.Lightmap)); }
-                bw.Write(new byte[16]); //Padding ?
+                this.Color.Write(bw);
 
                 bw.Write(this.UnknownTexture.Length);
                 if (this.UnknownTexture.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture)); }
-                bw.Write(new byte[16]); //Padding ?
+                this.Color2.Write(bw);
             }
         }
 
