@@ -40,7 +40,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
             else if (this.Format == MapGeometryVertexElementFormat.BGRA_Packed8888)
             {
-                size = 8;
+                size = 4;
             }
 
             return size;

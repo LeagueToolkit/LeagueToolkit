@@ -84,8 +84,9 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
             if (this.SecondaryColor != null)
             {
-                Memory.CopyStructureToBuffer(array, currentPosition, this.SecondaryColor.Value);
-                currentPosition += this.SecondaryColor.Value.RawSize();
+                byte[] colorBuffer = this.SecondaryColor.Value.GetBytes(ColorFormat.BgraU8);
+                Buffer.BlockCopy(colorBuffer, 0, array, currentPosition, colorBuffer.Length);
+                currentPosition += colorBuffer.Length;
             }
 
             return array;

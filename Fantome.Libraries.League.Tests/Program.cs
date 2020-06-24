@@ -25,9 +25,9 @@ namespace Fantome.Libraries.League.Tests
             //
             //OBJConverter.ConvertSKN(skn).Write("C:/dev/proxy/kek.obj");
 
-            MapGeometry mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/mg/e7ef6cc4fece0526.mapgeo");
-            mgeo.Write("C:/Users/Crauzer/Desktop/mg/e7ef6cc4fece0526_write.mapgeo", 11);
-            mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/mg/e7ef6cc4fece0526_write.mapgeo");
+            MapGeometry mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/New Folder/e7ef6cc4fece0526.mapgeo");
+            mgeo.Write("C:/Users/Crauzer/Desktop/New Folder/e7ef6cc4fece0526_write.mapgeo", 11);
+            mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/New Folder/e7ef6cc4fece0526_write.mapgeo");
         }
 
         static void TestMapgeo()

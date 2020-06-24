@@ -42,6 +42,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.LightmapUV, MapGeometryVertexElementFormat.XY_Float32));
             }
+            if (vertex.SecondaryColor != null)
+            {
+                this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.SecondaryColor, MapGeometryVertexElementFormat.BGRA_Packed8888));
+            }
         }
 
         public void Write(BinaryWriter bw)

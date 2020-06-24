@@ -136,7 +136,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 bw.Write(vertexBuffers.Count);
                 foreach (byte[] vertexBuffer in vertexBuffers)
                 {
-                    bw.Write(vertexBuffer.Length * 4);
+                    bw.Write(vertexBuffer.Length);
                     bw.Write(vertexBuffer);
                 }
 
