@@ -1,0 +1,71 @@
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace Fantome.Libraries.League.Helpers.Extensions
+{
+    public static class BinaryWriterExtensions
+    {
+        public static void WriteColor(this BinaryWriter writer, Color color, ColorFormat format)
+        {
+            if (format == ColorFormat.RgbU8)
+            {
+                writer.Write((byte)(color.R * 255));
+                writer.Write((byte)(color.G * 255));
+                writer.Write((byte)(color.B * 255));
+            }
+            else if (format == ColorFormat.RgbaU8)
+            {
+                writer.Write((byte)(color.R * 255));
+                writer.Write((byte)(color.G * 255));
+                writer.Write((byte)(color.B * 255));
+                writer.Write((byte)(color.A * 255));
+            }
+            else if (format == ColorFormat.RgbF32)
+            {
+                writer.Write(color.R);
+                writer.Write(color.G);
+                writer.Write(color.B);
+            }
+            else if (format == ColorFormat.RgbaF32)
+            {
+                writer.Write(color.R);
+                writer.Write(color.G);
+                writer.Write(color.B);
+                writer.Write(color.A);
+            }
+            else if (format == ColorFormat.BgrU8)
+            {
+                writer.Write((byte)(color.B * 255));
+                writer.Write((byte)(color.G * 255));
+                writer.Write((byte)(color.R * 255));
+            }
+            else if (format == ColorFormat.BgraU8)
+            {
+                writer.Write((byte)(color.B * 255));
+                writer.Write((byte)(color.G * 255));
+                writer.Write((byte)(color.R * 255));
+                writer.Write((byte)(color.A * 255));
+            }
+            else if (format == ColorFormat.BgrF32)
+            {
+                writer.Write(color.B);
+                writer.Write(color.G);
+                writer.Write(color.R);
+            }
+            else if (format == ColorFormat.BgraF32)
+            {
+                writer.Write(color.B);
+                writer.Write(color.G);
+                writer.Write(color.R);
+                writer.Write(color.A);
+            }
+            else
+            {
+                throw new ArgumentException("Unsupported format", nameof(format));
+            }
+        }
+    }
+}

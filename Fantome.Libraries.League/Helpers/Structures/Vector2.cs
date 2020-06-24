@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// <summary>
     /// Represents a Vector containing two floats
     /// </summary>
-    public class Vector2 : IEquatable<Vector2>
+    public struct Vector2 : IEquatable<Vector2>
     {
         /// <summary>
         /// The X component
@@ -80,6 +80,15 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public static Vector2 operator -(Vector2 x, Vector2 y)
         {
             return new Vector2(x.X - y.X, x.Y - y.Y);
+        }
+
+        public static bool operator ==(Vector2 a, Vector2 b)
+        {
+            return a.Equals(b);
+        }
+        public static bool operator !=(Vector2 a, Vector2 b)
+        {
+            return !a.Equals(b);
         }
     }
 }

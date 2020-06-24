@@ -41,11 +41,11 @@ namespace Fantome.Libraries.League.Converters
 
                 foreach (MapGeometryVertex vertex in model.Vertices)
                 {
-                    vertices.Add(model.Transformation.ApplyTransformation(vertex.Position));
-                    normals.Add(vertex.Normal);
+                    vertices.Add(model.Transformation.ApplyTransformation(vertex.Position.Value));
+                    normals.Add(vertex.Normal.Value);
                     if (vertex.DiffuseUV != null)
                     {
-                        uvs.Add(vertex.DiffuseUV);
+                        uvs.Add(vertex.DiffuseUV.Value);
                     }
                 }
 

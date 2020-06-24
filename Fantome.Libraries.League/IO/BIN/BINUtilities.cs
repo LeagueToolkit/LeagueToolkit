@@ -6,7 +6,7 @@
 
         public static BINValueType PackType(BINValueType type)
         {
-            if ((int)type >= 18 && (int)type <= 23)
+            if ((int)type >= 18 && (int)type <= 24)
             {
                 type = (BINValueType)(((int)type - 18) | COMPLEX_TYPE_FLAG);
             }

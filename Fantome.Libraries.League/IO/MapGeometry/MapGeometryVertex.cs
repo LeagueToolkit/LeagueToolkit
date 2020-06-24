@@ -2,15 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.Helpers.Extensions;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
     public class MapGeometryVertex
     {
-        public Vector3 Position { get; set; }
-        public Vector3 Normal { get; set; }
-        public Vector2 DiffuseUV { get; set; }
-        public Vector2 LightmapUV { get; set; }
+        public Vector3? Position { get; set; }
+        public Vector3? Normal { get; set; }
+        public Vector2? DiffuseUV { get; set; }
+        public Vector2? LightmapUV { get; set; }
+        public Color? SecondaryColor { get; set; }
 
         public MapGeometryVertex() { }
         public MapGeometryVertex(Vector3 position, Vector3 normal, Vector2 diffuseUV)
@@ -43,6 +46,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 {
                     this.LightmapUV = new Vector2(br);
                 }
+                else if(element.Name == MapGeometryVertexElementName.SecondaryColor)
+                {
+                    this.SecondaryColor = br.ReadColor(ColorFormat.BgraU8);
+                }
                 else
                 {
                     throw new Exception("Unknown Element Type: " + element.Name);
@@ -50,35 +57,51 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
         }
 
-        internal float[] ToFloatArray(uint vertexSize)
+        internal byte[] ToArray(int vertexSize)
         {
-            float[] array = new float[vertexSize / 4];
+            byte[] array = new byte[vertexSize];
             int currentPosition = 0;
 
             if(this.Position != null)
             {
-                array[currentPosition++] = this.Position.X;
-                array[currentPosition++] = this.Position.Y;
-                array[currentPosition++] = this.Position.Z;
+                Memory.CopyStructureToBuffer(array, currentPosition, this.Position.Value);
+                currentPosition += this.Position.Value.RawSize();
             }
             if(this.Normal != null)
             {
-                array[currentPosition++] = this.Normal.X;
-                array[currentPosition++] = this.Normal.Y;
-                array[currentPosition++] = this.Normal.Z;
+                Memory.CopyStructureToBuffer(array, currentPosition, this.Normal.Value);
+                currentPosition += this.Normal.Value.RawSize();
             }
             if (this.DiffuseUV != null)
             {
-                array[currentPosition++] = this.DiffuseUV.X;
-                array[currentPosition++] = this.DiffuseUV.Y;
+                Memory.CopyStructureToBuffer(array, currentPosition, this.DiffuseUV.Value);
+                currentPosition += this.DiffuseUV.Value.RawSize();
             }
             if (this.LightmapUV != null)
             {
-                array[currentPosition++] = this.LightmapUV.X;
-                array[currentPosition++] = this.LightmapUV.Y;
+                Memory.CopyStructureToBuffer(array, currentPosition, this.LightmapUV.Value);
+                currentPosition += this.LightmapUV.Value.RawSize();
+            }
+            if (this.SecondaryColor != null)
+            {
+                Memory.CopyStructureToBuffer(array, currentPosition, this.SecondaryColor.Value);
+                currentPosition += this.SecondaryColor.Value.RawSize();
             }
 
             return array;
+        }
+
+        internal int Size() 
+        {
+            int size = 0;
+
+            if (this.Position != null) { size += this.Position.Value.RawSize(); }
+            if (this.Normal != null) { size += this.Normal.Value.RawSize(); }
+            if (this.DiffuseUV != null) { size += this.DiffuseUV.Value.RawSize(); }
+            if (this.LightmapUV != null) { size += this.LightmapUV.Value.RawSize(); }
+            if (this.SecondaryColor != null) { size += Color.FormatSize(ColorFormat.BgraU8); }
+
+            return size;
         }
 
         public static MapGeometryVertex Combine(MapGeometryVertex a, MapGeometryVertex b)
@@ -88,7 +111,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 Position = (a.Position == null && b.Position != null) ? b.Position : a.Position,
                 Normal = (a.Normal == null && b.Normal != null) ? b.Normal : a.Normal,
                 DiffuseUV = (a.DiffuseUV == null && b.DiffuseUV != null) ? b.DiffuseUV : a.DiffuseUV,
-                LightmapUV = (a.LightmapUV == null && b.LightmapUV != null) ? b.LightmapUV : a.LightmapUV
+                LightmapUV = (a.LightmapUV == null && b.LightmapUV != null) ? b.LightmapUV : a.LightmapUV,
+                SecondaryColor = (a.SecondaryColor == null && b.SecondaryColor != null) ? b.SecondaryColor : a.SecondaryColor
             };
         }
 
@@ -98,6 +122,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Normal?.Write(bw);
             this.DiffuseUV?.Write(bw);
             this.LightmapUV?.Write(bw);
+            
+            if (this.SecondaryColor.HasValue)
+            {
+                bw.WriteColor(this.SecondaryColor.Value, ColorFormat.BgraU8);
+            }
         }
     }
 }

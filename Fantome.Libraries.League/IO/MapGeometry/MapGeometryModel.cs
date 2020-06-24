@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,12 +19,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public byte UnknownByte { get; set; }
-        public Vector3 SeparatePointLight { get; set; }
+        public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
         public string Lightmap { get; set; } = string.Empty;
-        public string UnknownTexture { get; set; } = string.Empty;
-        public ColorRGBAVector4 Color { get; set; } = new ColorRGBAVector4();
-        public ColorRGBAVector4 Color2 { get; set; } = new ColorRGBAVector4();
+        public string BakedPaintTexture { get; set; } = string.Empty;
+        public Color Color { get; set; } = new Color(0, 0, 0, 1);
+        public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
 
         internal int _vertexElementGroupID;
         internal int _vertexBufferID;
@@ -60,7 +61,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             this.Layer = layer;
             this.Transformation = transformation;
         }
-        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, string lightmap, ColorRGBAVector4 color)
+        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, string lightmap, Color color)
             : this(name, vertices, indices, submeshes)
         {
             this.Lightmap = lightmap;
@@ -134,15 +135,15 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 }
 
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.Color = new ColorRGBAVector4(br);
+                this.Color = br.ReadColor(ColorFormat.RgbaF32);
             }
             else if(version >= 9)
             {
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.Color = new ColorRGBAVector4(br);
+                this.Color = br.ReadColor(ColorFormat.RgbaF32);
 
-                this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.Color2 = new ColorRGBAVector4(br);
+                this.BakedPaintTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.BakedPaintColor = br.ReadColor(ColorFormat.RgbaF32);
             }
         }
 
@@ -188,13 +189,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 if(useSeparatePointLights)
                 {
-                    if (this.SeparatePointLight == null)
+                    if (this.SeparatePointLight.HasValue)
                     {
-                        new Vector3(0, 0, 0).Write(bw);
+                        this.SeparatePointLight.Value.Write(bw);
                     }
                     else
                     {
-                        this.SeparatePointLight.Write(bw);
+                        new Vector3(0, 0, 0).Write(bw);
                     }
                 }
 
@@ -209,21 +210,21 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
                 bw.Write(this.Lightmap.Length);
                 bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
-                this.Color.Write(bw);
+                bw.WriteColor(this.Color, ColorFormat.RgbaF32);
             }
             else if(version >= 9)
             {
                 bw.Write(this.Lightmap.Length);
                 if (this.Lightmap.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.Lightmap)); }
-                this.Color.Write(bw);
+                bw.WriteColor(this.Color, ColorFormat.RgbaF32);
 
-                bw.Write(this.UnknownTexture.Length);
-                if (this.UnknownTexture.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture)); }
-                this.Color2.Write(bw);
+                bw.Write(this.BakedPaintTexture.Length);
+                if (this.BakedPaintTexture.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture)); }
+                bw.WriteColor(this.BakedPaintColor, ColorFormat.RgbaF32);
             }
         }
 
-        public void AssignLightmap(string lightmap, ColorRGBAVector4 color)
+        public void AssignLightmap(string lightmap, Color color)
         {
             this.Lightmap = lightmap;
             this.Color = color;
@@ -237,17 +238,17 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
             else
             {
-                Vector3 min = new Vector3(this.Vertices[0].Position);
-                Vector3 max = new Vector3(this.Vertices[0].Position);
+                Vector3 min = new Vector3(this.Vertices[0].Position.Value);
+                Vector3 max = new Vector3(this.Vertices[0].Position.Value);
 
                 foreach (MapGeometryVertex vertex in this.Vertices)
                 {
-                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+                    if (min.X > vertex.Position.Value.X) min.X = vertex.Position.Value.X;
+                    if (min.Y > vertex.Position.Value.Y) min.Y = vertex.Position.Value.Y;
+                    if (min.Z > vertex.Position.Value.Z) min.Z = vertex.Position.Value.Z;
+                    if (max.X < vertex.Position.Value.X) max.X = vertex.Position.Value.X;
+                    if (max.Y < vertex.Position.Value.Y) max.Y = vertex.Position.Value.Y;
+                    if (max.Z < vertex.Position.Value.Z) max.Z = vertex.Position.Value.Z;
                 }
 
                 return new R3DBox(min, max);

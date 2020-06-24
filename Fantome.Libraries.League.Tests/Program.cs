@@ -4,6 +4,7 @@ using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.NavigationGridOverlay;
+using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.ReleaseManifest;
 using Fantome.Libraries.League.IO.SimpleSkin;
@@ -24,7 +25,9 @@ namespace Fantome.Libraries.League.Tests
             //
             //OBJConverter.ConvertSKN(skn).Write("C:/dev/proxy/kek.obj");
 
-            MapGeometry mgeo = new MapGeometry("C:/users/crauzer/downloads/base_srx(2).mapgeo");
+            MapGeometry mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/mg/e7ef6cc4fece0526.mapgeo");
+            mgeo.Write("C:/Users/Crauzer/Desktop/mg/e7ef6cc4fece0526_write.mapgeo", 11);
+            mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/mg/e7ef6cc4fece0526_write.mapgeo");
         }
 
         static void TestMapgeo()

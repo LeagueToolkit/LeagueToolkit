@@ -26,15 +26,19 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             bw.Write((uint)this.Format);
         }
 
-        public uint GetElementSize()
+        public int GetElementSize()
         {
-            uint size = 0;
+            int size = 0;
 
             if(this.Format == MapGeometryVertexElementFormat.XYZ_Float32)
             {
                 size = 12;
             }
             else if(this.Format == MapGeometryVertexElementFormat.XY_Float32)
+            {
+                size = 8;
+            }
+            else if (this.Format == MapGeometryVertexElementFormat.BGRA_Packed8888)
             {
                 size = 8;
             }

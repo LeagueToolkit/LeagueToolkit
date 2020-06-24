@@ -319,11 +319,11 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.FloatVector2)
             {
-                (this.Value as Vector2).Write(bw);
+                ((Vector2)this.Value).Write(bw);
             }
             else if (this.Type == BINValueType.FloatVector3)
             {
-                (this.Value as Vector3).Write(bw);
+                ((Vector2)this.Value).Write(bw);
             }
             else if (this.Type == BINValueType.FloatVector4)
             {
@@ -556,11 +556,11 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.FloatVector2)
             {
-                return (this.Value as Vector2).Equals(other.Value as Vector2);
+                return (Vector2)this.Value == (Vector2)other.Value;
             }
             else if (this.Type == BINValueType.FloatVector3)
             {
-                return (this.Value as Vector3).Equals(other.Value as Vector3);
+                return (Vector3)this.Value == (Vector3)other.Value;
             }
             else if (this.Type == BINValueType.FloatVector4)
             {

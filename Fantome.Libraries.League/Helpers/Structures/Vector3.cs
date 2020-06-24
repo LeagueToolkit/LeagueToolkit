@@ -7,7 +7,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// <summary>
     /// Represents a Vector containing three floats
     /// </summary>
-    public class Vector3
+    public struct Vector3: IEquatable<Vector3>
     {
         public float X { get; set; }
         public float Y { get; set; }
@@ -21,8 +21,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// Length of this <see cref="Vector3"/>
         /// </summary>
         public float Magnitude => (float)Math.Sqrt((this.X * this.X) + (this.Y * this.Y) + (this.Z * this.Z));
-
-        public Vector3() { }
 
         /// <summary>
         /// Initializes a new <see cref="Vector3"/> instance
@@ -160,6 +158,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
             return string.Format("{0} {1} {2}", this.X, this.Y, this.Z);
         }
 
+        public bool Equals(Vector3 other)
+        {
+            return this.X == other.X &&
+                this.Y == other.Y &&
+                this.Z == other.Z;
+        }
+
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);
@@ -167,6 +172,15 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public static Vector3 operator -(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X - y.X, x.Y - y.Y, x.Z - y.Z);
+        }
+
+        public static bool operator ==(Vector3 a, Vector3 b)
+        {
+            return a.Equals(b);
+        }
+        public static bool operator !=(Vector3 a, Vector3 b)
+        {
+            return !a.Equals(b);
         }
     }
 }

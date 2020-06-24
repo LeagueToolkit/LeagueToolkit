@@ -132,16 +132,12 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                     vertexElementGroup.Write(bw);
                 }
 
-                List<float[]> vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
+                List<byte[]> vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
                 bw.Write(vertexBuffers.Count);
-                foreach (float[] vertexBuffer in vertexBuffers)
+                foreach (byte[] vertexBuffer in vertexBuffers)
                 {
                     bw.Write(vertexBuffer.Length * 4);
-
-                    for (int i = 0; i < vertexBuffer.Length; i++)
-                    {
-                        bw.Write(vertexBuffer[i]);
-                    }
+                    bw.Write(vertexBuffer);
                 }
 
                 List<ushort[]> indexBuffers = GenerateIndexBuffers();
@@ -202,20 +198,20 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             return vertexElementGroups;
         }
-        private List<float[]> GenerateVertexBuffers(List<MapGeometryVertexElementGroup> vertexElementGroups)
+        private List<byte[]> GenerateVertexBuffers(List<MapGeometryVertexElementGroup> vertexElementGroups)
         {
-            List<float[]> vertexBuffers = new List<float[]>();
+            List<byte[]> vertexBuffers = new List<byte[]>();
             int vertexBufferID = 0;
 
             foreach (MapGeometryModel model in this.Models)
             {
-                uint vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
-                float[] vertexBuffer = new float[(vertexSize / 4) * model.Vertices.Count];
+                int vertexSize = vertexElementGroups[model._vertexElementGroupID].GetVertexSize();
+                byte[] vertexBuffer = new byte[vertexSize * model.Vertices.Count];
 
                 for (int i = 0; i < model.Vertices.Count; i++)
                 {
-                    float[] vertexArray = model.Vertices[i].ToFloatArray(vertexSize);
-                    Array.Copy(vertexArray, 0, vertexBuffer, (vertexSize / 4) * i, vertexArray.Length);
+                    byte[] vertexElementsBuffer = model.Vertices[i].ToArray(vertexSize);
+                    Buffer.BlockCopy(vertexElementsBuffer, 0, vertexBuffer, i * vertexSize, vertexElementsBuffer.Length);
                 }
 
                 vertexBuffers.Add(vertexBuffer);

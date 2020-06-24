@@ -60,9 +60,9 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
         }
 
-        public uint GetVertexSize()
+        public int GetVertexSize()
         {
-            uint size = 0;
+            int size = 0;
 
             foreach(MapGeometryVertexElement vertexElement in this.VertexElements)
             {
