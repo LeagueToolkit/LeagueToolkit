@@ -1,5 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers.BIN;
 using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
@@ -225,7 +226,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.Color)
             {
-                this.Value = new ColorRGBAVector4Byte(br);
+                this.Value = br.ReadColor(ColorFormat.RgbaU8);
             }
             else if (this.Type == BINValueType.String)
             {
@@ -335,7 +336,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.Color)
             {
-                (this.Value as ColorRGBAVector4Byte).Write(bw);
+                bw.WriteColor((Color)(this.Value), ColorFormat.RgbaU8);
             }
             else if (this.Type == BINValueType.String)
             {
@@ -572,7 +573,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.Color)
             {
-                return (this.Value as ColorRGBAVector4Byte).Equals(other.Value as ColorRGBAVector4Byte);
+                return (Color)this.Value == (Color)other.Value;
             }
             else if (this.Type == BINValueType.String)
             {

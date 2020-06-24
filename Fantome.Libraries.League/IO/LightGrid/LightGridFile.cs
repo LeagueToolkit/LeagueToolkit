@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +13,7 @@ namespace Fantome.Libraries.League.IO.LightGrid
         public float XBound { get; private set; }
         public float YBound { get; private set; }
         public LightGridSun Sun { get; private set; }
-        public List<ColorRGBAVector4Byte[]> Lights { get; private set; } = new List<ColorRGBAVector4Byte[]>();
+        public List<Color[]> Lights { get; private set; } = new List<Color[]>();
 
 
         public LightGridFile(string fileLocation)
@@ -41,11 +42,11 @@ namespace Fantome.Libraries.League.IO.LightGrid
                 uint cellCount = this.Width * this.Heigth;
                 for (int i = 0; i < cellCount; i++)
                 {
-                    this.Lights.Add(new ColorRGBAVector4Byte[]
-                        {
-                            new ColorRGBAVector4Byte(br), new ColorRGBAVector4Byte(br), new ColorRGBAVector4Byte(br),
-                            new ColorRGBAVector4Byte(br), new ColorRGBAVector4Byte(br), new ColorRGBAVector4Byte(br)
-                        });
+                    this.Lights.Add(new Color[]
+                    {
+                        br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8),
+                        br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8), br.ReadColor(ColorFormat.RgbaU8)
+                    });
                 }
             }
         }
@@ -66,11 +67,11 @@ namespace Fantome.Libraries.League.IO.LightGrid
                 bw.Write(this.YBound);
                 this.Sun.Write(bw);
 
-                foreach (ColorRGBAVector4Byte[] cell in this.Lights)
+                foreach (Color[] cell in this.Lights)
                 {
                     for (int i = 0; i < 6; i++)
                     {
-                        cell[i].Write(bw);
+                        bw.WriteColor(cell[i], ColorFormat.RgbaU8);
                     }
                 }
             }
@@ -91,11 +92,11 @@ namespace Fantome.Libraries.League.IO.LightGrid
                 bw.Write((byte)32); //Bits Per Color
                 bw.Write((byte)0); //Image Descriptor
 
-                foreach (ColorRGBAVector4Byte[] cell in this.Lights)
+                foreach (Color[] cell in this.Lights)
                 {
                     for (int i = 0; i < 6; i++)
                     {
-                        cell[i].Write(bw);
+                        bw.WriteColor(cell[i], ColorFormat.RgbaU8);
                     }
                 }
             }

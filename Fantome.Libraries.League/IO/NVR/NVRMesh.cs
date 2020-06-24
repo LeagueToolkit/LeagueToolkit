@@ -108,8 +108,8 @@ namespace Fantome.Libraries.League.IO.NVR
                     }
                     position.UV = UV;
                     position.Normal = normal;
-                    position.DiffuseColor = new ColorBGRAVector4Byte(0, 0, 0, 255);
-                    position.EmissiveColor = new ColorBGRAVector4Byte(127, 127, 127, 255);
+                    position.DiffuseColor = new Color(0, 0, 0, 255);
+                    position.EmissiveColor = new Color(0.5f, 0.5f, 0.5f, 1f);
 
                     int vertexIndex = vertices.IndexOf(position);
                     if (vertexIndex == -1)

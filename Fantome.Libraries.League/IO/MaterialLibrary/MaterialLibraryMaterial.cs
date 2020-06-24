@@ -13,17 +13,17 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
     {
         public string Name { get; private set; }
         public MaterialFlags Flags { get; private set; }
-        public ColorRGBVector3Byte EmissiveColor { get; private set; }
+        public Color EmissiveColor { get; private set; }
         public float[] UVScroll { get; private set; }
         public bool IsBackfaceCullingDisabled { get; private set; }
         public string ShaderName { get; private set; }
         public bool IsSimpleShader { get; private set; }
         public byte Opacity { get; private set; }
         public string Texture { get; private set; }
-        public ColorRGBVector3Byte Color { get; private set; }
+        public Color Color { get; private set; }
 
-        public MaterialLibraryMaterial(string name, MaterialFlags flags, ColorRGBVector3Byte emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
-            string shaderName, bool isSimpleShader, byte opacity, ColorRGBVector3Byte color)
+        public MaterialLibraryMaterial(string name, MaterialFlags flags, Color emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
+            string shaderName, bool isSimpleShader, byte opacity, Color color)
         {
             this.Name = name;
             this.Flags = flags;
@@ -36,8 +36,8 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
             this.Color = color;
         }
 
-        public MaterialLibraryMaterial(string name, MaterialFlags flags, ColorRGBVector3Byte emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
-            string shaderName, bool isSimpleShader, byte opacity, ColorRGBVector3Byte color, string texture)
+        public MaterialLibraryMaterial(string name, MaterialFlags flags, Color emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
+            string shaderName, bool isSimpleShader, byte opacity, Color color, string texture)
         {
             this.Name = name;
             this.Flags = flags;
@@ -88,7 +88,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
                     int r = int.Parse(line[1]);
                     int g = int.Parse(line[2]);
                     int b = int.Parse(line[3]);
-                    this.EmissiveColor = new ColorRGBVector3Byte
+                    this.EmissiveColor = new Color
                         (
                         (r == int.MinValue) ? (byte)~r : (byte)r,
                         (g == int.MinValue) ? (byte)~g : (byte)g,
@@ -128,7 +128,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
                     int r = int.Parse(line[1]);
                     int g = int.Parse(line[2]);
                     int b = int.Parse(line[3]);
-                    this.Color = new ColorRGBVector3Byte
+                    this.Color = new Color
                         (
                         (r == int.MinValue) ? (byte)~r : (byte)r,
                         (g == int.MinValue) ? (byte)~g : (byte)g,
@@ -175,7 +175,7 @@ namespace Fantome.Libraries.League.IO.MaterialLibrary
             {
                 sw.WriteLine("Texture= " + this.Texture);
             }
-            sw.WriteLine("Color24= {0} {1} {2}", this.Color.R, this.Color.G, this.Color.B);
+            sw.WriteLine("Color24= {0}", this.Color.ToString(ColorFormat.RgbU8));
             sw.WriteLine("[MaterialEnd]");
         }
     }

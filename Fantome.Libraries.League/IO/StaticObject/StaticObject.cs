@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -56,7 +57,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 }
 
                 List<Vector3> vertices = new List<Vector3>((int)vertexCount);
-                List<ColorRGBAVector4Byte> vertexColors = new List<ColorRGBAVector4Byte>((int)vertexCount);
+                List<Color> vertexColors = new List<Color>((int)vertexCount);
                 for (int i = 0; i < vertexCount; i++)
                 {
                     vertices.Add(new Vector3(br));
@@ -66,7 +67,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 {
                     for (int i = 0; i < vertexCount; i++)
                     {
-                        vertexColors.Add(new ColorRGBAVector4Byte(br));
+                        vertexColors.Add(br.ReadColor(ColorFormat.RgbaU8));
                     }
                 }
 
@@ -116,7 +117,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
 
                 int vertexCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
                 List<Vector3> vertices = new List<Vector3>(vertexCount);
-                List<ColorRGBAVector4Byte> vertexColors = new List<ColorRGBAVector4Byte>(vertexCount);
+                List<Color> vertexColors = new List<Color>(vertexCount);
                 for (int i = 0; i < vertexCount; i++)
                 {
                     vertices.Add(new Vector3(sr));
@@ -126,7 +127,18 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 {
                     for (int i = 0; i < vertexCount; i++)
                     {
-                        vertexColors.Add(new ColorRGBAVector4Byte(sr));
+                        string[] colorComponents = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (colorComponents.Length != 4)
+                        {
+                            throw new Exception("Invalid number of vertex color components: " + colorComponents.Length);
+                        }
+
+                        byte r = byte.Parse(colorComponents[0]);
+                        byte g = byte.Parse(colorComponents[1]);
+                        byte b = byte.Parse(colorComponents[2]);
+                        byte a = byte.Parse(colorComponents[3]);
+
+                        vertexColors.Add(new Color(r, g, b, a));
                     }
                 }
 
@@ -141,7 +153,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
             }
         }
 
-        private static List<StaticObjectSubmesh> CreateSubmeshes(List<Vector3> vertices, List<ColorRGBAVector4Byte> vertexColors, List<StaticObjectFace> faces)
+        private static List<StaticObjectSubmesh> CreateSubmeshes(List<Vector3> vertices, List<Color> vertexColors, List<StaticObjectFace> faces)
         {
             bool hasVertexColors = vertexColors.Count != 0;
             Dictionary<string, List<StaticObjectFace>> submeshMap = CreateSubmeshMap(faces);
@@ -177,9 +189,15 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 for (uint i = minVertex; i < maxVertex + 1; i++)
                 {
                     Vector2 uv = uvMap[i];
-                    ColorRGBAVector4Byte color = hasVertexColors ? vertexColors[(int)i] : null;
 
-                    submeshVertices.Add(new StaticObjectVertex(vertices[(int)i], uv, color));
+                    if (hasVertexColors)
+                    {
+                        submeshVertices.Add(new StaticObjectVertex(vertices[(int)i], uv, vertexColors[(int)i]));
+                    }
+                    else
+                    {
+                        submeshVertices.Add(new StaticObjectVertex(vertices[(int)i], uv));
+                    }
                 }
 
                 //Normalize indices
@@ -255,13 +273,13 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 {
                     foreach (StaticObjectVertex vertex in vertices)
                     {
-                        if (vertex.Color != null)
+                        if (vertex.Color.HasValue)
                         {
-                            vertex.Color.Write(bw);
+                            bw.WriteColor(vertex.Color.Value, ColorFormat.RgbaU8);
                         }
                         else
                         {
-                            new ColorRGBAVector4Byte(0, 0, 0, 255).Write(bw);
+                            bw.WriteColor(new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
                         }
                     }
                 }
@@ -317,14 +335,16 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 {
                     foreach (StaticObjectVertex vertex in vertices)
                     {
-                        if (vertex.Color != null)
+                        if (vertex.Color.HasValue)
                         {
-                            vertex.Color.Write(sw, true);
+                            sw.WriteColor(vertex.Color.Value, ColorFormat.RgbaU8);
                         }
                         else
                         {
-                            new ColorRGBAVector4Byte(0, 0, 0, 255).Write(sw, true);
+                            sw.WriteColor(new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
                         }
+
+                        sw.Write('\n');
                     }
                 }
 

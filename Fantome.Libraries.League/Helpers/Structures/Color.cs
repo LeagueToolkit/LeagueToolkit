@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
-    public struct Color
+    public struct Color: IEquatable<Color>
     {
         public float R
         {
@@ -152,6 +152,63 @@ namespace Fantome.Libraries.League.Helpers.Structures
             }
 
             return colorBuffer;
+        }
+
+        public string ToString(ColorFormat format)
+        {
+            if (format == ColorFormat.RgbU8)
+            {
+                return string.Format("{0} {1} {2}", (byte)(this.R * 255), (byte)(this.G * 255), (byte)(this.B * 255));
+            }
+            else if(format == ColorFormat.RgbaU8)
+            {
+                return string.Format("{0} {1} {2} {3}", (byte)(this.R * 255), (byte)(this.G * 255), (byte)(this.B * 255), (byte)(this.B * 255));
+            }
+            else if (format == ColorFormat.BgrU8)
+            {
+                return string.Format("{0} {1} {2} {3}", (byte)(this.B * 255), (byte)(this.G * 255), (byte)(this.R * 255), (byte)(this.B * 255));
+            }
+            else if (format == ColorFormat.BgraU8)
+            {
+                return string.Format("{0} {1} {2} {3}", (byte)(this.B * 255), (byte)(this.G * 255), (byte)(this.R * 255), (byte)(this.B * 255));
+            }
+            else if (format == ColorFormat.RgbF32)
+            {
+                return string.Format("{0} {1} {2}", this.R, this.G, this.B);
+            }
+            else if (format == ColorFormat.RgbaF32)
+            {
+                return string.Format("{0} {1} {2} {3}", this.R, this.G, this.B, this.A);
+            }
+            else if (format == ColorFormat.BgrF32)
+            {
+                return string.Format("{0} {1} {2}", this.B, this.G, this.R);
+            }
+            else if (format == ColorFormat.BgraF32)
+            {
+                return string.Format("{0} {1} {2} {3}", this.B, this.G, this.R, this.A);
+            }
+            else
+            {
+                throw new ArgumentException("Unsupported format", nameof(format));
+            }
+        }
+
+        public bool Equals(Color other)
+        {
+            return this.R == other.R &&
+                this.G == other.G &&
+                this.B == other.B &&
+                this.A == other.A;
+        }
+
+        public static bool operator ==(Color a, Color b)
+        {
+            return a.Equals(b);
+        }
+        public static bool operator !=(Color a, Color b)
+        {
+            return !a.Equals(b);
         }
     }
 

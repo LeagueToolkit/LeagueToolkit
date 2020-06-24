@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
@@ -10,7 +11,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         public float[] Weights { get; set; }
         public Vector3 Normal { get; set; }
         public Vector2 UV { get; set; }
-        public ColorRGBAVector4Byte Color { get; set; }
+        public Color? Color { get; set; }
 
         public SimpleSkinVertex(Vector3 position, byte[] boneIndices, float[] weights, Vector3 normal, Vector2 uv)
         {
@@ -20,7 +21,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             this.Normal = normal;
             this.UV = uv;
         }
-        public SimpleSkinVertex(Vector3 position, byte[] boneIndices, float[] weights, Vector3 normal, Vector2 uv, ColorRGBAVector4Byte color)
+        public SimpleSkinVertex(Vector3 position, byte[] boneIndices, float[] weights, Vector3 normal, Vector2 uv, Color color)
         {
             this.Position = position;
             this.BoneIndices = boneIndices;
@@ -39,7 +40,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             if (vertexType == SimpleSkinVertexType.Color)
             {
-                this.Color = new ColorRGBAVector4Byte(br);
+                this.Color = br.ReadColor(ColorFormat.RgbaU8);
             }
         }
 
@@ -62,13 +63,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             if (vertexType == SimpleSkinVertexType.Color)
             {
-                if (this.Color != null)
+                if (this.Color.HasValue)
                 {
-                    this.Color.Write(bw);
+                    bw.WriteColor(this.Color.Value, ColorFormat.RgbaU8);
                 }
                 else
                 {
-                    new ColorRGBAVector4Byte(0, 0, 0, 255).Write(bw);
+                    bw.WriteColor(new Color(0, 0, 0, 255), ColorFormat.RgbaU8);
                 }
 
             }

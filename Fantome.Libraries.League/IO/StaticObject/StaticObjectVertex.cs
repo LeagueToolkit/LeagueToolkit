@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
     {
         public Vector3 Position { get; set; }
         public Vector2 UV { get; set; }
-        public ColorRGBAVector4Byte Color { get; set; }
+        public Color? Color { get; set; }
 
         public StaticObjectVertex(Vector3 position, Vector2 uv)
         {
@@ -14,7 +14,7 @@ namespace Fantome.Libraries.League.IO.StaticObject
             this.UV = uv;
         }
 
-        public StaticObjectVertex(Vector3 position, Vector2 uv, ColorRGBAVector4Byte color) : this(position, uv)
+        public StaticObjectVertex(Vector3 position, Vector2 uv, Color color) : this(position, uv)
         {
             this.Color = color;
         }

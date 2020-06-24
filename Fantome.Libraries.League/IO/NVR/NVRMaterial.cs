@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.Helpers.Extensions;
 
 namespace Fantome.Libraries.League.IO.NVR
 {
@@ -21,20 +22,20 @@ namespace Fantome.Libraries.League.IO.NVR
             this.Type = (NVRMaterialType)br.ReadInt32();
             if(readOld)
             {
-                ColorRGBAVector4 diffuseColor = new ColorRGBAVector4(br);
+                Color diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
                 string diffuseName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
                 this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, new R3DMatrix44()));
 
-                ColorRGBAVector4 emmisiveColor = new ColorRGBAVector4(br);
+                Color emmisiveColor = br.ReadColor(ColorFormat.RgbaF32);
                 string emissiveName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
                 this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, new R3DMatrix44()));
 
-                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
-                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
-                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
-                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
-                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
-                this.Channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
+                this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
             }
             else
             {
@@ -61,16 +62,16 @@ namespace Fantome.Libraries.League.IO.NVR
         // Easy way to create a material with working values. Needs to be used with vertex 8
         public static NVRMaterial CreateMaterial(string materialName, string textureName)
         {
-            return CreateMaterial(materialName, textureName, new ColorRGBAVector4(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f), NVRMaterialType.MATERIAL_TYPE_DEFAULT, NVRMaterialFlags.ColoredVertex);
+            return CreateMaterial(materialName, textureName, new Color(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f), NVRMaterialType.MATERIAL_TYPE_DEFAULT, NVRMaterialFlags.ColoredVertex);
         }
 
-        public static NVRMaterial CreateMaterial(string materialName, string textureName, ColorRGBAVector4 color, NVRMaterialType matType, NVRMaterialFlags matFlags)
+        public static NVRMaterial CreateMaterial(string materialName, string textureName, Color color, NVRMaterialType matType, NVRMaterialFlags matFlags)
         {
             List<NVRChannel> channels = new List<NVRChannel>();
             channels.Add(new NVRChannel(textureName, color, new R3DMatrix44()));
             for (int i = 0; i < 7; i++)
             {
-                channels.Add(new NVRChannel("", new ColorRGBAVector4(0, 0, 0, 0), new R3DMatrix44()));
+                channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), new R3DMatrix44()));
             }
             NVRMaterial newMat = new NVRMaterial(materialName, matType, matFlags, channels);
             return newMat;
