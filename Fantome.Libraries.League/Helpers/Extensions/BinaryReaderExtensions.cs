@@ -1,6 +1,7 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.IO;
+using System.Text;
 
 namespace Fantome.Libraries.League.Helpers.Extensions
 {
@@ -46,6 +47,11 @@ namespace Fantome.Libraries.League.Helpers.Extensions
             {
                 throw new ArgumentException("Unsupported format", nameof(format));
             }
+        }
+
+        public static string ReadPaddedString(this BinaryReader reader, int length)
+        {
+            return Encoding.ASCII.GetString(reader.ReadBytes(length)).Replace("\0", "");
         }
     }
 }

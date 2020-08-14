@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using ZstdSharp;
 
 namespace Fantome.Libraries.League.IO.ReleaseManifest
 {
@@ -59,7 +60,7 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
                     byte[] signature = br.ReadBytes(256);
                     // NOTE: verify signature here
                 }
-                byte[] uncompressedFile = Compression.DecompressZStandard(compressedFile);
+                byte[] uncompressedFile = Zstd.Decompress(compressedFile, (int)uncompressedContentSize);
                 this._body = FlatBufferSerializer.Default.Parse<ReleaseManifestBody>(uncompressedFile);
             }
         }
@@ -78,7 +79,7 @@ namespace Fantome.Libraries.League.IO.ReleaseManifest
             int uncompressedContentSize = FlatBufferSerializer.Default.Serialize(this._body, uncompressedFile);
             Array.Resize(ref uncompressedFile, uncompressedContentSize);
 
-            byte[] compressedFile = Compression.CompressZStandard(uncompressedFile);
+            byte[] compressedFile = Zstd.Compress(uncompressedFile);
             int compressedContentSize = compressedFile.Length;
 
             using (BinaryWriter bw = new BinaryWriter(stream))

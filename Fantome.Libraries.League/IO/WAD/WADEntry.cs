@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using ZstdSharp;
 using XXHash64 = Fantome.Libraries.League.Helpers.Cryptography.XXHash;
 
 namespace Fantome.Libraries.League.IO.WAD
@@ -215,7 +216,7 @@ namespace Fantome.Libraries.League.IO.WAD
                 }
                 else if (this.Type == EntryType.ZStandardCompressed)
                 {
-                    this._newData = Compression.CompressZStandard(data);
+                    this._newData = Zstd.Compress(data);
                 }
                 else
                 {
@@ -269,7 +270,7 @@ namespace Fantome.Libraries.League.IO.WAD
             }
             else if (this.Type == EntryType.ZStandardCompressed && decompress)
             {
-                return Compression.DecompressZStandard(dataBuffer);
+                return Zstd.Decompress(dataBuffer, (int)this.UncompressedSize);
             }
             else
             {
