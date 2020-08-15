@@ -19,6 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="FlatSharp" Version="2.1.0" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0018" />
     <PackageReference Include="ZstdSharp" Version="0.4.0" />
   </ItemGroup>
 
