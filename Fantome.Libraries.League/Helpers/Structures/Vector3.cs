@@ -165,6 +165,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 this.Z == other.Z;
         }
 
+        public static implicit operator System.Numerics.Vector3(Vector3 v) => new System.Numerics.Vector3(v.X, v.Y, v.Z);
+
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {
             return new Vector3(x.X + y.X, x.Y + y.Y, x.Z + y.Z);

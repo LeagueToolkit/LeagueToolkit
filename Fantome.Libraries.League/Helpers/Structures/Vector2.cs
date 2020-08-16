@@ -66,6 +66,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
             return (this.X == other.X) && (this.Y == other.Y);
         }
 
+        public static implicit operator System.Numerics.Vector2(Vector2 v) => new System.Numerics.Vector2(v.X, v.Y);
+
         /// <summary>
         /// Adds 2 <see cref="Vector2"/> togeather
         /// </summary>

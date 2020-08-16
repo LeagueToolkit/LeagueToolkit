@@ -10,6 +10,7 @@ using Fantome.Libraries.League.IO.ReleaseManifest;
 using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.StaticObject;
 using Fantome.Libraries.League.IO.WorldGeometry;
+using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,13 +22,15 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            //SimpleSkin skn = new SimpleSkin("C:/dev/proxy/kek.skn");
-            //
-            //OBJConverter.ConvertSKN(skn).Write("C:/dev/proxy/kek.obj");
+            SimpleSkin skn = new SimpleSkin("aatrox.skn");
+            byte[] y = File.ReadAllBytes("aatrox_base_tx_cm.dds");
+            var x = skn.ToGLTF(new Dictionary<string, ArraySegment<byte>>()
+            {
+                { "Body", y }
+            });
 
-            MapGeometry mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/New Folder/e7ef6cc4fece0526.mapgeo");
-            mgeo.Write("C:/Users/Crauzer/Desktop/New Folder/e7ef6cc4fece0526_write.mapgeo", 11);
-            mgeo = new MapGeometry("C:/Users/Crauzer/Desktop/New Folder/e7ef6cc4fece0526_write.mapgeo");
+            x.SaveGLTF("aatrox.gltf");
+            x.SaveGLB("aatrox.glb");
         }
 
         static void TestMapgeo()
