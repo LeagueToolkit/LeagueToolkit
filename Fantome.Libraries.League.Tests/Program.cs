@@ -22,15 +22,6 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            SimpleSkin skn = new SimpleSkin("aatrox.skn");
-            byte[] y = File.ReadAllBytes("aatrox_base_tx_cm.dds");
-            var x = skn.ToGLTF(new Dictionary<string, ArraySegment<byte>>()
-            {
-                { "Body", y }
-            });
-
-            x.SaveGLTF("aatrox.gltf");
-            x.SaveGLB("aatrox.glb");
         }
 
         static void TestMapgeo()
