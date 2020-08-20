@@ -5,7 +5,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// <summary>
     /// Represents a Rotation Quaternion
     /// </summary>
-    public class Quaternion
+    public struct Quaternion
     {
         /// <summary>
         /// The X component 
@@ -27,14 +27,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// Initializes a new <see cref="Quaternion"/> instance
         /// </summary>
-        public Quaternion()
-        {
-
-        }
-
-        /// <summary>
-        /// Initializes a new <see cref="Quaternion"/> instance
-        /// </summary>
         public Quaternion(float x, float y, float z, float w)
         {
             this.X = x;
@@ -44,21 +36,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         /// <summary>
-        /// Creates a clone of a <see cref="Quaternion"/> object
-        /// </summary>
-        /// <param name="quaternion">The <see cref="Quaternion"/> to clone</param>
-        public Quaternion(Quaternion quaternion)
-        {
-            this.X = quaternion.X;
-            this.Y = quaternion.Y;
-            this.Z = quaternion.Z;
-            this.W = quaternion.W;
-        }
-
-        /// <summary>
         /// Returns a normalized <see cref="Quaternion"/>
         /// </summary>
-        public Quaternion Normalize()
+        public Quaternion Normalized()
         {
             float magnitude = (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z + this.W * this.W);
 
@@ -203,7 +183,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 result.W = (matrix.M12 - matrix.M21) * half;
             }
 
-            return result.Normalize();
+            return result.Normalized();
         }
 
         public static Quaternion AngleAxis(Vector3 axis, float angle)
@@ -230,5 +210,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 W = a.W * b.Z + a.X * b.Y - a.Y * b.X + a.Z * b.W 
             };
         }
+
+        public static implicit operator System.Numerics.Quaternion(Quaternion q) => new System.Numerics.Quaternion(q.X, q.Y, q.Z, q.W);
     }
 }

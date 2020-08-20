@@ -13,10 +13,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         public MapGeometryModel Parent { get; internal set; }
         public uint Hash { get; internal set; } = 0;
         public string Material { get; set; }
-        public uint StartIndex { get; set; }
-        public uint IndexCount { get; set; }
-        public uint StartVertex { get; set; }
-        public uint VertexCount { get; set; }
+        public uint StartIndex { get; private set; }
+        public uint IndexCount { get; private set; }
+        public uint StartVertex { get; private set; }
+        public uint VertexCount { get; private set; }
 
         public MapGeometrySubmesh(string material, uint startIndex, uint indexCount, uint startVertex, uint vertexCount)
         {

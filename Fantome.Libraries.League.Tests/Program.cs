@@ -8,6 +8,7 @@ using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.OBJ;
 using Fantome.Libraries.League.IO.ReleaseManifest;
 using Fantome.Libraries.League.IO.SimpleSkin;
+using Fantome.Libraries.League.IO.SkeletonFile;
 using Fantome.Libraries.League.IO.StaticObject;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using SharpGLTF.Schema2;
@@ -22,6 +23,18 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
+            //SimpleSkin skn = new SimpleSkin("aatrox.skn");
+            //Skeleton skl = new Skeleton("aatrox.skl");
+            //var x = skn.ToGLTF(skl);
+            //
+            //x.SaveGLTF("aatrox.gltf");
+            //x.SaveGLB("aatrox.glb");
+
+            MapGeometry mgeo = new MapGeometry("ioniabase.mapgeo");
+            ModelRoot gltf =  mgeo.ToGLTF();
+
+            gltf.SaveGLB("ioniabase.glb");
+            gltf.SaveGLTF("ioniabase.gltf");
         }
 
         static void TestMapgeo()

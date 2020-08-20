@@ -6,6 +6,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
 {
     public struct Color: IEquatable<Color>
     {
+        public static readonly Color Zero = new Color(0, 0, 0, 0);
+
         public float R
         {
             get => this._r;
@@ -210,6 +212,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
         {
             return !a.Equals(b);
         }
+
+        public static implicit operator System.Numerics.Vector4(Color color) => new System.Numerics.Vector4(color.R, color.G, color.B, color.A);
     }
 
     public enum ColorFormat

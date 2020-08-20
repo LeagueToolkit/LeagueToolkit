@@ -1,4 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.IO.SkeletonFile;
+using LeagueFileTranslator.FileTranslators.SKL.IO;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
@@ -13,6 +15,7 @@ using System.Runtime.InteropServices;
 namespace Fantome.Libraries.League.IO.SimpleSkin
 {
     using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
+    using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
 
     public static class SimpleSkinGltfExtensions
     {
@@ -28,7 +31,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
 
                 // Build vertices
-                List<VERTEX> vertices = new List<VERTEX>(submesh.Vertices.Count);
+                var vertices = new List<VERTEX>(submesh.Vertices.Count);
                 foreach (SimpleSkinVertex vertex in submesh.Vertices)
                 {
                     VertexPositionNormal positionNormal = new VertexPositionNormal(vertex.Position, vertex.Normal);
@@ -52,6 +55,84 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             mainNode.WithMesh(root.CreateMesh(meshBuilder));
 
             return root;
+        }
+
+        public static ModelRoot ToGLTF(this SimpleSkin skn, Skeleton skeleton)
+        {
+            throw new NotImplementedException();
+
+            ModelRoot root = ModelRoot.CreateModel();
+            Scene scene = root.UseScene("default");
+            var meshBuilder = VERTEX_SKINNED.CreateCompatibleMesh();
+
+            Node skeletonRoot = CreateSkeleton(scene, skeleton);
+
+            foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
+            {
+                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
+                var submeshPrimitive = meshBuilder.UsePrimitive(material);
+
+                // Build vertices
+                var vertices = new List<VERTEX_SKINNED>(submesh.Vertices.Count);
+                foreach (SimpleSkinVertex vertex in submesh.Vertices)
+                {
+                    VertexPositionNormal positionNormal = new VertexPositionNormal(vertex.Position, vertex.Normal);
+                    VertexTexture1 uv = new VertexTexture1(vertex.UV);
+                    VertexJoints4 joints = new VertexJoints4(new (int, float)[] 
+                    {
+                        (vertex.BoneIndices[0], vertex.Weights[0]),
+                        (vertex.BoneIndices[1], vertex.Weights[1]),
+                        (vertex.BoneIndices[2], vertex.Weights[2]),
+                        (vertex.BoneIndices[3], vertex.Weights[3])
+                    });
+
+                    vertices.Add(new VERTEX_SKINNED(positionNormal, uv, joints));
+                }
+
+                // Add vertices to primitive
+                for (int i = 0; i < submesh.Indices.Count; i += 3)
+                {
+                    VERTEX_SKINNED v1 = vertices[submesh.Indices[i + 0]];
+                    VERTEX_SKINNED v2 = vertices[submesh.Indices[i + 1]];
+                    VERTEX_SKINNED v3 = vertices[submesh.Indices[i + 2]];
+
+                    submeshPrimitive.AddTriangle(v1, v2, v3);
+                }
+            }
+
+            
+
+            Node mainNode = scene.CreateNode();
+            Mesh mesh = root.CreateMesh(meshBuilder);
+            
+            mainNode.WithMesh(mesh);
+            skeletonRoot.WithSkinnedMesh(mesh, skeletonRoot.WorldMatrix, skeletonRoot);
+
+            return root;
+        }
+
+        private static Node CreateSkeleton(Scene scene, Skeleton skeleton)
+        {
+            Node skeletonRoot = scene.CreateNode();
+            List<Node> bones = new List<Node>();
+
+            foreach(SkeletonJoint joint in skeleton.Joints)
+            {
+                // Root
+                if(joint.ParentID == -1)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+
+
+            
+
+            return skeletonRoot;
         }
     }
 }
