@@ -22,23 +22,65 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("Map");
-            Node rootNode = scene.CreateNode();
+            Node rootNode = scene.CreateNode("RootNode");
 
-            //Create a node for each layer
-            Node[] layerNodes = new Node[8];
-            for (int i = 0; i < 8; i++)
+            // Find all layer combinations used in the Map
+            // so we can group the meshes
+            var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
+            foreach(MapGeometryModel model in mgeo.Models)
             {
-                layerNodes[i] = rootNode.CreateNode("Layer" + (i + 1));
+                if(!layerModelMap.ContainsKey(model.Layer))
+                {
+                    layerModelMap.Add(model.Layer, new List<MapGeometryModel>());
+                }
+
+                layerModelMap[model.Layer].Add(model);
+            }
+
+            // Create node for each layer combination
+            var layerNodeMap = new Dictionary<MapGeometryLayer, Node>();
+            foreach (var layerModelPair in layerModelMap)
+            {
+                layerNodeMap.Add(layerModelPair.Key, rootNode.CreateNode(DeriveLayerCombinationName(layerModelPair.Key)));
             }
 
             foreach (MapGeometryModel model in mgeo.Models)
             {
                 IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(model);
 
-                rootNode.CreateNode().WithMesh(root.CreateMesh(meshBuilder));
+                layerNodeMap[model.Layer].CreateNode().WithMesh(root.CreateMesh(meshBuilder));
             }
 
             return root;
+        }
+
+        private static string DeriveLayerCombinationName(MapGeometryLayer layerCombination)
+        {
+            if(layerCombination == MapGeometryLayer.NoLayer)
+            {
+                return "NoLayer";
+            }
+            else if(layerCombination == MapGeometryLayer.AllLayers)
+            {
+                return "AllLayers";
+            }
+            else
+            {
+                string name = "Layer-";
+
+                foreach (MapGeometryLayer layerFlag in Enum.GetValues(typeof(MapGeometryLayer)))
+                {
+                    if (layerCombination.HasFlag(layerFlag) && 
+                        layerFlag != MapGeometryLayer.AllLayers && 
+                        layerFlag != MapGeometryLayer.NoLayer)
+                    {
+                        byte layerIndex = byte.Parse(layerFlag.ToString().Replace("Layer", ""));
+                        name += layerIndex + "-";
+                    }
+                }
+
+                return name.Remove(name.Length - 1);
+            }
         }
 
         private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel model)
@@ -71,7 +113,6 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             return meshBuilder;
         }
-
         private static VERTEX CreateVertex(MapGeometryVertex vertex)
         {
             VERTEX gltfVertex = new VERTEX();

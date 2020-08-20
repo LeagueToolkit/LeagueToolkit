@@ -30,11 +30,11 @@ namespace Fantome.Libraries.League.Tests
             //x.SaveGLTF("aatrox.gltf");
             //x.SaveGLB("aatrox.glb");
 
-            MapGeometry mgeo = new MapGeometry("ioniabase.mapgeo");
+            MapGeometry mgeo = new MapGeometry("base_srx.mapgeo");
             ModelRoot gltf =  mgeo.ToGLTF();
 
-            gltf.SaveGLB("ioniabase.glb");
-            gltf.SaveGLTF("ioniabase.gltf");
+            gltf.SaveGLB("base_srx.mapgeo.glb");
+            gltf.SaveGLTF("base_srx.mapgeo.gltf");
         }
 
         static void TestMapgeo()
