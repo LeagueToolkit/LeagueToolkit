@@ -32,7 +32,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMesh(model);
 
-                rootNode.WithMesh(root.CreateMesh(meshBuilder));
+                rootNode.CreateNode().WithMesh(root.CreateMesh(meshBuilder));
             }
 
             return root;
