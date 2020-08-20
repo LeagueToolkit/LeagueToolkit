@@ -17,6 +17,10 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// </summary>
         public float Y { get; set; }
 
+        public static readonly Vector2 Zero = new Vector2(0, 0);
+        public static readonly Vector2 Infinity = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+        public static readonly Vector2 NegativeInfinity = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+
         /// <summary>
         /// Initializes a new <see cref="Vector2"/> instance
         /// </summary>

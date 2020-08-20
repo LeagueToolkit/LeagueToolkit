@@ -6,7 +6,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// <summary>
     /// Represents a Vector containing four floats
     /// </summary>
-    public class Vector4 : IEquatable<Vector4>
+    public struct Vector4 : IEquatable<Vector4>
     {
         /// <summary>
         /// The X component
@@ -97,5 +97,16 @@ namespace Fantome.Libraries.League.Helpers.Structures
         {
             return new Vector4(x.X - y.X, x.Y - y.Y, x.Z - y.Z, x.W - y.W);
         }
+
+        public static bool operator ==(Vector4 a, Vector4 b)
+        {
+            return a.Equals(b);
+        }
+        public static bool operator !=(Vector4 a, Vector4 b)
+        {
+            return !a.Equals(b);
+        }
+
+        public static implicit operator System.Numerics.Vector4(Vector4 v) => new System.Numerics.Vector4(v.X, v.Y, v.Z, v.W);
     }
 }

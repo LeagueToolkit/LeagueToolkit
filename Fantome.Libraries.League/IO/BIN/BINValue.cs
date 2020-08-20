@@ -328,7 +328,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.FloatVector4)
             {
-                (this.Value as Vector4).Write(bw);
+                ((Vector4)this.Value).Write(bw);
             }
             else if (this.Type == BINValueType.Matrix44)
             {
@@ -565,7 +565,7 @@ namespace Fantome.Libraries.League.IO.BIN
             }
             else if (this.Type == BINValueType.FloatVector4)
             {
-                return (this.Value as Vector4).Equals(other.Value as Vector4);
+                return (Vector4)this.Value == (Vector4)other.Value;
             }
             else if (this.Type == BINValueType.Matrix44)
             {
