@@ -141,6 +141,21 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                     this.Influences.Add((short)i);
                 }
             }
+
+            // Derive Local transformations
+            foreach(SkeletonJoint joint in this.Joints)
+            {
+                if(joint.ParentID == -1)
+                {
+                    joint.LocalTransform = joint.GlobalTransform;
+                }
+                else
+                {
+                    SkeletonJoint parent = this.Joints[joint.ParentID];
+
+                    joint.LocalTransform = joint.GlobalTransform * parent.InverseGlobalTransform;
+                }
+            }
         }
     }
 }

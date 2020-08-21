@@ -113,7 +113,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 // Root
                 if (joint.ParentID == -1)
                 {
-                    Node jointNode = skeletonRoot.CreateNode(joint.Name).WithLocalTransform(joint.Local);
+                    Node jointNode = skeletonRoot.CreateNode(joint.Name).WithLocalTransform(joint.LocalTransform);
 
                     bones.Add(jointNode);
                 }
@@ -121,7 +121,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 {
                     SkeletonJoint parentJoint = skeleton.Joints.FirstOrDefault(x => x.ID == joint.ParentID);
                     Node parentNode = bones.FirstOrDefault(x => x.Name == parentJoint.Name);
-                    Node jointNode = parentNode.CreateNode(joint.Name).WithLocalTransform(joint.Local);
+                    Node jointNode = parentNode.CreateNode(joint.Name).WithLocalTransform(joint.LocalTransform);
 
                     bones.Add(jointNode);
                 }

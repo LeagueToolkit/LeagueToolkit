@@ -23,18 +23,12 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            //SimpleSkin skn = new SimpleSkin("aatrox.skn");
-            //Skeleton skl = new Skeleton("aatrox.skl");
-            //var x = skn.ToGLTF(skl);
-            //
-            //x.SaveGLTF("aatrox.gltf");
-            //x.SaveGLB("aatrox.glb");
-
-            MapGeometry mgeo = new MapGeometry("base_srx.mapgeo");
-            ModelRoot gltf =  mgeo.ToGLTF();
-
-            gltf.SaveGLB("base_srx.mapgeo.glb");
-            gltf.SaveGLTF("base_srx.mapgeo.gltf");
+            SimpleSkin skn = new SimpleSkin("udyr.skn");
+            Skeleton skl = new Skeleton("udyr.skl");
+            var x = skn.ToGLTF(skl);
+            
+            x.SaveGLTF("udyr.gltf");
+            x.SaveGLB("udyr.glb");
         }
 
         static void TestMapgeo()
