@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
@@ -422,6 +423,32 @@ namespace Fantome.Libraries.League.Helpers.Structures
                 M24 = a.M41 * b.M12 + a.M42 * b.M22 + a.M43 * b.M32 + a.M44 * b.M42,
                 M34 = a.M41 * b.M13 + a.M42 * b.M23 + a.M43 * b.M33 + a.M44 * b.M43,
                 M44 = a.M41 * b.M14 + a.M42 * b.M24 + a.M43 * b.M34 + a.M44 * b.M44,
+            };
+        }
+
+        public static implicit operator Matrix4x4(R3DMatrix44 m)
+        {
+            return new Matrix4x4()
+            {
+                M11 = m.M11,
+                M12 = m.M12,
+                M13 = m.M13,
+                M14 = m.M14,
+
+                M21 = m.M21,
+                M22 = m.M22,
+                M23 = m.M23,
+                M24 = m.M24,
+
+                M31 = m.M31,
+                M32 = m.M32,
+                M33 = m.M33,
+                M34 = m.M34,
+
+                M41 = m.M41,
+                M42 = m.M42,
+                M43 = m.M43,
+                M44 = m.M44,
             };
         }
     }

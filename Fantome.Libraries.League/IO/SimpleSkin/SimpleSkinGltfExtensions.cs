@@ -1,16 +1,12 @@
-﻿using Fantome.Libraries.League.Helpers;
-using Fantome.Libraries.League.IO.SkeletonFile;
+﻿using Fantome.Libraries.League.IO.SkeletonFile;
 using LeagueFileTranslator.FileTranslators.SKL.IO;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
-using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
 {
@@ -19,7 +15,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
     public static class SimpleSkinGltfExtensions
     {
-        public static ModelRoot ToGLTF(this SimpleSkin skn)
+        public static ModelRoot ToGltf(this SimpleSkin skn)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");
@@ -99,11 +95,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 }
             }
 
-            
-
             Node mainNode = scene.CreateNode();
             Mesh mesh = root.CreateMesh(meshBuilder);
-            
+
             mainNode.WithSkinnedMesh(mesh, Matrix4x4.Identity, bones.ToArray());
 
             return root;
@@ -114,10 +108,10 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             Node skeletonRoot = scene.CreateNode();
             List<Node> bones = new List<Node>();
 
-            foreach(SkeletonJoint joint in skeleton.Joints)
+            foreach (SkeletonJoint joint in skeleton.Joints)
             {
                 // Root
-                if(joint.ParentID == -1)
+                if (joint.ParentID == -1)
                 {
                     Node jointNode = skeletonRoot.CreateNode(joint.Name).WithLocalTransform(joint.Local);
 

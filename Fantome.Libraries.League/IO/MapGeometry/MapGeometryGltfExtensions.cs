@@ -4,6 +4,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
+using SharpGLTF.Transforms;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -48,7 +49,10 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(model);
 
-                layerNodeMap[model.Layer].CreateNode().WithMesh(root.CreateMesh(meshBuilder));
+                layerNodeMap[model.Layer]
+                    .CreateNode()
+                    .WithMesh(root.CreateMesh(meshBuilder))
+                    .WithLocalTransform(new AffineTransform(model.Transformation));
             }
 
             return root;
@@ -127,10 +131,5 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 .WithGeometry(position, normal)
                 .WithMaterial(color1, uv1, uv2);
         }
-    }
-
-    public class MapGeometryGltfConversionOptions
-    {
-
     }
 }
