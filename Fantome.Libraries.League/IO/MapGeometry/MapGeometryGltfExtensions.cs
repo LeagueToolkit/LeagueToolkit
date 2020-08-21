@@ -22,7 +22,7 @@ namespace Fantome.Libraries.League.IO.MapGeometry
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("Map");
-            Node rootNode = scene.CreateNode("RootNode");
+            Node rootNode = scene.CreateNode("Map");
 
             // Find all layer combinations used in the Map
             // so we can group the meshes
