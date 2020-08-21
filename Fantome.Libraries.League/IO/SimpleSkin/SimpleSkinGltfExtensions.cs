@@ -104,7 +104,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             Node mainNode = scene.CreateNode();
             Mesh mesh = root.CreateMesh(meshBuilder);
             
-            //mainNode.WithMesh(mesh);
             mainNode.WithSkinnedMesh(mesh, Matrix4x4.Identity, bones.ToArray());
 
             return root;

@@ -106,14 +106,7 @@ namespace LeagueFileTranslator.FileTranslators.SKL.IO
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
             Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scale);
 
-            this.Local = translationMatrix * rotationMatrix * scaleMatrix;
-
-            //MTransformationMatrix transform = new MTransformationMatrix();
-            //transform.setTranslation(new MVector(translation.X, translation.Y, translation.Z), MSpace.Space.kWorld);
-            //transform.setRotationQuaternion(rotation.X, rotation.Y, rotation.Z, rotation.W, MSpace.Space.kWorld);
-            //transform.setScale(new double[] { scale.X, scale.Y, scale.Z }, MSpace.Space.kWorld);
-            //
-            //this.Local = transform;
+            this.Local = scaleMatrix * rotationMatrix * translationMatrix;
         }
         private void ComposeInverseGlobal(Vector3 translation, Vector3 scale, Quaternion rotation)
         {
@@ -121,14 +114,7 @@ namespace LeagueFileTranslator.FileTranslators.SKL.IO
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
             Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scale);
 
-            this.Global = translationMatrix * rotationMatrix * scaleMatrix;
-
-            //MTransformationMatrix transform = new MTransformationMatrix();
-            //transform.setTranslation(new MVector(translation.X, translation.Y, translation.Z), MSpace.Space.kTransform);
-            //transform.setRotationQuaternion(rotation.X, rotation.Y, rotation.Z, rotation.W, MSpace.Space.kTransform);
-            //transform.setScale(new double[] { scale.X, scale.Y, scale.Z }, MSpace.Space.kTransform);
-            //
-            //this.InverseGlobal = transform;
+            this.InverseGlobal = translationMatrix * rotationMatrix * scaleMatrix;
         }
     }
 }
