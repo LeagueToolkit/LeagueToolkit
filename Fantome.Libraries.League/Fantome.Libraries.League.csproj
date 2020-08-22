@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.3</Version>
+    <Version>1.3.1</Version>
     <PackageReleaseNotes>Conversion from SKN/SKL, StaticObject and MapGeometry to glTF</PackageReleaseNotes>
     <PackageIcon>fantome.png</PackageIcon>
     <PackageIconUrl />
@@ -12,8 +12,8 @@
     <Authors>Crauzer</Authors>
     <Company>Fantome</Company>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
-    <AssemblyVersion>1.3.0.0</AssemblyVersion>
-    <FileVersion>1.3.0.0</FileVersion>
+    <AssemblyVersion>1.3.1.0</AssemblyVersion>
+    <FileVersion>1.3.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
