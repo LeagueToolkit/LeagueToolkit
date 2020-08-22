@@ -23,12 +23,8 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            SimpleSkin skn = new SimpleSkin("udyr.skn");
-            Skeleton skl = new Skeleton("udyr.skl");
-            var x = skn.ToGLTF(skl);
-            
-            x.SaveGLTF("udyr.gltf");
-            x.SaveGLB("udyr.glb");
+            StaticObject so = StaticObject.ReadSCB("aatrox_base_w_ground_ring.scb");
+            so.ToGltf().SaveGLTF("aatrox_base_w_ground_ring.gltf");
         }
 
         static void TestMapgeo()

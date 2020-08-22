@@ -26,9 +26,9 @@ namespace Fantome.Libraries.League.IO.StaticObject
             float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             this.UVs = new Vector2[]
             {
-                new Vector2(uvs[0], uvs[3]),
-                new Vector2(uvs[1], uvs[4]),
-                new Vector2(uvs[2], uvs[5])
+                new Vector2(uvs[0], 1 - uvs[3]),
+                new Vector2(uvs[1], 1 - uvs[4]),
+                new Vector2(uvs[2], 1 - uvs[5])
             };
         }
         public StaticObjectFace(StreamReader sr)
@@ -39,9 +39,9 @@ namespace Fantome.Libraries.League.IO.StaticObject
             this.Material = input[4];
             this.UVs = new Vector2[]
             {
-                new Vector2(float.Parse(input[5], CultureInfo.InvariantCulture), float.Parse(input[8], CultureInfo.InvariantCulture)),
-                new Vector2(float.Parse(input[6], CultureInfo.InvariantCulture), float.Parse(input[9], CultureInfo.InvariantCulture)),
-                new Vector2(float.Parse(input[7], CultureInfo.InvariantCulture), float.Parse(input[10], CultureInfo.InvariantCulture)),
+                new Vector2(float.Parse(input[5], CultureInfo.InvariantCulture), 1 - float.Parse(input[8], CultureInfo.InvariantCulture)),
+                new Vector2(float.Parse(input[6], CultureInfo.InvariantCulture), 1 - float.Parse(input[9], CultureInfo.InvariantCulture)),
+                new Vector2(float.Parse(input[7], CultureInfo.InvariantCulture), 1 - float.Parse(input[10], CultureInfo.InvariantCulture)),
             };
         }
 
@@ -60,13 +60,16 @@ namespace Fantome.Libraries.League.IO.StaticObject
             }
             for (int i = 0; i < 3; i++)
             {
-                bw.Write(this.UVs[i].Y);
+                bw.Write(1 - this.UVs[i].Y);
             }
         }
         public void Write(StreamWriter sw)
         {
             string indices = string.Format("{0} {1} {2}", this.Indices[0], this.Indices[1], this.Indices[2]);
-            string uvs = string.Format("{0} {1} {2} {3} {4} {5}", this.UVs[0].X, this.UVs[1].X, this.UVs[2].X, this.UVs[0].Y, this.UVs[1].Y, this.UVs[2].Y);
+            string uvs = string.Format("{0} {1} {2} {3} {4} {5}",
+                this.UVs[0].X, this.UVs[1].X, this.UVs[2].X, 
+                1 - this.UVs[0].Y, 1 - this.UVs[1].Y, 1 - this.UVs[2].Y);
+
             sw.WriteLine(string.Format("3 {0} {1} {2}", indices, this.Material, uvs));
         }
     }

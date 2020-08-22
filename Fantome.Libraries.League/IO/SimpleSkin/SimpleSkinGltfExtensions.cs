@@ -53,7 +53,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             return root;
         }
 
-        public static ModelRoot ToGLTF(this SimpleSkin skn, Skeleton skeleton)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");

@@ -1,4 +1,5 @@
-﻿using SharpGLTF.Geometry;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
@@ -33,8 +34,8 @@ namespace Fantome.Libraries.League.IO.StaticObject
                 for (int i = 0; i < submesh.Indices.Count; i += 3)
                 {
                     VERTEX v1 = vertices[(int)submesh.Indices[i + 0]];
-                    VERTEX v2 = vertices[(int)submesh.Indices[i + 0]];
-                    VERTEX v3 = vertices[(int)submesh.Indices[i + 0]];
+                    VERTEX v2 = vertices[(int)submesh.Indices[i + 1]];
+                    VERTEX v3 = vertices[(int)submesh.Indices[i + 2]];
 
                     primitive.AddTriangle(v1, v2, v3);
                 }
