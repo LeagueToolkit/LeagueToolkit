@@ -36,7 +36,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             this.BoneIndices = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             this.Weights = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             this.Normal = new Vector3(br);
-            this.UV = new Vector2(br.ReadSingle(), 1 - br.ReadSingle()); // V is flipped
+            this.UV = new Vector2(br);
 
             if (vertexType == SimpleSkinVertexType.Color)
             {
@@ -59,9 +59,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             }
 
             this.Normal.Write(bw);
-
-            bw.Write(this.UV.X);
-            bw.Write(1 - this.UV.Y);
+            this.UV.Write(bw);
 
             if (vertexType == SimpleSkinVertexType.Color)
             {
