@@ -74,11 +74,10 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                     VertexTexture1 uv = new VertexTexture1(vertex.UV);
                     VertexJoints4 joints = new VertexJoints4(new (int, float)[]
                     {
-                        // + 1 because im lazy to map the node ids to joints
-                        (skeleton.Influences[vertex.BoneIndices[0]] + 1, vertex.Weights[0]),
-                        (skeleton.Influences[vertex.BoneIndices[1]] + 1, vertex.Weights[1]),
-                        (skeleton.Influences[vertex.BoneIndices[2]] + 1, vertex.Weights[2]),
-                        (skeleton.Influences[vertex.BoneIndices[3]] + 1, vertex.Weights[3])
+                        (skeleton.Influences[vertex.BoneIndices[0]], vertex.Weights[0]),
+                        (skeleton.Influences[vertex.BoneIndices[1]], vertex.Weights[1]),
+                        (skeleton.Influences[vertex.BoneIndices[2]], vertex.Weights[2]),
+                        (skeleton.Influences[vertex.BoneIndices[3]], vertex.Weights[3])
                     });
 
                     vertices.Add(new VERTEX_SKINNED(positionNormal, uv, joints));

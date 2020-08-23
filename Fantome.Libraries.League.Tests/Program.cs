@@ -23,8 +23,31 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            StaticObject so = StaticObject.ReadSCB("aatrox_base_w_ground_ring.scb");
-            so.ToGltf().SaveGLTF("aatrox_base_w_ground_ring.gltf");
+            SimpleSkin skn = new SimpleSkin("yone_base.yone.skn");
+            Skeleton skl = new Skeleton("yone_base.yone.skl");
+
+            List<byte> vertexInfluences = new List<byte>();
+            foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
+            {
+                foreach (SimpleSkinVertex vertex in submesh.Vertices)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        vertexInfluences.Add(vertex.BoneIndices[i]);
+                    }
+                }
+            }
+
+            foreach(byte i in vertexInfluences)
+            {
+                if(i == 142)
+                {
+
+                }
+            }
+
+            var m = skn.ToGltf(skl);
+            m.SaveGLB("kek.glb");
         }
 
         static void TestMapgeo()
@@ -65,25 +88,25 @@ namespace Fantome.Libraries.League.Tests
             WorldGeometry wgeo = new WorldGeometry("room.wgeo");
             Directory.CreateDirectory("kek");
 
-            for(int i = 0; i < 128; i++)
+            for (int i = 0; i < 128; i++)
             {
                 for (int j = 0; j < 128; j++)
                 {
                     BucketGridBucket bucket = wgeo.BucketGrid.Buckets[i, j];
 
                     List<uint> indices = wgeo.BucketGrid.Indices
-                        .GetRange((int)bucket.StartIndex,(bucket.InsideFaceCount + bucket.StickingOutFaceCount) * 3)
+                        .GetRange((int)bucket.StartIndex, (bucket.InsideFaceCount + bucket.StickingOutFaceCount) * 3)
                         .Select(x => (uint)x)
                         .ToList();
 
-                    if(indices.Count != 0)
+                    if (indices.Count != 0)
                     {
                         int startVertex = (int)indices.Min();
                         int vertexCount = (int)indices.Max() - startVertex;
                         List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(startVertex + (int)bucket.BaseVertex, vertexCount);
 
                         new OBJFile(vertices, indices).Write(string.Format("kek/bucket{0}_{1}.obj", i, j));
-                    } 
+                    }
                 }
             }
         }
@@ -94,7 +117,7 @@ namespace Fantome.Libraries.League.Tests
             sco.WriteSCO(@"C:\Users\Crauzer\Desktop\zzzz.sco");
 
             StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
-            
+
         }
     }
 }
