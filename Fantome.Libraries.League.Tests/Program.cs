@@ -1,6 +1,7 @@
 ﻿using Fantome.Libraries.League.Converters;
 using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+using Fantome.Libraries.League.IO.AnimationFile;
 using Fantome.Libraries.League.IO.BIN;
 using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.NavigationGridOverlay;
@@ -17,37 +18,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
+
 namespace Fantome.Libraries.League.Tests
 {
     class Program
     {
         static void Main(string[] args)
         {
-            SimpleSkin skn = new SimpleSkin("yone_base.yone.skn");
-            Skeleton skl = new Skeleton("yone_base.yone.skl");
+            LeagueAnimation animation = new LeagueAnimation("aatrox_attack1.anm");
+            LeagueAnimation laugh = new LeagueAnimation("aatrox_laugh.anm");
+            SimpleSkin skn = new SimpleSkin("aatrox.skn");
+            Skeleton skl = new Skeleton("aatrox.skl");
 
-            List<byte> vertexInfluences = new List<byte>();
-            foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
-            {
-                foreach (SimpleSkinVertex vertex in submesh.Vertices)
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        vertexInfluences.Add(vertex.BoneIndices[i]);
-                    }
-                }
-            }
+            ModelRoot gltf = skn.ToGltf(skl, new List<(string, LeagueAnimation)>()
+            { 
+                ("aatrox_attack1", animation),
+                ("laugh", laugh)
+            });
 
-            foreach(byte i in vertexInfluences)
-            {
-                if(i == 142)
-                {
-
-                }
-            }
-
-            var m = skn.ToGltf(skl);
-            m.SaveGLB("kek.glb");
+            gltf.SaveGLTF("aatrox.gltf");
         }
 
         static void TestMapgeo()

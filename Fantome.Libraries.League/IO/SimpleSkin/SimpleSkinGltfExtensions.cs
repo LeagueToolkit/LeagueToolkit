@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.IO.SkeletonFile;
+﻿using Fantome.Libraries.League.IO.AnimationFile;
+using Fantome.Libraries.League.IO.SkeletonFile;
 using LeagueFileTranslator.FileTranslators.SKL.IO;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -7,6 +8,11 @@ using SharpGLTF.Schema2;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+
+using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
+using GltfAnimation = SharpGLTF.Schema2.Animation;
+using Fantome.Libraries.League.Helpers.Cryptography;
+using SharpGLTF.Transforms;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
 {
@@ -53,7 +59,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             return root;
         }
 
-        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");
@@ -98,6 +104,11 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             Mesh mesh = root.CreateMesh(meshBuilder);
 
             mainNode.WithSkinnedMesh(mesh, Matrix4x4.Identity, bones.ToArray());
+            
+            if(leagueAnimations != null)
+            {
+                CreateAnimations(root, bones, leagueAnimations);
+            }
 
             return root;
         }
@@ -127,6 +138,63 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             }
 
             return bones;
+        }
+
+        private static void CreateAnimations(ModelRoot root, List<Node> joints, List<(string, LeagueAnimation)> leagueAnimations)
+        {
+            // Check if all animations have names, if not then create them
+            for(int i = 0; i < leagueAnimations.Count; i++)
+            {
+                if(string.IsNullOrEmpty(leagueAnimations[i].Item1))
+                {
+                    leagueAnimations[i] = ("Animation" + i, leagueAnimations[i].Item2);
+                }
+            }
+
+            foreach((string animationName, LeagueAnimation leagueAnimation) in leagueAnimations)
+            {
+                GltfAnimation animation = root.UseAnimation(animationName);
+            
+                foreach(AnimationTrack track in leagueAnimation.Tracks)
+                {
+                    Node joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
+                    float currentFrameTime = 0.0f;
+
+                    // Build translations
+                    currentFrameTime = 0.0f;
+                    Dictionary<float, Vector3> translations = new Dictionary<float, Vector3>(track.Translations.Count);
+                    for (int i = 0; i < track.Translations.Count; i++)
+                    {
+                        translations.Add(currentFrameTime, track.Translations[i]);
+
+                        currentFrameTime += leagueAnimation.FrameDuration;
+                    }
+
+                    // Build Scales
+                    currentFrameTime = 0.0f;
+                    Dictionary<float, Vector3> scales = new Dictionary<float, Vector3>(track.Scales.Count);
+                    for (int i = 0; i < track.Scales.Count; i++)
+                    {
+                        scales.Add(currentFrameTime, track.Scales[i]);
+
+                        currentFrameTime += leagueAnimation.FrameDuration;
+                    }
+
+                    // Build translations
+                    currentFrameTime = 0.0f;
+                    Dictionary<float, Quaternion> rotations = new Dictionary<float, Quaternion>(track.Rotations.Count);
+                    for (int i = 0; i < track.Rotations.Count; i++)
+                    {
+                        rotations.Add(currentFrameTime, track.Rotations[i]);
+
+                        currentFrameTime += leagueAnimation.FrameDuration;
+                    }
+
+                    animation.CreateTranslationChannel(joint, translations);
+                    animation.CreateScaleChannel(joint, scales);
+                    animation.CreateRotationChannel(joint, rotations);
+                }
+            }
         }
     }
 }

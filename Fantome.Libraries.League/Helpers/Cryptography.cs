@@ -57,21 +57,24 @@ namespace Fantome.Libraries.League.Helpers.Cryptography
         /// <param name="toHash">The string to hash</param>
         /// <returns>A hash generated from <paramref name="toHash"/></returns>
         /// <remarks>Used in RAF, SKL and ANM</remarks>
-        public static UInt32 LeagueHash(string toHash)
+        public static uint ElfHash(string toHash)
         {
-            uint hash = 0;
-            uint temp = 0;
             toHash = toHash.ToLower();
+
+            uint hash = 0;
+            uint high = 0;
             for (int i = 0; i < toHash.Length; i++)
             {
-                hash = (hash << 4) + toHash[i];
-                temp = hash & 0xF0000000;
-                if (temp != 0)
+                hash = (hash << 4) + ((byte)toHash[i]);
+
+                if ((high = hash & 0xF0000000) != 0)
                 {
-                    hash = hash ^ (temp >> 24);
-                    hash = hash ^ temp;
+                    hash ^= (high >> 24);
                 }
+
+                hash &= ~high;
             }
+
             return hash;
         }
     }
