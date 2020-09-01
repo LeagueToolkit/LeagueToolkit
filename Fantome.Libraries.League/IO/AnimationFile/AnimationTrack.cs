@@ -13,7 +13,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
         public Dictionary<float, Vector3> Scales { get; internal set; } = new();
         public Dictionary<float, Quaternion> Rotations { get; internal set; } = new();
 
-        public AnimationTrack(uint jointHash)
+        internal AnimationTrack(uint jointHash)
         {
             this.JointHash = jointHash;
         }

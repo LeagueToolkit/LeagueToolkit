@@ -212,5 +212,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         public static implicit operator System.Numerics.Quaternion(Quaternion q) => new System.Numerics.Quaternion(q.X, q.Y, q.Z, q.W);
+        public static implicit operator Quaternion(System.Numerics.Quaternion q) => new Quaternion(q.X, q.Y, q.Z, q.W);
     }
 }

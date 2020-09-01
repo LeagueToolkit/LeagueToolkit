@@ -26,18 +26,23 @@ namespace Fantome.Libraries.League.Tests
     {
         static void Main(string[] args)
         {
-            LeagueAnimation animation = new LeagueAnimation("aatrox_attack1.anm");
-            LeagueAnimation laugh = new LeagueAnimation("aatrox_laugh.anm");
-            LeagueAnimation channel = new LeagueAnimation("aatrox_channel.anm");
+            string[] animationFiles = Directory.GetFiles(@"C:\Users\Crauzer\Desktop\assets\characters\aatrox\skins\base\animations", "*.anm");
+            List<(string, LeagueAnimation)> animations = new();
+
             SimpleSkin skn = new SimpleSkin("aatrox.skn");
             Skeleton skl = new Skeleton("aatrox.skl");
 
-            ModelRoot gltf = skn.ToGltf(skl, new List<(string, LeagueAnimation)>()
-            { 
-                ("aatrox_attack1", animation),
-                ("laugh", laugh),
-                ("channel", channel)
-            });
+            foreach (string animationFile in animationFiles)
+            {
+                LeagueAnimation animation = new LeagueAnimation(animationFile);
+
+                if(animation.IsCompatibleWithSkeleton(skl))
+                {
+                    animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+                }
+            }
+
+            ModelRoot gltf = skn.ToGltf(skl, animations);
 
             gltf.SaveGLTF("aatrox.gltf");
         }

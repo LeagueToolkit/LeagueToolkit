@@ -9,6 +9,7 @@ using System.Text;
 
 using Vector3 = System.Numerics.Vector3;
 using Quaternion = System.Numerics.Quaternion;
+using Fantome.Libraries.League.IO.SkeletonFile;
 
 namespace Fantome.Libraries.League.IO.AnimationFile
 {
@@ -83,7 +84,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
             int jointNameHashesOffset = br.ReadInt32();
 
             if (framesOffset <= 0) throw new Exception("Animation does not contain Frame data");
-            if (jumpCachesOffset <= 0) throw new Exception("Animation does not contain jump cache data");
+            //if (jumpCachesOffset <= 0) throw new Exception("Animation does not contain jump cache data");
             if (jointNameHashesOffset <= 0) throw new Exception("Animation does not contain joint data");
 
             // Read joint hashes
@@ -183,15 +184,13 @@ namespace Fantome.Libraries.League.IO.AnimationFile
 
         private void ReadV4(BinaryReader br)
         {
-            throw new NotImplementedException();
-
             uint resourceSize = br.ReadUInt32();
             uint formatToken = br.ReadUInt32();
             uint version = br.ReadUInt32();
             uint flags = br.ReadUInt32();
 
-            uint trackCount = br.ReadUInt32();
-            uint frameCount = br.ReadUInt32();
+            int trackCount = br.ReadInt32();
+            int frameCount = br.ReadInt32();
             this.FrameDuration = br.ReadSingle();
 
             int tracksOffset = br.ReadInt32();
@@ -201,11 +200,56 @@ namespace Fantome.Libraries.League.IO.AnimationFile
             int rotationsOffset = br.ReadInt32();
             int framesOffset = br.ReadInt32();
 
-            if (tracksOffset <= 0) throw new Exception("Animation does not contain track data");
             if (vectorsOffset <= 0) throw new Exception("Animation does not contain Vector data");
             if (rotationsOffset <= 0) throw new Exception("Animation does not contain Rotation data");
             if (framesOffset <= 0) throw new Exception("Animation does not contain Frame data");
 
+            int vectorsCount = (rotationsOffset - vectorsOffset) / 12;
+            int rotationsCount = (framesOffset - rotationsOffset) / 16;
+
+            br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
+            List<Vector3> vectors = new();
+            for(int i = 0; i < vectorsCount; i++)
+            {
+                vectors.Add(br.ReadVector3());
+            }
+
+            br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
+            List<Quaternion> rotations = new();
+            for (int i = 0; i < rotationsCount; i++)
+            {
+                rotations.Add(br.ReadQuaternion());
+            }
+
+            br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
+            List<(uint, ushort, ushort, ushort)> frames = new(frameCount * trackCount);
+            for(int i = 0; i < frameCount * trackCount; i++)
+            {
+                frames.Add((br.ReadUInt32(), br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
+                br.ReadUInt16(); // padding
+            }
+
+            foreach((uint jointHash, ushort translationIndex, ushort scaleIndex, ushort rotationIndex) in frames)
+            {
+                if(!this.Tracks.Any(x => x.JointHash == jointHash))
+                {
+                    this.Tracks.Add(new AnimationTrack(jointHash));
+                }
+
+                AnimationTrack track = this.Tracks.First(x => x.JointHash == jointHash);
+
+                int trackFrameTranslationIndex = track.Translations.Count;
+                int trackFrameScaleIndex = track.Scales.Count;
+                int trackFrameRotationIndex = track.Rotations.Count;
+
+                Vector3 translation = vectors[translationIndex];
+                Vector3 scale = vectors[scaleIndex];
+                Quaternion rotation = rotations[rotationIndex];
+
+                track.Translations.Add(this.FrameDuration * trackFrameTranslationIndex, translation);
+                track.Scales.Add(this.FrameDuration * trackFrameScaleIndex, scale);
+                track.Rotations.Add(this.FrameDuration * trackFrameRotationIndex, rotation);
+            }
         }
 
         private void ReadV5(BinaryReader br)
@@ -355,6 +399,19 @@ namespace Fantome.Libraries.League.IO.AnimationFile
         {
             float time = (a.Item1 + b.Item1) / 2;
             return (time, Vector3.Lerp(a.Item2, b.Item2, 0.5f));
+        }
+
+        public bool IsCompatibleWithSkeleton(Skeleton skeleton)
+        {
+            foreach(AnimationTrack track in this.Tracks)
+            {
+                if(!skeleton.Joints.Any(x => x.Hash == track.JointHash))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private struct TransformQuantizationProperties
