@@ -172,6 +172,8 @@ namespace Fantome.Libraries.League.IO.AnimationFile
 
         private void ReadV4(BinaryReader br)
         {
+            throw new NotImplementedException();
+
             uint resourceSize = br.ReadUInt32();
             uint formatToken = br.ReadUInt32();
             uint version = br.ReadUInt32();
@@ -280,7 +282,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
 
         private void ReadLegacy(BinaryReader br)
         {
-
+            throw new NotImplementedException();
         }
 
         private Vector3 UncompressVector3(Vector3 min, Vector3 max, byte[] compressedData)
@@ -297,9 +299,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
             uncompressed += min;
 
             return uncompressed;
-
         }
-
         private float UncompressFrameTime(ushort compressedTime, float animationLength)
         {
             return (compressedTime / 65535.0f) * animationLength;
