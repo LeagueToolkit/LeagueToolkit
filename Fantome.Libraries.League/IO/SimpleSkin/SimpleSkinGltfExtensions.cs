@@ -158,41 +158,10 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 foreach(AnimationTrack track in leagueAnimation.Tracks)
                 {
                     Node joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
-                    float currentFrameTime = 0.0f;
 
-                    // Build translations
-                    currentFrameTime = 0.0f;
-                    Dictionary<float, Vector3> translations = new Dictionary<float, Vector3>(track.Translations.Count);
-                    for (int i = 0; i < track.Translations.Count; i++)
-                    {
-                        translations.Add(currentFrameTime, track.Translations[i]);
-
-                        currentFrameTime += leagueAnimation.FrameDuration;
-                    }
-
-                    // Build Scales
-                    currentFrameTime = 0.0f;
-                    Dictionary<float, Vector3> scales = new Dictionary<float, Vector3>(track.Scales.Count);
-                    for (int i = 0; i < track.Scales.Count; i++)
-                    {
-                        scales.Add(currentFrameTime, track.Scales[i]);
-
-                        currentFrameTime += leagueAnimation.FrameDuration;
-                    }
-
-                    // Build translations
-                    currentFrameTime = 0.0f;
-                    Dictionary<float, Quaternion> rotations = new Dictionary<float, Quaternion>(track.Rotations.Count);
-                    for (int i = 0; i < track.Rotations.Count; i++)
-                    {
-                        rotations.Add(currentFrameTime, track.Rotations[i]);
-
-                        currentFrameTime += leagueAnimation.FrameDuration;
-                    }
-
-                    animation.CreateTranslationChannel(joint, translations);
-                    animation.CreateScaleChannel(joint, scales);
-                    animation.CreateRotationChannel(joint, rotations);
+                    animation.CreateTranslationChannel(joint, track.Translations);
+                    animation.CreateScaleChannel(joint, track.Scales);
+                    animation.CreateRotationChannel(joint, track.Rotations);
                 }
             }
         }

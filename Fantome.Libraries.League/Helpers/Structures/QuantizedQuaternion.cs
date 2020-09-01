@@ -9,13 +9,13 @@ namespace Fantome.Libraries.League.Helpers.Structures
     {
         private ushort[] _data;
 
-        public QuantizedQuaternion(BinaryReader br)
+        public QuantizedQuaternion(byte[] data)
         {
-            this._data = new ushort[]
+            this._data = new ushort[] 
             {
-                br.ReadUInt16(),
-                br.ReadUInt16(),
-                br.ReadUInt16()
+                (ushort)(data[0] | (data[1] << 8)),
+                (ushort)(data[2] | (data[3] << 8)),
+                (ushort)(data[4] | (data[5] << 8)),
             };
         }
 
@@ -27,7 +27,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
             ushort v_b = (ushort)((bits >> 15) & 0x7FFFu);
             ushort v_c = (ushort)(bits & 0x7FFFu);
 
-            double sqrt2 = Math.Sqrt(2);
+            double sqrt2 = 1.41421356237;
             float a = (float)((v_a / 32767.0) * sqrt2 - 1 / sqrt2);
             float b = (float)((v_b / 32767.0) * sqrt2 - 1 / sqrt2);
             float c = (float)((v_c / 32767.0) * sqrt2 - 1 / sqrt2);

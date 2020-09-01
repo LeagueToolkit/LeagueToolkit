@@ -28,13 +28,15 @@ namespace Fantome.Libraries.League.Tests
         {
             LeagueAnimation animation = new LeagueAnimation("aatrox_attack1.anm");
             LeagueAnimation laugh = new LeagueAnimation("aatrox_laugh.anm");
+            LeagueAnimation channel = new LeagueAnimation("aatrox_channel.anm");
             SimpleSkin skn = new SimpleSkin("aatrox.skn");
             Skeleton skl = new Skeleton("aatrox.skl");
 
             ModelRoot gltf = skn.ToGltf(skl, new List<(string, LeagueAnimation)>()
             { 
                 ("aatrox_attack1", animation),
-                ("laugh", laugh)
+                ("laugh", laugh),
+                ("channel", channel)
             });
 
             gltf.SaveGLTF("aatrox.gltf");
