@@ -13,6 +13,7 @@ using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 using GltfAnimation = SharpGLTF.Schema2.Animation;
 using Fantome.Libraries.League.Helpers.Cryptography;
 using SharpGLTF.Transforms;
+using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
 {
@@ -158,10 +159,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 foreach(AnimationTrack track in leagueAnimation.Tracks)
                 {
                     Node joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
-
-                    animation.CreateTranslationChannel(joint, track.Translations);
-                    animation.CreateScaleChannel(joint, track.Scales);
-                    animation.CreateRotationChannel(joint, track.Rotations);
+            
+                    if(joint is not null)
+                    {
+                        animation.CreateTranslationChannel(joint, track.Translations);
+                        animation.CreateScaleChannel(joint, track.Scales);
+                        animation.CreateRotationChannel(joint, track.Rotations);
+                    }
                 }
             }
         }

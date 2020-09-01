@@ -36,15 +36,13 @@ namespace Fantome.Libraries.League.Tests
             {
                 LeagueAnimation animation = new LeagueAnimation(animationFile);
 
-                if(animation.IsCompatibleWithSkeleton(skl))
-                {
-                    animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
-                }
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
 
             ModelRoot gltf = skn.ToGltf(skl, animations);
 
             gltf.SaveGLTF("aatrox.gltf");
+            gltf.SaveGLB("aatrox.glb");
         }
 
         static void TestMapgeo()
