@@ -17,7 +17,9 @@ namespace Fantome.Libraries.League.IO.AnimationFile
         public float FrameDuration { get; private set; }
         public float FPS => 1 / this.FrameDuration;
 
-        public List<AnimationTrack> Tracks { get; private set; } = new List<AnimationTrack>();
+        public List<AnimationTrack> Tracks { get; private set; } = new();
+
+        private List<List<ushort>> _jumpCaches = new();
 
         public Animation(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public Animation(Stream stream)
@@ -77,7 +79,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
             Vector3 scaleMax = br.ReadVector3();
 
             int framesOffset = br.ReadInt32();
-            int jumpCachesOffset = br.ReadInt32();
+            int jumpCachesOffset = br.ReadInt32(); // 5328
             int jointNameHashesOffset = br.ReadInt32();
 
             if (framesOffset <= 0) throw new Exception("Animation does not contain Frame data");
@@ -163,11 +165,20 @@ namespace Fantome.Libraries.League.IO.AnimationFile
                 track.Rotations = rotations[jointHash];
             }
 
-            DequantizeAnimationChannels();
-        }
-        private void DequantizeAnimationChannels()
-        {
-            // TODO
+            // Read jump caches
+            //br.BaseStream.Seek(jumpCachesOffset + 12, SeekOrigin.Begin);
+            //for(int i = 0; i < jumpCacheCount; i++)
+            //{
+            //    int count = 1332;
+            //
+            //    this._jumpCaches.Add(new List<ushort>());
+            //    for(int j = 0; j < count; j++)
+            //    {
+            //        this._jumpCaches[i].Add(br.ReadUInt16());
+            //    }
+            //}
+
+            DequantizeAnimationChannels(rotationQuantizationProperties, translationQuantizationProperties, scaleQuantizationProperties);
         }
 
         private void ReadV4(BinaryReader br)
@@ -303,6 +314,47 @@ namespace Fantome.Libraries.League.IO.AnimationFile
         private float UncompressFrameTime(ushort compressedTime, float animationLength)
         {
             return (compressedTime / 65535.0f) * animationLength;
+        }
+
+        // ------------ DEQUANTIZATION ------------ \\
+        private void DequantizeAnimationChannels(
+            TransformQuantizationProperties rotationQuantizationProperties,
+            TransformQuantizationProperties translationQuantizationProperties,
+            TransformQuantizationProperties scaleQuantizationProperties)
+        {
+            // TODO
+
+            //TranslationDequantizationRound(translationQuantizationProperties);
+        }
+        private void TranslationDequantizationRound(TransformQuantizationProperties quantizationProperties)
+        {
+            foreach (AnimationTrack track in this.Tracks)
+            {
+                List<(float, Vector3)> interpolatedFrames = new();
+                for (int i = 0; i < track.Translations.Count; i++)
+                {
+                    // Do not process last frame
+                    if (i + 1 >= track.Translations.Count) return;
+
+                    var frameA = track.Translations.ElementAt(i + 0);
+                    var frameB = track.Translations.ElementAt(i + 1);
+
+                    // Check if interpolation is needed
+
+                    interpolatedFrames.Add(InterpolateTranslationFrames((frameA.Key, frameA.Value), (frameB.Key, frameB.Value)));
+                }
+
+                foreach ((float time, Vector3 value) in interpolatedFrames)
+                {
+                    track.Translations.Add(time, value);
+                }
+            }
+        }
+
+        private (float, Vector3) InterpolateTranslationFrames((float, Vector3) a, (float, Vector3) b)
+        {
+            float time = (a.Item1 + b.Item1) / 2;
+            return (time, Vector3.Lerp(a.Item2, b.Item2, 0.5f));
         }
 
         private struct TransformQuantizationProperties
