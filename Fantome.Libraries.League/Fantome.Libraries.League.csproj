@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.4</Version>
-    <PackageReleaseNotes>Animation parsing</PackageReleaseNotes>
+    <Version>1.4.1</Version>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageIcon>fantome.png</PackageIcon>
     <PackageIconUrl />
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
@@ -12,8 +12,8 @@
     <Authors>Crauzer</Authors>
     <Company>Fantome</Company>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
-    <AssemblyVersion>1.4.0.0</AssemblyVersion>
-    <FileVersion>1.4.0.0</FileVersion>
+    <AssemblyVersion>1.4.1.0</AssemblyVersion>
+    <FileVersion>1.4.1.0</FileVersion>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
