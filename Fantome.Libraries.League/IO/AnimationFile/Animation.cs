@@ -116,8 +116,11 @@ namespace Fantome.Libraries.League.IO.AnimationFile
             for(int i = 0; i < frameCount; i++)
             {
                 ushort compressedTime = br.ReadUInt16();
-                byte jointHashIndex = br.ReadByte();
-                CompressedTransformType transformType = (CompressedTransformType)br.ReadByte();
+
+                ushort bits = br.ReadUInt16(); // JointHashIndex | TransformType
+                byte jointHashIndex = (byte)(bits & 0x3FFF);
+                CompressedTransformType transformType = (CompressedTransformType)(bits >> 14);
+
                 byte[] compressedTransform = br.ReadBytes(6);
 
                 uint jointHash = jointHashes[jointHashIndex];
@@ -454,8 +457,8 @@ namespace Fantome.Libraries.League.IO.AnimationFile
         private enum CompressedTransformType : byte
         {
             Rotation = 0,
-            Translation = 64,
-            Scale = 128
+            Translation = 1,
+            Scale = 2
         }
     }
 }

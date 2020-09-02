@@ -32,12 +32,12 @@ namespace Fantome.Libraries.League.Tests
             SimpleSkin skn = new SimpleSkin("aatrox.skn");
             Skeleton skl = new Skeleton("aatrox.skl");
 
-            //foreach (string animationFile in animationFiles)
-            //{
-            //    LeagueAnimation animation = new LeagueAnimation(animationFile);
-            //
-            //    animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
-            //}
+            foreach (string animationFile in animationFiles)
+            {
+                LeagueAnimation animation = new LeagueAnimation(animationFile);
+            
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
 
             Dictionary<string, MagickImage> idk = new();
 
