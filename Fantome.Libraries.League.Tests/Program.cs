@@ -20,7 +20,7 @@ using System.IO;
 using System.Linq;
 using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 
-namespace Fantome.Libraries.League.Tests
+namespace Fantome.Libraries.League.Sandbox
 {
     class Program
     {

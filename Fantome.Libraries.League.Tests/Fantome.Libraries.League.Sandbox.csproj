@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <AssemblyName>Fantome.Libraries.League.Sandbox</AssemblyName>
+    <RootNamespace>Fantome.Libraries.League.Sandbox</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fantome.Libraries.League\Fantome.Libraries.League.csproj" />
+  </ItemGroup>
+
+</Project>

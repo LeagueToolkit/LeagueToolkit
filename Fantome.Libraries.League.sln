@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fantome.Libraries.League", "Fantome.Libraries.League\Fantome.Libraries.League.csproj", "{B7C8408C-8674-485E-94DA-8D67EC03FF6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fantome.Libraries.League.Tests", "Fantome.Libraries.League.Tests\Fantome.Libraries.League.Tests.csproj", "{DC9F95B4-9B08-4B02-98C4-76282FF3B089}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fantome.Libraries.League.Sandbox", "Fantome.Libraries.League.Tests\Fantome.Libraries.League.Sandbox.csproj", "{DC9F95B4-9B08-4B02-98C4-76282FF3B089}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
