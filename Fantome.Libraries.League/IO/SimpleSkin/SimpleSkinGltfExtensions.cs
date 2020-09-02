@@ -1,19 +1,19 @@
-﻿using Fantome.Libraries.League.IO.AnimationFile;
+﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.IO.AnimationFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using LeagueFileTranslator.FileTranslators.SKL.IO;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
+using SixLabors.ImageSharp.Formats.Png;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
-
-using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 using GltfAnimation = SharpGLTF.Schema2.Animation;
-using Fantome.Libraries.League.Helpers.Cryptography;
-using SharpGLTF.Transforms;
-using System.Threading.Tasks;
+using Image = SixLabors.ImageSharp.Image;
+using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
 {
@@ -22,7 +22,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
     public static class SimpleSkinGltfExtensions
     {
-        public static ModelRoot ToGltf(this SimpleSkin skn)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, Image> materialTextues = null)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");
@@ -32,6 +32,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             {
                 MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
+
+                // Assign submesh Image
+                if(materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
+                {
+                    Image submeshImage = materialTextues[submesh.Name];
+                    AssignMaterialTexture(material, submeshImage);
+                }
 
                 // Build vertices
                 var vertices = new List<VERTEX>(submesh.Vertices.Count);
@@ -60,7 +67,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             return root;
         }
 
-        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, List<(string, LeagueAnimation)> leagueAnimations = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, Image> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");
@@ -72,6 +79,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             {
                 MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
+
+                // Assign submesh Image
+                if (materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
+                {
+                    Image submeshImage = materialTextues[submesh.Name];
+                    AssignMaterialTexture(material, submeshImage);
+                }
 
                 // Build vertices
                 var vertices = new List<VERTEX_SKINNED>(submesh.Vertices.Count);
@@ -105,13 +119,25 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             Mesh mesh = root.CreateMesh(meshBuilder);
 
             mainNode.WithSkinnedMesh(mesh, Matrix4x4.Identity, bones.ToArray());
-            
-            if(leagueAnimations != null)
+
+            if (leagueAnimations != null)
             {
                 CreateAnimations(root, bones, leagueAnimations);
             }
 
             return root;
+        }
+
+        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, Image texture)
+        {
+            MemoryStream textureStream = new MemoryStream();
+
+            texture.Save(textureStream, new PngEncoder());
+
+            materialBuilder
+                .UseChannel(KnownChannel.BaseColor)
+                .UseTexture()
+                .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }
 
         private static List<Node> CreateSkeleton(Scene scene, Skeleton skeleton)
@@ -144,23 +170,23 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         private static void CreateAnimations(ModelRoot root, List<Node> joints, List<(string, LeagueAnimation)> leagueAnimations)
         {
             // Check if all animations have names, if not then create them
-            for(int i = 0; i < leagueAnimations.Count; i++)
+            for (int i = 0; i < leagueAnimations.Count; i++)
             {
-                if(string.IsNullOrEmpty(leagueAnimations[i].Item1))
+                if (string.IsNullOrEmpty(leagueAnimations[i].Item1))
                 {
                     leagueAnimations[i] = ("Animation" + i, leagueAnimations[i].Item2);
                 }
             }
 
-            foreach((string animationName, LeagueAnimation leagueAnimation) in leagueAnimations)
+            foreach ((string animationName, LeagueAnimation leagueAnimation) in leagueAnimations)
             {
                 GltfAnimation animation = root.UseAnimation(animationName);
-            
-                foreach(AnimationTrack track in leagueAnimation.Tracks)
+
+                foreach (AnimationTrack track in leagueAnimation.Tracks)
                 {
                     Node joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
-            
-                    if(joint is not null)
+
+                    if (joint is not null)
                     {
                         animation.CreateTranslationChannel(joint, track.Translations);
                         animation.CreateScaleChannel(joint, track.Scales);
