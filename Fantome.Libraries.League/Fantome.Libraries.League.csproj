@@ -18,10 +18,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="FlatSharp" Version="2.1.0" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0018" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.1" />
     <PackageReference Include="ZstdSharp" Version="0.4.0" />
   </ItemGroup>
 

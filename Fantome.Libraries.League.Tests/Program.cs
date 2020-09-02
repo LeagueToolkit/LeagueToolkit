@@ -12,12 +12,12 @@ using Fantome.Libraries.League.IO.SimpleSkin;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using Fantome.Libraries.League.IO.StaticObject;
 using Fantome.Libraries.League.IO.WorldGeometry;
+using ImageMagick;
 using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 
 namespace Fantome.Libraries.League.Tests
@@ -32,14 +32,18 @@ namespace Fantome.Libraries.League.Tests
             SimpleSkin skn = new SimpleSkin("aatrox.skn");
             Skeleton skl = new Skeleton("aatrox.skl");
 
-            foreach (string animationFile in animationFiles)
-            {
-                LeagueAnimation animation = new LeagueAnimation(animationFile);
+            //foreach (string animationFile in animationFiles)
+            //{
+            //    LeagueAnimation animation = new LeagueAnimation(animationFile);
+            //
+            //    animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            //}
 
-                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
-            }
+            Dictionary<string, MagickImage> idk = new();
 
-            ModelRoot gltf = skn.ToGltf(skl, animations);
+            idk.Add("Body", new MagickImage("aatrox.dds"));
+
+            ModelRoot gltf = skn.ToGltf(skl, idk , animations);
 
             gltf.SaveGLTF("aatrox.gltf");
             gltf.SaveGLB("aatrox.glb");

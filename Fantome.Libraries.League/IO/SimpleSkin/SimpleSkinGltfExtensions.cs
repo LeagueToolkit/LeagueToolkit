@@ -1,18 +1,17 @@
 ﻿using Fantome.Libraries.League.Helpers.Cryptography;
 using Fantome.Libraries.League.IO.AnimationFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
+using ImageMagick;
 using LeagueFileTranslator.FileTranslators.SKL.IO;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
-using SixLabors.ImageSharp.Formats.Png;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using GltfAnimation = SharpGLTF.Schema2.Animation;
-using Image = SixLabors.ImageSharp.Image;
 using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 
 namespace Fantome.Libraries.League.IO.SimpleSkin
@@ -22,7 +21,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
     public static class SimpleSkinGltfExtensions
     {
-        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, Image> materialTextues = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, MagickImage> materialTextues = null)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");
@@ -30,13 +29,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
             {
-                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
+                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithSpecularGlossinessShader();
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
 
                 // Assign submesh Image
                 if(materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
                 {
-                    Image submeshImage = materialTextues[submesh.Name];
+                    MagickImage submeshImage = materialTextues[submesh.Name];
                     AssignMaterialTexture(material, submeshImage);
                 }
 
@@ -67,7 +66,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             return root;
         }
 
-        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, Image> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("default");
@@ -77,13 +76,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
             {
-                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
+                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithSpecularGlossinessShader();
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
 
                 // Assign submesh Image
                 if (materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
                 {
-                    Image submeshImage = materialTextues[submesh.Name];
+                    MagickImage submeshImage = materialTextues[submesh.Name];
                     AssignMaterialTexture(material, submeshImage);
                 }
 
@@ -128,14 +127,14 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             return root;
         }
 
-        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, Image texture)
+        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, MagickImage texture)
         {
             MemoryStream textureStream = new MemoryStream();
 
-            texture.Save(textureStream, new PngEncoder());
+            texture.Write(textureStream, MagickFormat.Png);
 
             materialBuilder
-                .UseChannel(KnownChannel.BaseColor)
+                .UseChannel(KnownChannel.Diffuse)
                 .UseTexture()
                 .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }

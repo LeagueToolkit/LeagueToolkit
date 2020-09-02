@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Fantome.Libraries.League\Fantome.Libraries.League.csproj" />
   </ItemGroup>
 
