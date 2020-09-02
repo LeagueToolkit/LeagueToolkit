@@ -10,6 +10,7 @@ using System.Text;
 using Vector3 = System.Numerics.Vector3;
 using Quaternion = System.Numerics.Quaternion;
 using Fantome.Libraries.League.IO.SkeletonFile;
+using Fantome.Libraries.League.Helpers.Cryptography;
 
 namespace Fantome.Libraries.League.IO.AnimationFile
 {
@@ -337,7 +338,32 @@ namespace Fantome.Libraries.League.IO.AnimationFile
 
         private void ReadLegacy(BinaryReader br)
         {
-            throw new NotImplementedException();
+            uint skeletonId = br.ReadUInt32();
+            
+            int trackCount = br.ReadInt32();
+            int frameCount = br.ReadInt32();
+            
+            this.FrameDuration = 1.0f / br.ReadInt32(); // FPS
+
+            for(int i = 0; i < trackCount; i++)
+            {
+                string trackName = br.ReadPaddedString(32);
+                uint flags = br.ReadUInt32();
+
+                AnimationTrack track = new AnimationTrack(Cryptography.ElfHash(trackName));
+
+                float frameTime = 0f;
+                for(int j = 0; j < frameCount; j++)
+                {
+                    track.Rotations.Add(frameTime, br.ReadQuaternion());
+                    track.Translations.Add(frameTime, br.ReadVector3());
+                    track.Scales.Add(frameTime, new Vector3(1, 1, 1));
+
+                    frameTime += this.FrameDuration;
+                }
+
+                this.Tracks.Add(track);
+            }
         }
 
         private Vector3 UncompressVector3(Vector3 min, Vector3 max, byte[] compressedData)
