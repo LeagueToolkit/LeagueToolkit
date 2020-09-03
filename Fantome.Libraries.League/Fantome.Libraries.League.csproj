@@ -16,11 +16,17 @@
     <FileVersion>1.4.2.0</FileVersion>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="SharpGLTF.Core.dll" />
+    <None Remove="SharpGLTF.Toolkit.dll" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="FlatSharp" Version="2.1.0" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0019" />
     <PackageReference Include="ZstdSharp" Version="0.4.0" />
   </ItemGroup>
 
@@ -32,12 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="SharpGLTF.Core">
-      <HintPath>SharpGLTF.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpGLTF.Toolkit">
-      <HintPath>SharpGLTF.Toolkit.dll</HintPath>
-    </Reference>
+    <Resource Include="SharpGLTF.Core.dll" />
+    <Resource Include="SharpGLTF.Toolkit.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
