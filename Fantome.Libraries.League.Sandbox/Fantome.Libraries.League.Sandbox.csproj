@@ -16,4 +16,13 @@
     <ProjectReference Include="..\Fantome.Libraries.League\Fantome.Libraries.League.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="SharpGLTF.Core">
+      <HintPath>..\Fantome.Libraries.League\SharpGLTF.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpGLTF.Toolkit">
+      <HintPath>..\Fantome.Libraries.League\SharpGLTF.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

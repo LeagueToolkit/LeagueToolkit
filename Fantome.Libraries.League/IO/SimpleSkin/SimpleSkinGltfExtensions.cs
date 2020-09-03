@@ -1,11 +1,14 @@
 ﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.IO.AnimationFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using ImageMagick;
 using LeagueFileTranslator.FileTranslators.SKL.IO;
+using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
+using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using System.Collections.Generic;
 using System.IO;
@@ -23,8 +26,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
     {
         public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, MagickImage> materialTextues = null)
         {
-            ModelRoot root = ModelRoot.CreateModel();
-            Scene scene = root.UseScene("default");
+            SceneBuilder sceneBuilder = new SceneBuilder("model");
+            NodeBuilder rootNodeBuilder = new NodeBuilder();
             var meshBuilder = VERTEX.CreateCompatibleMesh();
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
@@ -60,19 +63,18 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 }
             }
 
-            Node mainNode = scene.CreateNode();
-            mainNode.WithMesh(root.CreateMesh(meshBuilder));
+            sceneBuilder.AddRigidMesh(meshBuilder, rootNodeBuilder);
 
-            return root;
+            return sceneBuilder.ToGltf2();
         }
 
         public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
-            ModelRoot root = ModelRoot.CreateModel();
-            Scene scene = root.UseScene("default");
+            SceneBuilder sceneBuilder = new SceneBuilder("model");
+            NodeBuilder rootNodeBuilder = new NodeBuilder();
             var meshBuilder = VERTEX_SKINNED.CreateCompatibleMesh();
 
-            List<Node> bones = CreateSkeleton(scene, skeleton);
+            List<NodeBuilder> bones = CreateSkeleton(rootNodeBuilder, skeleton);
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
             {
@@ -114,17 +116,14 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 }
             }
 
-            Node mainNode = scene.CreateNode();
-            Mesh mesh = root.CreateMesh(meshBuilder);
-
-            mainNode.WithSkinnedMesh(mesh, Matrix4x4.Identity, bones.ToArray());
+            sceneBuilder.AddSkinnedMesh(meshBuilder, Matrix4x4.Identity, bones.ToArray());
 
             if (leagueAnimations != null)
             {
-                CreateAnimations(root, bones, leagueAnimations);
+                CreateAnimations(bones, leagueAnimations);
             }
 
-            return root;
+            return sceneBuilder.ToGltf2();
         }
 
         private static void AssignMaterialTexture(MaterialBuilder materialBuilder, MagickImage texture)
@@ -139,25 +138,29 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
                 .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }
 
-        private static List<Node> CreateSkeleton(Scene scene, Skeleton skeleton)
+        private static List<NodeBuilder> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
         {
-            Node skeletonRoot = scene.CreateNode();
-            List<Node> bones = new List<Node>();
+            NodeBuilder skeletonRoot = rootNode.CreateNode("skeleton");
+            List<NodeBuilder> bones = new List<NodeBuilder>();
 
             foreach (SkeletonJoint joint in skeleton.Joints)
             {
                 // Root
                 if (joint.ParentID == -1)
                 {
-                    Node jointNode = skeletonRoot.CreateNode(joint.Name).WithLocalTransform(joint.LocalTransform);
+                    NodeBuilder jointNode = skeletonRoot.CreateNode(joint.Name);
+
+                    jointNode.LocalTransform = joint.LocalTransform;
 
                     bones.Add(jointNode);
                 }
                 else
                 {
                     SkeletonJoint parentJoint = skeleton.Joints.FirstOrDefault(x => x.ID == joint.ParentID);
-                    Node parentNode = bones.FirstOrDefault(x => x.Name == parentJoint.Name);
-                    Node jointNode = parentNode.CreateNode(joint.Name).WithLocalTransform(joint.LocalTransform);
+                    NodeBuilder parentNode = bones.FirstOrDefault(x => x.Name == parentJoint.Name);
+                    NodeBuilder jointNode = parentNode.CreateNode(joint.Name);
+
+                    jointNode.LocalTransform = joint.LocalTransform;
 
                     bones.Add(jointNode);
                 }
@@ -166,7 +169,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             return bones;
         }
 
-        private static void CreateAnimations(ModelRoot root, List<Node> joints, List<(string, LeagueAnimation)> leagueAnimations)
+        private static void CreateAnimations(List<NodeBuilder> joints, List<(string, LeagueAnimation)> leagueAnimations)
         {
             // Check if all animations have names, if not then create them
             for (int i = 0; i < leagueAnimations.Count; i++)
@@ -179,17 +182,29 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
 
             foreach ((string animationName, LeagueAnimation leagueAnimation) in leagueAnimations)
             {
-                GltfAnimation animation = root.UseAnimation(animationName);
-
                 foreach (AnimationTrack track in leagueAnimation.Tracks)
                 {
-                    Node joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
+                    NodeBuilder joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
 
                     if (joint is not null)
                     {
-                        animation.CreateTranslationChannel(joint, track.Translations);
-                        animation.CreateScaleChannel(joint, track.Scales);
-                        animation.CreateRotationChannel(joint, track.Rotations);
+                        CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(animationName);
+                        foreach (var translation in track.Translations)
+                        {
+                            translationBuilder.SetPoint(translation.Key, translation.Value);
+                        }
+
+                        CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
+                        foreach (var rotation in track.Rotations)
+                        {
+                            rotationBuilder.SetPoint(rotation.Key, rotation.Value);
+                        }
+
+                        CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
+                        foreach (var scale in track.Scales)
+                        {
+                            scaleBuilder.SetPoint(scale.Key, scale.Value);
+                        }
                     }
                 }
             }
