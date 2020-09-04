@@ -1,6 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.OBJ;
-using Fantome.Libraries.League.IO.SimpleSkin;
+using Fantome.Libraries.League.IO.SimpleSkinFile;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;

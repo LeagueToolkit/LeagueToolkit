@@ -11,18 +11,18 @@ namespace Fantome.Libraries.League.IO.WGT
         /// <summary>
         /// Bone Indices of this <see cref="WGTWeight"/>
         /// </summary>
-        public Vector4Byte BoneIndices { get; set; }
+        public byte[] BoneIndices { get; set; }
         /// <summary>
         /// Weights of this <see cref="WGTWeight"/>
         /// </summary>
-        public Vector4 Weights { get; set; }
+        public float[] Weights { get; set; }
 
         /// <summary>
         /// Initializes a new <see cref="WGTWeight"/>
         /// </summary>
         /// <param name="weights">Weights of this <see cref="WGTWeight"/></param>
         /// <param name="boneIndices">Bone Indices of this <see cref="WGTWeight"/></param>
-        public WGTWeight(Vector4 weights, Vector4Byte boneIndices)
+        public WGTWeight(float[] weights, byte[] boneIndices)
         {
             this.Weights = weights;
             this.BoneIndices = boneIndices;
@@ -34,8 +34,20 @@ namespace Fantome.Libraries.League.IO.WGT
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public WGTWeight(BinaryReader br)
         {
-            this.BoneIndices = new Vector4Byte(br);
-            this.Weights = new Vector4(br);
+            this.BoneIndices = new byte[]
+            {
+                br.ReadByte(),
+                br.ReadByte(),
+                br.ReadByte(),
+                br.ReadByte()
+            };
+            this.Weights = new float[]
+            {
+                br.ReadSingle(),
+                br.ReadSingle(),
+                br.ReadSingle(),
+                br.ReadSingle()
+            };
         }
 
         /// <summary>
@@ -44,8 +56,14 @@ namespace Fantome.Libraries.League.IO.WGT
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            this.BoneIndices.Write(bw);
-            this.Weights.Write(bw);
+            for(int i = 0; i < 4; i++)
+            {
+                bw.Write(this.BoneIndices[i]);
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                bw.Write(this.Weights[i]);
+            }
         }
     }
 }

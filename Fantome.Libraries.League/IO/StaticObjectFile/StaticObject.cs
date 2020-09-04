@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Fantome.Libraries.League.IO.StaticObject
+namespace Fantome.Libraries.League.IO.StaticObjectFile
 {
     public class StaticObject
     {
@@ -115,7 +115,16 @@ namespace Fantome.Libraries.League.IO.StaticObject
                     hasVertexColors = uint.Parse(input[1]) != 0;
                 }
 
-                int vertexCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                int vertexCount = 0;
+                if(input[0] == "Verts=")
+                {
+                    vertexCount = int.Parse(input[1]);
+                }
+                else
+                {
+                    vertexCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                }
+
                 List<Vector3> vertices = new List<Vector3>(vertexCount);
                 List<Color> vertexColors = new List<Color>(vertexCount);
                 for (int i = 0; i < vertexCount; i++)

@@ -1,7 +1,7 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using System.Collections.Generic;
 
-namespace Fantome.Libraries.League.IO.StaticObject
+namespace Fantome.Libraries.League.IO.StaticObjectFile
 {
     public class StaticObjectSubmesh
     {

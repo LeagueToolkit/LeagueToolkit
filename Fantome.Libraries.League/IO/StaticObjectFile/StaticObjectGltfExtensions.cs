@@ -5,7 +5,7 @@ using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using System.Collections.Generic;
 
-namespace Fantome.Libraries.League.IO.StaticObject
+namespace Fantome.Libraries.League.IO.StaticObjectFile
 {
     using VERTEX = VertexBuilder<VertexPosition, VertexTexture1, VertexEmpty>;
 

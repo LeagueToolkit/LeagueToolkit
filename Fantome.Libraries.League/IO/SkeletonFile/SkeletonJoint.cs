@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Quaternion = Fantome.Libraries.League.Helpers.Structures.Quaternion;
 using Vector3 = Fantome.Libraries.League.Helpers.Structures.Vector3;
 
-namespace LeagueFileTranslator.FileTranslators.SKL.IO
+namespace Fantome.Libraries.League.IO.SkeletonFile
 {
     public class SkeletonJoint
     {

@@ -1,5 +1,4 @@
 ﻿using Fantome.Libraries.League.Helpers.Extensions;
-using LeagueFileTranslator.FileTranslators.SKL.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Fantome.Libraries.League.IO.SimpleSkin
+namespace Fantome.Libraries.League.IO.SimpleSkinFile
 {
     public class SimpleSkinSubmesh
     {

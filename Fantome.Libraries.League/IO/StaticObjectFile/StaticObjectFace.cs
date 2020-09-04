@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace Fantome.Libraries.League.IO.StaticObject
+namespace Fantome.Libraries.League.IO.StaticObjectFile
 {
     internal class StaticObjectFace
     {
@@ -39,9 +39,9 @@ namespace Fantome.Libraries.League.IO.StaticObject
             this.Material = input[4];
             this.UVs = new Vector2[]
             {
-                new Vector2(float.Parse(input[5], CultureInfo.InvariantCulture), float.Parse(input[8], CultureInfo.InvariantCulture)),
-                new Vector2(float.Parse(input[6], CultureInfo.InvariantCulture), float.Parse(input[9], CultureInfo.InvariantCulture)),
-                new Vector2(float.Parse(input[7], CultureInfo.InvariantCulture), float.Parse(input[10], CultureInfo.InvariantCulture)),
+                new Vector2(float.Parse(input[5], CultureInfo.InvariantCulture), float.Parse(input[6], CultureInfo.InvariantCulture)),
+                new Vector2(float.Parse(input[7], CultureInfo.InvariantCulture), float.Parse(input[8], CultureInfo.InvariantCulture)),
+                new Vector2(float.Parse(input[9], CultureInfo.InvariantCulture), float.Parse(input[10], CultureInfo.InvariantCulture)),
             };
         }
 

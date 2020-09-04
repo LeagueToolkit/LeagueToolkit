@@ -7,10 +7,11 @@ using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.NavigationGridOverlay;
 using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.OBJ;
-using Fantome.Libraries.League.IO.ReleaseManifest;
-using Fantome.Libraries.League.IO.SimpleSkin;
+using Fantome.Libraries.League.IO.ReleaseManifestFile;
+using Fantome.Libraries.League.IO.SimpleSkinFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
-using Fantome.Libraries.League.IO.StaticObject;
+using Fantome.Libraries.League.IO.StaticObjectFile;
+using Fantome.Libraries.League.IO.WGT;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using ImageMagick;
 using SharpGLTF.Schema2;
@@ -26,27 +27,27 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            string[] animationFiles = Directory.GetFiles(@"C:\Users\Crauzer\Desktop\assets\characters\aatrox\skins\base\animations", "*.anm");
+            StaticObject sco = StaticObject.ReadSCO("Annie.sco");
+            Skeleton skl = new Skeleton("Annie.skl");
+            WGTFile wgt = new WGTFile("Annie.wgt");
+
+            SimpleSkin skn = new SimpleSkin(sco, wgt);
+
             List<(string, LeagueAnimation)> animations = new();
-
-            SimpleSkin skn = new SimpleSkin("aatrox.skn");
-            Skeleton skl = new Skeleton("aatrox.skl");
-
-            foreach (string animationFile in animationFiles)
+            foreach(string animation in Directory.EnumerateFiles("animations"))
             {
-                LeagueAnimation animation = new LeagueAnimation(animationFile);
-            
-                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+                animations.Add((Path.GetFileNameWithoutExtension(animation), new LeagueAnimation(animation)));
             }
+
 
             Dictionary<string, MagickImage> idk = new();
 
-            idk.Add("Body", new MagickImage("aatrox.dds"));
+            idk.Add("Annie_", new MagickImage("Annie.dds"));
 
-            ModelRoot gltf = skn.ToGltf(skl);
+            ModelRoot gltf = skn.ToGltf(skl, idk, animations);
 
-            gltf.SaveGLTF("aatrox.gltf");
-            gltf.SaveGLB("aatrox.glb");
+            gltf.SaveGLTF("Annie.gltf");
+            gltf.SaveGLB("Annie.glb");
         }
 
         static void TestMapgeo()

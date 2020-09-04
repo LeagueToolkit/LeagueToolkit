@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using FlatSharp.Attributes;
 
-namespace Fantome.Libraries.League.IO.ReleaseManifest
+namespace Fantome.Libraries.League.IO.ReleaseManifestFile
 {
     [FlatBufferTable]
     public class ReleaseManifestFile

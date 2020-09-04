@@ -1,6 +1,6 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 
-namespace Fantome.Libraries.League.IO.StaticObject
+namespace Fantome.Libraries.League.IO.StaticObjectFile
 {
     public class StaticObjectVertex
     {

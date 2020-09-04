@@ -2,7 +2,7 @@
 using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
 
-namespace Fantome.Libraries.League.IO.SimpleSkin
+namespace Fantome.Libraries.League.IO.SimpleSkinFile
 {
     public class SimpleSkinVertex
     {

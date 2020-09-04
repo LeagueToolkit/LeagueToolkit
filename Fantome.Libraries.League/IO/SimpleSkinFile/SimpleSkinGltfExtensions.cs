@@ -3,7 +3,6 @@ using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.IO.AnimationFile;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using ImageMagick;
-using LeagueFileTranslator.FileTranslators.SKL.IO;
 using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -17,7 +16,7 @@ using System.Numerics;
 using GltfAnimation = SharpGLTF.Schema2.Animation;
 using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 
-namespace Fantome.Libraries.League.IO.SimpleSkin
+namespace Fantome.Libraries.League.IO.SimpleSkinFile
 {
     using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
     using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
@@ -27,12 +26,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, MagickImage> materialTextues = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder();
+            NodeBuilder rootNodeBuilder = new NodeBuilder()
+                .WithLocalScale(new Vector3(-1, 1, 1)); // X axis is flipped
             var meshBuilder = VERTEX.CreateCompatibleMesh();
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
             {
-                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithSpecularGlossinessShader();
+                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
 
                 // Assign submesh Image
@@ -71,14 +71,15 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder();
+            NodeBuilder rootNodeBuilder = new NodeBuilder()
+                .WithLocalScale(new Vector3(-1, 1, 1)); // X axis is flipped
             var meshBuilder = VERTEX_SKINNED.CreateCompatibleMesh();
 
             List<NodeBuilder> bones = CreateSkeleton(rootNodeBuilder, skeleton);
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
             {
-                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithSpecularGlossinessShader();
+                MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
                 var submeshPrimitive = meshBuilder.UsePrimitive(material);
 
                 // Assign submesh Image
@@ -133,7 +134,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
             texture.Write(textureStream, MagickFormat.Png);
 
             materialBuilder
-                .UseChannel(KnownChannel.Diffuse)
+                .UseChannel(KnownChannel.BaseColor)
                 .UseTexture()
                 .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }

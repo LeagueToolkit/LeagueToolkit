@@ -1,11 +1,12 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.StaticObjectFile;
 using Fantome.Libraries.League.IO.WGT;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Fantome.Libraries.League.IO.SimpleSkin
+namespace Fantome.Libraries.League.IO.SimpleSkinFile
 {
     public class SimpleSkin
     {
@@ -14,6 +15,30 @@ namespace Fantome.Libraries.League.IO.SimpleSkin
         public SimpleSkin(List<SimpleSkinSubmesh> submeshes)
         {
             this.Submeshes = submeshes;
+        }
+        public SimpleSkin(StaticObject staticObject, WGTFile weightFile)
+        {
+            List<uint> staticObjectIndices = staticObject.GetIndices();
+            List<StaticObjectVertex> staticObjectVertices = staticObject.GetVertices();
+
+            int currentVertexOffset = 0;
+            foreach (StaticObjectSubmesh submesh in staticObject.Submeshes)
+            {
+                // Build vertices
+                List<SimpleSkinVertex> vertices = new(staticObjectVertices.Count);
+                for (int i = 0; i < submesh.Vertices.Count; i++)
+                {
+                    StaticObjectVertex vertex = submesh.Vertices[i];
+                    WGTWeight weightData = weightFile.Weights[i + currentVertexOffset];
+                    Vector3 vertexPosition = new Vector3(vertex.Position.X * -1, vertex.Position.Y, vertex.Position.Z); // Flip X axis
+
+                    vertices.Add(new SimpleSkinVertex(vertexPosition, weightData.BoneIndices, weightData.Weights, Vector3.Zero, vertex.UV));
+                }
+
+                this.Submeshes.Add(new SimpleSkinSubmesh(submesh.Name, submesh.Indices.Select(x => (ushort)x).ToList(), vertices));
+
+                currentVertexOffset += submesh.Vertices.Count;
+            }
         }
         public SimpleSkin(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public SimpleSkin(Stream stream)

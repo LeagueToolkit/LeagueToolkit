@@ -35,7 +35,7 @@ namespace Fantome.Libraries.League.IO.WGT
         /// </summary>
         /// <param name="weights">Weight data of this <see cref="WGTFile"/></param>
         /// <param name="boneIndices">Bone Index data of this <see cref="WGTFile"/></param>
-        public WGTFile(List<Vector4> weights, List<Vector4Byte> boneIndices)
+        public WGTFile(List<float[]> weights, List<byte[]> boneIndices)
         {
             if (weights.Count != boneIndices.Count)
             {

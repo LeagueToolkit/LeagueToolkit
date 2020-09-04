@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using ZstdSharp;
 
-namespace Fantome.Libraries.League.IO.ReleaseManifest
+namespace Fantome.Libraries.League.IO.ReleaseManifestFile
 {
     public class ReleaseManifest
     {

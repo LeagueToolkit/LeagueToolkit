@@ -2,7 +2,7 @@
 using Fantome.Libraries.League.IO.OBJ;
 using System.Collections.Generic;
 
-namespace Fantome.Libraries.League.IO.StaticObject
+namespace Fantome.Libraries.League.IO.StaticObjectFile
 {
     public static class StaticObjectObjExtensions
     {
