@@ -20,6 +20,18 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
         {
             this.Joints = joints;
             this.Influences = influenceMap;
+
+            foreach(SkeletonJoint joint in this.Joints)
+            {
+                if(joint.ParentID == -1)
+                {
+                    joint.GlobalTransform = joint.LocalTransform;
+                }
+                else
+                {
+                    joint.GlobalTransform = this.Joints[joint.ParentID].GlobalTransform * joint.LocalTransform;
+                }
+            }
         }
         public Skeleton(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public Skeleton(Stream stream)
@@ -188,8 +200,8 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                 bw.Write(jointsOffset); //Joints Offset
                 bw.Write(jointIndicesOffset);
                 bw.Write(influencesOffset);
-                bw.Write(-1); //Name offset
-                bw.Write(-1); //Asset Name offset
+                bw.Write(0); //Name offset
+                bw.Write(0); //Asset Name offset
                 bw.Write(jointNamesOffset);
                 bw.Write(0xFFFFFFFF); //Write reserved offset field
                 bw.Write(0xFFFFFFFF); //Write reserved offset field

@@ -135,7 +135,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
             Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scale);
 
-            Matrix4x4.Invert(translationMatrix * rotationMatrix * scaleMatrix, out Matrix4x4 global);
+            Matrix4x4.Invert(scaleMatrix * rotationMatrix * translationMatrix, out Matrix4x4 global);
 
             return global;
         }

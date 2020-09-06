@@ -9,6 +9,7 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
+using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,7 +28,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
         public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, MagickImage> materialTextues = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder();
             var meshBuilder = VERTEX.CreateCompatibleMesh();
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
@@ -63,14 +63,15 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 }
             }
 
-            sceneBuilder.AddRigidMesh(meshBuilder, rootNodeBuilder);
+            sceneBuilder.AddRigidMesh(meshBuilder, new AffineTransform(new Vector3(-1, 1, 1), Quaternion.Identity, Vector3.Zero).Matrix);
 
             return sceneBuilder.ToGltf2();
         }
         public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder();
+            NodeBuilder rootNodeBuilder = new NodeBuilder()
+                .WithLocalScale(new Vector3(-1, 1, 1)); // Flip X
             var meshBuilder = VERTEX_SKINNED.CreateCompatibleMesh();
 
             List<NodeBuilder> bones = CreateSkeleton(rootNodeBuilder, skeleton);
@@ -115,7 +116,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 }
             }
 
-            sceneBuilder.AddSkinnedMesh(meshBuilder, Matrix4x4.Identity, bones.ToArray());
+            sceneBuilder.AddSkinnedMesh(meshBuilder, new AffineTransform(new Vector3(-1, 1, 1), Quaternion.Identity, Vector3.Zero).Matrix, bones.ToArray());
 
             if (leagueAnimations != null)
             {
@@ -138,7 +139,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
         }
         private static List<NodeBuilder> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
         {
-            NodeBuilder skeletonRoot = rootNode.CreateNode("skeleton");
             List<NodeBuilder> bones = new List<NodeBuilder>();
 
             foreach (SkeletonJoint joint in skeleton.Joints)
@@ -146,7 +146,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 // Root
                 if (joint.ParentID == -1)
                 {
-                    NodeBuilder jointNode = skeletonRoot.CreateNode(joint.Name);
+                    NodeBuilder jointNode = rootNode.CreateNode(joint.Name);
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
@@ -253,7 +253,10 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                         weightsVector.W
                     };
 
-                    SimpleSkinVertex vertex = new SimpleSkinVertex(vertexPositionAccessor[i], bones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
+                    Vector3 vertexPosition = vertexPositionAccessor[i];
+                    //vertexPosition.X *= -1; // Flip X
+
+                    SimpleSkinVertex vertex = new SimpleSkinVertex(vertexPosition, bones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
 
                     vertices.Add(vertex);
                 }
@@ -282,7 +285,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 // If parent is null or isn't a skin joint then the joint is a root bone
                 if (jointNode.VisualParent is null || !jointNode.VisualParent.IsSkinJoint)
                 {
-                    joints.Add(new SkeletonJoint((short)i, -1, jointNode.Name, jointNode.LocalTransform.Translation, jointNode.LocalTransform.Scale, jointNode.LocalTransform.Rotation));
+                    Vector3 scale = jointNode.LocalTransform.Scale;
+
+                    joints.Add(new SkeletonJoint((short)i, -1, jointNode.Name, jointNode.LocalTransform.Translation, scale, jointNode.LocalTransform.Rotation));
                 }
                 else
                 {

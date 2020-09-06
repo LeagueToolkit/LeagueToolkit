@@ -27,9 +27,24 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            var m = ModelRoot.Load(@"C:\Users\Crauzer\Documents\Fantome\Fantome.Libraries.League\Fantome.Libraries.League.Sandbox\bin\Debug\netcoreapp3.1\aatrox_blender.glb").ToLeagueModel();
+            SimpleSkin skn = new SimpleSkin("aatrox.skn");
+            Skeleton skl = new Skeleton("aatrox.skl");
 
-            m.Item1.ToGltf(m.Item2).SaveGLB("aatrox_blender_remade.glb");
+            var idk = new Dictionary<string, MagickImage>()
+            {
+                { "Body", new MagickImage("aatrox_base_tx_cm.dds") }
+            };
+
+            skn.ToGltf(skl, idk).SaveGLB("aatrox.glb");
+
+            
+
+            var model = ModelRoot.Load(Path.GetFullPath("aatrox.glb")).ToLeagueModel();
+
+            model.Item1.Write("aatrox_remade.skn");
+            model.Item2.Write("aatrox_remade.skl");
+
+            model.Item1.ToGltf(model.Item2, idk).Save("aatrox_remade.glb");
         }
 
         static void TestMapgeo()
