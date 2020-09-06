@@ -30,9 +30,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 {
                     StaticObjectVertex vertex = submesh.Vertices[i];
                     WGTWeight weightData = weightFile.Weights[i + currentVertexOffset];
-                    Vector3 vertexPosition = new Vector3(vertex.Position.X * -1, vertex.Position.Y, vertex.Position.Z); // Flip X axis
 
-                    vertices.Add(new SimpleSkinVertex(vertexPosition, weightData.BoneIndices, weightData.Weights, Vector3.Zero, vertex.UV));
+                    vertices.Add(new SimpleSkinVertex(vertex.Position, weightData.BoneIndices, weightData.Weights, Vector3.Zero, vertex.UV));
                 }
 
                 this.Submeshes.Add(new SimpleSkinSubmesh(submesh.Name, submesh.Indices.Select(x => (ushort)x).ToList(), vertices));
