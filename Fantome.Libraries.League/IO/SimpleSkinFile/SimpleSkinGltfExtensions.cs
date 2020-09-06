@@ -27,8 +27,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
         public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, MagickImage> materialTextues = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder()
-                .WithLocalScale(new Vector3(-1, 1, 1)); // X axis is flipped
+            NodeBuilder rootNodeBuilder = new NodeBuilder();
             var meshBuilder = VERTEX.CreateCompatibleMesh();
 
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
@@ -71,8 +70,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
         public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder()
-                .WithLocalScale(new Vector3(-1, 1, 1)); // X axis is flipped
+            NodeBuilder rootNodeBuilder = new NodeBuilder();
             var meshBuilder = VERTEX_SKINNED.CreateCompatibleMesh();
 
             List<NodeBuilder> bones = CreateSkeleton(rootNodeBuilder, skeleton);
@@ -255,10 +253,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                         weightsVector.W
                     };
 
-                    Vector3 position = vertexPositionAccessor[i];
-                    position.X *= -1;
-
-                    SimpleSkinVertex vertex = new SimpleSkinVertex(position, bones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
+                    SimpleSkinVertex vertex = new SimpleSkinVertex(vertexPositionAccessor[i], bones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
 
                     vertices.Add(vertex);
                 }

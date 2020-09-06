@@ -9,9 +9,9 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public struct Vector3: IEquatable<Vector3>
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Z { get; set; }
+        public float X;
+        public float Y;
+        public float Z;
 
         public static readonly Vector3 Zero = new Vector3(0, 0, 0);
         public static readonly Vector3 Infinity = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);

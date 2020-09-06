@@ -11,11 +11,11 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <summary>
         /// The X component
         /// </summary>
-        public float X { get; set; }
+        public float X;
         /// <summary>
         /// The Y component
         /// </summary>
-        public float Y { get; set; }
+        public float Y;
 
         public static readonly Vector2 Zero = new Vector2(0, 0);
         public static readonly Vector2 Infinity = new Vector2(float.PositiveInfinity, float.PositiveInfinity);

@@ -27,9 +27,9 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            var m = ModelRoot.Load(@"C:\Users\Crauzer\Documents\Fantome\Fantome.Libraries.League\Fantome.Libraries.League.Sandbox\bin\Debug\netcoreapp3.1\aatrox.glb").ToLeagueModel();
+            var m = ModelRoot.Load(@"C:\Users\Crauzer\Documents\Fantome\Fantome.Libraries.League\Fantome.Libraries.League.Sandbox\bin\Debug\netcoreapp3.1\aatrox_blender.glb").ToLeagueModel();
 
-            m.Item1.ToGltf(m.Item2).SaveGLB("aatrox_remade.glb");
+            m.Item1.ToGltf(m.Item2).SaveGLB("aatrox_blender_remade.glb");
         }
 
         static void TestMapgeo()

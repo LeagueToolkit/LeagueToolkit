@@ -38,6 +38,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
             this.Normal = new Vector3(br);
             this.UV = new Vector2(br);
 
+            this.Position = new Vector3(this.Position.X * -1, this.Position.Y, this.Position.Z);
+
             if (vertexType == SimpleSkinVertexType.Color)
             {
                 this.Color = br.ReadColor(ColorFormat.RgbaU8);
@@ -46,6 +48,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
         public void Write(BinaryWriter bw, SimpleSkinVertexType vertexType)
         {
+            new Vector3(this.Position.X * -1, this.Position.Y, this.Position.Z);
+
             this.Position.Write(bw);
 
             for (int i = 0; i < 4; i++)
