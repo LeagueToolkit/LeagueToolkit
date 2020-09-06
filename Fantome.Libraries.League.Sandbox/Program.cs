@@ -37,14 +37,17 @@ namespace Fantome.Libraries.League.Sandbox
 
             skn.ToGltf(skl, idk).SaveGLB("aatrox.glb");
 
-            
-
             var model = ModelRoot.Load(Path.GetFullPath("aatrox.glb")).ToLeagueModel();
 
             model.Item1.Write("aatrox_remade.skn");
             model.Item2.Write("aatrox_remade.skl");
 
             model.Item1.ToGltf(model.Item2, idk).Save("aatrox_remade.glb");
+
+            SimpleSkin skn_remade = new SimpleSkin("aatrox_remade.skn");
+            Skeleton skl_remade = new Skeleton("aatrox_remade.skl");
+
+            skn_remade.ToGltf(skl_remade, idk).Save("aatrox_remade_2.glb");
         }
 
         static void TestMapgeo()

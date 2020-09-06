@@ -6,6 +6,7 @@
     <LangVersion>preview</LangVersion>
     <AssemblyName>Fantome.Libraries.League.Sandbox</AssemblyName>
     <RootNamespace>Fantome.Libraries.League.Sandbox</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
