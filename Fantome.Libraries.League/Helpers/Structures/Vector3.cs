@@ -166,6 +166,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         }
 
         public static implicit operator System.Numerics.Vector3(Vector3 v) => new System.Numerics.Vector3(v.X, v.Y, v.Z);
+        public static implicit operator Vector3(System.Numerics.Vector3 v) => new Vector3(v.X, v.Y, v.Z);
 
         public static Vector3 operator +(Vector3 x, Vector3 y)
         {

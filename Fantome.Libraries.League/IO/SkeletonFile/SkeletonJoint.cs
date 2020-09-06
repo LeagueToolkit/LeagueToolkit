@@ -1,5 +1,6 @@
-﻿using Fantome.Libraries.League.Helpers.Extensions;
-using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Extensions;
+using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,8 +8,6 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Quaternion = Fantome.Libraries.League.Helpers.Structures.Quaternion;
-using Vector3 = Fantome.Libraries.League.Helpers.Structures.Vector3;
 
 namespace Fantome.Libraries.League.IO.SkeletonFile
 {
@@ -19,14 +18,28 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
         public ushort Flags { get; private set; }
         public short ID { get; private set; }
         public short ParentID { get; private set; }
-        public uint Hash { get; private set; }
         public float Radius { get; private set; } = 2.1f;
         public string Name { get; private set; }
         public Matrix4x4 LocalTransform { get; internal set; }
-        public Matrix4x4 GlobalTransform { get; private set; }
-        public Matrix4x4 InverseGlobalTransform { get; private set; }
+        public Matrix4x4 GlobalTransform { get; internal set; }
+        public Matrix4x4 InverseGlobalTransform
+        {
+            get 
+            {
+                Matrix4x4.Invert(this.GlobalTransform, out Matrix4x4 inverted);
+                return inverted;
+            }
+        }
 
-        public SkeletonJoint(BinaryReader br, bool isLegacy, short id = 0)
+        internal SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale, Quaternion localRotation)
+        {
+            this.ID = id;
+            this.ParentID = parentId;
+            this.Name = name;
+            this.LocalTransform = ComposeLocal(localPosition, localScale, localRotation);
+        }
+
+        internal SkeletonJoint(BinaryReader br, bool isLegacy, short id = 0)
         {
             this.IsLegacy = isLegacy;
 
@@ -80,10 +93,6 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                 M43 = transform[3, 2],
                 M44 = transform[3, 3],
             };
-
-            Matrix4x4 inverseGlobal;
-            Matrix4x4.Invert(this.GlobalTransform, out inverseGlobal);
-            this.InverseGlobalTransform = inverseGlobal;
         }
         private void ReadNew(BinaryReader br)
         {
@@ -91,18 +100,18 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
             this.ID = br.ReadInt16();
             this.ParentID = br.ReadInt16();
             br.ReadInt16(); //padding
-            this.Hash = br.ReadUInt32();
+            uint nameHash = br.ReadUInt32();
             this.Radius = br.ReadSingle();
 
             Vector3 localTranslation = br.ReadVector3();
             Vector3 localScale = br.ReadVector3();
             Quaternion localRotation = br.ReadQuaternion();
-            ComposeLocal(localTranslation, localScale, localRotation);
+            this.LocalTransform = ComposeLocal(localTranslation, localScale, localRotation);
 
             Vector3 inverseGlobalTranslation = br.ReadVector3();
             Vector3 inverseGlobalScale = br.ReadVector3();
             Quaternion inverseGlobalRotation = br.ReadQuaternion();
-            ComposeInverseGlobal(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
+            this.GlobalTransform = ComposeGlobal(inverseGlobalTranslation, inverseGlobalScale, inverseGlobalRotation);
 
             int nameOffset = br.ReadInt32();
             long returnOffset = br.BaseStream.Position;
@@ -112,21 +121,50 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
             br.BaseStream.Seek(returnOffset, SeekOrigin.Begin);
         }
 
-        private void ComposeLocal(Vector3 translation, Vector3 scale, Quaternion rotation)
+        private Matrix4x4 ComposeLocal(Vector3 translation, Vector3 scale, Quaternion rotation)
         {
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translation);
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
             Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scale);
 
-            this.LocalTransform = scaleMatrix * rotationMatrix * translationMatrix;
+            return scaleMatrix * rotationMatrix * translationMatrix;
         }
-        private void ComposeInverseGlobal(Vector3 translation, Vector3 scale, Quaternion rotation)
+        private Matrix4x4 ComposeGlobal(Vector3 translation, Vector3 scale, Quaternion rotation)
         {
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translation);
             Matrix4x4 rotationMatrix = Matrix4x4.CreateFromQuaternion(rotation);
             Matrix4x4 scaleMatrix = Matrix4x4.CreateScale(scale);
 
-            this.InverseGlobalTransform = translationMatrix * rotationMatrix * scaleMatrix;
+            Matrix4x4.Invert(translationMatrix * rotationMatrix * scaleMatrix, out Matrix4x4 global);
+
+            return global;
+        }
+
+        internal void Write(BinaryWriter bw, int nameOffset)
+        {
+            bw.Write(this.Flags);
+            bw.Write(this.ID);
+            bw.Write(this.ParentID);
+            bw.Write((ushort)0); // pad
+            bw.Write(Cryptography.ElfHash(this.Name));
+            bw.Write(this.Radius);
+            WriteLocalTransform(bw);
+            WriteInverseGlobalTransform(bw);
+            bw.Write(nameOffset - (int)bw.BaseStream.Position);
+        }
+        private void WriteLocalTransform(BinaryWriter bw)
+        {
+            bw.WriteVector3(this.LocalTransform.Translation);
+            bw.WriteVector3(this.LocalTransform.GetScale());
+            bw.WriteQuaternion(Quaternion.CreateFromRotationMatrix(this.LocalTransform));
+        }
+        private void WriteInverseGlobalTransform(BinaryWriter bw)
+        {
+            Matrix4x4 inverse = this.InverseGlobalTransform;
+
+            bw.WriteVector3(inverse.Translation);
+            bw.WriteVector3(inverse.GetScale());
+            bw.WriteQuaternion(Quaternion.CreateFromRotationMatrix(inverse));
         }
     }
 }

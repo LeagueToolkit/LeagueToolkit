@@ -53,29 +53,40 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
                 ushort major = br.ReadUInt16();
                 ushort minor = br.ReadUInt16();
-                if (major != 2 && major != 4 && minor != 1)
+                if (major != 0 && major != 2 && major != 4 && minor != 1)
                 {
                     throw new Exception("This SKN version is not supported");
                 }
 
-                uint submeshCount = br.ReadUInt32();
-
-                for (int i = 0; i < submeshCount; i++)
+                uint indexCount = 0;
+                uint vertexCount = 0;
+                SimpleSkinVertexType vertexType = SimpleSkinVertexType.Basic;
+                if (major == 0)
                 {
-                    this.Submeshes.Add(new SimpleSkinSubmesh(br));
+                    indexCount = br.ReadUInt32();
+                    vertexCount = br.ReadUInt32();
                 }
-                if (major == 4)
+                else
                 {
-                    uint unknown = br.ReadUInt32();
+                    uint submeshCount = br.ReadUInt32();
+
+                    for (int i = 0; i < submeshCount; i++)
+                    {
+                        this.Submeshes.Add(new SimpleSkinSubmesh(br));
+                    }
+                    if (major == 4)
+                    {
+                        uint flags = br.ReadUInt32();
+                    }
+
+                    indexCount = br.ReadUInt32();
+                    vertexCount = br.ReadUInt32();
+
+                    uint vertexSize = major == 4 ? br.ReadUInt32() : 52;
+                    vertexType = major == 4 ? (SimpleSkinVertexType)br.ReadUInt32() : SimpleSkinVertexType.Basic;
+                    R3DBox boundingBox = major == 4 ? new R3DBox(br) : R3DBox.Infinite;
+                    R3DSphere boundingSphere = major == 4 ? new R3DSphere(br) : R3DSphere.Infinite;
                 }
-
-                uint indexCount = br.ReadUInt32();
-                uint vertexCount = br.ReadUInt32();
-
-                uint vertexSize = major == 4 ? br.ReadUInt32() : 52;
-                SimpleSkinVertexType vertexType = major == 4 ? (SimpleSkinVertexType)br.ReadUInt32() : SimpleSkinVertexType.Basic;
-                R3DBox boundingBox = major == 4 ? new R3DBox(br) : R3DBox.Infinite;
-                R3DSphere boundingSphere = major == 4 ? new R3DSphere(br) : R3DSphere.Infinite;
 
                 List<ushort> indices = new List<ushort>();
                 List<SimpleSkinVertex> vertices = new List<SimpleSkinVertex>();
@@ -88,13 +99,20 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                     vertices.Add(new SimpleSkinVertex(br, vertexType));
                 }
 
-                foreach (SimpleSkinSubmesh submesh in this.Submeshes)
+                if(major == 0)
                 {
-                    List<ushort> submeshIndices = indices.GetRange((int)submesh._startIndex, (int)submesh._indexCount);
-                    ushort minIndex = submeshIndices.Min();
+                    this.Submeshes.Add(new SimpleSkinSubmesh("Base", indices, vertices));
+                }
+                else
+                {
+                    foreach (SimpleSkinSubmesh submesh in this.Submeshes)
+                    {
+                        List<ushort> submeshIndices = indices.GetRange((int)submesh._startIndex, (int)submesh._indexCount);
+                        ushort minIndex = submeshIndices.Min();
 
-                    submesh.Indices = submeshIndices.Select(x => x -= minIndex).ToList();
-                    submesh.Vertices = vertices.GetRange((int)submesh._startVertex, (int)submesh._vertexCount);
+                        submesh.Indices = submeshIndices.Select(x => x -= minIndex).ToList();
+                        submesh.Vertices = vertices.GetRange((int)submesh._startVertex, (int)submesh._vertexCount);
+                    }
                 }
             }
         }

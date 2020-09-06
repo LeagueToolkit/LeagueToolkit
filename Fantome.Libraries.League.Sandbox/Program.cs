@@ -27,27 +27,9 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            StaticObject sco = StaticObject.ReadSCO("Annie.sco");
-            Skeleton skl = new Skeleton("Annie.skl");
-            WGTFile wgt = new WGTFile("Annie.wgt");
+            var m = ModelRoot.Load(@"C:\Users\Crauzer\Documents\Fantome\Fantome.Libraries.League\Fantome.Libraries.League.Sandbox\bin\Debug\netcoreapp3.1\aatrox.glb").ToLeagueModel();
 
-            SimpleSkin skn = new SimpleSkin(sco, wgt);
-
-            List<(string, LeagueAnimation)> animations = new();
-            foreach(string animation in Directory.EnumerateFiles("animations"))
-            {
-                animations.Add((Path.GetFileNameWithoutExtension(animation), new LeagueAnimation(animation)));
-            }
-
-
-            Dictionary<string, MagickImage> idk = new();
-
-            idk.Add("Annie_", new MagickImage("Annie.dds"));
-
-            ModelRoot gltf = skn.ToGltf(skl, idk, animations);
-
-            gltf.SaveGLTF("Annie.gltf");
-            gltf.SaveGLB("Annie.glb");
+            m.Item1.ToGltf(m.Item2).SaveGLB("aatrox_remade.glb");
         }
 
         static void TestMapgeo()

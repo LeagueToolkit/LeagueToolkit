@@ -9,6 +9,7 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -67,7 +68,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
             return sceneBuilder.ToGltf2();
         }
-
         public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
@@ -138,7 +138,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 .UseTexture()
                 .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }
-
         private static List<NodeBuilder> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
         {
             NodeBuilder skeletonRoot = rootNode.CreateNode("skeleton");
@@ -169,7 +168,6 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
             return bones;
         }
-
         private static void CreateAnimations(List<NodeBuilder> joints, List<(string, LeagueAnimation)> leagueAnimations)
         {
             // Check if all animations have names, if not then create them
@@ -208,6 +206,114 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                         }
                     }
                 }
+            }
+        }
+    
+        public static (SimpleSkin, Skeleton) ToLeagueModel(this ModelRoot root)
+        {
+            if(root.LogicalMeshes.Count != 1)
+            {
+                throw new Exception("Invalid Mesh Count: " + root.LogicalMeshes.Count + " (must be 1)");
+            }
+            if(root.LogicalSkins.Count != 1)
+            {
+                throw new Exception("Invalid Skin count: " + root.LogicalSkins.Count + " (must be 1)");
+            }
+
+            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
+            Mesh mesh = root.LogicalMeshes[0];
+
+            List<SimpleSkinSubmesh> submeshes = new(mesh.Primitives.Count);
+            foreach(MeshPrimitive primitive in mesh.Primitives)
+            {
+                List<uint> indices = new(primitive.GetIndices());
+                
+                IList<Vector3> vertexPositionAccessor = GetVertexAccessor("POSITION", primitive.VertexAccessors).AsVector3Array();
+                IList<Vector3> vertexNormalAccessor = GetVertexAccessor("NORMAL", primitive.VertexAccessors).AsVector3Array();
+                IList<Vector2> vertexUvAccessor = GetVertexAccessor("TEXCOORD_0", primitive.VertexAccessors).AsVector2Array();
+                IList<Vector4> vertexBonesAccessor = GetVertexAccessor("JOINTS_0", primitive.VertexAccessors).AsVector4Array();
+                IList<Vector4> vertexWeightsAccessor = GetVertexAccessor("WEIGHTS_0", primitive.VertexAccessors).AsVector4Array();
+
+                List<SimpleSkinVertex> vertices = new(vertexPositionAccessor.Count);
+                for(int i = 0; i < vertexPositionAccessor.Count; i++)
+                {
+                    Vector4 bonesVector = vertexBonesAccessor[i];
+                    byte[] bones = new byte[] 
+                    {
+                        (byte)bonesVector.X,
+                        (byte)bonesVector.Y,
+                        (byte)bonesVector.Z,
+                        (byte)bonesVector.W
+                    };
+
+                    Vector4 weightsVector = vertexWeightsAccessor[i];
+                    float[] weights = new float[]
+                    {
+                        weightsVector.X,
+                        weightsVector.Y,
+                        weightsVector.Z,
+                        weightsVector.W
+                    };
+
+                    Vector3 position = vertexPositionAccessor[i];
+                    position.X *= -1;
+
+                    SimpleSkinVertex vertex = new SimpleSkinVertex(position, bones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
+
+                    vertices.Add(vertex);
+                }
+
+                submeshes.Add(new SimpleSkinSubmesh(primitive.Material.Name, indices.Select(x => (ushort)x).ToList(), vertices));
+            }
+
+            SimpleSkin simpleSkin = new SimpleSkin(submeshes);
+
+            return (simpleSkin, skeleton);
+        }
+
+        private static Skeleton CreateLeagueSkeleton(Skin skin)
+        {
+            List<Node> nodes = new(skin.JointsCount);
+            for (int i = 0; i < skin.JointsCount; i++)
+            {
+                nodes.Add(skin.GetJoint(i).Joint);
+            }
+
+            List<SkeletonJoint> joints = new(nodes.Count);
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                Node jointNode = nodes[i];
+
+                // If parent is null or isn't a skin joint then the joint is a root bone
+                if (jointNode.VisualParent is null || !jointNode.VisualParent.IsSkinJoint)
+                {
+                    joints.Add(new SkeletonJoint((short)i, -1, jointNode.Name, jointNode.LocalTransform.Translation, jointNode.LocalTransform.Scale, jointNode.LocalTransform.Rotation));
+                }
+                else
+                {
+                    short parentId = (short)nodes.IndexOf(jointNode.VisualParent);
+
+                    joints.Add(new SkeletonJoint((short)i, parentId, jointNode.Name, jointNode.LocalTransform.Translation, jointNode.LocalTransform.Scale, jointNode.LocalTransform.Rotation));
+                }
+            }
+
+            List<short> influences = new(joints.Count);
+            for(short i = 0; i < joints.Count; i++)
+            {
+                influences.Add(i);
+            }
+
+            return new Skeleton(joints, influences);
+        }
+        private static Accessor GetVertexAccessor(string name, IReadOnlyDictionary<string, Accessor> vertexAccessors)
+        {
+            if(vertexAccessors.TryGetValue(name, out Accessor accessor))
+            {
+                return accessor;
+            }
+            else
+            {
+                throw new Exception("Mesh does not contain a vertex accessor: " + name);
             }
         }
     }

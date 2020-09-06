@@ -67,5 +67,20 @@ namespace Fantome.Libraries.League.Helpers.Extensions
                 throw new ArgumentException("Unsupported format", nameof(format));
             }
         }
+
+        public static void WriteVector3(this BinaryWriter writer, Vector3 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+            writer.Write(vector.Z);
+        }
+
+        public static void WriteQuaternion(this BinaryWriter writer, Quaternion quaternion)
+        {
+            writer.Write(quaternion.X);
+            writer.Write(quaternion.Y);
+            writer.Write(quaternion.Z);
+            writer.Write(quaternion.W);
+        }
     }
 }

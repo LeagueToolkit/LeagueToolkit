@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Extensions;
+﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,10 +13,14 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
 
         public List<SkeletonJoint> Joints { get; set; } = new List<SkeletonJoint>();
         public List<short> Influences { get; set; } = new List<short>();
-        public Dictionary<uint, short> JointIndices { get; set; } = new Dictionary<uint, short>();
         public string Name { get; private set; }
         public string AssetName { get; private set; }
 
+        public Skeleton(List<SkeletonJoint> joints, List<short> influenceMap)
+        {
+            this.Joints = joints;
+            this.Influences = influenceMap;
+        }
         public Skeleton(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public Skeleton(Stream stream)
         {
@@ -37,6 +42,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                 }
             }
         }
+
         private void ReadNew(BinaryReader br)
         {
             uint fileSize = br.ReadUInt32();
@@ -89,7 +95,6 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                     short index = br.ReadInt16();
                     br.ReadInt16(); //pad
                     uint hash = br.ReadUInt32();
-                    this.JointIndices.Add(hash, index);
                 }
             }
             if (nameOffset > 0)
@@ -154,6 +159,77 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
 
                     joint.LocalTransform = joint.GlobalTransform * parent.InverseGlobalTransform;
                 }
+            }
+        }
+
+        public void Write(string fileLocation)
+        {
+            Write(File.OpenWrite(fileLocation));
+        }
+        public void Write(Stream stream)
+        {
+            using (BinaryWriter bw = new BinaryWriter(stream))
+            {
+                bw.Write(0); //File Size, will Seek to start and write it at the end
+                bw.Write(587026371); //FNV hash of the format token string
+                bw.Write(0); //Version
+                bw.Write((ushort)0); //Flags
+                bw.Write((ushort)this.Joints.Count);
+                bw.Write(this.Influences.Count);
+
+                int jointsSectionSize = this.Joints.Count * 100;
+                int influencesSectionSize = this.Influences.Count * 2;
+                int jointIndicesSectonSize = this.Joints.Count * 8;
+                int jointsOffset = 64;
+                int influencesOffset = jointsOffset + jointsSectionSize;
+                int jointIndicesOffset = influencesOffset + influencesSectionSize;
+                int jointNamesOffset = jointIndicesOffset + jointIndicesSectonSize;
+
+                bw.Write(jointsOffset); //Joints Offset
+                bw.Write(jointIndicesOffset);
+                bw.Write(influencesOffset);
+                bw.Write(-1); //Name offset
+                bw.Write(-1); //Asset Name offset
+                bw.Write(jointNamesOffset);
+                bw.Write(0xFFFFFFFF); //Write reserved offset field
+                bw.Write(0xFFFFFFFF); //Write reserved offset field
+                bw.Write(0xFFFFFFFF); //Write reserved offset field
+                bw.Write(0xFFFFFFFF); //Write reserved offset field
+                bw.Write(0xFFFFFFFF); //Write reserved offset field
+
+                Dictionary<int, int> jointNameOffsets = new Dictionary<int, int>();
+                bw.Seek(jointNamesOffset, SeekOrigin.Begin);
+                for (int i = 0; i < this.Joints.Count; i++)
+                {
+                    jointNameOffsets.Add(i, (int)bw.BaseStream.Position);
+
+                    bw.Write(Encoding.ASCII.GetBytes(this.Joints[i].Name));
+                    bw.Write((byte)0);
+                }
+
+                bw.Seek(jointsOffset, SeekOrigin.Begin);
+                for (int i = 0; i < this.Joints.Count; i++)
+                {
+                    this.Joints[i].Write(bw, jointNameOffsets[i]);
+                }
+
+                bw.Seek(influencesOffset, SeekOrigin.Begin);
+                foreach (short influence in this.Influences)
+                {
+                    bw.Write(influence);
+                }
+
+                bw.Seek(jointIndicesOffset, SeekOrigin.Begin);
+                foreach (SkeletonJoint joint in this.Joints)
+                {
+                    bw.Write(Cryptography.ElfHash(joint.Name));
+                    bw.Write((ushort)0);
+                    bw.Write(joint.ID);
+                }
+
+                uint fileSize = (uint)bw.BaseStream.Position - 4;
+                bw.BaseStream.Seek(0, SeekOrigin.Begin);
+                bw.Write(fileSize);
             }
         }
     }

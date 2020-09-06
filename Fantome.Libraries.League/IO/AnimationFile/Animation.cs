@@ -434,7 +434,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
         {
             foreach(AnimationTrack track in this.Tracks)
             {
-                if(!skeleton.Joints.Any(x => x.Hash == track.JointHash))
+                if(!skeleton.Joints.Any(x => Cryptography.ElfHash(x.Name) == track.JointHash))
                 {
                     return false;
                 }
