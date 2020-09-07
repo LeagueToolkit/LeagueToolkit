@@ -185,20 +185,26 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
                     if (joint is not null)
                     {
+                        if (track.Translations.Count == 0) track.Translations.Add(0.0f, new Vector3(0, 0, 0));
+                        if (track.Translations.Count == 1) track.Translations.Add(1.0f, new Vector3(0, 0, 0));
                         CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(animationName);
                         foreach (var translation in track.Translations)
                         {
                             translationBuilder.SetPoint(translation.Key, translation.Value);
                         }
 
+                        if (track.Rotations.Count == 0) track.Rotations.Add(0.0f, Quaternion.Identity);
+                        if (track.Rotations.Count == 1) track.Rotations.Add(1.0f, Quaternion.Identity);
                         CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
                         foreach (var rotation in track.Rotations)
                         {
                             rotationBuilder.SetPoint(rotation.Key, rotation.Value);
                         }
 
+                        if (track.Scales.Count == 0) track.Scales.Add(0.0f, new Vector3(1, 1, 1));
+                        if (track.Scales.Count == 1) track.Scales.Add(1.0f, new Vector3(1, 1, 1));
                         CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
-                        foreach (var scale in track.Scales)
+                        foreach (var scale in track.Scales.ToList())
                         {
                             scaleBuilder.SetPoint(scale.Key, scale.Value);
                         }

@@ -27,27 +27,16 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            SimpleSkin skn = new SimpleSkin("aatrox.skn");
-            Skeleton skl = new Skeleton("aatrox.skl");
+            Skeleton skl = new Skeleton("Azir.skl");
+            SimpleSkin skn = new SimpleSkin("Azir.skn");
 
-            var idk = new Dictionary<string, MagickImage>()
+            List<(string, LeagueAnimation)> animations = new();
+            foreach(string animationFile in Directory.EnumerateFiles("animations"))
             {
-                { "Body", new MagickImage("aatrox_base_tx_cm.dds") }
-            };
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), new LeagueAnimation(animationFile)));
+            }
 
-            skn.ToGltf(skl, idk).SaveGLB("aatrox.glb");
-
-            var model = ModelRoot.Load(Path.GetFullPath("aatrox.glb")).ToLeagueModel();
-
-            model.Item1.Write("aatrox_remade.skn");
-            model.Item2.Write("aatrox_remade.skl");
-
-            model.Item1.ToGltf(model.Item2, idk).Save("aatrox_remade.glb");
-
-            SimpleSkin skn_remade = new SimpleSkin("aatrox_remade.skn");
-            Skeleton skl_remade = new Skeleton("aatrox_remade.skl");
-
-            skn_remade.ToGltf(skl_remade, idk).Save("aatrox_remade_2.glb");
+            skn.ToGltf(skl, null, animations).Save("azir.glb");
         }
 
         static void TestMapgeo()
