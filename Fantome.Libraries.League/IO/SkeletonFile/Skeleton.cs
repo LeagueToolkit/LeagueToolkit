@@ -1,4 +1,5 @@
 ﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Exceptions;
 using Fantome.Libraries.League.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
     {
         public bool IsLegacy { get; private set; }
 
-        public List<SkeletonJoint> Joints { get; set; } = new List<SkeletonJoint>();
-        public List<short> Influences { get; set; } = new List<short>();
-        public string Name { get; private set; }
-        public string AssetName { get; private set; }
+        public List<SkeletonJoint> Joints { get; private set; } = new List<SkeletonJoint>();
+        public List<short> Influences { get; private set; } = new List<short>();
+        public string Name { get; private set; } = string.Empty;
+        public string AssetName { get; private set; } = string.Empty;
 
         public Skeleton(List<SkeletonJoint> joints, List<short> influenceMap)
         {
@@ -62,7 +63,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
             uint version = br.ReadUInt32();
             if (version != 0)
             {
-                throw new Exception("Unsupported SKL version: " + version);
+                throw new UnsupportedFileVersionException();
             }
 
             ushort flags = br.ReadUInt16();
@@ -200,8 +201,13 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                 bw.Write(jointsOffset); //Joints Offset
                 bw.Write(jointIndicesOffset);
                 bw.Write(influencesOffset);
+
+                long nameOffsetOffset = bw.BaseStream.Position;
                 bw.Write(0); //Name offset
+
+                long assetNameOffsetOffset = bw.BaseStream.Position;
                 bw.Write(0); //Asset Name offset
+
                 bw.Write(jointNamesOffset);
                 bw.Write(0xFFFFFFFF); //Write reserved offset field
                 bw.Write(0xFFFFFFFF); //Write reserved offset field
@@ -238,6 +244,24 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                     bw.Write((ushort)0);
                     bw.Write(joint.ID);
                 }
+
+                // Write Name
+                long nameOffset = bw.BaseStream.Position;
+                bw.Write(Encoding.ASCII.GetBytes(this.Name));
+                bw.Write((byte)0);
+
+                // Write Asset Name
+                long assetNameOffset = bw.BaseStream.Position;
+                bw.Write(Encoding.ASCII.GetBytes(this.Name));
+                bw.Write((byte)0);
+
+                // Write Name offset to header
+                bw.BaseStream.Seek(nameOffsetOffset, SeekOrigin.Begin);
+                bw.Write((int)nameOffset);
+
+                // Write Asset Name offset to header
+                bw.BaseStream.Seek(assetNameOffsetOffset, SeekOrigin.Begin);
+                bw.Write((int)assetNameOffset);
 
                 uint fileSize = (uint)bw.BaseStream.Position - 4;
                 bw.BaseStream.Seek(0, SeekOrigin.Begin);

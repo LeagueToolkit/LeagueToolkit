@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -53,13 +54,13 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "WGEO")
                 {
-                    throw new Exception("This is not a valid WGEO file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint version = br.ReadUInt32();
                 if (version != 5 && version != 4)
                 {
-                    throw new Exception("This WGEO file version is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 uint modelCount = br.ReadUInt32();

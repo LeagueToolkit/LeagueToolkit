@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,13 +22,13 @@ namespace Fantome.Libraries.League.IO.MapGeometry
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "OEGM")
                 {
-                    throw new Exception("This is not a valid Map Geometry File");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint version = br.ReadUInt32();
                 if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
                 {
-                    throw new Exception("Version: " + version + " of Map Geometry is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 bool useSeparatePointLights = false;

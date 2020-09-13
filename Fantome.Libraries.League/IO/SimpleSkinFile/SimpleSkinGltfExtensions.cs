@@ -224,9 +224,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 throw new Exception("Invalid Skin count: " + root.LogicalSkins.Count + " (must be 1)");
             }
 
-            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
             Mesh mesh = root.LogicalMeshes[0];
 
+            List<byte> influences = new();
             List<SimpleSkinSubmesh> submeshes = new(mesh.Primitives.Count);
             foreach(MeshPrimitive primitive in mesh.Primitives)
             {
@@ -242,13 +242,21 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 for(int i = 0; i < vertexPositionAccessor.Count; i++)
                 {
                     Vector4 bonesVector = vertexBonesAccessor[i];
-                    byte[] bones = new byte[] 
+                    byte[] influenceBones = new byte[] 
                     {
                         (byte)bonesVector.X,
                         (byte)bonesVector.Y,
                         (byte)bonesVector.Z,
                         (byte)bonesVector.W
                     };
+
+                    for(byte b = 0; b < influenceBones.Length; b++)
+                    {
+                        if(!influences.Any(x => x == influenceBones[b]))
+                        {
+                            influences.Add(influenceBones[b]);
+                        }
+                    }
 
                     Vector4 weightsVector = vertexWeightsAccessor[i];
                     float[] weights = new float[]
@@ -260,9 +268,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                     };
 
                     Vector3 vertexPosition = vertexPositionAccessor[i];
-                    //vertexPosition.X *= -1; // Flip X
 
-                    SimpleSkinVertex vertex = new SimpleSkinVertex(vertexPosition, bones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
+                    SimpleSkinVertex vertex = new SimpleSkinVertex(vertexPosition, influenceBones, weights, vertexNormalAccessor[i], vertexUvAccessor[i]);
 
                     vertices.Add(vertex);
                 }
@@ -271,6 +278,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
             }
 
             SimpleSkin simpleSkin = new SimpleSkin(submeshes);
+            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
 
             return (simpleSkin, skeleton);
         }

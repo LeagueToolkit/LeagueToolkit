@@ -1,4 +1,5 @@
 ﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace Fantome.Libraries.League.IO.BIN
         /// <summary>
         /// <see cref="BINFile"/> that should get loaded together with this one
         /// </summary>
-        public List<string> LinkedFiles { get; private set; } = new List<string>();
+        public List<string> Dependencies { get; private set; } = new List<string>();
         /// <summary>
         /// A Collection of <see cref="BINEntry"/>
         /// </summary>
@@ -55,16 +56,21 @@ namespace Fantome.Libraries.League.IO.BIN
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "PROP")
                 {
-                    throw new Exception("Not a valid BIN file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint version = br.ReadUInt32();
+                if(version != 1 && version != 2)
+                {
+                    throw new UnsupportedFileVersionException();
+                }
+
                 if (version >= 2)
                 {
-                    uint linkedFileCount = br.ReadUInt32();
-                    for (int i = 0; i < linkedFileCount; i++)
+                    uint dependencyCount = br.ReadUInt32();
+                    for (int i = 0; i < dependencyCount; i++)
                     {
-                        this.LinkedFiles.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
+                        this.Dependencies.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
                     }
                 }
 
@@ -100,8 +106,8 @@ namespace Fantome.Libraries.League.IO.BIN
             {
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
                 bw.Write((uint)2);
-                bw.Write((uint)this.LinkedFiles.Count);
-                foreach (string linkedFile in this.LinkedFiles)
+                bw.Write((uint)this.Dependencies.Count);
+                foreach (string linkedFile in this.Dependencies)
                 {
                     bw.Write((ushort)linkedFile.Length);
                     bw.Write(Encoding.ASCII.GetBytes(linkedFile));

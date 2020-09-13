@@ -1,4 +1,5 @@
 using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -67,14 +68,14 @@ namespace Fantome.Libraries.League.IO.WAD
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
                 if (magic != "RW")
                 {
-                    throw new Exception("This is not a valid WAD file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 this._major = br.ReadByte();
                 this._minor = br.ReadByte();
                 if (this._major > 3)
                 {
-                    throw new Exception("This version is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 uint fileCount = 0;
@@ -271,7 +272,7 @@ namespace Fantome.Libraries.League.IO.WAD
         {
             if (major > 3)
             {
-                throw new Exception("WAD File version: " + major + " either does not support writing or doesn't exist");
+                throw new UnsupportedFileVersionException();
             }
 
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.ASCII, true))

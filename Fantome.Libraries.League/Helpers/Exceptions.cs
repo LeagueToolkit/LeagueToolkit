@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Fantome.Libraries.League.Helpers.Exceptions
 {
-    public class InvalidFileMagicException : Exception
+    public class InvalidFileSignatureException : Exception
     {
-        public InvalidFileMagicException() : base("Invalid file Magic") { }
+        public InvalidFileSignatureException() : base("Invalid file signature") { }
     }
 
     public class UnsupportedFileVersionException : Exception

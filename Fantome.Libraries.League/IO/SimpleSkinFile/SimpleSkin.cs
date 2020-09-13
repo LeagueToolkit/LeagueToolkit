@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.StaticObjectFile;
 using Fantome.Libraries.League.IO.WGT;
 using System;
@@ -47,14 +48,14 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 uint magic = br.ReadUInt32();
                 if (magic != 0x00112233)
                 {
-                    throw new Exception("Not a valid SKN file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 ushort major = br.ReadUInt16();
                 ushort minor = br.ReadUInt16();
                 if (major != 0 && major != 2 && major != 4 && minor != 1)
                 {
-                    throw new Exception("This SKN version is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 uint indexCount = 0;

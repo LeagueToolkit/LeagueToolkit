@@ -25,7 +25,7 @@ namespace Fantome.Libraries.League.IO.NVR
                 string magic = ASCIIEncoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "NVR\0")
                 {
-                    throw new InvalidFileMagicException();
+                    throw new InvalidFileSignatureException();
                 }
                 this.MajorVersion = br.ReadInt16();
                 this.MinorVersion = br.ReadInt16();

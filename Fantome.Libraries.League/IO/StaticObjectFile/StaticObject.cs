@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Extensions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
@@ -34,14 +35,14 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
                 if (magic != "r3d2Mesh")
                 {
-                    throw new Exception("This is not a valid SCB file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 ushort major = br.ReadUInt16();
                 ushort minor = br.ReadUInt16();
                 if (major != 3 && major != 2 && minor != 1) //There are versions [2][1] and [1][1] aswell
                 {
-                    throw new Exception(string.Format("The Version: {0}.{1} is not supported", major, minor));
+                    throw new UnsupportedFileVersionException();
                 }
 
                 string name = Encoding.ASCII.GetString(br.ReadBytes(128)).Replace("\0", "");
