@@ -15,7 +15,7 @@
     <AssemblyVersion>1.5.4.0</AssemblyVersion>
     <FileVersion>1.5.4.0</FileVersion>
     <LangVersion>preview</LangVersion>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +28,7 @@
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="SharpGLTF.Toolkit-optimized-buffers" Version="1.0.0" />
-    <PackageReference Include="ZstdSharp" Version="0.7.0" />
+    <PackageReference Include="ZstdSharp" Version="0.7.1" />
   </ItemGroup>
 
   <ItemGroup>
