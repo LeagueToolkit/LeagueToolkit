@@ -20,10 +20,7 @@ namespace Fantome.Libraries.League.IO.WadFile
         private bool _isDisposed = false;
         private bool _leaveOpen = false;
 
-        internal Wad() { }
-
-        public Wad Mount(string fileLocation, bool leaveOpen) => Mount(File.OpenRead(fileLocation), leaveOpen);
-        public Wad Mount(Stream stream, bool leaveOpen)
+        internal Wad(Stream stream, bool leaveOpen) 
         {
             this._stream = stream;
             this._leaveOpen = leaveOpen;
@@ -31,8 +28,13 @@ namespace Fantome.Libraries.League.IO.WadFile
             this.Entries = new(this._entries);
 
             Read(this._stream);
+        }
+        internal Wad() { }
 
-            return this;
+        public static Wad Mount(string fileLocation, bool leaveOpen) => Mount(File.OpenRead(fileLocation), leaveOpen);
+        public static Wad Mount(Stream stream, bool leaveOpen)
+        {
+            return new Wad(stream, leaveOpen);
         }
 
         private void Read(Stream stream)
