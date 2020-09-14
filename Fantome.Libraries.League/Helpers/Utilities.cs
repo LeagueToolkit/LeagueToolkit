@@ -1,4 +1,4 @@
-﻿using Fantome.Libraries.League.IO.WAD;
+﻿using Fantome.Libraries.League.IO.WadFile;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -199,11 +199,11 @@ namespace Fantome.Libraries.League.Helpers
                     return "";
             }
         }
-        public static EntryType GetExtensionCompressionType(string extension)
+        public static WadEntryType GetExtensionWadCompressionType(string extension)
         {
             if (string.IsNullOrEmpty(extension))
             {
-                return EntryType.Uncompressed;
+                return WadEntryType.Uncompressed;
             }
             else
             {
@@ -214,11 +214,11 @@ namespace Fantome.Libraries.League.Helpers
 
                 if (extension.Contains("glsl"))
                 {
-                    return EntryType.Uncompressed;
+                    return WadEntryType.Uncompressed;
                 }
                 if (extension.Contains("dx9"))
                 {
-                    return EntryType.Uncompressed;
+                    return WadEntryType.Uncompressed;
                 }
 
                 switch (extension)
@@ -230,9 +230,9 @@ namespace Fantome.Libraries.League.Helpers
                     case "gfx":
                     case "png":
                     case "preload":
-                        return EntryType.Uncompressed;
+                        return WadEntryType.Uncompressed;
                     default:
-                        return EntryType.ZStandardCompressed;
+                        return WadEntryType.ZStandardCompressed;
                 }
             }
         }
