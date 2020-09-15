@@ -10,6 +10,8 @@ namespace Fantome.Libraries.League.IO.WadFile
 {
     public class Wad : IDisposable
     {
+        internal const int HEADER_SIZE_V3 = 272;
+
         public byte[] Signature { get; private set; }
 
         public ReadOnlyDictionary<ulong, WadEntry> Entries { get; private set; }
@@ -117,50 +119,24 @@ namespace Fantome.Libraries.League.IO.WadFile
                 List<ulong> entryKeys = this._entries.Keys.ToList();
                 entryKeys.Sort();
 
-                for (int i = 0; i < entryKeys.Count; i++)
+                foreach(ulong entryKey in entryKeys)
                 {
-                    ulong entryKey = entryKeys[i];
                     WadEntry currentEntry = this._entries[entryKey];
-                    currentEntry._isDuplicated = false;
-
-                    // Finding potential duplicated entry
-                    WadEntry duplicatedEntry = null;
-                    if (currentEntry.Type != WadEntryType.FileRedirection)
-                    {
-                        for (int j = 0; j < i; j++)
-                        {
-                            ulong potentialDuplicatedEntryKey = entryKeys[j];
-
-                            if (this._entries[potentialDuplicatedEntryKey].SHA.SequenceEqual(currentEntry.SHA))
-                            {
-                                currentEntry._isDuplicated = true;
-                                duplicatedEntry = this._entries[potentialDuplicatedEntryKey];
-                                break;
-                            }
-                        }
-                    }
 
                     // Writing data
-                    if (duplicatedEntry == null)
-                    {
-                        var currentEntryDataHandle = currentEntry.GetDataHandle();
-                        Stream currentEntryCompressedStream = currentEntryDataHandle.GetCompressedStream();
+                    var currentEntryDataHandle = currentEntry.GetDataHandle();
+                    Stream currentEntryCompressedStream = currentEntryDataHandle.GetCompressedStream();
 
-                        currentEntryCompressedStream.CopyTo(bw.BaseStream);
+                    currentEntryCompressedStream.CopyTo(bw.BaseStream);
 
-                        currentEntry._dataOffset = (int)(stream.Position - currentEntry.CompressedSize);
-                    }
-                    else
-                    {
-                        currentEntry._dataOffset = duplicatedEntry._dataOffset;
-                    }
+                    currentEntry._dataOffset = (int)(stream.Position - currentEntry.CompressedSize);
                 }
 
                 // Write TOC
                 stream.Seek(tocOffset, SeekOrigin.Begin);
-                foreach (var wadEntry in this._entries)
+                foreach(ulong entryKey in entryKeys)
                 {
-                    wadEntry.Value.Write(bw, 3);
+                    this._entries[entryKey].Write(bw, 3);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Cryptography;
+﻿using Fantome.Libraries.League.Helpers;
+using Fantome.Libraries.League.Helpers.Cryptography;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,13 +16,15 @@ namespace Fantome.Libraries.League.IO.WadFile
         public WadEntryType EntryType { get; private set; }
         public ulong PathXXHash { get; private set; }
 
-        public Stream DataStream { get; private set; }
-        public int CompressedSize { get; private set; }
-        public int UncompressedSize { get; private set; }
+        public Stream DataStream { get; internal set; }
+        public int CompressedSize { get; internal set; }
+        public int UncompressedSize { get; internal set; }
+        internal bool _isFileDataStream = false;
+        internal int _dataOffset;
 
         public string FileRedirection { get; private set; }
 
-        public byte[] Sha256Checksum { get; private set; }
+        public byte[] Sha256Checksum { get; internal set; }
 
         public WadEntryBuilder()
         {
@@ -45,7 +48,8 @@ namespace Fantome.Libraries.League.IO.WadFile
             this.DataStream = stream;
             this.CompressedSize = compressedSize;
             this.UncompressedSize = uncompressedSize;
-            this.Sha256Checksum = ComputeSha256Checksum(stream);
+
+            ComputeSha256Checksum();
 
             return this;
         }
@@ -55,7 +59,8 @@ namespace Fantome.Libraries.League.IO.WadFile
             this.DataStream = stream;
             this.CompressedSize = compressedSize;
             this.UncompressedSize = uncompressedSize;
-            this.Sha256Checksum = ComputeSha256Checksum(stream);
+
+            ComputeSha256Checksum();
 
             return this;
         }
@@ -64,11 +69,21 @@ namespace Fantome.Libraries.League.IO.WadFile
             this.EntryType = WadEntryType.Uncompressed;
             this.DataStream = stream;
             this.CompressedSize = this.UncompressedSize = (int)stream.Length;
-            this.Sha256Checksum = ComputeSha256Checksum(stream);
+
+            ComputeSha256Checksum();
 
             return this;
         }
-    
+        public WadEntryBuilder WithFileDataStream(string fileLocation)
+        {
+            this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(fileLocation));
+            this.DataStream = File.OpenRead(fileLocation);
+            this._isFileDataStream = true;
+            this.Sha256Checksum = new byte[8];
+
+            return this;
+        }
+
         public WadEntryBuilder WithFileRedirection(string fileRedirection)
         {
             this.EntryType = WadEntryType.FileRedirection;
@@ -79,11 +94,11 @@ namespace Fantome.Libraries.League.IO.WadFile
             return this;
         }
 
-        private byte[] ComputeSha256Checksum(Stream stream)
+        internal void ComputeSha256Checksum()
         {
             using (SHA256 sha = SHA256.Create())
             {
-                return sha.ComputeHash(stream).Take(8).ToArray();
+                this.Sha256Checksum = sha.ComputeHash(this.DataStream).Take(8).ToArray();
             }
         }
     }

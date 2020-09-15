@@ -7,6 +7,8 @@ namespace Fantome.Libraries.League.IO.WadFile
 {
     public class WadEntry : IComparable<WadEntry>
     {
+        internal const int TOC_SIZE_V3 = 32;
+
         public ulong XXHash { get; private set; }
 
         public int CompressedSize { get; internal set; }
@@ -21,11 +23,9 @@ namespace Fantome.Libraries.League.IO.WadFile
         internal int _dataOffset;
         internal bool _isDuplicated;
 
-        internal Stream _dataStream;
-
         internal readonly Wad _wad;
  
-        internal WadEntry(ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, Stream dataStream)
+        internal WadEntry(ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, int dataOffset)
         {
             this.XXHash = xxhash;
             this.CompressedSize = compressedSize;
@@ -33,7 +33,7 @@ namespace Fantome.Libraries.League.IO.WadFile
             this.Type = entryType;
             this.SHA = sha;
             this.FileRedirection = fileRedirection;
-            this._dataStream = dataStream;
+            this._dataOffset = dataOffset;
         }
         internal WadEntry(Wad wad, BinaryReader br, byte major)
         {
