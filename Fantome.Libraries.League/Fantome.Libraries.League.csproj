@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.6-beta-3</Version>
+    <Version>1.6-beta-4</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageIcon>fantome.png</PackageIcon>
     <PackageIconUrl />

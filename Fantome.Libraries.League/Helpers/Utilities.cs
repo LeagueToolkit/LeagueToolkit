@@ -1,6 +1,8 @@
-﻿using Fantome.Libraries.League.IO.WadFile;
+﻿using Fantome.Libraries.League.IO.SkeletonFile;
+using Fantome.Libraries.League.IO.WadFile;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,98 +25,108 @@ namespace Fantome.Libraries.League.Helpers
             return new string(c);
         }
 
-        public static LeagueFileType GetExtensionType(byte[] fileData)
+        public static LeagueFileType GetExtensionType(byte[] magicData)
         {
-            if (fileData.Length < 4)
+            if (magicData.Length < 4)
             {
                 return LeagueFileType.Unknown;
             }
 
-            if (fileData[0] == 'r' && fileData[1] == '3' && fileData[2] == 'd' && fileData[3] == '2')
+            if (magicData[0] == 'r' && magicData[1] == '3' && magicData[2] == 'd' && magicData[3] == '2')
             {
-                if (fileData[4] == 'M' && fileData[5] == 'e' && fileData[6] == 's' && fileData[7] == 'h')
+                if (magicData[4] == 'M' && magicData[5] == 'e' && magicData[6] == 's' && magicData[7] == 'h')
                 {
                     return LeagueFileType.SCB;
                 }
-                else if (fileData[4] == 's' && fileData[5] == 'k' && fileData[6] == 'l' && fileData[7] == 't')
+                else if (magicData[4] == 's' && magicData[5] == 'k' && magicData[6] == 'l' && magicData[7] == 't')
                 {
                     return LeagueFileType.SKL;
                 }
-                else if (fileData[4] == 'a' && fileData[5] == 'n' && fileData[6] == 'm' && fileData[7] == 'd')
+                else if (magicData[4] == 'a' && magicData[5] == 'n' && magicData[6] == 'm' && magicData[7] == 'd')
                 {
                     return LeagueFileType.ANM;
                 }
-                else if (fileData[4] == 'c' && fileData[5] == 'a' && fileData[6] == 'n' && fileData[7] == 'm')
+                else if (magicData[4] == 'c' && magicData[5] == 'a' && magicData[6] == 'n' && magicData[7] == 'm')
                 {
                     return LeagueFileType.ANM;
                 }
-                else if (fileData[4] == 1 && fileData[5] == 0 && fileData[6] == 0 && fileData[7] == 0)
+                else if (magicData[4] == 1 && magicData[5] == 0 && magicData[6] == 0 && magicData[7] == 0)
                 {
                     return LeagueFileType.WPK;
                 }
             }
-            else if (fileData[1] == 'P' && fileData[2] == 'N' && fileData[3] == 'G')
+            else if (magicData[1] == 'P' && magicData[2] == 'N' && magicData[3] == 'G')
             {
                 return LeagueFileType.PNG;
             }
-            else if (fileData[0] == 'D' && fileData[1] == 'D' && fileData[2] == 'S' && fileData[3] == 0x20)
+            else if (magicData[0] == 'D' && magicData[1] == 'D' && magicData[2] == 'S' && magicData[3] == 0x20)
             {
                 return LeagueFileType.DDS;
             }
-            else if (fileData[0] == 0x33 && fileData[1] == 0x22 && fileData[2] == 0x11 && fileData[3] == 0x00)
+            else if (magicData[0] == 0x33 && magicData[1] == 0x22 && magicData[2] == 0x11 && magicData[3] == 0x00)
             {
                 return LeagueFileType.SKN;
             }
-            else if (fileData[0] == 'P' && fileData[1] == 'R' && fileData[2] == 'O' && fileData[3] == 'P')
+            else if (magicData[0] == 'P' && magicData[1] == 'R' && magicData[2] == 'O' && magicData[3] == 'P')
             {
                 return LeagueFileType.BIN;
             }
-            else if (fileData[0] == 'B' && fileData[1] == 'K' && fileData[2] == 'H' && fileData[3] == 'D')
+            else if (magicData[0] == 'B' && magicData[1] == 'K' && magicData[2] == 'H' && magicData[3] == 'D')
             {
                 return LeagueFileType.BNK;
             }
-            else if (fileData[0] == 'W' && fileData[1] == 'G' && fileData[2] == 'E' && fileData[3] == 'O')
+            else if (magicData[0] == 'W' && magicData[1] == 'G' && magicData[2] == 'E' && magicData[3] == 'O')
             {
                 return LeagueFileType.WGEO;
             }
-            else if (fileData[0] == 'O' && fileData[1] == 'E' && fileData[2] == 'G' && fileData[3] == 'M')
+            else if (magicData[0] == 'O' && magicData[1] == 'E' && magicData[2] == 'G' && magicData[3] == 'M')
             {
                 return LeagueFileType.MAPGEO;
             }
-            else if (fileData[0] == '[' && fileData[1] == 'O' && fileData[2] == 'b' && fileData[3] == 'j')
+            else if (magicData[0] == '[' && magicData[1] == 'O' && magicData[2] == 'b' && magicData[3] == 'j')
             {
                 return LeagueFileType.SCO;
             }
-            else if (fileData[1] == 'L' && fileData[2] == 'u' && fileData[3] == 'a' && fileData[4] == 'Q')
+            else if (magicData[1] == 'L' && magicData[2] == 'u' && magicData[3] == 'a' && magicData[4] == 'Q')
             {
                 return LeagueFileType.LUAOBJ;
             }
-            else if (fileData[0] == 'P' && fileData[1] == 'r' && fileData[2] == 'e' && fileData[3] == 'L' && fileData[4] == 'o' && fileData[5] == 'a' && fileData[6] == 'd')
+            else if (magicData[0] == 'P' && magicData[1] == 'r' && magicData[2] == 'e' && magicData[3] == 'L' && magicData[4] == 'o' && magicData[5] == 'a' && magicData[6] == 'd')
             {
                 return LeagueFileType.PRELOAD;
             }
-            else if (fileData[0] == 3 && fileData[1] == 0 && fileData[2] == 0 && fileData[3] == 0)
+            else if (magicData[0] == 3 && magicData[1] == 0 && magicData[2] == 0 && magicData[3] == 0)
             {
                 return LeagueFileType.LIGHTGRID;
             }
-            else if (fileData[0] == 'R' && fileData[1] == 'S' && fileData[2] == 'T')
+            else if (magicData[0] == 'R' && magicData[1] == 'S' && magicData[2] == 'T')
             {
                 return LeagueFileType.RST;
             }
-            else if (fileData[0] == 'P' && fileData[1] == 'T' && fileData[2] == 'C' && fileData[3] == 'H')
+            else if (magicData[0] == 'P' && magicData[1] == 'T' && magicData[2] == 'C' && magicData[3] == 'H')
             {
                 return LeagueFileType.PATCHBIN;
             }
-            else if (fileData[0] == 0xff && fileData[1] == 0xd8 && fileData[fileData.Length - 2] == 0xff && fileData[fileData.Length - 1] == 0xd9)
+            else if (magicData[0] == 0xFF && magicData[1] == 0xD8 && magicData[2] == 0xFF)
             {
                 return LeagueFileType.JPG;
             }
-            else if (BitConverter.ToInt32(fileData.Take(4).ToArray(), 0) == fileData.Length)
+            else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FORMAT_TOKEN)
             {
                 return LeagueFileType.SKL;
             }
 
             return LeagueFileType.Unknown;
+        }
+        public static LeagueFileType GetExtensionType(Stream stream, int headerSizeHint = 8)
+        {
+            byte[] header = new byte[headerSizeHint];
+            int originalPosition = (int)stream.Position;
+
+            stream.Read(header, 0, header.Length);
+            stream.Seek(originalPosition, SeekOrigin.Begin);
+
+            return GetExtensionType(header);
         }
         public static LeagueFileType GetExtensionType(string extension)
         {

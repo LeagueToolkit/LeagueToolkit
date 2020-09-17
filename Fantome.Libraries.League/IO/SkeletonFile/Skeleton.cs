@@ -10,6 +10,8 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
 {
     public class Skeleton
     {
+        internal const int FORMAT_TOKEN = 0x22FD4FC3; // FNV hash of the format token string
+
         public bool IsLegacy { get; private set; }
 
         public List<SkeletonJoint> Joints { get; private set; } = new List<SkeletonJoint>();
@@ -184,7 +186,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
             using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(0); //File Size, will Seek to start and write it at the end
-                bw.Write(587026371); //FNV hash of the format token string
+                bw.Write(FORMAT_TOKEN);
                 bw.Write(0); //Version
                 bw.Write((ushort)0); //Flags
                 bw.Write((ushort)this.Joints.Count);
