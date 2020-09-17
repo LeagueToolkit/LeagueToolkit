@@ -21,19 +21,17 @@ namespace Fantome.Libraries.League.IO.WadFile
             // Seek to entry data
             wadStream.Seek(this._entry._dataOffset, SeekOrigin.Begin);
 
+            // Read compressed data to a buffer
+            byte[] compressedData = new byte[this._entry.CompressedSize];
+            wadStream.Read(compressedData, 0, this._entry.CompressedSize);
+
             switch (this._entry.Type)
             {
                 case WadEntryType.GZipCompressed:
-                {
-                    return new GZipStream(wadStream, CompressionMode.Decompress, true);
-                }
                 case WadEntryType.ZStandardCompressed:
-                {
-                    return new ZstdStream(wadStream, ZstdStreamMode.Decompress, true);
-                }
                 case WadEntryType.Uncompressed:
                 {
-                    return wadStream;
+                    return new MemoryStream(compressedData);
                 }
                 case WadEntryType.FileRedirection:
                 {
@@ -53,25 +51,27 @@ namespace Fantome.Libraries.League.IO.WadFile
             // Seek to entry data
             wadStream.Seek(this._entry._dataOffset, SeekOrigin.Begin);
 
+            // Read compressed data to a buffer
+            byte[] compressedData = new byte[this._entry.CompressedSize];
+            wadStream.Read(compressedData, 0, this._entry.CompressedSize);
+
             switch (this._entry.Type)
             {
                 case WadEntryType.GZipCompressed:
                 {
-                    MemoryStream uncompressedStream = new MemoryStream((int)this._entry.UncompressedSize);
-                    using (GZipStream gzipStream = new GZipStream(wadStream, CompressionMode.Decompress, true))
-                    {
-                        gzipStream.CopyTo(uncompressedStream);
-                    }
+                    MemoryStream uncompressedStream = new MemoryStream(this._entry.UncompressedSize);
+                    using MemoryStream compressedStream = new MemoryStream(compressedData);
+                    using GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Decompress);
+
+                    gzipStream.CopyTo(uncompressedStream);
+
                     return uncompressedStream;
                 }
                 case WadEntryType.ZStandardCompressed:
                 {
-                    MemoryStream uncompressedStream = new MemoryStream((int)this._entry.UncompressedSize);
-                    using (ZstdStream zstdStream = new ZstdStream(wadStream, ZstdStreamMode.Decompress, true))
-                    {
-                        zstdStream.CopyTo(uncompressedStream);
-                    }
-                    return uncompressedStream;
+                    byte[] decompressedData = Zstd.Decompress(compressedData, this._entry.UncompressedSize);
+
+                    return new MemoryStream(decompressedData);
                 }
                 case WadEntryType.Uncompressed:
                 {
