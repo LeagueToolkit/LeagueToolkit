@@ -25,8 +25,9 @@ namespace Fantome.Libraries.League.IO.WadFile
 
         internal readonly Wad _wad;
  
-        internal WadEntry(ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, int dataOffset)
+        internal WadEntry(Wad wad, ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, int dataOffset)
         {
+            this._wad = wad;
             this.XXHash = xxhash;
             this.CompressedSize = compressedSize;
             this.UncompressedSize = uncompressedSize;

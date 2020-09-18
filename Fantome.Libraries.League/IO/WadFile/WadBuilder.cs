@@ -36,7 +36,9 @@ namespace Fantome.Libraries.League.IO.WadFile
         public void Build(string fileLocation) => Build(File.OpenWrite(fileLocation));
         public void Build(Stream stream)
         {
-            using Wad wad = new Wad();
+            using Wad wad = new Wad(stream, false, true);
+
+            long headerStartOffset = stream.Position;
 
             // Seek after Header and TOC
             stream.Seek(Wad.HEADER_SIZE_V3 + (this._entries.Count * WadEntry.TOC_SIZE_V3), SeekOrigin.Current);
@@ -52,6 +54,7 @@ namespace Fantome.Libraries.League.IO.WadFile
             foreach (WadEntryBuilder entryBuilder in this._entries.Values)
             {
                 wad.AddEntry(new WadEntry(
+                    wad,
                     entryBuilder.PathXXHash,
                     entryBuilder.CompressedSize,
                     entryBuilder.UncompressedSize,
@@ -61,6 +64,9 @@ namespace Fantome.Libraries.League.IO.WadFile
                     entryBuilder._dataOffset)
                 );
             }
+
+            // Seek to start
+            stream.Seek(headerStartOffset, SeekOrigin.Begin);
 
             wad.Write(stream);
         }
@@ -112,7 +118,11 @@ namespace Fantome.Libraries.League.IO.WadFile
             }
             else
             {
-                entryBuilder.DataStream.CopyTo(stream);
+                byte[] data = new byte[entryBuilder.DataStream.Length];
+
+                entryBuilder.DataStream.Read(data, 0, data.Length);
+
+                stream.Write(data);
             }
         }
     }

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fantome.Libraries.League", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fantome.Libraries.League.Sandbox", "Fantome.Libraries.League.Sandbox\Fantome.Libraries.League.Sandbox.csproj", "{DC9F95B4-9B08-4B02-98C4-76282FF3B089}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fantome.Libraries.League.Tests", "Fantome.Libraries.League.Tests\Fantome.Libraries.League.Tests.csproj", "{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,9 @@ Global
 		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Debug|x64.Build.0 = Debug|x64
 		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Release|x64.ActiveCfg = Release|x64
 		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Release|x64.Build.0 = Release|x64
+		{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}.Debug|x64.ActiveCfg = Debug|x64
+		{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}.Debug|x64.Build.0 = Debug|x64
+		{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

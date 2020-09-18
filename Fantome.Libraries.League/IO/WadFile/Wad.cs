@@ -22,21 +22,26 @@ namespace Fantome.Libraries.League.IO.WadFile
         private bool _isDisposed = false;
         private bool _leaveOpen = false;
 
-        internal Wad(Stream stream, bool leaveOpen) 
+        internal Wad(Stream stream, bool shouldRead, bool leaveOpen) : this(stream)
         {
             this._stream = stream;
             this._leaveOpen = leaveOpen;
 
-            this.Entries = new(this._entries);
-
-            Read(this._stream);
+            if(shouldRead)
+            {
+                Read(this._stream);
+            }
         }
-        internal Wad() { }
+        internal Wad(Stream stream)
+        {
+            this._stream = stream;
+            this.Entries = new(this._entries);
+        }
 
         public static Wad Mount(string fileLocation, bool leaveOpen) => Mount(File.OpenRead(fileLocation), leaveOpen);
         public static Wad Mount(Stream stream, bool leaveOpen)
         {
-            return new Wad(stream, leaveOpen);
+            return new Wad(stream, true, leaveOpen);
         }
 
         private void Read(Stream stream)
@@ -98,7 +103,7 @@ namespace Fantome.Libraries.League.IO.WadFile
 
         internal void Write(Stream stream)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.ASCII, true))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, true))
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
                 bw.Write((byte)3); // major
