@@ -83,13 +83,11 @@ namespace Fantome.Libraries.League.Tests
             MemoryStream rebuiltWadStream = new MemoryStream();
             Assert.DoesNotThrow(delegate
             {
-                wadBuilder.Build(rebuiltWadStream);
+                wadBuilder.Build(rebuiltWadStream, true);
             }, "Failed to build WAD using data streams");
 
-            File.WriteAllBytes("test_data.wad.client", rebuiltWadStream.ToArray());
-
             rebuiltWadStream.Seek(0, SeekOrigin.Begin);
-            this._dataStreamWad = Wad.Mount(rebuiltWadStream, false);
+            this._dataStreamWad = Wad.Mount(rebuiltWadStream, true);
         }
 
         [Test, Order(2)]
@@ -120,13 +118,11 @@ namespace Fantome.Libraries.League.Tests
             MemoryStream rebuiltWadStream = new MemoryStream();
             Assert.DoesNotThrow(delegate
             {
-                wadBuilder.Build(rebuiltWadStream);
+                wadBuilder.Build(rebuiltWadStream, true);
             }, "Failed to build WAD using files");
 
-            File.WriteAllBytes("test_file.wad.client", rebuiltWadStream.ToArray());
-
             rebuiltWadStream.Seek(0, SeekOrigin.Begin);
-            this._fileStreamWad = Wad.Mount(rebuiltWadStream, false);
+            this._fileStreamWad = Wad.Mount(rebuiltWadStream, true);
         }
 
         [Test, Order(4)]
