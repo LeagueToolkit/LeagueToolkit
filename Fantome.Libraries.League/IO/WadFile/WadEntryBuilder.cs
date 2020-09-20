@@ -74,10 +74,13 @@ namespace Fantome.Libraries.League.IO.WadFile
 
             return this;
         }
-        public WadEntryBuilder WithFileDataStream(string fileLocation)
+        public WadEntryBuilder WithFileDataStream(string fileLocation) => WithFileDataStream(File.OpenRead(fileLocation));
+        public WadEntryBuilder WithFileDataStream(FileStream stream)
         {
-            this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(fileLocation));
-            this.DataStream = File.OpenRead(fileLocation);
+            string filePath = stream.Name;
+
+            this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(filePath));
+            this.DataStream = stream;
             this._isFileDataStream = true;
             this.Sha256Checksum = new byte[8];
 

@@ -80,7 +80,7 @@ namespace Fantome.Libraries.League.IO.WadFile
                 MemoryStream compressedStream = new MemoryStream();
                 if (entryBuilder.EntryType == WadEntryType.GZipCompressed)
                 {
-                    using GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Compress);
+                    using GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Compress, true);
 
                     entryBuilder.DataStream.CopyTo(gzipStream);
                     entryBuilder.DataStream = compressedStream;
@@ -89,7 +89,7 @@ namespace Fantome.Libraries.League.IO.WadFile
                 }
                 else if (entryBuilder.EntryType == WadEntryType.ZStandardCompressed)
                 {
-                    using ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress);
+                    using ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true);
 
                     entryBuilder.DataStream.CopyTo(zstdStream);
                     entryBuilder.DataStream = compressedStream;
@@ -120,6 +120,7 @@ namespace Fantome.Libraries.League.IO.WadFile
             {
                 byte[] data = new byte[entryBuilder.DataStream.Length];
 
+                entryBuilder.DataStream.Seek(0, SeekOrigin.Begin);
                 entryBuilder.DataStream.Read(data, 0, data.Length);
 
                 stream.Write(data);

@@ -1,136 +1,220 @@
 using Fantome.Libraries.League.IO.WadFile;
 using NUnit.Framework;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 
 namespace Fantome.Libraries.League.Tests
 {
+    [TestFixture("Aatrox.wad.client", Author = "Crauzer", Category = "WAD")]
+    [TestFixture("Yone.wad.client", Author = "Crauzer", Category = "WAD")]
+    [TestFixture("Aphelios.wad.client", Author = "Crauzer", Category = "WAD")]
+    [SingleThreaded]
     public class WadTests
     {
         private const string WAD_DIR = "files/wad";
 
-        [SetUp]
-        public void Setup()
-        {
+        private string _wadName;
+        private Wad _originalWad;
+        private Wad _dataStreamWad;
+        private Wad _fileStreamWad;
 
+        public WadTests(string wadName)
+        {
+            this._wadName = wadName;
+
+            Directory.CreateDirectory("temp");
         }
 
-        [TestCase("Aatrox.wad.client", Author = "Crauzer", Category = "WAD")]
-        [TestCase("Yone.wad.client", Author = "Crauzer", Category = "WAD")]
-        [TestCase("Aphelios.wad.client", Author = "Crauzer", Category = "WAD")]
-        public void TestWad(string wadName)
+        [Test, Order(0)]
+        public void TestReadOriginalWad()
         {
-            Wad wad = null;
-
             // Test whether we can read the file
             Assert.DoesNotThrow(delegate
             {
-                wad = Wad.Mount(Path.Combine(WAD_DIR, wadName), true);
+                this._originalWad = Wad.Mount(Path.Combine(WAD_DIR, this._wadName), true);
             },
             "Failed to read the file");
-
-            // Test entry handle operations
-            foreach (WadEntry entry in wad.Entries.Values)
-            {
-                TestEntryDataHandleOperations(entry);
-            }
-
-            // Rebuild the WAD
-            TestRebuild(wad);
 
             Assert.Pass();
         }
 
-        public void TestEntryDataHandleOperations(WadEntry entry)
+        [Test, Order(1)]
+        public void TestOriginalWadEntryDataHandleOperations()
         {
-            // Ignore file redirections
-            if (entry.Type == WadEntryType.FileRedirection) return;
-
-            WadEntryDataHandle dataHandle = entry.GetDataHandle();
-            Stream comressedDataStream = null;
-            Stream decompressedDataStream = null;
-
-            Assert.DoesNotThrow(delegate
+            foreach(WadEntry entry in this._originalWad.Entries.Values)
             {
-                comressedDataStream = dataHandle.GetCompressedStream();
-            }, "Failed to get compressed stream");
+                // Ignore file redirections
+                if (entry.Type == WadEntryType.FileRedirection) return;
 
-            Assert.DoesNotThrow(delegate
-            {
-                decompressedDataStream = dataHandle.GetDecompressedStream();
-            }, "Failed to get decompressed data stream");
+                WadEntryDataHandle dataHandle = entry.GetDataHandle();
+                Stream comressedDataStream = null;
+                Stream decompressedDataStream = null;
 
-            Assert.AreEqual((int)comressedDataStream.Length, entry.CompressedSize);
-            Assert.AreEqual((int)decompressedDataStream.Length, entry.UncompressedSize);
+                Assert.DoesNotThrow(delegate
+                {
+                    comressedDataStream = dataHandle.GetCompressedStream();
+                }, "Failed to get compressed stream");
 
-            // Verify SHA checksum
-            using (SHA256 sha = SHA256.Create())
-            {
-                byte[] computedHash = sha.ComputeHash(comressedDataStream).Take(8).ToArray();
+                Assert.DoesNotThrow(delegate
+                {
+                    decompressedDataStream = dataHandle.GetDecompressedStream();
+                }, "Failed to get decompressed data stream");
 
-                Assert.IsTrue(computedHash.SequenceEqual(entry.SHA), "Entry checksum does not match computed one");
+                Assert.AreEqual((int)comressedDataStream.Length, entry.CompressedSize);
+                Assert.AreEqual((int)decompressedDataStream.Length, entry.UncompressedSize);
+
+                // Verify SHA checksum
+                using (SHA256 sha = SHA256.Create())
+                {
+                    byte[] computedHash = sha.ComputeHash(comressedDataStream).Take(8).ToArray();
+
+                    Assert.IsTrue(computedHash.SequenceEqual(entry.SHA), $"Entry ({entry.XXHash}) checksum does not match computed one");
+                }
             }
         }
 
-        public void TestRebuild(Wad wad)
+        [Test, Order(2)]
+        public void TestDataStreamRebuildWad()
         {
             WadBuilder wadBuilder = new WadBuilder();
 
-            TestDataStreamRebuild();
-
-            void TestDataStreamRebuild()
+            // Build entries
+            foreach (WadEntry entry in this._originalWad.Entries.Values)
             {
-                // Build entries
-                foreach (WadEntry entry in wad.Entries.Values)
+                WadEntryBuilder entryBuilder = new WadEntryBuilder();
+
+                entryBuilder
+                    .WithPathXXHash(entry.XXHash);
+
+                if (entry.Type == WadEntryType.GZipCompressed)
                 {
-                    WadEntryBuilder entryBuilder = new WadEntryBuilder();
-
-                    entryBuilder
-                        .WithPathXXHash(entry.XXHash);
-
-                    if (entry.Type == WadEntryType.GZipCompressed)
-                    {
-                        entryBuilder.WithGZipDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize);
-                    }
-                    else if (entry.Type == WadEntryType.ZStandardCompressed)
-                    {
-                        entryBuilder.WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize);
-                    }
-                    else if (entry.Type == WadEntryType.Uncompressed)
-                    {
-                        entryBuilder.WithUncompressedDataStream(entry.GetDataHandle().GetDecompressedStream());
-                    }
-                    else if (entry.Type == WadEntryType.FileRedirection)
-                    {
-                        entryBuilder.WithFileRedirection(entry.FileRedirection);
-                    }
-
-                    wadBuilder.WithEntry(entryBuilder);
+                    entryBuilder.WithGZipDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize);
+                }
+                else if (entry.Type == WadEntryType.ZStandardCompressed)
+                {
+                    entryBuilder.WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize);
+                }
+                else if (entry.Type == WadEntryType.Uncompressed)
+                {
+                    entryBuilder.WithUncompressedDataStream(entry.GetDataHandle().GetDecompressedStream());
+                }
+                else if (entry.Type == WadEntryType.FileRedirection)
+                {
+                    entryBuilder.WithFileRedirection(entry.FileRedirection);
                 }
 
-                using MemoryStream rebuiltWadStream = new MemoryStream();
-                Assert.DoesNotThrow(delegate
-                {
-                    wadBuilder.Build(rebuiltWadStream);
-                }, "Failed to build WAD using data streams");
-
-                File.WriteAllBytes("test.wad.client", rebuiltWadStream.ToArray());
-
-                TestRebuiltWad(rebuiltWadStream);
+                wadBuilder.WithEntry(entryBuilder);
             }
 
-            void TestRebuiltWad(Stream wadStream)
+            MemoryStream rebuiltWadStream = new MemoryStream();
+            Assert.DoesNotThrow(delegate
             {
-                wadStream.Seek(0, SeekOrigin.Begin);
+                wadBuilder.Build(rebuiltWadStream);
+            }, "Failed to build WAD using data streams");
 
-                // Test whether we can read the file
-                Assert.DoesNotThrow(delegate
+            rebuiltWadStream.Seek(0, SeekOrigin.Begin);
+            this._dataStreamWad = Wad.Mount(rebuiltWadStream, false);
+        }
+
+        [Test, Order(2)]
+        public void TestFileStreamRebuildWad()
+        {
+            WadBuilder wadBuilder = new WadBuilder();
+
+            // Build entries
+            foreach (WadEntry entry in this._originalWad.Entries.Values)
+            {
+                WadEntryBuilder entryBuilder = new WadEntryBuilder();
+                string entryFileName = "temp/" + entry.XXHash;
+
+                // Extract entry data to temporary file
+                using (FileStream writeEntryFileStream = File.OpenWrite(entryFileName))
                 {
-                    Wad.Mount(wadStream, false);
-                },
-                "Failed to read the file");
+                    entry.GetDataHandle().GetDecompressedStream().CopyTo(writeEntryFileStream);
+                }
+
+                entryBuilder
+                    .WithPathXXHash(entry.XXHash)
+                    .WithFileDataStream(entryFileName);
+
+                wadBuilder.WithEntry(entryBuilder);
             }
+
+            using MemoryStream rebuiltWadStream = new MemoryStream();
+            Assert.DoesNotThrow(delegate
+            {
+                wadBuilder.Build(rebuiltWadStream);
+            }, "Failed to build WAD using files");
+
+            rebuiltWadStream.Seek(0, SeekOrigin.Begin);
+            this._fileStreamWad = Wad.Mount(rebuiltWadStream, false);
+        }
+
+        [Test, Order(3)]
+        public void TestCompareDataStreamRebuiltToOriginal()
+        {
+            foreach(WadEntry rebuiltEntry in this._dataStreamWad.Entries.Values)
+            {
+                // Find original entry
+                WadEntry originalEntry = null;
+                Assert.IsTrue(this._originalWad.Entries.TryGetValue(rebuiltEntry.XXHash, out originalEntry),
+                    $"Failed to find original entry ({rebuiltEntry.XXHash})");
+
+                // Compare data sizes
+                Assert.AreEqual(rebuiltEntry.CompressedSize, originalEntry.CompressedSize, "Compressed sizes don't match");
+                Assert.AreEqual(rebuiltEntry.UncompressedSize, originalEntry.UncompressedSize, "Uncompressed sizes don't match");
+
+                // Compare checksums
+                Assert.IsTrue(rebuiltEntry.SHA.SequenceEqual(originalEntry.SHA), $"Entry ({rebuiltEntry.XXHash}) Checksums don't match");
+            }
+        }
+
+        [Test, Order(3)]
+        public void TestCompareFileStreamRebuiltToOriginal()
+        {
+            foreach (WadEntry rebuiltEntry in this._fileStreamWad.Entries.Values)
+            {
+                // Find original entry
+                WadEntry originalEntry = null;
+                Assert.IsTrue(this._originalWad.Entries.TryGetValue(rebuiltEntry.XXHash, out originalEntry),
+                    $"Failed to find original entry ({rebuiltEntry.XXHash})");
+
+                // Compare data sizes
+                Assert.AreEqual(rebuiltEntry.CompressedSize, originalEntry.CompressedSize, "Compressed sizes don't match");
+                Assert.AreEqual(rebuiltEntry.UncompressedSize, originalEntry.UncompressedSize, "Uncompressed sizes don't match");
+
+                // Compare checksums
+                Assert.IsTrue(rebuiltEntry.SHA.SequenceEqual(originalEntry.SHA), $"Entry ({rebuiltEntry.XXHash}) Checksums don't match");
+            }
+        }
+
+        [Test, Order(3)]
+        public void TestCompareDataStreamRebuiltToFileStreamRebuilt()
+        {
+            foreach (WadEntry dataStreamEntry in this._dataStreamWad.Entries.Values)
+            {
+                // Find File Stream entry
+                WadEntry fileStreamEntry = null;
+                Assert.IsTrue(this._fileStreamWad.Entries.TryGetValue(dataStreamEntry.XXHash, out fileStreamEntry),
+                    $"Failed to find original entry ({dataStreamEntry.XXHash})");
+
+                // Compare data sizes
+                Assert.AreEqual(dataStreamEntry.CompressedSize, fileStreamEntry.CompressedSize, "Compressed sizes don't match");
+                Assert.AreEqual(dataStreamEntry.UncompressedSize, fileStreamEntry.UncompressedSize, "Uncompressed sizes don't match");
+
+                // Compare checksums
+                Assert.IsTrue(dataStreamEntry.SHA.SequenceEqual(fileStreamEntry.SHA), $"Entry ({dataStreamEntry.XXHash}) Checksums don't match");
+            }
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            this._originalWad?.Dispose();
+            this._dataStreamWad?.Dispose();
+            this._fileStreamWad?.Dispose();
         }
     }
 }
