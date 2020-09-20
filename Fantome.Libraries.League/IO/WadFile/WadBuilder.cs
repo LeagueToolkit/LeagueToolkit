@@ -36,7 +36,7 @@ namespace Fantome.Libraries.League.IO.WadFile
         public void Build(string fileLocation) => Build(File.OpenWrite(fileLocation));
         public void Build(Stream stream)
         {
-            using Wad wad = new Wad(stream, false, true);
+            using Wad wad = new Wad(stream, false, false);
 
             long headerStartOffset = stream.Position;
 

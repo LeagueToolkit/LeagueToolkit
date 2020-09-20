@@ -46,7 +46,7 @@ namespace Fantome.Libraries.League.IO.WadFile
 
         private void Read(Stream stream)
         {
-            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, true))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, this._leaveOpen))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
                 if (magic != "RW")
@@ -103,7 +103,7 @@ namespace Fantome.Libraries.League.IO.WadFile
 
         internal void Write(Stream stream)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, true))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, this._leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
                 bw.Write((byte)3); // major
