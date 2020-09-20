@@ -124,19 +124,6 @@ namespace Fantome.Libraries.League.IO.WadFile
                 List<ulong> entryKeys = this._entries.Keys.ToList();
                 entryKeys.Sort();
 
-                foreach(ulong entryKey in entryKeys)
-                {
-                    WadEntry currentEntry = this._entries[entryKey];
-
-                    // Writing data
-                    var currentEntryDataHandle = currentEntry.GetDataHandle();
-                    Stream currentEntryCompressedStream = currentEntryDataHandle.GetCompressedStream();
-
-                    currentEntryCompressedStream.CopyTo(bw.BaseStream);
-
-                    currentEntry._dataOffset = (int)(stream.Position - currentEntry.CompressedSize);
-                }
-
                 // Write TOC
                 stream.Seek(tocOffset, SeekOrigin.Begin);
                 foreach(ulong entryKey in entryKeys)

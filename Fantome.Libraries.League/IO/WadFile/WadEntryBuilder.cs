@@ -101,6 +101,8 @@ namespace Fantome.Libraries.League.IO.WadFile
         {
             using (SHA256 sha = SHA256.Create())
             {
+                this.DataStream.Seek(0, SeekOrigin.Begin);
+
                 this.Sha256Checksum = sha.ComputeHash(this.DataStream).Take(8).ToArray();
             }
         }

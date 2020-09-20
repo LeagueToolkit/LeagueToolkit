@@ -71,7 +71,7 @@ namespace Fantome.Libraries.League.IO.WadFile
             wad.Write(stream);
         }
 
-        private void WriteEntryData(Stream stream, WadEntryBuilder entryBuilder)
+        private void WriteEntryData(Stream wadStream, WadEntryBuilder entryBuilder)
         {
             // If we're writing a File Stream then we need to compress it first
             if (entryBuilder._isFileDataStream)
@@ -80,18 +80,22 @@ namespace Fantome.Libraries.League.IO.WadFile
                 MemoryStream compressedStream = new MemoryStream();
                 if (entryBuilder.EntryType == WadEntryType.GZipCompressed)
                 {
-                    using GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Compress, true);
+                    using (GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Compress, true))
+                    {
+                        entryBuilder.DataStream.CopyTo(gzipStream);
+                    }
 
-                    entryBuilder.DataStream.CopyTo(gzipStream);
                     entryBuilder.DataStream = compressedStream;
                     entryBuilder.UncompressedSize = uncompressedSize;
                     entryBuilder.CompressedSize = (int)compressedStream.Length;
                 }
                 else if (entryBuilder.EntryType == WadEntryType.ZStandardCompressed)
                 {
-                    using ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true);
+                    using (ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true))
+                    {
+                        entryBuilder.DataStream.CopyTo(zstdStream);
+                    }
 
-                    entryBuilder.DataStream.CopyTo(zstdStream);
                     entryBuilder.DataStream = compressedStream;
                     entryBuilder.UncompressedSize = uncompressedSize;
                     entryBuilder.CompressedSize = (int)compressedStream.Length;
@@ -108,13 +112,13 @@ namespace Fantome.Libraries.League.IO.WadFile
                 entryBuilder.ComputeSha256Checksum();
             }
 
-            entryBuilder._dataOffset = (int)stream.Position;
+            entryBuilder._dataOffset = (int)wadStream.Position;
         
             // Write data
             if (entryBuilder.EntryType == WadEntryType.FileRedirection)
             {
-                stream.Write(BitConverter.GetBytes(entryBuilder.FileRedirection.Length));
-                stream.Write(Encoding.UTF8.GetBytes(entryBuilder.FileRedirection));
+                wadStream.Write(BitConverter.GetBytes(entryBuilder.FileRedirection.Length));
+                wadStream.Write(Encoding.UTF8.GetBytes(entryBuilder.FileRedirection));
             }
             else
             {
@@ -123,7 +127,7 @@ namespace Fantome.Libraries.League.IO.WadFile
                 entryBuilder.DataStream.Seek(0, SeekOrigin.Begin);
                 entryBuilder.DataStream.Read(data, 0, data.Length);
 
-                stream.Write(data);
+                wadStream.Write(data, 0, data.Length);
             }
         }
     }
