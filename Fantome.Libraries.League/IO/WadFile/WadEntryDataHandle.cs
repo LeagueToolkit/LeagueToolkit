@@ -75,10 +75,7 @@ namespace Fantome.Libraries.League.IO.WadFile
                 }
                 case WadEntryType.Uncompressed:
                 {
-                    byte[] uncompressedData = new byte[this._entry.UncompressedSize];
-                    wadStream.Read(uncompressedData, 0, uncompressedData.Length);
-
-                    return new MemoryStream(uncompressedData);
+                    return new MemoryStream(compressedData);
                 }
                 case WadEntryType.FileRedirection:
                 {
