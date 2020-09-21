@@ -20,12 +20,12 @@ namespace Fantome.Libraries.League.IO.WadFile
 
         public string FileRedirection { get; private set; }
 
-        internal int _dataOffset;
+        internal uint _dataOffset;
         internal bool _isDuplicated;
 
         internal readonly Wad _wad;
  
-        internal WadEntry(Wad wad, ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, int dataOffset)
+        internal WadEntry(Wad wad, ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, uint dataOffset)
         {
             this._wad = wad;
             this.XXHash = xxhash;
@@ -40,7 +40,7 @@ namespace Fantome.Libraries.League.IO.WadFile
         {
             this._wad = wad;
             this.XXHash = br.ReadUInt64();
-            this._dataOffset = br.ReadInt32();
+            this._dataOffset = br.ReadUInt32();
             this.CompressedSize = br.ReadInt32();
             this.UncompressedSize = br.ReadInt32();
             this.Type = (WadEntryType)br.ReadByte();

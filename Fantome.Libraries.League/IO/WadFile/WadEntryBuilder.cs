@@ -20,7 +20,7 @@ namespace Fantome.Libraries.League.IO.WadFile
         public int CompressedSize { get; internal set; }
         public int UncompressedSize { get; internal set; }
         internal bool _isFileDataStream = false;
-        internal int _dataOffset;
+        internal uint _dataOffset;
 
         public string FileRedirection { get; private set; }
 

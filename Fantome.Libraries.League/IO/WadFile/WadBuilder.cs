@@ -112,7 +112,7 @@ namespace Fantome.Libraries.League.IO.WadFile
                 entryBuilder.ComputeSha256Checksum();
             }
 
-            entryBuilder._dataOffset = (int)wadStream.Position;
+            entryBuilder._dataOffset = (uint)wadStream.Position;
         
             // Write data
             if (entryBuilder.EntryType == WadEntryType.FileRedirection)
