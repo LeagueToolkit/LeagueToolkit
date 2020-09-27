@@ -28,7 +28,17 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            Wad wad = Wad.Mount(@"C:\Riot Games\League of Legends\Plugins\rcp-be-lol-game-data\default-assets.wad", true);
+            SimpleSkin simpleSkin = new SimpleSkin(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox.skn");
+            Skeleton skeleton = new Skeleton(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox.skl");
+
+            var textureMap = new Dictionary<string, MagickImage>() 
+            {
+                { "Body", new MagickImage(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox_base_tx_cm.dds") }
+            };
+
+            ModelRoot gltf = simpleSkin.ToGltf(skeleton, textureMap);
+
+            gltf.SaveGLB(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox.glb");
         }
 
         static void TestMapgeo()

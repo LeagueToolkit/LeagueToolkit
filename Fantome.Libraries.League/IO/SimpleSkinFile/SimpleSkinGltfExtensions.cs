@@ -69,13 +69,13 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
         }
         public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
-            SceneBuilder sceneBuilder = new SceneBuilder("model");
-            NodeBuilder rootNodeBuilder = new NodeBuilder()
-                .WithLocalScale(new Vector3(-1, 1, 1)); // Flip X
+            SceneBuilder sceneBuilder = new SceneBuilder();
+            NodeBuilder rootNodeBuilder = new NodeBuilder("model");
+
             var meshBuilder = VERTEX_SKINNED.CreateCompatibleMesh();
+            var bones = CreateSkeleton(rootNodeBuilder, skeleton);
 
-            List<NodeBuilder> bones = CreateSkeleton(rootNodeBuilder, skeleton);
-
+            // Build mesh primitives
             foreach (SimpleSkinSubmesh submesh in skn.Submeshes)
             {
                 MaterialBuilder material = new MaterialBuilder(submesh.Name).WithUnlitShader();
@@ -108,20 +108,24 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 // Add vertices to primitive
                 for (int i = 0; i < submesh.Indices.Count; i += 3)
                 {
-                    VERTEX_SKINNED v1 = vertices[submesh.Indices[i + 0]];
-                    VERTEX_SKINNED v2 = vertices[submesh.Indices[i + 1]];
-                    VERTEX_SKINNED v3 = vertices[submesh.Indices[i + 2]];
+                    VERTEX_SKINNED a = vertices[submesh.Indices[i + 0]];
+                    VERTEX_SKINNED b = vertices[submesh.Indices[i + 1]];
+                    VERTEX_SKINNED c = vertices[submesh.Indices[i + 2]];
 
-                    submeshPrimitive.AddTriangle(v1, v2, v3);
+                    submeshPrimitive.AddTriangle(c, b, a);
                 }
             }
 
-            sceneBuilder.AddSkinnedMesh(meshBuilder, new AffineTransform(new Vector3(-1, 1, 1), Quaternion.Identity, Vector3.Zero).Matrix, bones.ToArray());
+            // Add mesh to scene
+            sceneBuilder.AddSkinnedMesh(meshBuilder, bones.ToArray());
 
-            if (leagueAnimations != null)
+            // Create animations
+            if (leagueAnimations is not null)
             {
-                CreateAnimations(bones, leagueAnimations);
+                CreateAnimations(bones.Select(x => x.Node).ToList(), leagueAnimations);
             }
+
+            sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
 
             return sceneBuilder.ToGltf2();
         }
@@ -137,9 +141,9 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 .UseTexture()
                 .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }
-        private static List<NodeBuilder> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
+        private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
         {
-            List<NodeBuilder> bones = new List<NodeBuilder>();
+            var bones = new List<(NodeBuilder, Matrix4x4)>();
 
             foreach (SkeletonJoint joint in skeleton.Joints)
             {
@@ -150,17 +154,17 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    bones.Add(jointNode);
+                    bones.Add((jointNode, joint.InverseGlobalTransform));
                 }
                 else
                 {
                     SkeletonJoint parentJoint = skeleton.Joints.FirstOrDefault(x => x.ID == joint.ParentID);
-                    NodeBuilder parentNode = bones.FirstOrDefault(x => x.Name == parentJoint.Name);
+                    NodeBuilder parentNode = bones.FirstOrDefault(x => x.Item1.Name == parentJoint.Name).Item1;
                     NodeBuilder jointNode = parentNode.CreateNode(joint.Name);
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    bones.Add(jointNode);
+                    bones.Add((jointNode, joint.InverseGlobalTransform));
                 }
             }
 
