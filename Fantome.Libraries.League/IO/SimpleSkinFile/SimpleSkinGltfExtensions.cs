@@ -125,6 +125,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 CreateAnimations(bones.Select(x => x.Node).ToList(), leagueAnimations);
             }
 
+            // Flip the scene across the X axis
             sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
 
             return sceneBuilder.ToGltf2();
