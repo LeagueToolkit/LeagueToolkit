@@ -172,7 +172,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
                 {
                     SkeletonJoint parent = this.Joints[joint.ParentID];
 
-                    joint.LocalTransform = joint.GlobalTransform * parent.InverseGlobalTransform;
+                    joint.LocalTransform = joint.GlobalTransform * parent.InverseBindTransform;
                 }
             }
         }

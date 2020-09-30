@@ -155,7 +155,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    bones.Add((jointNode, joint.InverseGlobalTransform));
+                    bones.Add((jointNode, joint.InverseBindTransform));
                 }
                 else
                 {
@@ -165,7 +165,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    bones.Add((jointNode, joint.InverseGlobalTransform));
+                    bones.Add((jointNode, joint.InverseBindTransform));
                 }
             }
 

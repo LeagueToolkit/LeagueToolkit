@@ -22,7 +22,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
         public string Name { get; private set; }
         public Matrix4x4 LocalTransform { get; internal set; }
         public Matrix4x4 GlobalTransform { get; internal set; }
-        public Matrix4x4 InverseGlobalTransform
+        public Matrix4x4 InverseBindTransform
         {
             get 
             {
@@ -160,7 +160,7 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
         }
         private void WriteInverseGlobalTransform(BinaryWriter bw)
         {
-            Matrix4x4 inverse = this.InverseGlobalTransform;
+            Matrix4x4 inverse = this.InverseBindTransform;
 
             bw.WriteVector3(inverse.Translation);
             bw.WriteVector3(inverse.GetScale());
