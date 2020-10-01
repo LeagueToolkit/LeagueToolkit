@@ -128,13 +128,13 @@ namespace Fantome.Libraries.League.IO.SkeletonFile
             string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
             if (magic != "r3d2sklt")
             {
-                throw new Exception("Invalid File Magic: " + magic);
+                throw new InvalidFileSignatureException();
             }
 
             uint version = br.ReadUInt32();
             if (version != 1 && version != 2)
             {
-                throw new Exception("Unsupported File Version: " + version);
+                throw new UnsupportedFileVersionException();
             }
 
             uint skeletonID = br.ReadUInt32();
