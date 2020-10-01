@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -44,13 +45,13 @@ namespace Fantome.Libraries.League.IO.AiMesh
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
                 if (magic != "r3d2aims")
                 {
-                    throw new Exception("This is not a valid AiMesh file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint version = br.ReadUInt32();
                 if (version != 2)
                 {
-                    throw new Exception("This version is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 uint cellCount = br.ReadUInt32();

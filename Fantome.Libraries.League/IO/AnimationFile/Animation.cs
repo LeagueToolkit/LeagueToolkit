@@ -11,6 +11,7 @@ using Vector3 = System.Numerics.Vector3;
 using Quaternion = System.Numerics.Quaternion;
 using Fantome.Libraries.League.IO.SkeletonFile;
 using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Exceptions;
 
 namespace Fantome.Libraries.League.IO.AnimationFile
 {
@@ -52,7 +53,7 @@ namespace Fantome.Libraries.League.IO.AnimationFile
                 }
                 else
                 {
-                    throw new Exception("Invalid file signature: " + magic);
+                    throw new InvalidFileSignatureException();
                 }
             }
         }

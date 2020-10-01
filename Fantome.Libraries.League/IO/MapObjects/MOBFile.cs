@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -46,13 +47,13 @@ namespace Fantome.Libraries.League.IO.MapObjects
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "OPAM")
                 {
-                    throw new Exception("This is not a valid MOB file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint version = br.ReadUInt32();
                 if (version != 2)
                 {
-                    throw new Exception("This version is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 uint objectCount = br.ReadUInt32();

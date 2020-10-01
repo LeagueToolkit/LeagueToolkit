@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -28,7 +29,7 @@ namespace Fantome.Libraries.League.IO.FX
                     uint version = br.ReadUInt32();
                     if (version != 1)
                     {
-                        throw new Exception("This version is not supported");
+                        throw new UnsupportedFileVersionException();
                     }
 
                     uint flag = br.ReadUInt32();

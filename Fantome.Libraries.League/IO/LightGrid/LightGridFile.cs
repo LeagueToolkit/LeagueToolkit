@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Extensions;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace Fantome.Libraries.League.IO.LightGrid
                 uint version = br.ReadUInt32();
                 if (version != 3)
                 {
-                    throw new Exception("This is not a valid Light Grid file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint gridOffset = br.ReadUInt32();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -17,7 +18,7 @@ namespace Fantome.Libraries.League.IO.NavigationGridOverlay
                 byte version = br.ReadByte();
                 if(version != 1)
                 {
-                    throw new Exception("Unsupported Version: " + version);
+                    throw new UnsupportedFileVersionException();
                 }
 
                 byte regionCount = br.ReadByte();
