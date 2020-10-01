@@ -1,4 +1,5 @@
 ﻿using Fantome.Libraries.League.Helpers.Compression;
+using Fantome.Libraries.League.Helpers.Exceptions;
 using FlatSharp;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace Fantome.Libraries.League.IO.ReleaseManifestFile
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
                 if (magic != "RMAN")
                 {
-                    throw new Exception("Invalid signature");
+                    throw new InvalidFileSignatureException();
                 }
 
                 byte major = br.ReadByte();
@@ -36,7 +37,7 @@ namespace Fantome.Libraries.League.IO.ReleaseManifestFile
                 // NOTE: only check major because minor version are compatabile forwards-backwards
                 if (major != 2)
                 {
-                    throw new Exception(string.Format("Unsupported version {0}.{1}", major, minor));
+                    throw new UnsupportedFileVersionException();
                 }
 
                 //Could possibly be Compression Type
