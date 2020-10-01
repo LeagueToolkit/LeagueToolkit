@@ -1,4 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -65,13 +66,13 @@ namespace Fantome.Libraries.League.IO.WGT
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
                 if (magic != "r3d2wght")
                 {
-                    throw new Exception("This is not a valid WGT file");
+                    throw new InvalidFileSignatureException();
                 }
 
                 uint version = br.ReadUInt32();
                 if (version != 1)
                 {
-                    throw new Exception("This WGT file version is not supported");
+                    throw new UnsupportedFileVersionException();
                 }
 
                 uint skeletonId = br.ReadUInt32();
