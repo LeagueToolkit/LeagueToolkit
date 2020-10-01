@@ -94,7 +94,7 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
 
                 if (sr.ReadLine() != "[ObjectBegin]")
                 {
-                    throw new Exception("Invalid signature");
+                    throw new InvalidFileSignatureException();
                 }
 
                 input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
