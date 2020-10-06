@@ -61,7 +61,6 @@ namespace Fantome.Libraries.League.IO.WadFile
                     throw new UnsupportedFileVersionException();
                 }
 
-                uint fileCount = 0;
                 ulong dataChecksum = 0; // probably not "dataChecksum"
 
                 if (major == 2)
@@ -84,7 +83,7 @@ namespace Fantome.Libraries.League.IO.WadFile
                     ushort tocFileEntrySize = br.ReadUInt16();
                 }
 
-                fileCount = br.ReadUInt32();
+                uint fileCount = br.ReadUInt32();
                 for (int i = 0; i < fileCount; i++)
                 {
                     WadEntry entry = new WadEntry(this, br, major);
