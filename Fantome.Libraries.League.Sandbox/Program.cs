@@ -15,6 +15,7 @@ using Fantome.Libraries.League.IO.WadFile;
 using Fantome.Libraries.League.IO.WGT;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using ImageMagick;
+using Newtonsoft.Json;
 using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
@@ -28,17 +29,9 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            SimpleSkin simpleSkin = new SimpleSkin(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox.skn");
-            Skeleton skeleton = new Skeleton(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox.skl");
+            BinTree binTree = new BinTree(@"C:\Users\Crauzer\Desktop\New folder\data\characters\aatrox\skins\skin8_2.bin");
 
-            var textureMap = new Dictionary<string, MagickImage>() 
-            {
-                { "Body", new MagickImage(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox_base_tx_cm.dds") }
-            };
-
-            ModelRoot gltf = simpleSkin.ToGltf(skeleton, textureMap);
-
-            gltf.SaveGLB(@"C:\Users\Crauzer\Desktop\New folder\assets\characters\aatrox\skins\base\aatrox.glb");
+            binTree.Write(@"C:\Users\Crauzer\Desktop\New folder\data\characters\aatrox\skins\skin8_2.bin");
         }
 
         static void TestMapgeo()

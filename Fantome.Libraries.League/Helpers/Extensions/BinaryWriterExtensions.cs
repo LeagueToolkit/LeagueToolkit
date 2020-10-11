@@ -68,11 +68,23 @@ namespace Fantome.Libraries.League.Helpers.Extensions
             }
         }
 
+        public static void WriteVector2(this BinaryWriter writer, Vector2 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+        }
         public static void WriteVector3(this BinaryWriter writer, Vector3 vector)
         {
             writer.Write(vector.X);
             writer.Write(vector.Y);
             writer.Write(vector.Z);
+        }
+        public static void WriteVector4(this BinaryWriter writer, Vector4 vector)
+        {
+            writer.Write(vector.X);
+            writer.Write(vector.Y);
+            writer.Write(vector.Z);
+            writer.Write(vector.W);
         }
 
         public static void WriteQuaternion(this BinaryWriter writer, Quaternion quaternion)
