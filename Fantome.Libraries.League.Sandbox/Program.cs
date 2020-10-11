@@ -2,7 +2,7 @@
 using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
 using Fantome.Libraries.League.IO.AnimationFile;
-using Fantome.Libraries.League.IO.BIN;
+using Fantome.Libraries.League.IO.PropertyBin;
 using Fantome.Libraries.League.IO.MapGeometry;
 using Fantome.Libraries.League.IO.NavigationGridOverlay;
 using Fantome.Libraries.League.IO.NVR;

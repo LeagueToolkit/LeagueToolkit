@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Fantome.Libraries.League.IO.BIN
+namespace Fantome.Libraries.League.IO.PropertyBin
 {
     public class BinTree
     {

@@ -1,4 +1,4 @@
-﻿namespace Fantome.Libraries.League.IO.BIN
+﻿namespace Fantome.Libraries.League.IO.PropertyBin
 {
     internal sealed class BinUtilities
     {

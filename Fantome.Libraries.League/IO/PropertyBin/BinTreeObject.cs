@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace Fantome.Libraries.League.IO.BIN
+namespace Fantome.Libraries.League.IO.PropertyBin
 {
     public class BinTreeObject : IBinTreeParent
     {
