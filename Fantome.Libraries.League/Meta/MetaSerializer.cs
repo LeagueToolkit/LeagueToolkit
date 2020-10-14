@@ -171,7 +171,7 @@ namespace Fantome.Libraries.League.Meta
                 BinPropertyType.Optional => false,
                 BinPropertyType.Map => false,
                 BinPropertyType.BitBool => true,
-                _ => false
+                _ => throw new ArgumentException("Invalid property type", nameof(propertyType))
             };
         }
         private static bool IsValidMapKey(BinPropertyType propertyType) => propertyType switch
