@@ -1,8 +1,11 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
+using System.Numerics;
+using Quaternion = System.Numerics.Quaternion;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
+using Vector4 = System.Numerics.Vector4;
 
 namespace Fantome.Libraries.League.Helpers.Extensions
 {
@@ -93,6 +96,26 @@ namespace Fantome.Libraries.League.Helpers.Extensions
             writer.Write(quaternion.Y);
             writer.Write(quaternion.Z);
             writer.Write(quaternion.W);
+        }
+
+        public static void WriteMatrix4x4RowMajor(this BinaryWriter writer, Matrix4x4 matrix)
+        {
+            writer.Write(matrix.M11);
+            writer.Write(matrix.M12);
+            writer.Write(matrix.M13);
+            writer.Write(matrix.M14);
+            writer.Write(matrix.M21);
+            writer.Write(matrix.M22);
+            writer.Write(matrix.M23);
+            writer.Write(matrix.M24);
+            writer.Write(matrix.M31);
+            writer.Write(matrix.M32);
+            writer.Write(matrix.M33);
+            writer.Write(matrix.M34);
+            writer.Write(matrix.M41);
+            writer.Write(matrix.M42);
+            writer.Write(matrix.M43);
+            writer.Write(matrix.M44);
         }
     }
 }

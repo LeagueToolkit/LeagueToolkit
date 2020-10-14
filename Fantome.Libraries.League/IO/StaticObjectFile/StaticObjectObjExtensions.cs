@@ -1,6 +1,6 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
-using Fantome.Libraries.League.IO.OBJ;
+﻿using Fantome.Libraries.League.IO.OBJ;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.StaticObjectFile
 {

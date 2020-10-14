@@ -1,7 +1,12 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.IO;
+using System.Numerics;
 using System.Text;
+using Quaternion = System.Numerics.Quaternion;
+using Vector2 = System.Numerics.Vector2;
+using Vector3 = System.Numerics.Vector3;
+using Vector4 = System.Numerics.Vector4;
 
 namespace Fantome.Libraries.League.Helpers.Extensions
 {
@@ -65,6 +70,29 @@ namespace Fantome.Libraries.League.Helpers.Extensions
         public static Quaternion ReadQuaternion(this BinaryReader reader)
         {
             return new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+        }
+
+        public static Matrix4x4 ReadMatrix4x4RowMajor(this BinaryReader reader)
+        {
+            return new Matrix4x4
+            {
+                M11 = reader.ReadSingle(),
+                M12 = reader.ReadSingle(),
+                M13 = reader.ReadSingle(),
+                M14 = reader.ReadSingle(),
+                M21 = reader.ReadSingle(),
+                M22 = reader.ReadSingle(),
+                M23 = reader.ReadSingle(),
+                M24 = reader.ReadSingle(),
+                M31 = reader.ReadSingle(),
+                M32 = reader.ReadSingle(),
+                M33 = reader.ReadSingle(),
+                M34 = reader.ReadSingle(),
+                M41 = reader.ReadSingle(),
+                M42 = reader.ReadSingle(),
+                M43 = reader.ReadSingle(),
+                M44 = reader.ReadSingle()
+            };
         }
 
         public static string ReadPaddedString(this BinaryReader reader, int length)

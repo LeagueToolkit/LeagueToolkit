@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +7,8 @@ using System.Text;
 
 namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
 {
+    using Vector3 = System.Numerics.Vector3;
+
     public class BucketGrid
     {
         public float MinX { get; set; }
@@ -38,7 +41,7 @@ namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
 
             for (int i = 0; i < vertexCount; i++)
             {
-                this.Vertices.Add(new Vector3(br));
+                this.Vertices.Add(br.ReadVector3());
             }
 
             for (int i = 0; i < indexCount; i++)
@@ -77,7 +80,7 @@ namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
 
             foreach (Vector3 vertex in this.Vertices)
             {
-                vertex.Write(bw);
+                bw.WriteVector3(vertex);
             }
             foreach (ushort index in this.Indices)
             {

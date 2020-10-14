@@ -3,6 +3,7 @@ using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using Vector2 = System.Numerics.Vector2;
 using Vector3 = System.Numerics.Vector3;
@@ -508,16 +509,16 @@ namespace Fantome.Libraries.League.IO.PropertyBin
     }
     public sealed class BinTreeMatrix44 : BinTreeProperty
     {
-        public R3DMatrix44 Value { get; private set; }
+        public Matrix4x4 Value { get; private set; }
 
         internal BinTreeMatrix44(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
         {
-            this.Value = new R3DMatrix44(br);
+            this.Value = br.ReadMatrix4x4RowMajor();
         }
 
         protected override void WriteContent(BinaryWriter bw)
         {
-            this.Value.Write(bw);
+            bw.WriteMatrix4x4RowMajor(this.Value);
         }
 
         internal override int GetSize(bool includeHeader)
@@ -533,7 +534,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
                 && this.Value == property.Value;
         }
 
-        public static implicit operator R3DMatrix44(BinTreeMatrix44 property) => property.Value;
+        public static implicit operator Matrix4x4(BinTreeMatrix44 property) => property.Value;
     }
     public sealed class BinTreeColor : BinTreeProperty
     {
