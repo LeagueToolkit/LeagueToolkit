@@ -21,12 +21,16 @@ namespace Fantome.Libraries.League.Meta
             if (metaClassAttribute.NameHash != treeObject.MetaClassHash) throw new InvalidOperationException("Meta Class name does not match class name of treeObject");
 
             // Create an instance of T and get its runtime type
-            object metaClassObject = Activator.CreateInstance(metaClassType);
+            T metaClassObject = Activator.CreateInstance<T>();
             Type metaClassObjectType = metaClassObject.GetType();
 
+            // Assign values to the object properties
             AssignMetaClassProperties(environment, metaClassObject, metaClassObjectType, treeObject.Properties);
 
-            return (T)metaClassObject;
+            // Registered the object in the environment for link resolving
+            environment.RegisterObject(treeObject.PathHash, metaClassObject);
+
+            return metaClassObject;
         }
 
         private static void AssignMetaClassProperties(MetaEnvironment environment, object metaClassObject, Type metaClassType, ICollection<BinTreeProperty> treeProperties)
@@ -44,6 +48,7 @@ namespace Fantome.Libraries.League.Meta
                 BinTreeProperty treeProperty = treeProperties.FirstOrDefault(x => x.NameHash == metaPropertyAttribute.NameHash);
                 if (treeProperty is not null) // Ignore missing properties
                 {
+                    // Assign values to properties
                     AssignMetaProperty(environment, metaClassObject, propertyInfo, treeProperty);
                 }
             }

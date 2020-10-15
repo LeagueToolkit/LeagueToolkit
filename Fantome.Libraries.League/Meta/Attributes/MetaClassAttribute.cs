@@ -8,6 +8,9 @@ namespace Fantome.Libraries.League.Meta.Attributes
         public string Name { get; private set; }
         public uint NameHash { get; private set; }
 
+        public string Path { get; private set; }
+        public uint PathHash { get; private set; }
+
         public MetaClassAttribute(string name)
         {
             this.Name = name;
@@ -17,6 +20,17 @@ namespace Fantome.Libraries.League.Meta.Attributes
         {
             this.Name = string.Empty;
             this.NameHash = nameHash;
+        }
+
+        internal void SetPath(string path)
+        {
+            this.Path = path;
+            this.PathHash = Fnv1a.HashLower(path);
+        }
+        internal void SetPath(uint pathHash)
+        {
+            this.Path = string.Empty;
+            this.PathHash = pathHash;
         }
     }
 }
