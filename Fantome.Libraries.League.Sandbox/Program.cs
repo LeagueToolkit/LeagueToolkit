@@ -41,7 +41,7 @@ namespace Fantome.Libraries.League.Sandbox
                 typeof(SkinMeshDataProperties)
             });
 
-            var scdp = MetaSerializer.Serialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
+            var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
         }
 
         static void TestMapgeo()

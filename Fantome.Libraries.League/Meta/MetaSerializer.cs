@@ -10,7 +10,7 @@ namespace Fantome.Libraries.League.Meta
 {
     public static class MetaSerializer
     {
-        public static T Serialize<T>(MetaEnvironment environment, BinTreeObject treeObject)
+        public static T Deserialize<T>(MetaEnvironment environment, BinTreeObject treeObject)
             where T : IMetaClass
         {
             Type metaClassType = typeof(T);
@@ -56,10 +56,10 @@ namespace Fantome.Libraries.League.Meta
 
         private static void AssignMetaProperty(MetaEnvironment environment, object metaClassObject, PropertyInfo propertyInfo, BinTreeProperty treeProperty)
         {
-            propertyInfo.SetValue(metaClassObject, SerializeTreeProperty(environment, treeProperty, propertyInfo.PropertyType));
+            propertyInfo.SetValue(metaClassObject, DeserializeTreeProperty(environment, treeProperty, propertyInfo.PropertyType));
         }
 
-        private static object SerializeTreeProperty(MetaEnvironment environment, BinTreeProperty treeProperty, Type propertyType = null)
+        private static object DeserializeTreeProperty(MetaEnvironment environment, BinTreeProperty treeProperty, Type propertyType = null)
         {
             BinPropertyType treePropertyType = treeProperty.Type;
 
@@ -69,27 +69,27 @@ namespace Fantome.Libraries.League.Meta
             }
             else if (treePropertyType == BinPropertyType.Container || treePropertyType == BinPropertyType.Container2)
             {
-                return SerializeContainer(environment, propertyType, treeProperty as BinTreeContainer);
+                return DeserializeContainer(environment, propertyType, treeProperty as BinTreeContainer);
             }
             else if (treePropertyType == BinPropertyType.Structure || treePropertyType == BinPropertyType.Embedded)
             {
-                return SerializeStructure(environment, treeProperty as BinTreeStructure);
+                return DeserializeStructure(environment, treeProperty as BinTreeStructure);
             }
             else if (treePropertyType == BinPropertyType.Map)
             {
-                return SerializeMap(environment, propertyType, treeProperty as BinTreeMap);
+                return DeserializeMap(environment, propertyType, treeProperty as BinTreeMap);
             }
             else if (treePropertyType == BinPropertyType.Optional)
             {
-                return SerializeOptional(environment, propertyType, treeProperty as BinTreeOptional);
+                return DeserializeOptional(environment, propertyType, treeProperty as BinTreeOptional);
             }
 
             return null;
         }
-        private static object SerializeStructure(MetaEnvironment environment, BinTreeStructure structure)
+        private static object DeserializeStructure(MetaEnvironment environment, BinTreeStructure structure)
         {
             Type metaClassType = environment.FindMetaClass(structure.MetaClassHash);
-            if (metaClassType is null) return null; // Couldn't serialize structure
+            if (metaClassType is null) return null; // Couldn't deserialize structure
 
             object metaClassObject = Activator.CreateInstance(metaClassType);
 
@@ -97,7 +97,7 @@ namespace Fantome.Libraries.League.Meta
 
             return metaClassObject;
         }
-        private static object SerializeContainer(MetaEnvironment environment, Type propertyType, BinTreeContainer container)
+        private static object DeserializeContainer(MetaEnvironment environment, Type propertyType, BinTreeContainer container)
         {
             object containerList = Activator.CreateInstance(propertyType);
             Type containerListType = containerList.GetType();
@@ -105,12 +105,12 @@ namespace Fantome.Libraries.League.Meta
 
             foreach (BinTreeProperty containerItem in container.Properties)
             {
-                addMethod.Invoke(containerList, new[] { SerializeTreeProperty(environment, containerItem) });
+                addMethod.Invoke(containerList, new[] { DeserializeTreeProperty(environment, containerItem) });
             }
 
             return containerList;
         }
-        private static object SerializeMap(MetaEnvironment environment, Type propertyType, BinTreeMap map)
+        private static object DeserializeMap(MetaEnvironment environment, Type propertyType, BinTreeMap map)
         {
             object mapDictionary = Activator.CreateInstance(propertyType);
 
@@ -124,23 +124,23 @@ namespace Fantome.Libraries.League.Meta
             {
                 // Key types can only be primitive so we can fetch their value easily
                 object keyValue = FetchPrimitivePropertyValue(propertyPair.Key);
-                object valueValue = SerializeTreeProperty(environment, propertyPair.Value);
+                object valueValue = DeserializeTreeProperty(environment, propertyPair.Value);
 
                 addMethod.Invoke(mapDictionary, new[] { keyValue, valueValue });
             }
 
             return mapDictionary;
         }
-        private static object SerializeOptional(MetaEnvironment environment, Type propertyType, BinTreeOptional optional)
+        private static object DeserializeOptional(MetaEnvironment environment, Type propertyType, BinTreeOptional optional)
         {
             if (IsValidOptionalType(propertyType) is false) throw new InvalidOperationException($"{propertyType} is not a valid Optional property");
 
             object optionalObject = Activator.CreateInstance(propertyType);
 
-            // If the value isn't null that means we have to serialize it
+            // If the value isn't null that means we have to deserialize it
             if (optional.Value is not null)
             {
-                optionalObject = SerializeTreeProperty(environment, optional.Value, propertyType);
+                optionalObject = DeserializeTreeProperty(environment, optional.Value, propertyType);
             }
 
             return optionalObject;
@@ -209,13 +209,7 @@ namespace Fantome.Libraries.League.Meta
             BinPropertyType.BitBool => false,
             _ => throw new ArgumentException("Invalid property type", nameof(propertyType))
         };
-        private static bool IsValidOptionalType(Type type)
-        {
-            if (!type.IsValueType) return true; // If type isn't a value type then it's a reference type which are nullable
-            else if (Nullable.GetUnderlyingType(type) != null) return true; // should be Nullable<T>
-
-            return false;
-        }
+        private static bool IsValidOptionalType(Type type) => !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
 
         private static object FetchPrimitivePropertyValue(BinTreeProperty primitiveProperty)
         {
