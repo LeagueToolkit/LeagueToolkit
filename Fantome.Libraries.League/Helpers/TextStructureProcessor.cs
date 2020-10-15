@@ -1,6 +1,7 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Globalization;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers
 {

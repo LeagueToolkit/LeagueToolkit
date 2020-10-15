@@ -3,6 +3,7 @@ using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
@@ -124,14 +125,14 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
             if (useSeparatePointLights && (version < 7))
             {
-                this.SeparatePointLight = new Vector3(br);
+                this.SeparatePointLight = br.ReadVector3();
             }
 
             if(version < 9)
             {
                 for (int i = 0; i < 9; i++)
                 {
-                    this.UnknownFloats.Add(new Vector3(br));
+                    this.UnknownFloats.Add(br.ReadVector3());
                 }
 
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
@@ -189,23 +190,23 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 if(useSeparatePointLights)
                 {
-                    if (this.SeparatePointLight.HasValue)
+                    if (this.SeparatePointLight is Vector3 separatePointLight)
                     {
-                        this.SeparatePointLight.Value.Write(bw);
+                        bw.WriteVector3(separatePointLight);
                     }
                     else
                     {
-                        new Vector3(0, 0, 0).Write(bw);
+                        bw.WriteVector3(Vector3.Zero);
                     }
                 }
 
                 foreach (Vector3 pointLight in this.UnknownFloats)
                 {
-                    pointLight.Write(bw);
+                    bw.WriteVector3(pointLight);
                 }
                 for (int i = 0; i < 9 - this.UnknownFloats.Count; i++)
                 {
-                    new Vector3(0, 0, 0).Write(bw);
+                    bw.WriteVector3(Vector3.Zero);
                 }
 
                 bw.Write(this.Lightmap.Length);
@@ -238,8 +239,8 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             }
             else
             {
-                Vector3 min = new Vector3(this.Vertices[0].Position.Value);
-                Vector3 max = new Vector3(this.Vertices[0].Position.Value);
+                Vector3 min = this.Vertices[0].Position.Value;
+                Vector3 max = this.Vertices[0].Position.Value;
 
                 foreach (MapGeometryVertex vertex in this.Vertices)
                 {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.StaticObjectFile
@@ -61,7 +62,7 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 List<Color> vertexColors = new List<Color>((int)vertexCount);
                 for (int i = 0; i < vertexCount; i++)
                 {
-                    vertices.Add(new Vector3(br));
+                    vertices.Add(br.ReadVector3());
                 }
 
                 if (hasVertexColors)
@@ -72,7 +73,7 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                     }
                 }
 
-                Vector3 centralPoint = new Vector3(br);
+                Vector3 centralPoint = br.ReadVector3();
 
                 List<StaticObjectFace> faces = new List<StaticObjectFace>((int)faceCount);
                 for (int i = 0; i < faceCount; i++)
@@ -101,7 +102,10 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 string name = input.Length != 1 ? input[1] : string.Empty;
 
                 input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
-                Vector3 centralPoint = new Vector3(input[1], input[2], input[3]);
+                Vector3 centralPoint = new Vector3(
+                    float.Parse(input[1], CultureInfo.InvariantCulture),
+                    float.Parse(input[2], CultureInfo.InvariantCulture),
+                    float.Parse(input[3], CultureInfo.InvariantCulture));
                 Vector3 pivotPoint = centralPoint;
 
                 bool hasVertexColors = false;
@@ -109,7 +113,10 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
                 if (input[0] == "PivotPoint=")
                 {
-                    pivotPoint = new Vector3(input[1], input[2], input[3]);
+                    pivotPoint = new Vector3(
+                        float.Parse(input[1], CultureInfo.InvariantCulture),
+                        float.Parse(input[2], CultureInfo.InvariantCulture),
+                        float.Parse(input[3], CultureInfo.InvariantCulture));
                 }
                 else if (input[0] == "VertexColors=")
                 {
@@ -130,7 +137,12 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 List<Color> vertexColors = new List<Color>(vertexCount);
                 for (int i = 0; i < vertexCount; i++)
                 {
-                    vertices.Add(new Vector3(sr));
+                    input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
+
+                    vertices.Add(new Vector3(
+                        float.Parse(input[1], CultureInfo.InvariantCulture),
+                        float.Parse(input[2], CultureInfo.InvariantCulture),
+                        float.Parse(input[3], CultureInfo.InvariantCulture)));
                 }
 
                 if (hasVertexColors)
@@ -277,7 +289,7 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 GetBoundingBox().Write(bw);
                 bw.Write((uint)(flags & StaticObjectFlags.VERTEX_COLORS));
 
-                vertices.ForEach(vertex => vertex.Position.Write(bw));
+                vertices.ForEach(vertex => bw.WriteVector3(vertex.Position));
 
                 if (hasVertexColors)
                 {
@@ -295,7 +307,7 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 }
 
 
-                GetCentralPoint().Write(bw);
+                bw.WriteVector3(GetCentralPoint());
                 faces.ForEach(face => face.Write(bw));
             }
         }
@@ -337,9 +349,10 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
                 }
 
                 sw.WriteLine("Verts= " + vertices.Count);
-                vertices.ForEach(vertex => vertex.Position.Write(sw, true));
-
-                
+                vertices.ForEach(vertex => 
+                {
+                    sw.WriteLine("{0} {1} {2}", vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
+                });
 
                 if (hasVertexColors)
                 {
@@ -394,8 +407,8 @@ namespace Fantome.Libraries.League.IO.StaticObjectFile
 
         public R3DBox GetBoundingBox()
         {
-            Vector3 min = Vector3.Infinity;
-            Vector3 max = Vector3.NegativeInfinity;
+            Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             foreach (StaticObjectSubmesh submesh in this.Submeshes)
             {

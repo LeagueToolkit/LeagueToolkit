@@ -1,5 +1,7 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.FX
@@ -28,7 +30,7 @@ namespace Fantome.Libraries.League.IO.FX
             this.Particle = this.Particle.Remove(this.Particle.IndexOf(this.Particle.Contains("\0") ? '\u0000' : '?'));
             this.Bone = this.Bone.Remove(this.Bone.IndexOf(this.Bone.Contains("\0") ? '\u0000' : '?'));
 
-            this.SpawnOffset = new Vector3(br);
+            this.SpawnOffset = br.ReadVector3();
             this.StreakInfo = new FXWeaponStreakInfo(br);
         }
 
@@ -40,7 +42,7 @@ namespace Fantome.Libraries.League.IO.FX
             bw.Write(this.EndFrame);
             bw.Write(this.Particle.PadRight(64, '\u0000').ToCharArray());
             bw.Write(this.Bone.PadRight(64, '\u0000').ToCharArray());
-            this.SpawnOffset.Write(bw);
+            bw.WriteVector3(this.SpawnOffset);
             this.StreakInfo.Write(bw);
         }
     }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.Helpers.Extensions;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.NVR
 {
@@ -17,7 +18,7 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public NVRVertex(BinaryReader br)
         {
-            this.Position = new Vector3(br);
+            this.Position = br.ReadVector3();
         }
 
         public NVRVertex(Vector3 position)
@@ -27,7 +28,7 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public virtual void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
+            bw.WriteVector3(this.Position);
         }
 
         public virtual NVRVertexType GetVertexType()
@@ -74,8 +75,8 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public NVRVertex4(BinaryReader br) : base(br)
         {
-            this.Normal = new Vector3(br);
-            this.UV = new Vector2(br);
+            this.Normal = br.ReadVector3();
+            this.UV = br.ReadVector2();
             this.DiffuseColor = br.ReadColor(ColorFormat.BgraU8);
         }
 
@@ -92,9 +93,10 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public override void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
-            this.Normal.Write(bw);
-            this.UV.Write(bw);
+            bw.WriteVector3(this.Position);
+            bw.WriteVector3(this.Normal);
+            bw.WriteVector2(this.UV);
+
             bw.WriteColor(this.DiffuseColor, ColorFormat.BgraU8);
         }
 
@@ -120,8 +122,8 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public NVRVertex8(BinaryReader br) : base(br)
         {
-            this.Normal = new Vector3(br);
-            this.UV = new Vector2(br);
+            this.Normal = br.ReadVector3();
+            this.UV = br.ReadVector2();
             this.DiffuseColor = br.ReadColor(ColorFormat.BgraU8);
             this.EmissiveColor = br.ReadColor(ColorFormat.BgraU8);
         }
@@ -138,9 +140,9 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public override void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
-            this.Normal.Write(bw);
-            this.UV.Write(bw);
+            bw.WriteVector3(this.Position);
+            bw.WriteVector3(this.Normal);
+            bw.WriteVector2(this.UV);
             bw.WriteColor(this.DiffuseColor, ColorFormat.BgraU8);
             bw.WriteColor(this.EmissiveColor, ColorFormat.BgraU8);
         }
@@ -167,9 +169,9 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public NVRVertex12(BinaryReader br) : base(br)
         {
-            this.Normal = new Vector3(br);
-            this.Unknown = new Vector2(br);
-            this.UV = new Vector2(br);
+            this.Normal = br.ReadVector3();
+            this.Unknown = br.ReadVector2();
+            this.UV = br.ReadVector2();
             this.DiffuseColor = br.ReadColor(ColorFormat.BgraU8);
         }
 
@@ -183,10 +185,10 @@ namespace Fantome.Libraries.League.IO.NVR
 
         public override void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
-            this.Normal.Write(bw);
-            this.Unknown.Write(bw);
-            this.UV.Write(bw);
+            bw.WriteVector3(this.Position);
+            bw.WriteVector3(this.Normal);
+            bw.WriteVector2(this.Unknown);
+            bw.WriteVector2(this.UV);
             bw.WriteColor(this.DiffuseColor, ColorFormat.BgraU8);
         }
 

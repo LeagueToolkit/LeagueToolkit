@@ -1,17 +1,12 @@
 ﻿using Fantome.Libraries.League.Helpers.Structures;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {

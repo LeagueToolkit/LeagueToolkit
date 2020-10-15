@@ -1,6 +1,7 @@
 ﻿using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.SimpleSkinFile
 {
@@ -32,11 +33,11 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
         }
         public SimpleSkinVertex(BinaryReader br, SimpleSkinVertexType vertexType)
         {
-            this.Position = new Vector3(br);
+            this.Position = br.ReadVector3();
             this.BoneIndices = new byte[] { br.ReadByte(), br.ReadByte(), br.ReadByte(), br.ReadByte() };
             this.Weights = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
-            this.Normal = new Vector3(br);
-            this.UV = new Vector2(br);
+            this.Normal = br.ReadVector3();
+            this.UV = br.ReadVector2();
 
             if (vertexType == SimpleSkinVertexType.Color)
             {
@@ -58,8 +59,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
                 bw.Write(this.Weights[i]);
             }
 
-            this.Normal.Write(bw);
-            this.UV.Write(bw);
+            bw.WriteVector3(this.Normal);
+            bw.WriteVector2(this.UV);
 
             if (vertexType == SimpleSkinVertexType.Color)
             {

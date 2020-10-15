@@ -2,13 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers.Structures.BucketGrid
 {
-    using Vector3 = System.Numerics.Vector3;
-
     public class BucketGrid
     {
         public float MinX { get; set; }

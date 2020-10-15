@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using System.IO;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
@@ -7,7 +9,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class R3DSphere
     {
-        public static readonly R3DSphere Infinite = new R3DSphere(Vector3.Zero, float.PositiveInfinity);
+        public static readonly R3DSphere Infinite = new R3DSphere(Vector3.Zero, float.MaxValue);
 
         public Vector3 Position;
         public float Radius;
@@ -29,7 +31,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public R3DSphere(BinaryReader br)
         {
-            this.Position = new Vector3(br);
+            this.Position = br.ReadVector3();
             this.Radius = br.ReadSingle();
         }
 
@@ -39,7 +41,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="r3dSphere">The <see cref="R3DSphere"/> to clone</param>
         public R3DSphere(R3DSphere r3dSphere)
         {
-            this.Position = new Vector3(r3dSphere.Position);
+            this.Position = r3dSphere.Position;
             this.Radius = r3dSphere.Radius;
         }
 
@@ -49,7 +51,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
+            bw.WriteVector3(this.Position);
             bw.Write(this.Radius);
         }
     }

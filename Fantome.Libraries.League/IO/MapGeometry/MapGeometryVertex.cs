@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Fantome.Libraries.League.Helpers;
 using Fantome.Libraries.League.Helpers.Extensions;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.MapGeometry
 {
@@ -32,19 +33,19 @@ namespace Fantome.Libraries.League.IO.MapGeometry
             {
                 if(element.Name == MapGeometryVertexElementName.Position)
                 {
-                    this.Position = new Vector3(br);
+                    this.Position = br.ReadVector3();
                 }
                 else if(element.Name == MapGeometryVertexElementName.Normal)
                 {
-                    this.Normal = new Vector3(br);
+                    this.Normal = br.ReadVector3();
                 }
                 else if (element.Name == MapGeometryVertexElementName.DiffuseUV)
                 {
-                    this.DiffuseUV = new Vector2(br);
+                    this.DiffuseUV = br.ReadVector2();
                 }
                 else if(element.Name == MapGeometryVertexElementName.LightmapUV)
                 {
-                    this.LightmapUV = new Vector2(br);
+                    this.LightmapUV = br.ReadVector2();
                 }
                 else if(element.Name == MapGeometryVertexElementName.SecondaryColor)
                 {
@@ -119,15 +120,11 @@ namespace Fantome.Libraries.League.IO.MapGeometry
 
         public void Write(BinaryWriter bw)
         {
-            this.Position?.Write(bw);
-            this.Normal?.Write(bw);
-            this.DiffuseUV?.Write(bw);
-            this.LightmapUV?.Write(bw);
-            
-            if (this.SecondaryColor.HasValue)
-            {
-                bw.WriteColor(this.SecondaryColor.Value, ColorFormat.BgraU8);
-            }
+            if (this.Position is Vector3 position) bw.WriteVector3(position);
+            if (this.Normal is Vector3 normal) bw.WriteVector3(normal);
+            if (this.DiffuseUV is Vector2 diffuseUv) bw.WriteVector2(diffuseUv);
+            if (this.LightmapUV is Vector2 lightmapUv) bw.WriteVector2(lightmapUv);
+            if (this.SecondaryColor is Color color) bw.WriteColor(color, ColorFormat.BgraU8);
         }
     }
 }

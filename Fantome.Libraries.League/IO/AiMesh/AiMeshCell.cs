@@ -1,5 +1,7 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.AiMesh
 {
@@ -24,7 +26,7 @@ namespace Fantome.Libraries.League.IO.AiMesh
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public AiMeshCell(BinaryReader br)
         {
-            this.Vertices = new Vector3[] { new Vector3(br), new Vector3(br), new Vector3(br) };
+            this.Vertices = new Vector3[] { br.ReadVector3(), br.ReadVector3(), br.ReadVector3() };
             this.Links = new ushort[] { br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16() };
         }
 
@@ -36,7 +38,7 @@ namespace Fantome.Libraries.League.IO.AiMesh
         {
             for (int i = 0; i < 3; i++)
             {
-                this.Vertices[i].Write(bw);
+                bw.WriteVector3(this.Vertices[i]);
             }
             for (int i = 0; i < 3; i++)
             {

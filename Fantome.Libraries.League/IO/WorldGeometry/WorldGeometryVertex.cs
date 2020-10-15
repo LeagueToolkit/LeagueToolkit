@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Numerics;
+using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.Helpers.Structures;
 
 namespace Fantome.Libraries.League.IO.WorldGeometry
@@ -34,8 +36,8 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public WorldGeometryVertex(BinaryReader br)
         {
-            this.Position = new Vector3(br);
-            this.UV = new Vector2(br);
+            this.Position = br.ReadVector3();
+            this.UV = br.ReadVector2();
         }
 
         /// <summary>
@@ -44,8 +46,8 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
         /// <param name="bw">The <see cref="BinaryWriter"/> to write to</param>
         public void Write(BinaryWriter bw)
         {
-            this.Position.Write(bw);
-            this.UV.Write(bw);
+            bw.WriteVector3(this.Position);
+            bw.WriteVector2(this.UV);
         }
     }
 }

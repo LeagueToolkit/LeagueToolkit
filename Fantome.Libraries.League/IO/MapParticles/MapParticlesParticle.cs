@@ -1,9 +1,9 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.MapParticles
 {
@@ -68,7 +68,7 @@ namespace Fantome.Libraries.League.IO.MapParticles
                 float.Parse(input[2], CultureInfo.InvariantCulture),
                 float.Parse(input[3], CultureInfo.InvariantCulture));
 
-            this.Quality = Int32.Parse(input[4]);
+            this.Quality = int.Parse(input[4]);
 
             this.Rotation = new Vector3(float.Parse(input[5], CultureInfo.InvariantCulture),
                 float.Parse(input[6], CultureInfo.InvariantCulture),

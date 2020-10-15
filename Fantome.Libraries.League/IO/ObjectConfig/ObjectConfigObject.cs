@@ -4,6 +4,7 @@ using Fantome.Libraries.League.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using System.Reflection;
 
 namespace Fantome.Libraries.League.IO.ObjectConfig

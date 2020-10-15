@@ -1,9 +1,9 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
-using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
+﻿using Fantome.Libraries.League.Helpers.Structures.BucketGrid;
 using Fantome.Libraries.League.IO.NVR;
 using Fantome.Libraries.League.IO.WorldGeometry;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Converters
 {

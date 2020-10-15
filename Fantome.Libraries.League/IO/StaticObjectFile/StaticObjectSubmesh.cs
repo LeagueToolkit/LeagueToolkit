@@ -1,5 +1,5 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.StaticObjectFile
 {

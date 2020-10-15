@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
@@ -211,7 +209,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public TimeGradientValue(BinaryReader br)
         {
             this.Time = br.ReadSingle();
-            this.Value = new Vector4(br);
+            this.Value = br.ReadVector4();
         }
 
         /// <summary>
@@ -221,7 +219,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public TimeGradientValue(TimeGradientValue timeGradientValue)
         {
             this.Time = timeGradientValue.Time;
-            this.Value = new Vector4(timeGradientValue.Value);
+            this.Value = timeGradientValue.Value;
         }
 
         /// <summary>
@@ -231,7 +229,7 @@ namespace Fantome.Libraries.League.Helpers.Structures
         public void Write(BinaryWriter bw)
         {
             bw.Write(this.Time);
-            this.Value.Write(bw);
+            bw.WriteVector4(this.Value);
         }
     }
 }

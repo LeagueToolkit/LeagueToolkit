@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.SimpleSkinFile
 {
@@ -84,7 +85,7 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
                     uint vertexSize = major == 4 ? br.ReadUInt32() : 52;
                     vertexType = major == 4 ? (SimpleSkinVertexType)br.ReadUInt32() : SimpleSkinVertexType.Basic;
-                    R3DBox boundingBox = major == 4 ? new R3DBox(br) : R3DBox.Infinite;
+                    R3DBox boundingBox = major == 4 ? new R3DBox(br) : new R3DBox(Vector3.Zero, Vector3.Zero);
                     R3DSphere boundingSphere = major == 4 ? new R3DSphere(br) : R3DSphere.Infinite;
                 }
 
@@ -193,8 +194,8 @@ namespace Fantome.Libraries.League.IO.SimpleSkinFile
 
         public R3DBox GetBoundingBox()
         {
-            Vector3 min = Vector3.Infinity;
-            Vector3 max = Vector3.NegativeInfinity;
+            Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
             foreach (SimpleSkinSubmesh submesh in this.Submeshes)
             {

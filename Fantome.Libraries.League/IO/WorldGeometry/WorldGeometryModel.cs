@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Fantome.Libraries.League.Helpers.Structures;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text;
-using Fantome.Libraries.League.Helpers.Structures;
 
 namespace Fantome.Libraries.League.IO.WorldGeometry
 {
@@ -147,8 +148,8 @@ namespace Fantome.Libraries.League.IO.WorldGeometry
             }
             else
             {
-                Vector3 min = new Vector3(this.Vertices[0].Position);
-                Vector3 max = new Vector3(this.Vertices[0].Position);
+                Vector3 min = this.Vertices[0].Position;
+                Vector3 max = this.Vertices[0].Position;
 
                 foreach (WorldGeometryVertex vertex in this.Vertices)
                 {

@@ -1,17 +1,14 @@
-﻿using Fantome.Libraries.League.Helpers.Extensions;
+﻿using Fantome.Libraries.League.Helpers.Cryptography;
+using Fantome.Libraries.League.Helpers.Exceptions;
+using Fantome.Libraries.League.Helpers.Extensions;
 using Fantome.Libraries.League.Helpers.Structures;
+using Fantome.Libraries.League.IO.SkeletonFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-
-using Vector3 = System.Numerics.Vector3;
-using Quaternion = System.Numerics.Quaternion;
-using Fantome.Libraries.League.IO.SkeletonFile;
-using Fantome.Libraries.League.Helpers.Cryptography;
-using Fantome.Libraries.League.Helpers.Exceptions;
 
 namespace Fantome.Libraries.League.IO.AnimationFile
 {
@@ -307,7 +304,9 @@ namespace Fantome.Libraries.League.IO.AnimationFile
             br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
             for (int i = 0; i < rotationsCount; i++)
             {
-                rotations.Add(new QuantizedQuaternion(br.ReadBytes(6)).Decompress().Normalized());
+                Quaternion rotation = new QuantizedQuaternion(br.ReadBytes(6)).Decompress();
+
+                rotations.Add(Quaternion.Normalize(rotation));
             }
 
             // Read Frames

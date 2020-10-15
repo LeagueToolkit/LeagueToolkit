@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.StaticObjectFile

@@ -1,6 +1,7 @@
-﻿using Fantome.Libraries.League.Helpers.Structures;
-using System;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using Fantome.Libraries.League.Helpers.Structures;
 using System.IO;
+using System.Numerics;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.MapObjects
@@ -75,9 +76,9 @@ namespace Fantome.Libraries.League.IO.MapObjects
             this.Name = Encoding.ASCII.GetString(br.ReadBytes(62)).Replace("\0", "");
             this.Type = (MOBObjectType)br.ReadByte();
             this.IgnoreCollisionOnPlacement = br.ReadBoolean();
-            this.Position = new Vector3(br);
-            this.Rotation = new Vector3(br);
-            this.Scale = new Vector3(br);
+            this.Position = br.ReadVector3();
+            this.Rotation = br.ReadVector3();
+            this.Scale = br.ReadVector3();
             this.BoundingBox = new R3DBox(br);
             this.SkinID = br.ReadUInt32();
         }
@@ -91,9 +92,9 @@ namespace Fantome.Libraries.League.IO.MapObjects
             bw.Write(Encoding.ASCII.GetBytes(this.Name.PadRight(62, '\u0000')));
             bw.Write((byte)this.Type);
             bw.Write(this.IgnoreCollisionOnPlacement);
-            this.Position.Write(bw);
-            this.Rotation.Write(bw);
-            this.Scale.Write(bw);
+            bw.WriteVector3(this.Position);
+            bw.WriteVector3(this.Rotation);
+            bw.WriteVector3(this.Scale);
             this.BoundingBox.Write(bw);
             bw.Write(this.SkinID);
         }

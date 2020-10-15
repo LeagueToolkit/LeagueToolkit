@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Fantome.Libraries.League.Helpers.Structures;
 using Fantome.Libraries.League.IO.OBJ;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.IO.NVR
 {

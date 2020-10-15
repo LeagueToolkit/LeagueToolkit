@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Fantome.Libraries.League.Helpers.Extensions;
+using System.IO;
+using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers.Structures
 {
@@ -7,8 +9,6 @@ namespace Fantome.Libraries.League.Helpers.Structures
     /// </summary>
     public class R3DBox
     {
-        public static readonly R3DBox Infinite = new R3DBox(Vector3.NegativeInfinity, Vector3.Infinity);
-
         public Vector3 Min { get; private set; }
         public Vector3 Max { get; private set; }
 
@@ -29,8 +29,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public R3DBox(BinaryReader br)
         {
-            this.Min = new Vector3(br);
-            this.Max = new Vector3(br);
+            this.Min = br.ReadVector3();
+            this.Max = br.ReadVector3();
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="r3dBox">The <see cref="R3DBox"/> to clone</param>
         public R3DBox(R3DBox r3dBox)
         {
-            this.Min = new Vector3(r3dBox.Min);
-            this.Max = new Vector3(r3dBox.Max);
+            this.Min = r3dBox.Min;
+            this.Max = r3dBox.Max;
         }
 
         /// <summary>
@@ -49,8 +49,8 @@ namespace Fantome.Libraries.League.Helpers.Structures
         /// <param name="bw"></param>
         public void Write(BinaryWriter bw)
         {
-            this.Min.Write(bw);
-            this.Max.Write(bw);
+            bw.WriteVector3(this.Min);
+            bw.WriteVector3(this.Max);
         }
 
         /// <summary>
