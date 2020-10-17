@@ -33,6 +33,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
             BinTreeColor _ => BinPropertyType.Color,
             BinTreeString _ => BinPropertyType.String,
             BinTreeHash _ => BinPropertyType.Hash,
+            BinTreeWadEntryLink _ => BinPropertyType.WadEntryLink,
             BinTreeContainer2 _ => BinPropertyType.Container2,
             BinTreeContainer _ => BinPropertyType.Container,
             BinTreeEmbedded _ => BinPropertyType.Embedded,
