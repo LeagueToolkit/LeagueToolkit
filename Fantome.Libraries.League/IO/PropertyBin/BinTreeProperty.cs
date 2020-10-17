@@ -56,10 +56,12 @@ namespace Fantome.Libraries.League.IO.PropertyBin
         internal static BinTreeProperty Read(BinaryReader br, IBinTreeParent parent, BinPropertyType? type = null)
         {
             uint nameHash = 0;
+            BinPropertyType packedType;
             if (type is null)
             {
                 nameHash = br.ReadUInt32();
-                type = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+                packedType = (BinPropertyType)br.ReadByte();
+                type = BinUtilities.UnpackType(packedType);
             }
 
             return type switch
@@ -82,6 +84,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
                 BinPropertyType.Color => new BinTreeColor(br, parent, nameHash),
                 BinPropertyType.String => new BinTreeString(br, parent, nameHash),
                 BinPropertyType.Hash => new BinTreeHash(br, parent, nameHash),
+                BinPropertyType.WadEntryLink => new BinTreeWadEntryLink(br, parent, nameHash),
                 BinPropertyType.Container => new BinTreeContainer(br, parent, nameHash),
                 BinPropertyType.Container2 => new BinTreeContainer2(br, parent, nameHash),
                 BinPropertyType.Structure => new BinTreeStructure(br, parent, nameHash),
@@ -621,6 +624,34 @@ namespace Fantome.Libraries.League.IO.PropertyBin
 
         public static implicit operator uint(BinTreeHash property) => property.Value;
     }
+    public sealed class BinTreeWadEntryLink : BinTreeProperty
+    {
+        public ulong Value { get; private set; }
+
+        internal BinTreeWadEntryLink() { }
+        internal BinTreeWadEntryLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+        {
+            this.Value = br.ReadUInt64();
+        }
+
+        protected override void WriteContent(BinaryWriter bw)
+        {
+            bw.Write(this.Value);
+        }
+
+        internal override int GetSize(bool includeHeader)
+        {
+            int size = includeHeader ? 5 : 0;
+            return size + 8;
+        }
+
+        public override bool Equals(BinTreeProperty other)
+        {
+            return other is BinTreeWadEntryLink property
+                && this.NameHash == property.NameHash
+                && this.Value == property.Value;
+        }
+    }
     public class BinTreeContainer : BinTreeProperty, IBinTreeParent
     {
         public BinPropertyType PropertiesType { get; private set; }
@@ -996,106 +1027,34 @@ namespace Fantome.Libraries.League.IO.PropertyBin
 
     public enum BinPropertyType : byte
     {
-        /// <summary>
-        /// Represents an empty value
-        /// </summary>
-        None = 0,
-        /// <summary>
-        /// Represents a <see cref="bool"/> value
-        /// </summary>
-        Bool = 1,
-        /// <summary>
-        /// Represents an <see cref="sbyte"/> value
-        /// </summary>
-        SByte = 2,
-        /// <summary>
-        /// Represents a <see cref="byte"/> value
-        /// </summary>
-        Byte = 3,
-        /// <summary>
-        /// Represents a <see cref="short"/> value
-        /// </summary>
-        Int16 = 4,
-        /// <summary>
-        /// Represents a <see cref="ushort"/> value
-        /// </summary>
-        UInt16 = 5,
-        /// <summary>
-        /// Represents an <see cref="int"/> value
-        /// </summary>
-        Int32 = 6,
-        /// <summary>
-        /// Represents a <see cref="uint"/> value
-        /// </summary>
-        UInt32 = 7,
-        /// <summary>
-        /// Reperesents a <see cref="long"/> value
-        /// </summary>
-        Int64 = 8,
-        /// <summary>
-        /// Represents a <see cref="ulong"/> value
-        /// </summary>
-        UInt64 = 9,
-        /// <summary>
-        /// Represents a <see cref="float"/> value
-        /// </summary>
-        Float = 10,
-        /// <summary>
-        /// Represents a <see cref="float"/> Vector2 value
-        /// </summary>
-        Vector2 = 11,
-        /// <summary>
-        /// Represents a <see cref="float"/> Vector3 value
-        /// </summary>
-        Vector3 = 12,
-        /// <summary>
-        /// Represents a <see cref="float"/> Vector4 value
-        /// </summary>
-        Vector4 = 13,
-        /// <summary>
-        /// Represents a <see cref="R3DMatrix44"/> value
-        /// </summary>
-        Matrix44 = 14,
-        /// <summary>
-        /// Represents a <see cref="ColorRGBAVector4Byte"/> value
-        /// </summary>
-        Color = 15,
-        /// <summary>
-        /// Represents a <see cref="string"/> value
-        /// </summary>
-        String = 16,
-        /// <summary>
-        /// Represents a <see cref="uint"/> value which is a hash
-        /// </summary>
-        Hash = 17,
-        /// <summary>
-        /// Represents a Value Container
-        /// </summary>
-        Container = 18,
-        Container2 = 19,
-        /// <summary>
-        /// Represents a Structure
-        /// </summary>
-        Structure = 19 + 1,
-        /// <summary>
-        /// Represents an Embedded Structure
-        /// </summary>
-        Embedded = 20 + 1,
-        /// <summary>
-        /// Represents a <see cref="uint"/> value which links to another entry
-        /// </summary>
-        Link = 21 + 1,
-        /// <summary>
-        /// Represents an Optional Value
-        /// </summary>
-        Optional = 22 + 1,
-        /// <summary>
-        /// Represents a List which holds Key-Value values
-        /// </summary>
-        Map = 23 + 1,
-        /// <summary>
-        /// Represents a <see cref="bool"/>
-        /// </summary>
-        BitBool = 24 + 1
+        // PRIMITIVE TYPES \\
+        None,
+        Bool,
+        SByte,
+        Byte,
+        Int16,
+        UInt16,
+        Int32,
+        UInt32,
+        Int64,
+        UInt64,
+        Float,
+        Vector2,
+        Vector3,
+        Vector4,
+        Matrix44,
+        Color,
+        String,
+        Hash,
+        WadEntryLink,
+        // COMPLEX TYPES \\
+        Container,
+        Container2,
+        Structure,
+        Embedded,
+        Link,
+        Optional,
+        Map,
+        BitBool
     }
 }

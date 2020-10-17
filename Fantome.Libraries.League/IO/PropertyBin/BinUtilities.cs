@@ -6,9 +6,11 @@
 
         public static BinPropertyType PackType(BinPropertyType type)
         {
-            if ((int)type >= 18 && (int)type <= 24)
+            int firstComplexTypeValue = (int)BinPropertyType.Container;
+
+            if ((int)type >= firstComplexTypeValue)
             {
-                type = (BinPropertyType)(((int)type - 18) | COMPLEX_TYPE_FLAG);
+                type = (BinPropertyType)(((int)type - firstComplexTypeValue) | COMPLEX_TYPE_FLAG);
             }
 
             return type;
@@ -16,10 +18,12 @@
 
         public static BinPropertyType UnpackType(BinPropertyType type)
         {
+            // If complex type flag is set then we add the value of the first complex type
+            // to the packed type
             if (((int)type & COMPLEX_TYPE_FLAG) == COMPLEX_TYPE_FLAG)
             {
                 type -= COMPLEX_TYPE_FLAG;
-                type += 18;
+                type += (byte)BinPropertyType.Container;
             }
 
             return type;
