@@ -3,14 +3,13 @@
     internal sealed class BinUtilities
     {
         private const int COMPLEX_TYPE_FLAG = 128;
+        private const byte FIRST_COMPLEX_TYPE = (byte)BinPropertyType.Container;
 
         public static BinPropertyType PackType(BinPropertyType type)
         {
-            int firstComplexTypeValue = (int)BinPropertyType.Container;
-
-            if ((int)type >= firstComplexTypeValue)
+            if ((int)type >= FIRST_COMPLEX_TYPE)
             {
-                type = (BinPropertyType)(((int)type - firstComplexTypeValue) | COMPLEX_TYPE_FLAG);
+                type = (BinPropertyType)(((int)type - FIRST_COMPLEX_TYPE) | COMPLEX_TYPE_FLAG);
             }
 
             return type;
@@ -23,7 +22,7 @@
             if (((int)type & COMPLEX_TYPE_FLAG) == COMPLEX_TYPE_FLAG)
             {
                 type -= COMPLEX_TYPE_FLAG;
-                type += (byte)BinPropertyType.Container;
+                type += FIRST_COMPLEX_TYPE;
             }
 
             return type;
