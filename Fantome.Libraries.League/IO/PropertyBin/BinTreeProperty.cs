@@ -38,7 +38,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
             BinTreeContainer _ => BinPropertyType.Container,
             BinTreeEmbedded _ => BinPropertyType.Embedded,
             BinTreeStructure _ => BinPropertyType.Structure,
-            BinTreeLink _ => BinPropertyType.Link,
+            BinTreeObjectLink _ => BinPropertyType.ObjectLink,
             BinTreeOptional _ => BinPropertyType.Optional,
             BinTreeMap _ => BinPropertyType.Map,
             BinTreeBitBool _ => BinPropertyType.BitBool,
@@ -90,7 +90,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
                 BinPropertyType.Container2 => new BinTreeContainer2(br, parent, nameHash),
                 BinPropertyType.Structure => new BinTreeStructure(br, parent, nameHash),
                 BinPropertyType.Embedded => new BinTreeEmbedded(br, parent, nameHash),
-                BinPropertyType.Link => new BinTreeLink(br, parent, nameHash),
+                BinPropertyType.ObjectLink => new BinTreeObjectLink(br, parent, nameHash),
                 BinPropertyType.Optional => new BinTreeOptional(br, parent, nameHash),
                 BinPropertyType.Map => new BinTreeMap(br, parent, nameHash),
                 BinPropertyType.BitBool => new BinTreeBitBool(br, parent, nameHash),
@@ -843,11 +843,11 @@ namespace Fantome.Libraries.League.IO.PropertyBin
             return true;
         }
     }
-    public sealed class BinTreeLink : BinTreeProperty
+    public sealed class BinTreeObjectLink : BinTreeProperty
     {
         public uint Value { get; private set; }
 
-        internal BinTreeLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+        internal BinTreeObjectLink(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
         {
             this.Value = br.ReadUInt32();
         }
@@ -865,12 +865,12 @@ namespace Fantome.Libraries.League.IO.PropertyBin
 
         public override bool Equals(BinTreeProperty other)
         {
-            return other is BinTreeLink property
+            return other is BinTreeObjectLink property
                 && this.NameHash == property.NameHash
                 && this.Value == property.Value;
         }
 
-        public static implicit operator uint(BinTreeLink property) => property.Value;
+        public static implicit operator uint(BinTreeObjectLink property) => property.Value;
     }
     public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
     {
@@ -1053,7 +1053,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
         Container2,
         Structure,
         Embedded,
-        Link,
+        ObjectLink,
         Optional,
         Map,
         BitBool
