@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Fantome.Libraries.League.Helpers.Extensions
 {
-    public static class BinaryWriterExtensions
+    internal static class BinaryWriterExtensions
     {
         public static void WriteColor(this BinaryWriter writer, Color color, ColorFormat format)
         {

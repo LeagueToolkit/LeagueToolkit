@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Fantome.Libraries.League.Helpers.Extensions
 {
-    public static class BinaryReaderColorExtensions
+    internal static class BinaryReaderColorExtensions
     {
         public static Color ReadColor(this BinaryReader reader, ColorFormat format)
         {
