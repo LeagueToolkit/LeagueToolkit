@@ -135,7 +135,11 @@ namespace Fantome.Libraries.League.Meta
         {
             if (IsValidOptionalType(propertyType) is false) throw new InvalidOperationException($"{propertyType} is not a valid Optional property");
 
-            object optionalObject = Activator.CreateInstance(propertyType);
+            object optionalObject = optional.ValueType switch
+            {
+                BinPropertyType.String => null,
+                _ => Activator.CreateInstance(propertyType)
+            };
 
             // If the value isn't null that means we have to deserialize it
             if (optional.Value is not null)
@@ -234,9 +238,9 @@ namespace Fantome.Libraries.League.Meta
                 BinTreeMatrix44 property => property.Value,
                 BinTreeColor property => property.Value,
                 BinTreeString property => property.Value,
-                BinTreeHash property => property.Value,
-                BinTreeWadEntryLink property => property.Value,
-                BinTreeObjectLink property => property.Value,
+                BinTreeHash property => new MetaHash(property.Value),
+                BinTreeWadEntryLink property => new MetaWadEntryLink(property.Value),
+                BinTreeObjectLink property => new MetaObjectLink(property.Value),
                 BinTreeBitBool property => property.Value,
                 _ => null
             };
