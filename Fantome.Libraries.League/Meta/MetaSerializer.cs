@@ -242,7 +242,7 @@ namespace Fantome.Libraries.League.Meta
                 BinTreeHash property => new MetaHash(property.Value),
                 BinTreeWadEntryLink property => new MetaWadEntryLink(property.Value),
                 BinTreeObjectLink property => new MetaObjectLink(property.Value),
-                BinTreeBitBool property => property.Value,
+                BinTreeBitBool property => new MetaBitBool(property.Value),
                 _ => null
             };
         }

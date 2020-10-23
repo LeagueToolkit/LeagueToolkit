@@ -223,7 +223,7 @@ namespace Fantome.Libraries.League.Meta.Dump
                 BinPropertyType.Hash => "MetaHash",
                 BinPropertyType.WadEntryLink => "MetaWadEntryLink",
                 BinPropertyType.ObjectLink => "MetaObjectLink",
-                BinPropertyType.BitBool => "byte",
+                BinPropertyType.BitBool => "MetaBitBool",
                 BinPropertyType propertyType => throw new InvalidOperationException("Invalid Primitive Property type: " + propertyType)
             };
         }
@@ -305,6 +305,7 @@ namespace Fantome.Libraries.League.Meta.Dump
                 typeof(Fantome.Libraries.League.Meta.MetaHash),
                 typeof(Fantome.Libraries.League.Meta.MetaObjectLink),
                 typeof(Fantome.Libraries.League.Meta.MetaWadEntryLink),
+                typeof(Fantome.Libraries.League.Meta.MetaBitBool),
 
                 typeof(System.Collections.Generic.List<>),
                 typeof(System.Collections.Generic.Dictionary<,>),
