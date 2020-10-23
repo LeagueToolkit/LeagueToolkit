@@ -1,7 +1,9 @@
 ﻿using Fantome.Libraries.League.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Fantome.Libraries.League.IO.PropertyBin
@@ -9,13 +11,19 @@ namespace Fantome.Libraries.League.IO.PropertyBin
     public class BinTree
     {
         public List<string> Dependencies { get; private set; } = new();
-        public List<BinTreeObject> Objects { get; private set; } = new();
 
+        public ReadOnlyCollection<BinTreeObject> Objects { get; }
+        private List<BinTreeObject> _objects = new();
+
+        public BinTree()
+        {
+            this.Objects = this._objects.AsReadOnly();
+        }
         public BinTree(string fileLocation) : this(File.OpenRead(fileLocation))
         {
 
         }
-        public BinTree(Stream stream)
+        public BinTree(Stream stream) : this()
         {
             using (BinaryReader br = new BinaryReader(stream))
             {
@@ -43,10 +51,11 @@ namespace Fantome.Libraries.League.IO.PropertyBin
                 uint objectCount = br.ReadUInt32();
                 for (int i = 0; i < objectCount; i++)
                 {
-                    this.Objects.Add(BinTreeObject.ReadHeader(br));
+                    uint objectMetaClass = br.ReadUInt32();
+                    this._objects.Add(new BinTreeObject(objectMetaClass));
                 }
 
-                foreach (BinTreeObject treeObject in this.Objects)
+                foreach (BinTreeObject treeObject in this._objects)
                 {
                     treeObject.ReadData(br);
                 }
@@ -65,22 +74,42 @@ namespace Fantome.Libraries.League.IO.PropertyBin
                 bw.Write((uint)2); // version
 
                 bw.Write(this.Dependencies.Count);
-                foreach(string dependency in this.Dependencies)
+                foreach (string dependency in this.Dependencies)
                 {
                     bw.Write((ushort)dependency.Length);
                     bw.Write(Encoding.UTF8.GetBytes(dependency));
                 }
 
-                bw.Write(this.Objects.Count);
-                foreach (BinTreeObject treeObject in this.Objects)
+                bw.Write(this._objects.Count);
+                foreach (BinTreeObject treeObject in this._objects)
                 {
-                    treeObject.WriteHeader(bw);
+                    bw.Write(treeObject.MetaClassHash);
                 }
-                foreach (BinTreeObject treeObject in this.Objects)
+                foreach (BinTreeObject treeObject in this._objects)
                 {
                     treeObject.WriteContent(bw);
                 }
             }
+        }
+
+        public void AddObject(BinTreeObject treeObject)
+        {
+            if (this._objects.Any(x => x.PathHash == treeObject.PathHash))
+            {
+                throw new InvalidOperationException("An object with the same path already exists");
+            }
+            else
+            {
+                this._objects.Add(treeObject);
+            }
+        }
+        public void RemoveObject(uint pathHash)
+        {
+            if (this._objects.FirstOrDefault(x => x.PathHash == pathHash) is BinTreeObject treeObject)
+            {
+                this._objects.Remove(treeObject);
+            }
+            else throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
         }
     }
 

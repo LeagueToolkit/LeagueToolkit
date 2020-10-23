@@ -1,4 +1,5 @@
 ﻿using Fantome.Libraries.League.IO.PropertyBin;
+using Fantome.Libraries.League.IO.PropertyBin.Properties;
 using Fantome.Libraries.League.Meta.Attributes;
 using System;
 using System.Collections.Generic;
