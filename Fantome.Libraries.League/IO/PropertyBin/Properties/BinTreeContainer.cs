@@ -46,6 +46,8 @@ namespace Fantome.Libraries.League.IO.PropertyBin.Properties
             {
                 this._properties.Add(BinTreeProperty.Read(br, this, this.PropertiesType));
             }
+
+            this.Properties = this._properties.AsReadOnly();
         }
 
         protected override void WriteContent(BinaryWriter bw)

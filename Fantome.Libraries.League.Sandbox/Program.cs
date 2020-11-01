@@ -26,6 +26,7 @@ using Fantome.Libraries.League.Meta.Attributes;
 using System.Numerics;
 using Fantome.Libraries.League.Meta.Dump;
 using System.Reflection;
+using Fantome.Libraries.League.Meta.Classes;
 //using Fantome.Libraries.League.Meta.Classes;
 
 namespace Fantome.Libraries.League.Sandbox
@@ -60,7 +61,7 @@ namespace Fantome.Libraries.League.Sandbox
 
             dump.WriteMetaClasses(@"C:\Users\Crauzer\Downloads\meta_10.21.339.2173.cs", classNames, propertyNames);
 
-            //var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
+            var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
         }
 
         static void TestMapgeo()

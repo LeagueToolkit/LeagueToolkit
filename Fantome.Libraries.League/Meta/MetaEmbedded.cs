@@ -2,7 +2,7 @@
 
 namespace Fantome.Libraries.League.Meta
 {
-    public struct MetaEmbedded<T> where T : IMetaClass
+    public class MetaEmbedded<T> where T : IMetaClass
     {
         public T Value
         {

@@ -104,8 +104,8 @@ namespace Fantome.Libraries.League.Meta
         }
         private static object DeserializeEmbedded(MetaEnvironment environment, BinTreeEmbedded embedded)
         {
-            Type embeddedWrapperType = typeof(MetaEmbedded<>);
             Type metaClassType = environment.FindMetaClass(embedded.MetaClassHash);
+            Type embeddedWrapperType = typeof(MetaEmbedded<>).MakeGenericType(metaClassType);
             if (metaClassType is null) return null; // Couldn't deserialize structure
 
             object metaClassObject = Activator.CreateInstance(metaClassType);
