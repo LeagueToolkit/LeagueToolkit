@@ -58,7 +58,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
                 BinPropertyType.Hash => new BinTreeHash(br, parent, nameHash),
                 BinPropertyType.WadEntryLink => new BinTreeWadEntryLink(br, parent, nameHash),
                 BinPropertyType.Container => new BinTreeContainer(br, parent, nameHash),
-                BinPropertyType.Container2 => new BinTreeContainer2(br, parent, nameHash),
+                BinPropertyType.UnorderedContainer => new BinTreeUnorderedContainer(br, parent, nameHash),
                 BinPropertyType.Structure => new BinTreeStructure(br, parent, nameHash),
                 BinPropertyType.Embedded => new BinTreeEmbedded(br, parent, nameHash),
                 BinPropertyType.ObjectLink => new BinTreeObjectLink(br, parent, nameHash),
@@ -110,7 +110,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin
         WadEntryLink,
         // COMPLEX TYPES \\
         Container,
-        Container2,
+        UnorderedContainer,
         Structure,
         Embedded,
         ObjectLink,

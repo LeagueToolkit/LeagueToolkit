@@ -111,7 +111,7 @@ namespace Fantome.Libraries.League.IO.PropertyBin.Properties
         {
             if (this.NameHash != other.NameHash) return false;
 
-            if (other is BinTreeContainer otherProperty && other is not BinTreeContainer2)
+            if (other is BinTreeContainer otherProperty && other is not BinTreeUnorderedContainer)
             {
                 if (this._properties.Count != otherProperty._properties.Count) return false;
                 if (this.PropertiesType != otherProperty.PropertiesType) return false;

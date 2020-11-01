@@ -2,17 +2,17 @@
 
 namespace Fantome.Libraries.League.IO.PropertyBin.Properties
 {
-    public sealed class BinTreeContainer2 : BinTreeContainer
+    public sealed class BinTreeUnorderedContainer : BinTreeContainer
     {
-        public override BinPropertyType Type => BinPropertyType.Container2;
+        public override BinPropertyType Type => BinPropertyType.UnorderedContainer;
 
-        internal BinTreeContainer2(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(br, parent, nameHash) { }
+        internal BinTreeUnorderedContainer(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(br, parent, nameHash) { }
 
         public override bool Equals(BinTreeProperty other)
         {
             if (this.NameHash != other.NameHash) return false;
 
-            if (other is BinTreeContainer2 otherProperty)
+            if (other is BinTreeUnorderedContainer otherProperty)
             {
                 if (this._properties.Count != otherProperty._properties.Count) return false;
 

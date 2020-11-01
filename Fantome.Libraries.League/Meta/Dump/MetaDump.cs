@@ -191,10 +191,10 @@ namespace Fantome.Libraries.League.Meta.Dump
         {
             return BinUtilities.UnpackType(property.Type) switch
             {
-                BinPropertyType.Container => GetContainerTypeDeclaration(property.OtherClass, property.Container, classNames),
-                BinPropertyType.Container2 => GetContainerTypeDeclaration(property.OtherClass, property.Container, classNames),
+                BinPropertyType.Container => GetContainerTypeDeclaration(property.OtherClass, property.Container, false, classNames),
+                BinPropertyType.UnorderedContainer => GetContainerTypeDeclaration(property.OtherClass, property.Container, true, classNames),
                 BinPropertyType.Structure => GetStructureTypeDeclaration(property.OtherClass, classNames),
-                BinPropertyType.Embedded => GetStructureTypeDeclaration(property.OtherClass, classNames),
+                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(property.OtherClass, classNames),
                 BinPropertyType.Optional => GetOptionalTypeDeclaration(property.OtherClass, property.Container, classNames),
                 BinPropertyType.Map => GetMapTypeDeclaration(property.OtherClass, property.Map, classNames),
                 BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type)
@@ -227,13 +227,13 @@ namespace Fantome.Libraries.League.Meta.Dump
                 BinPropertyType propertyType => throw new InvalidOperationException("Invalid Primitive Property type: " + propertyType)
             };
         }
-        private string GetContainerTypeDeclaration(uint elementClass, MetaDumpContainerI container, Dictionary<uint, string> classNames)
+        private string GetContainerTypeDeclaration(uint elementClass, MetaDumpContainerI container, bool isUnorderedContainer, Dictionary<uint, string> classNames)
         {
-            string typeDeclarationFormat = "List<{0}>";
+            string typeDeclarationFormat = isUnorderedContainer ? "MetaUnorderedContainer<{0}>" : "MetaContainer<{0}>";
             string elementName = BinUtilities.UnpackType(container.Type) switch
             {
                 BinPropertyType.Structure => GetStructureTypeDeclaration(elementClass, classNames),
-                BinPropertyType.Embedded => GetStructureTypeDeclaration(elementClass, classNames),
+                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(elementClass, classNames),
                 BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type)
             };
 
@@ -243,6 +243,10 @@ namespace Fantome.Libraries.League.Meta.Dump
         {
             return GetClassNameOrDefault(classNameHash, classNames);
         }
+        private string GetEmbeddedTypeDeclaration(uint classNameHash, Dictionary<uint, string> classNames)
+        {
+            return string.Format("MetaEmbedded<{0}>", GetClassNameOrDefault(classNameHash, classNames));
+        }
         private string GetOptionalTypeDeclaration(uint otherClass, MetaDumpContainerI container, Dictionary<uint, string> classNames)
         {
             string optionalFormat = "{0}?";
@@ -250,7 +254,7 @@ namespace Fantome.Libraries.League.Meta.Dump
             return container.Type switch
             {
                 BinPropertyType.Structure => GetStructureTypeDeclaration(otherClass, classNames),
-                BinPropertyType.Embedded => GetStructureTypeDeclaration(otherClass, classNames),
+                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(otherClass, classNames),
                 BinPropertyType type => string.Format(optionalFormat, GetPrimitivePropertyTypeDeclaration(type))
             };
         }
@@ -261,7 +265,7 @@ namespace Fantome.Libraries.League.Meta.Dump
             string valueDeclaration = BinUtilities.UnpackType(map.ValueType) switch
             {
                 BinPropertyType.Structure => GetStructureTypeDeclaration(otherClass, classNames),
-                BinPropertyType.Embedded => GetStructureTypeDeclaration(otherClass, classNames),
+                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(otherClass, classNames),
                 BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type)
             };
 
@@ -306,8 +310,10 @@ namespace Fantome.Libraries.League.Meta.Dump
                 typeof(Fantome.Libraries.League.Meta.MetaObjectLink),
                 typeof(Fantome.Libraries.League.Meta.MetaWadEntryLink),
                 typeof(Fantome.Libraries.League.Meta.MetaBitBool),
+                typeof(Fantome.Libraries.League.Meta.MetaContainer<>),
+                typeof(Fantome.Libraries.League.Meta.MetaUnorderedContainer<>),
+                typeof(Fantome.Libraries.League.Meta.MetaEmbedded<>),
 
-                typeof(System.Collections.Generic.List<>),
                 typeof(System.Collections.Generic.Dictionary<,>),
 
                 typeof(Fantome.Libraries.League.Meta.IMetaClass),

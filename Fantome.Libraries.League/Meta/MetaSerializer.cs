@@ -68,13 +68,17 @@ namespace Fantome.Libraries.League.Meta
             {
                 return FetchPrimitivePropertyValue(treeProperty);
             }
-            else if (treePropertyType == BinPropertyType.Container || treePropertyType == BinPropertyType.Container2)
+            else if (treePropertyType == BinPropertyType.Container || treePropertyType == BinPropertyType.UnorderedContainer)
             {
                 return DeserializeContainer(environment, propertyType, treeProperty as BinTreeContainer);
             }
-            else if (treePropertyType == BinPropertyType.Structure || treePropertyType == BinPropertyType.Embedded)
+            else if (treePropertyType == BinPropertyType.Structure)
             {
                 return DeserializeStructure(environment, treeProperty as BinTreeStructure);
+            }
+            else if (treePropertyType == BinPropertyType.Embedded)
+            {
+                return DeserializeEmbedded(environment, treeProperty as BinTreeEmbedded);
             }
             else if (treePropertyType == BinPropertyType.Map)
             {
@@ -97,6 +101,20 @@ namespace Fantome.Libraries.League.Meta
             AssignMetaClassProperties(environment, metaClassObject, metaClassObject.GetType(), structure.Properties);
 
             return metaClassObject;
+        }
+        private static object DeserializeEmbedded(MetaEnvironment environment, BinTreeEmbedded embedded)
+        {
+            Type embeddedWrapperType = typeof(MetaEmbedded<>);
+            Type metaClassType = environment.FindMetaClass(embedded.MetaClassHash);
+            if (metaClassType is null) return null; // Couldn't deserialize structure
+
+            object metaClassObject = Activator.CreateInstance(metaClassType);
+
+            AssignMetaClassProperties(environment, metaClassObject, metaClassObject.GetType(), embedded.Properties);
+
+            object embeddedWrapperObject = Activator.CreateInstance(embeddedWrapperType, new[] { metaClassObject });
+
+            return embeddedWrapperObject;
         }
         private static object DeserializeContainer(MetaEnvironment environment, Type propertyType, BinTreeContainer container)
         {
@@ -175,7 +193,7 @@ namespace Fantome.Libraries.League.Meta
                 BinPropertyType.Hash => true,
                 BinPropertyType.WadEntryLink => true,
                 BinPropertyType.Container => false,
-                BinPropertyType.Container2 => false,
+                BinPropertyType.UnorderedContainer => false,
                 BinPropertyType.Structure => false,
                 BinPropertyType.Embedded => false,
                 BinPropertyType.ObjectLink => true,
@@ -207,7 +225,7 @@ namespace Fantome.Libraries.League.Meta
             BinPropertyType.Hash => true,
             BinPropertyType.WadEntryLink => false,
             BinPropertyType.Container => false,
-            BinPropertyType.Container2 => false,
+            BinPropertyType.UnorderedContainer => false,
             BinPropertyType.Structure => false,
             BinPropertyType.Embedded => false,
             BinPropertyType.ObjectLink => false,

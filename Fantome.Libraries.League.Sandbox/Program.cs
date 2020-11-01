@@ -24,6 +24,9 @@ using LeagueAnimation = Fantome.Libraries.League.IO.AnimationFile.Animation;
 using Fantome.Libraries.League.Meta;
 using Fantome.Libraries.League.Meta.Attributes;
 using System.Numerics;
+using Fantome.Libraries.League.Meta.Dump;
+using System.Reflection;
+//using Fantome.Libraries.League.Meta.Classes;
 
 namespace Fantome.Libraries.League.Sandbox
 {
@@ -31,17 +34,33 @@ namespace Fantome.Libraries.League.Sandbox
     {
         static void Main(string[] args)
         {
-            BinTree binTree = new BinTree(@"C:\Users\Crauzer\Desktop\New folder\data\characters\aatrox\skins\skin0.bin");
-            MetaEnvironment environment = MetaEnvironment.Create(new List<Type>() 
-            {
-                typeof(SkinCharacterDataProperties),
-                typeof(CensoredImage),
-                typeof(SkinAudioProperties),
-                typeof(BankUnit),
-                typeof(SkinMeshDataProperties)
-            });
+            BinTree nn = new BinTree(@"C:\Users\Crauzer\Downloads\D373034A82E109D1.bin");
 
-            var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
+
+            BinTree binTree = new BinTree(@"C:\Users\Crauzer\Desktop\New folder\data\characters\aatrox\skins\skin0.bin");
+            MetaEnvironment environment = MetaEnvironment.Create(
+                Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(x => x.IsClass && x.Namespace == "Fantome.Libraries.League.Meta.Classes")
+                .ToList());
+
+            MetaDump dump = MetaDump.Deserialize(File.ReadAllText(@"C:\Users\Crauzer\Downloads\meta_10.21.339.2173.json"));
+
+            List<string> propertyNames = new List<string>();
+            List<string> classNames = new List<string>();
+
+            foreach(string line in File.ReadAllLines(@"C:\Users\Crauzer\Downloads\hashes.binfields.txt"))
+            {
+                propertyNames.Add(line.Split(' ')[1]);
+            }
+            foreach (string line in File.ReadAllLines(@"C:\Users\Crauzer\Downloads\hashes.bintypes.txt"))
+            {
+                classNames.Add(line.Split(' ')[1]);
+            }
+
+            dump.WriteMetaClasses(@"C:\Users\Crauzer\Downloads\meta_10.21.339.2173.cs", classNames, propertyNames);
+
+            //var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
         }
 
         static void TestMapgeo()
@@ -113,40 +132,5 @@ namespace Fantome.Libraries.League.Sandbox
             StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
 
         }
-    }
-
-    [MetaClass("SkinCharacterDataProperties")]
-    public class SkinCharacterDataProperties : IMetaClass
-    {
-        [MetaProperty("skinClassification", BinPropertyType.UInt32)] public uint SkinClassification { get; set; }
-        [MetaProperty("championSkinName", BinPropertyType.String)] public string ChampionSkinName { get; set; }
-        [MetaProperty("loadscreen", BinPropertyType.Embedded)] public CensoredImage Loadscreen { get; set; }
-        [MetaProperty("skinAudioProperties", BinPropertyType.Embedded)] public SkinAudioProperties SkinAudioProperties { get; set; }
-        [MetaProperty("skinMeshProperties", BinPropertyType.Embedded)] public SkinMeshDataProperties SkinMeshProperties { get; set; }
-
-    }
-
-    [MetaClass("CensoredImage")]
-    public class CensoredImage : IMetaClass
-    {
-        [MetaProperty("image", BinPropertyType.String)] public string Image { get; set; }
-    }
-    [MetaClass("skinAudioProperties")]
-    public class SkinAudioProperties : IMetaClass
-    {
-        [MetaProperty("tagEventList", BinPropertyType.Container)] public List<string> TagEventList { get; set; }
-        [MetaProperty("bankUnits", BinPropertyType.Container)] public List<BankUnit> BankUnits { get; set; }
-    }
-    [MetaClass("BankUnit")]
-    public class BankUnit
-    {
-        [MetaProperty("name", BinPropertyType.String)] public string Name { get; set; }
-        [MetaProperty("bankPath", BinPropertyType.Container)] public List<string> BankPath { get; set; }
-        [MetaProperty("events", BinPropertyType.Container)] public List<string> Events { get; set; }
-    }
-    [MetaClass("SkinMeshDataProperties")]
-    public class SkinMeshDataProperties
-    {
-        [MetaProperty("overrideBoundingBox", BinPropertyType.Optional)] public Vector3? OverrideBoundingBox { get; set; }
     }
 }
