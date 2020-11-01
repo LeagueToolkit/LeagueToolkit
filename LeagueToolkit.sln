@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit", "LeagueToolkit\LeagueToolkit.csproj", "{B7C8408C-8674-485E-94DA-8D67EC03FF6A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Sandbox", "LeagueToolkit.Sandbox\LeagueToolkit.Sandbox.csproj", "{DC9F95B4-9B08-4B02-98C4-76282FF3B089}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Tests", "LeagueToolkit.Tests\LeagueToolkit.Tests.csproj", "{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Debug|x64.ActiveCfg = Debug|x64
+		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Debug|x64.Build.0 = Debug|x64
+		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Release|x64.ActiveCfg = Release|x64
+		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Release|x64.Build.0 = Release|x64
+		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Debug|x64.ActiveCfg = Debug|x64
+		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Debug|x64.Build.0 = Debug|x64
+		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Release|x64.ActiveCfg = Release|x64
+		{DC9F95B4-9B08-4B02-98C4-76282FF3B089}.Release|x64.Build.0 = Release|x64
+		{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}.Debug|x64.ActiveCfg = Debug|x64
+		{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}.Debug|x64.Build.0 = Debug|x64
+		{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}.Release|x64.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8572012E-5A9E-4B5F-824A-D196534741FD}
+	EndGlobalSection
+EndGlobal

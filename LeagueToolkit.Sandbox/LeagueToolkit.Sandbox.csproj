@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <AssemblyName>LeagueToolkit.Sandbox</AssemblyName>
+    <RootNamespace>LeagueToolkit.Sandbox</RootNamespace>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SharpGLTF.Core">
+      <HintPath>..\LeagueToolkit\SharpGLTF.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpGLTF.Toolkit">
+      <HintPath>..\LeagueToolkit\SharpGLTF.Toolkit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
