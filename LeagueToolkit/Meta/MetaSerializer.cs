@@ -105,15 +105,14 @@ namespace LeagueToolkit.Meta
         private static object DeserializeEmbedded(MetaEnvironment environment, BinTreeEmbedded embedded)
         {
             Type metaClassType = environment.FindMetaClass(embedded.MetaClassHash);
-            Type embeddedWrapperType = typeof(MetaEmbedded<>).MakeGenericType(metaClassType);
             if (metaClassType is null) return null; // Couldn't deserialize structure
 
-            object metaClassObject = Activator.CreateInstance(metaClassType);
+            Type embeddedWrapperType = typeof(MetaEmbedded<>).MakeGenericType(metaClassType);
 
+            object metaClassObject = Activator.CreateInstance(metaClassType);
             AssignMetaClassProperties(environment, metaClassObject, metaClassObject.GetType(), embedded.Properties);
 
             object embeddedWrapperObject = Activator.CreateInstance(embeddedWrapperType, new[] { metaClassObject });
-
             return embeddedWrapperObject;
         }
         private static object DeserializeContainer(MetaEnvironment environment, Type propertyType, BinTreeContainer container)
@@ -131,11 +130,10 @@ namespace LeagueToolkit.Meta
         }
         private static object DeserializeMap(MetaEnvironment environment, Type propertyType, BinTreeMap map)
         {
-            object mapDictionary = Activator.CreateInstance(propertyType);
-
             // Invalid key type
             if (IsValidMapKey(map.KeyType) is false) return null;
 
+            object mapDictionary = Activator.CreateInstance(propertyType);
             Type mapDictionaryType = mapDictionary.GetType();
             MethodInfo addMethod = mapDictionaryType.GetMethod("Add");
 
@@ -152,19 +150,9 @@ namespace LeagueToolkit.Meta
         }
         private static object DeserializeOptional(MetaEnvironment environment, Type propertyType, BinTreeOptional optional)
         {
-            if (IsValidOptionalType(propertyType) is false) throw new InvalidOperationException($"{propertyType} is not a valid Optional property");
-
-            object optionalObject = optional.ValueType switch
-            {
-                BinPropertyType.String => null,
-                _ => Activator.CreateInstance(propertyType)
-            };
-
-            // If the value isn't null that means we have to deserialize it
-            if (optional.Value is not null)
-            {
-                optionalObject = DeserializeTreeProperty(environment, optional.Value, propertyType);
-            }
+            bool isSome = optional.Value is not null;
+            object value = isSome ? DeserializeTreeProperty(environment, optional.Value) : GetTypeDefault(propertyType);
+            object optionalObject = Activator.CreateInstance(propertyType, new[] { value, isSome });
 
             return optionalObject;
         }
@@ -234,7 +222,6 @@ namespace LeagueToolkit.Meta
             BinPropertyType.BitBool => false,
             _ => throw new ArgumentException("Invalid property type", nameof(propertyType))
         };
-        private static bool IsValidOptionalType(Type type) => !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
 
         private static object FetchPrimitivePropertyValue(BinTreeProperty primitiveProperty)
         {
@@ -262,6 +249,14 @@ namespace LeagueToolkit.Meta
                 BinTreeObjectLink property => new MetaObjectLink(property.Value),
                 BinTreeBitBool property => new MetaBitBool(property.Value),
                 _ => null
+            };
+        }
+        private static object GetTypeDefault(Type type)
+        {
+            return type.IsValueType switch
+            {
+                true => Activator.CreateInstance(type),
+                false => null
             };
         }
     }

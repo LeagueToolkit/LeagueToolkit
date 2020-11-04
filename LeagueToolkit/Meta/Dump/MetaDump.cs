@@ -197,12 +197,12 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(property.OtherClass, classNames),
                 BinPropertyType.Optional => GetOptionalTypeDeclaration(property.OtherClass, property.Container, classNames),
                 BinPropertyType.Map => GetMapTypeDeclaration(property.OtherClass, property.Map, classNames),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type)
+                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, true)
             };
         }
-        private string GetPrimitivePropertyTypeDeclaration(BinPropertyType type)
+        private string GetPrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
         {
-            return BinUtilities.UnpackType(type) switch
+            string typeDeclaration = BinUtilities.UnpackType(type) switch
             {
                 BinPropertyType.Bool => "bool",
                 BinPropertyType.SByte => "sbyte",
@@ -226,6 +226,12 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType.BitBool => "MetaBitBool",
                 BinPropertyType propertyType => throw new InvalidOperationException("Invalid Primitive Property type: " + propertyType)
             };
+
+            return nullable switch
+            {
+                true => typeDeclaration + "?",
+                false => typeDeclaration
+            };
         }
         private string GetContainerTypeDeclaration(uint elementClass, MetaDumpContainerI container, bool isUnorderedContainer, Dictionary<uint, string> classNames)
         {
@@ -234,7 +240,7 @@ namespace LeagueToolkit.Meta.Dump
             {
                 BinPropertyType.Structure => GetStructureTypeDeclaration(elementClass, classNames),
                 BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(elementClass, classNames),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type)
+                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
             };
 
             return string.Format(typeDeclarationFormat, elementName);
@@ -249,24 +255,24 @@ namespace LeagueToolkit.Meta.Dump
         }
         private string GetOptionalTypeDeclaration(uint otherClass, MetaDumpContainerI container, Dictionary<uint, string> classNames)
         {
-            string optionalFormat = "{0}?";
+            string optionalFormat = "MetaOptional<{0}>";
 
             return container.Type switch
             {
                 BinPropertyType.Structure => GetStructureTypeDeclaration(otherClass, classNames),
                 BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(otherClass, classNames),
-                BinPropertyType type => string.Format(optionalFormat, GetPrimitivePropertyTypeDeclaration(type))
+                BinPropertyType type => string.Format(optionalFormat, GetPrimitivePropertyTypeDeclaration(type, false))
             };
         }
         private string GetMapTypeDeclaration(uint otherClass, MetaDumpMapI map, Dictionary<uint, string> classNames)
         {
             string mapFormat = "Dictionary<{0}, {1}>";
-            string keyDeclaration = GetPrimitivePropertyTypeDeclaration(BinUtilities.UnpackType(map.KeyType));
+            string keyDeclaration = GetPrimitivePropertyTypeDeclaration(BinUtilities.UnpackType(map.KeyType), false);
             string valueDeclaration = BinUtilities.UnpackType(map.ValueType) switch
             {
                 BinPropertyType.Structure => GetStructureTypeDeclaration(otherClass, classNames),
                 BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(otherClass, classNames),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type)
+                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
             };
 
             return string.Format(mapFormat, keyDeclaration, valueDeclaration);
@@ -310,6 +316,7 @@ namespace LeagueToolkit.Meta.Dump
                 typeof(LeagueToolkit.Meta.MetaObjectLink),
                 typeof(LeagueToolkit.Meta.MetaWadEntryLink),
                 typeof(LeagueToolkit.Meta.MetaBitBool),
+                typeof(LeagueToolkit.Meta.MetaOptional<>),
                 typeof(LeagueToolkit.Meta.MetaContainer<>),
                 typeof(LeagueToolkit.Meta.MetaUnorderedContainer<>),
                 typeof(LeagueToolkit.Meta.MetaEmbedded<>),
