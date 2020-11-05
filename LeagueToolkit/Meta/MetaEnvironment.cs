@@ -13,15 +13,20 @@ namespace LeagueToolkit.Meta
     {
         public ReadOnlyCollection<Type> RegisteredMetaClasses { get; }
         public ReadOnlyDictionary<uint, IMetaClass> RegisteredObjects { get; }
+        public Dictionary<uint, string> RegisteredHashes { get; set; }
 
         private List<Type> _registeredMetaClasses = new();
         private Dictionary<uint, IMetaClass> _registeredObjects = new();
 
-        internal MetaEnvironment(ICollection<Type> metaClasses)
+        internal MetaEnvironment(ICollection<Type> metaClasses, IEnumerable<KeyValuePair<uint, string>> hashes)
         {
+            if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
+            if (hashes is null) throw new ArgumentNullException(nameof(hashes));
+
             this._registeredMetaClasses = metaClasses.ToList();
             this.RegisteredMetaClasses = this._registeredMetaClasses.AsReadOnly();
             this.RegisteredObjects = new ReadOnlyDictionary<uint, IMetaClass>(this._registeredObjects);
+            this.RegisteredHashes = new Dictionary<uint, string>(hashes);
 
             foreach (Type metaClass in this.RegisteredMetaClasses)
             {
@@ -32,7 +37,29 @@ namespace LeagueToolkit.Meta
 
         public static MetaEnvironment Create(ICollection<Type> metaClasses)
         {
-            return new MetaEnvironment(metaClasses);
+            if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
+
+            return new MetaEnvironment(metaClasses, new Dictionary<uint, string>());
+        }
+        public static MetaEnvironment Create(ICollection<Type> metaClasses, IEnumerable<string> hashes)
+        {
+            if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
+            if (hashes is null) throw new ArgumentNullException(nameof(hashes));
+
+            Dictionary<uint, string> hashDictionary = new();
+            foreach (string hash in hashes)
+            {
+                hashDictionary.Add(Fnv1a.HashLower(hash), hash);
+            }
+
+            return Create(metaClasses, hashDictionary);
+        }
+        public static MetaEnvironment Create(ICollection<Type> metaClasses, IEnumerable<KeyValuePair<uint, string>> hashes)
+        {
+            if (metaClasses is null) throw new ArgumentNullException(nameof(metaClasses));
+            if (hashes is null) throw new ArgumentNullException(nameof(hashes));
+
+            return new MetaEnvironment(metaClasses, hashes);
         }
 
         public void RegisterObject<T>(string path, T metaObject)
@@ -81,6 +108,11 @@ namespace LeagueToolkit.Meta
             where T : IMetaClass
         {
             return (T)this._registeredObjects.GetValueOrDefault(pathHash);
+        }
+
+        public string ResolveHash(uint hash)
+        {
+            return this.RegisteredHashes.GetValueOrDefault(hash);
         }
     }
 }
