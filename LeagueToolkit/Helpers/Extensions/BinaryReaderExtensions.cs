@@ -10,24 +10,50 @@ namespace LeagueToolkit.Helpers.Extensions
     {
         public static Color ReadColor(this BinaryReader reader, ColorFormat format)
         {
-            if (format == ColorFormat.RgbU8) return new Color(reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
-            else if (format == ColorFormat.RgbaU8) return new Color(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
-            else if (format == ColorFormat.RgbF32) return new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-            else if (format == ColorFormat.RgbaF32) return new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            if (format == ColorFormat.RgbU8)
+            {
+                float r = reader.ReadByte() / 255f;
+                float g = reader.ReadByte() / 255f;
+                float b = reader.ReadByte() / 255f;
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.RgbaU8)
+            {
+                float r = reader.ReadByte() / 255f;
+                float g = reader.ReadByte() / 255f;
+                float b = reader.ReadByte() / 255f;
+                float a = reader.ReadByte() / 255f;
+                return new Color(r, g, b, a);
+            }
+            else if (format == ColorFormat.RgbF32)
+            {
+                float r = reader.ReadSingle();
+                float g = reader.ReadSingle();
+                float b = reader.ReadSingle();
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.RgbaF32)
+            {
+                float r = reader.ReadSingle();
+                float g = reader.ReadSingle();
+                float b = reader.ReadSingle();
+                float a = reader.ReadSingle();
+                return new Color(r, g, b, a);
+            }
             else if (format == ColorFormat.BgrU8)
             {
-                float b = reader.ReadByte() / 255;
-                float g = reader.ReadByte() / 255;
-                float r = reader.ReadByte() / 255;
+                float b = reader.ReadByte() / 255f;
+                float g = reader.ReadByte() / 255f;
+                float r = reader.ReadByte() / 255f;
                 return new Color(r, g, b);
             }
             else if (format == ColorFormat.BgraU8)
             {
-                float b = reader.ReadByte() / 255;
-                float g = reader.ReadByte() / 255;
-                float r = reader.ReadByte() / 255;
-                float a = reader.ReadByte() / 255;
-                return new Color(r, g, b);
+                float b = reader.ReadByte() / 255f;
+                float g = reader.ReadByte() / 255f;
+                float r = reader.ReadByte() / 255f;
+                float a = reader.ReadByte() / 255f;
+                return new Color(r, g, b, a);
             }
             else if (format == ColorFormat.BgrF32)
             {

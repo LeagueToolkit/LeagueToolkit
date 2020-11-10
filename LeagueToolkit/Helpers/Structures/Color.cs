@@ -116,7 +116,6 @@ namespace LeagueToolkit.Helpers.Structures
                 colorBuffer[0] = (byte)(this.B * 255);
                 colorBuffer[1] = (byte)(this.G * 255);
                 colorBuffer[2] = (byte)(this.R * 255);
-                colorBuffer[3] = (byte)(this.A * 255);
             }
             else if (format == ColorFormat.BgraU8)
             {
@@ -143,7 +142,6 @@ namespace LeagueToolkit.Helpers.Structures
                 Buffer.BlockCopy(BitConverter.GetBytes(this.B), 0, colorBuffer, sizeof(float) * 0, sizeof(float));
                 Buffer.BlockCopy(BitConverter.GetBytes(this.G), 0, colorBuffer, sizeof(float) * 1, sizeof(float));
                 Buffer.BlockCopy(BitConverter.GetBytes(this.R), 0, colorBuffer, sizeof(float) * 2, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.A), 0, colorBuffer, sizeof(float) * 3, sizeof(float));
             }
             else if (format == ColorFormat.BgraF32)
             {
