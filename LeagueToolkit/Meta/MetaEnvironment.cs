@@ -68,8 +68,6 @@ namespace LeagueToolkit.Meta
             MetaClassAttribute metaClassAttribute = metaObject.GetType().GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
             if (metaClassAttribute is null) throw new ArgumentException($"{nameof(metaObject)} does not have a Meta Class attribute");
 
-            metaClassAttribute.SetPath(path);
-
             uint pathHash = Fnv1a.HashLower(path);
             if (this._registeredObjects.TryAdd(pathHash, metaObject) is false)
             {
@@ -82,12 +80,19 @@ namespace LeagueToolkit.Meta
             MetaClassAttribute metaClassAttribute = metaObject.GetType().GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
             if (metaClassAttribute is null) throw new ArgumentException($"{nameof(metaObject)} does not have a Meta Class attribute");
 
-            metaClassAttribute.SetPath(pathHash);
-
             if (this._registeredObjects.TryAdd(pathHash, metaObject) is false)
             {
                 throw new ArgumentException("An object with the same path is already registered", nameof(pathHash));
             }
+        }
+
+        public bool DeregisterObject(string path)
+        {
+            return DeregisterObject(Fnv1a.HashLower(path));
+        }
+        public bool DeregisterObject(uint pathHash)
+        {
+            return this._registeredObjects.Remove(pathHash);
         }
 
         public Type FindMetaClass(uint classNameHash)

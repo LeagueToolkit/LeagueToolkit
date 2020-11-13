@@ -13,7 +13,7 @@ namespace LeagueToolkit.IO.PropertyBin
     {
         protected const int HEADER_SIZE = 5;
 
-        public IBinTreeParent Parent { get; private set; }
+        public IBinTreeParent Parent { get; internal set; }
         public abstract BinPropertyType Type { get; }
 
         public uint NameHash { get; private set; }

@@ -27,10 +27,6 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
                 {
                     throw new ArgumentException($"Found a property with a different type ({property.Type}) than the specified one {propertiesType}");
                 }
-                else if (properties.Any(x => x.Equals(property)))
-                {
-                    throw new ArgumentException($"Found two properties with the same name hash: {property.NameHash}");
-                }
             }
 
             this._properties = new List<BinTreeProperty>(properties);

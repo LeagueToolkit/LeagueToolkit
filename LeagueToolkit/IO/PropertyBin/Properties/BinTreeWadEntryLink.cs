@@ -8,7 +8,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
 
         public ulong Value { get; private set; }
 
-        public BinTreeWadEntryLink(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash) 
+        public BinTreeWadEntryLink(IBinTreeParent parent, uint nameHash, ulong value) : base(parent, nameHash) 
         {
             this.Value = value;
         }

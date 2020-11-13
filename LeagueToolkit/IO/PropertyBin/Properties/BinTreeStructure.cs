@@ -22,7 +22,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
             // Verify properties
             foreach (BinTreeProperty property in properties)
             {
-                if (properties.Any(x => x.Equals(property)))
+                if (properties.Any(x => x.NameHash == property.NameHash && x != property))
                 {
                     throw new ArgumentException($"Found two properties with the same name hash: {property.NameHash}");
                 }

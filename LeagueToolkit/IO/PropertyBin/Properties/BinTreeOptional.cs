@@ -8,9 +8,9 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
         public BinPropertyType ValueType { get; private set; }
         public BinTreeProperty Value { get; private set; }
 
-        public BinTreeOptional(IBinTreeParent parent, uint nameHash, BinTreeProperty value) : base(parent, nameHash)
+        public BinTreeOptional(IBinTreeParent parent, uint nameHash, BinPropertyType type, BinTreeProperty value) : base(parent, nameHash)
         {
-            this.ValueType = value.Type;
+            this.ValueType = type;
             this.Value = value;
         }
         internal BinTreeOptional(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)

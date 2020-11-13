@@ -39,7 +39,12 @@ namespace LeagueToolkit.IO.PropertyBin
         {
             this.MetaClassHash = metaClassHash;
             this.PathHash = pathHash;
-            this._properties = new List<BinTreeProperty>(properties);
+            this._properties = new List<BinTreeProperty>(properties.Select(x => 
+            {
+                // Assign this as a parent of the properties
+                x.Parent = this;
+                return x;
+            }));
             this.Properties = this._properties.AsReadOnly();
         }
 
@@ -79,6 +84,7 @@ namespace LeagueToolkit.IO.PropertyBin
             }
             else
             {
+                property.Parent = this;
                 this._properties.Add(property);
             }
         }

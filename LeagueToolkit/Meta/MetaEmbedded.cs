@@ -2,7 +2,7 @@
 
 namespace LeagueToolkit.Meta
 {
-    public class MetaEmbedded<T> where T : IMetaClass
+    public class MetaEmbedded<T> : IMetaEmbedded where T : IMetaClass
     {
         public T Value
         {
@@ -22,9 +22,19 @@ namespace LeagueToolkit.Meta
             else this._value = value;
         }
 
+        object IMetaEmbedded.GetValue()
+        {
+            return this.Value;
+        }
+
         public static implicit operator T(MetaEmbedded<T> embedded)
         {
             return embedded.Value;
         }
+    }
+
+    internal interface IMetaEmbedded
+    {
+        internal object GetValue();
     }
 }

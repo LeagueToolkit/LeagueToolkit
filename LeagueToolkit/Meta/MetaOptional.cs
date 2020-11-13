@@ -1,6 +1,6 @@
 ﻿namespace LeagueToolkit.Meta
 {
-    public struct MetaOptional<T>
+    public struct MetaOptional<T> : IMetaOptional
     {
         public bool IsSome { get; private set; }
         public T Value
@@ -21,9 +21,20 @@
             this._value = value;
         }
 
+        object IMetaOptional.GetValue()
+        {
+            if (this.IsSome) return this._value;
+            else return null;
+        }
+
         public static implicit operator T(MetaOptional<T> optional)
         {
             return optional.Value;
         }
+    }
+
+    internal interface IMetaOptional
+    {
+        internal object GetValue();
     }
 }

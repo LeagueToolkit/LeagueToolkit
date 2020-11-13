@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace LeagueToolkit.IO.PropertyBin.Properties
 {
@@ -6,6 +7,11 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.UnorderedContainer;
 
+        public BinTreeUnorderedContainer(IBinTreeParent parent, uint nameHash, BinPropertyType propertiesType, IEnumerable<BinTreeProperty> properties)
+            : base(parent, nameHash, propertiesType, properties)
+        {
+
+        }
         internal BinTreeUnorderedContainer(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(br, parent, nameHash) { }
 
         public override bool Equals(BinTreeProperty other)

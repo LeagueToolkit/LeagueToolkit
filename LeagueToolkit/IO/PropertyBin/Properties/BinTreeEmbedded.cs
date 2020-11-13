@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 
 namespace LeagueToolkit.IO.PropertyBin.Properties
 {
@@ -6,6 +7,11 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.Embedded;
 
+        public BinTreeEmbedded(IBinTreeParent parent, uint nameHash, uint metaClassHash, IEnumerable<BinTreeProperty> properties)
+            : base(parent, nameHash, metaClassHash, properties)
+        {
+
+        }
         internal BinTreeEmbedded(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(br, parent, nameHash) { }
 
         public override bool Equals(BinTreeProperty other)
