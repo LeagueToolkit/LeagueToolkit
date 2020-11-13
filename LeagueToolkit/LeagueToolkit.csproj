@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.1</Version>
+    <Version>2.1</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageIcon>fantome.png</PackageIcon>
     <PackageIconUrl />
@@ -12,8 +12,8 @@
     <Authors>Crauzer</Authors>
     <Company></Company>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <FileVersion>2.1.0.0</FileVersion>
     <LangVersion>preview</LangVersion>
     <Platforms>x64</Platforms>
     <AssemblyName>LeagueToolkit</AssemblyName>
