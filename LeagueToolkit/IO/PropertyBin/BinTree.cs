@@ -10,6 +10,8 @@ namespace LeagueToolkit.IO.PropertyBin
 {
     public class BinTree
     {
+        public bool IsOverride { get; private set; }
+
         public List<string> Dependencies { get; private set; } = new();
 
         public ReadOnlyCollection<BinTreeObject> Objects { get; }
@@ -28,9 +30,22 @@ namespace LeagueToolkit.IO.PropertyBin
             using (BinaryReader br = new BinaryReader(stream))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                if (magic != "PROP")
+                if (magic != "PROP" && magic != "PTCH")
                 {
                     throw new InvalidFileSignatureException();
+                }
+
+                if (magic == "PTCH")
+                {
+                    this.IsOverride = true;
+
+                    ulong unknown = br.ReadUInt64();
+                    magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+                }
+
+                if(magic != "PROP")
+                {
+                    throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
                 }
 
                 uint version = br.ReadUInt32();
