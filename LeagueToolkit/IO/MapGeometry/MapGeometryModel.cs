@@ -16,7 +16,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public List<MapGeometrySubmesh> Submeshes { get; set; } = new List<MapGeometrySubmesh>();
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
-        public R3DMatrix44 Transformation { get; set; } = new R3DMatrix44();
+        public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
         public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public byte UnknownByte { get; set; }
@@ -116,7 +116,7 @@ namespace LeagueToolkit.IO.MapGeometry
             if (version >= 7)
             {
                 this.Layer = (MapGeometryLayer)br.ReadByte();
-            
+
                 if(version >= 11)
                 {
                     this.UnknownByte = br.ReadByte();
@@ -179,13 +179,13 @@ namespace LeagueToolkit.IO.MapGeometry
             if (version >= 7)
             {
                 bw.Write((byte)this.Layer);
-                
+
                 if(version >= 11)
                 {
                     bw.Write(this.UnknownByte);
                 }
             }
-            
+
             if(version < 9)
             {
                 if(useSeparatePointLights)

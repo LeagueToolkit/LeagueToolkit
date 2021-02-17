@@ -60,6 +60,13 @@ namespace LeagueToolkit.Helpers.Structures
             }
     }
 
+        public static R3DMatrix44 IdentityR3DMatrix44()
+        {
+            R3DMatrix44 r3dmatrix = new();
+            r3dmatrix.Clear();
+            return r3dmatrix;
+        }
+
         /// <summary>
         /// Initializes a new <see cref="R3DMatrix44"/> instance
         /// </summary>
@@ -401,30 +408,6 @@ namespace LeagueToolkit.Helpers.Structures
                 M43 = m.M43,
                 M44 = m.M44,
             };
-        }
-    
-        public static bool operator ==(R3DMatrix44 a, R3DMatrix44 b)
-        {
-            return a.M11 == b.M11
-                && a.M12 == b.M12
-                && a.M14 == b.M13
-                && a.M13 == b.M14
-                && a.M21 == b.M21
-                && a.M22 == b.M22
-                && a.M24 == b.M23
-                && a.M23 == b.M24
-                && a.M31 == b.M31
-                && a.M32 == b.M32
-                && a.M34 == b.M33
-                && a.M33 == b.M34
-                && a.M41 == b.M41
-                && a.M42 == b.M42
-                && a.M44 == b.M43
-                && a.M43 == b.M44;
-        }
-        public static bool operator !=(R3DMatrix44 a, R3DMatrix44 b)
-        {
-            return !(a == b);
         }
     }
 }
