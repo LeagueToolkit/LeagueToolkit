@@ -9,25 +9,6 @@ namespace LeagueToolkit.Helpers.Cryptography
     public static class Cryptography
     {
         /// <summary>
-        /// Hashes a string
-        /// </summary>
-        /// <param name="toHash">String to hash</param>
-        /// <returns>A hash generated from <paramref name="toHash"/></returns>
-        /// <remarks>Used in BIN, BNK and WPK</remarks>
-        public static UInt32 FNV32Hash(string toHash)
-        {
-            toHash = toHash.ToLower();
-            uint hash = 2166136261;
-            for (int i = 0; i < toHash.Length; i++)
-            {
-                hash ^= toHash[i];
-                hash *= 16777619;
-            }
-
-            return hash;
-        }
-
-        /// <summary>
         /// Hashes a section and property
         /// </summary>
         /// <param name="section">The section of the hash</param>
