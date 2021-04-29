@@ -19,7 +19,7 @@ namespace LeagueToolkit.IO.WadFile
         public Stream DataStream { get; internal set; }
         public int CompressedSize { get; internal set; }
         public int UncompressedSize { get; internal set; }
-        internal bool _isFileDataStream = false;
+        internal bool _isGenericDataStream = false;
         internal uint _dataOffset;
 
         public string FileRedirection { get; private set; }
@@ -30,7 +30,18 @@ namespace LeagueToolkit.IO.WadFile
         {
 
         }
+        public WadEntryBuilder(WadEntry entry)
+        {
+            WithPathXXHash(entry.XXHash);
 
+            switch (entry.Type)
+            {
+                case WadEntryType.Uncompressed: WithUncompressedDataStream(entry.GetDataHandle().GetDecompressedStream()); break;
+                case WadEntryType.GZipCompressed: WithGZipDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
+                case WadEntryType.ZStandardCompressed: WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
+                case WadEntryType.FileRedirection: WithFileRedirection(entry.FileRedirection); break;
+            }
+        }
         public WadEntryBuilder WithPath(string path)
         {
             return WithPathXXHash(XXHash.XXH64(Encoding.UTF8.GetBytes(path.ToLower())));
@@ -79,9 +90,13 @@ namespace LeagueToolkit.IO.WadFile
         {
             string filePath = stream.Name;
 
-            this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(filePath));
+            return WithGenericDataStream(filePath, stream);
+        }
+        public WadEntryBuilder WithGenericDataStream(string path, Stream stream)
+        {
+            this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(path));
             this.DataStream = stream;
-            this._isFileDataStream = true;
+            this._isGenericDataStream = true;
             this.Sha256Checksum = new byte[8];
 
             return this;

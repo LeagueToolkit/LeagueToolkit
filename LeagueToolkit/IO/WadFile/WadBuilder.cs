@@ -8,15 +8,24 @@ using ZstdSharp;
 
 namespace LeagueToolkit.IO.WadFile
 {
-    public class WadBuilder
+    public class WadBuilder : IDisposable
     {
         public ReadOnlyDictionary<ulong, WadEntryBuilder> Entries { get; private set; }
 
         private Dictionary<ulong, WadEntryBuilder> _entries = new();
 
+        private bool _isDisposed;
+
         public WadBuilder()
         {
             this.Entries = new(this._entries);
+        }
+        public WadBuilder(Wad wad) : this()
+        {
+            foreach(var entry in wad.Entries)
+            {
+                WithEntry(new WadEntryBuilder(entry.Value));
+            }
         }
 
         public WadBuilder WithEntry(WadEntryBuilder entryBuilder)
@@ -47,8 +56,6 @@ namespace LeagueToolkit.IO.WadFile
             foreach (WadEntryBuilder entryBuilder in this._entries.Values)
             {
                 WriteEntryData(stream, entryBuilder);
-
-                entryBuilder.DataStream.Close();
             }
 
             foreach (WadEntryBuilder entryBuilder in this._entries.Values)
@@ -74,7 +81,7 @@ namespace LeagueToolkit.IO.WadFile
         private void WriteEntryData(Stream wadStream, WadEntryBuilder entryBuilder)
         {
             // If we're writing a File Stream then we need to compress it first
-            if (entryBuilder._isFileDataStream)
+            if (entryBuilder._isGenericDataStream)
             {
                 int uncompressedSize = (int)entryBuilder.DataStream.Length;
                 MemoryStream compressedStream = new MemoryStream();
@@ -128,6 +135,22 @@ namespace LeagueToolkit.IO.WadFile
                 entryBuilder.DataStream.Read(data, 0, data.Length);
 
                 wadStream.Write(data, 0, data.Length);
+            }
+        }
+    
+        public void RemoveEntry(ulong xxhash)
+        {
+            this._entries.Remove(xxhash);
+        }
+
+        public void Dispose()
+        {
+            if(this._isDisposed is false)
+            {
+                foreach(var entry in this._entries)
+                {
+                    entry.Value.DataStream.Dispose();
+                }
             }
         }
     }
