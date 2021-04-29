@@ -11,7 +11,7 @@ namespace LeagueToolkit.IO.MapGeometry
     {
         public string UnknownString1 { get; set; } = string.Empty;
         public string UnknownString2 { get; set; } = string.Empty;
-        public List<MapGeometryModel> Models { get; set; } = new List<MapGeometryModel>();
+        public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
@@ -37,17 +37,17 @@ namespace LeagueToolkit.IO.MapGeometry
                     useSeparatePointLights = br.ReadBoolean();
                 }
 
-                if(version >= 9)
+                if (version >= 9)
                 {
                     this.UnknownString1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
 
-                    if(version >= 11)
+                    if (version >= 11)
                     {
                         this.UnknownString2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                     }
                 }
 
-                List<MapGeometryVertexElementGroup> vertexElementGroups = new List<MapGeometryVertexElementGroup>();
+                List<MapGeometryVertexElementGroup> vertexElementGroups = new();
                 uint vertexElementGroupCount = br.ReadUInt32();
                 for (int i = 0; i < vertexElementGroupCount; i++)
                 {
@@ -55,7 +55,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 }
 
                 uint vertexBufferCount = br.ReadUInt32();
-                List<long> vertexBufferOffsets = new List<long>();
+                List<long> vertexBufferOffsets = new();
                 for (int i = 0; i < vertexBufferCount; i++)
                 {
                     uint bufferSize = br.ReadUInt32();
@@ -65,13 +65,11 @@ namespace LeagueToolkit.IO.MapGeometry
                 }
 
                 uint indexBufferCount = br.ReadUInt32();
-                List<ushort[]> indexBuffers = new List<ushort[]>();
+                List<ushort[]> indexBuffers = new();
                 for (int i = 0; i < indexBufferCount; i++)
                 {
-                    ushort[] indexBuffer;
-
                     uint bufferSize = br.ReadUInt32();
-                    indexBuffer = new ushort[bufferSize / 2];
+                    ushort[] indexBuffer = new ushort[bufferSize / 2];
 
                     for (int j = 0; j < bufferSize / 2; j++)
                     {
@@ -119,7 +117,7 @@ namespace LeagueToolkit.IO.MapGeometry
                     bw.Write(this.UnknownString1.Length);
                     bw.Write(Encoding.ASCII.GetBytes(this.UnknownString1));
 
-                    if(version >= 11)
+                    if (version >= 11)
                     {
                         bw.Write(this.UnknownString2.Length);
                         bw.Write(Encoding.ASCII.GetBytes(this.UnknownString2));
