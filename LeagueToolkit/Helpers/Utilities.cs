@@ -36,84 +36,84 @@ namespace LeagueToolkit.Helpers
             {
                 if (magicData[4] == 'M' && magicData[5] == 'e' && magicData[6] == 's' && magicData[7] == 'h')
                 {
-                    return LeagueFileType.SCB;
+                    return LeagueFileType.StaticObjectBinary;
                 }
                 else if (magicData[4] == 's' && magicData[5] == 'k' && magicData[6] == 'l' && magicData[7] == 't')
                 {
-                    return LeagueFileType.SKL;
+                    return LeagueFileType.Skeleton;
                 }
                 else if (magicData[4] == 'a' && magicData[5] == 'n' && magicData[6] == 'm' && magicData[7] == 'd')
                 {
-                    return LeagueFileType.ANM;
+                    return LeagueFileType.Animation;
                 }
                 else if (magicData[4] == 'c' && magicData[5] == 'a' && magicData[6] == 'n' && magicData[7] == 'm')
                 {
-                    return LeagueFileType.ANM;
+                    return LeagueFileType.Animation;
                 }
                 else if (magicData[4] == 1 && magicData[5] == 0 && magicData[6] == 0 && magicData[7] == 0)
                 {
-                    return LeagueFileType.WPK;
+                    return LeagueFileType.WwisePackage;
                 }
             }
             else if (magicData[1] == 'P' && magicData[2] == 'N' && magicData[3] == 'G')
             {
-                return LeagueFileType.PNG;
+                return LeagueFileType.PngImage;
             }
             else if (magicData[0] == 'D' && magicData[1] == 'D' && magicData[2] == 'S' && magicData[3] == 0x20)
             {
-                return LeagueFileType.DDS;
+                return LeagueFileType.DdsImage;
             }
             else if (magicData[0] == 0x33 && magicData[1] == 0x22 && magicData[2] == 0x11 && magicData[3] == 0x00)
             {
-                return LeagueFileType.SKN;
+                return LeagueFileType.SimpleSkin;
             }
             else if (magicData[0] == 'P' && magicData[1] == 'R' && magicData[2] == 'O' && magicData[3] == 'P')
             {
-                return LeagueFileType.BIN;
+                return LeagueFileType.PropertyBin;
             }
             else if (magicData[0] == 'B' && magicData[1] == 'K' && magicData[2] == 'H' && magicData[3] == 'D')
             {
-                return LeagueFileType.BNK;
+                return LeagueFileType.WwiseBank;
             }
             else if (magicData[0] == 'W' && magicData[1] == 'G' && magicData[2] == 'E' && magicData[3] == 'O')
             {
-                return LeagueFileType.WGEO;
+                return LeagueFileType.WorldGeometry;
             }
             else if (magicData[0] == 'O' && magicData[1] == 'E' && magicData[2] == 'G' && magicData[3] == 'M')
             {
-                return LeagueFileType.MAPGEO;
+                return LeagueFileType.MapGeometry;
             }
             else if (magicData[0] == '[' && magicData[1] == 'O' && magicData[2] == 'b' && magicData[3] == 'j')
             {
-                return LeagueFileType.SCO;
+                return LeagueFileType.StaticObjectAscii;
             }
             else if (magicData[1] == 'L' && magicData[2] == 'u' && magicData[3] == 'a' && magicData[4] == 'Q')
             {
-                return LeagueFileType.LUAOBJ;
+                return LeagueFileType.LuaObj;
             }
             else if (magicData[0] == 'P' && magicData[1] == 'r' && magicData[2] == 'e' && magicData[3] == 'L' && magicData[4] == 'o' && magicData[5] == 'a' && magicData[6] == 'd')
             {
-                return LeagueFileType.PRELOAD;
+                return LeagueFileType.Preload;
             }
             else if (magicData[0] == 3 && magicData[1] == 0 && magicData[2] == 0 && magicData[3] == 0)
             {
-                return LeagueFileType.LIGHTGRID;
+                return LeagueFileType.Lightgrid;
             }
             else if (magicData[0] == 'R' && magicData[1] == 'S' && magicData[2] == 'T')
             {
-                return LeagueFileType.RST;
+                return LeagueFileType.RiotStringTable;
             }
             else if (magicData[0] == 'P' && magicData[1] == 'T' && magicData[2] == 'C' && magicData[3] == 'H')
             {
-                return LeagueFileType.PATCHBIN;
+                return LeagueFileType.PatchPropertyBin;
             }
             else if (magicData[0] == 0xFF && magicData[1] == 0xD8 && magicData[2] == 0xFF)
             {
-                return LeagueFileType.JPG;
+                return LeagueFileType.JpegImage;
             }
             else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FORMAT_TOKEN)
             {
-                return LeagueFileType.SKL;
+                return LeagueFileType.Skeleton;
             }
 
             return LeagueFileType.Unknown;
@@ -143,22 +143,22 @@ namespace LeagueToolkit.Helpers
 
                 switch (extension)
                 {
-                    case "anm": return LeagueFileType.ANM;
-                    case "bin": return LeagueFileType.BIN;
-                    case "bnk": return LeagueFileType.BNK;
-                    case "dds": return LeagueFileType.DDS;
-                    case "luaobj": return LeagueFileType.LUAOBJ;
-                    case "mapgeo": return LeagueFileType.MAPGEO;
-                    case "png": return LeagueFileType.PNG;
-                    case "preload": return LeagueFileType.PRELOAD;
-                    case "scb": return LeagueFileType.SCB;
-                    case "sco": return LeagueFileType.SCO;
-                    case "skl": return LeagueFileType.SKL;
-                    case "skn": return LeagueFileType.SKN;
-                    case "wgeo": return LeagueFileType.WGEO;
-                    case "wpk": return LeagueFileType.WPK;
-                    case "jpg": return LeagueFileType.JPG;
-                    case "rst": return LeagueFileType.RST;
+                    case "anm": return LeagueFileType.Animation;
+                    case "bin": return LeagueFileType.PropertyBin;
+                    case "bnk": return LeagueFileType.WwiseBank;
+                    case "dds": return LeagueFileType.DdsImage;
+                    case "luaobj": return LeagueFileType.LuaObj;
+                    case "mapgeo": return LeagueFileType.MapGeometry;
+                    case "png": return LeagueFileType.PngImage;
+                    case "preload": return LeagueFileType.Preload;
+                    case "scb": return LeagueFileType.StaticObjectBinary;
+                    case "sco": return LeagueFileType.StaticObjectAscii;
+                    case "skl": return LeagueFileType.Skeleton;
+                    case "skn": return LeagueFileType.SimpleSkin;
+                    case "wgeo": return LeagueFileType.WorldGeometry;
+                    case "wpk": return LeagueFileType.WwisePackage;
+                    case "jpg": return LeagueFileType.JpegImage;
+                    case "rst": return LeagueFileType.RiotStringTable;
                     default: return LeagueFileType.Unknown;
                 }
             }
@@ -171,41 +171,41 @@ namespace LeagueToolkit.Helpers
         {
             switch (extensionType)
             {
-                case LeagueFileType.ANM:
+                case LeagueFileType.Animation:
                     return "anm";
-                case LeagueFileType.BIN:
+                case LeagueFileType.PropertyBin:
                     return "bin";
-                case LeagueFileType.BNK:
+                case LeagueFileType.WwiseBank:
                     return "bnk";
-                case LeagueFileType.DDS:
+                case LeagueFileType.DdsImage:
                     return "dds";
-                case LeagueFileType.LUAOBJ:
+                case LeagueFileType.LuaObj:
                     return "luaobj";
-                case LeagueFileType.PRELOAD:
+                case LeagueFileType.Preload:
                     return "preload";
-                case LeagueFileType.PNG:
+                case LeagueFileType.PngImage:
                     return "png";
-                case LeagueFileType.SCB:
+                case LeagueFileType.StaticObjectBinary:
                     return "scb";
-                case LeagueFileType.SCO:
+                case LeagueFileType.StaticObjectAscii:
                     return "sco";
-                case LeagueFileType.SKL:
+                case LeagueFileType.Skeleton:
                     return "skl";
-                case LeagueFileType.SKN:
+                case LeagueFileType.SimpleSkin:
                     return "skn";
-                case LeagueFileType.WPK:
+                case LeagueFileType.WwisePackage:
                     return "wpk";
-                case LeagueFileType.MAPGEO:
+                case LeagueFileType.MapGeometry:
                     return "mapgeo";
-                case LeagueFileType.WGEO:
+                case LeagueFileType.WorldGeometry:
                     return "wgeo";
-                case LeagueFileType.LIGHTGRID:
+                case LeagueFileType.Lightgrid:
                     return "dat";
-                case LeagueFileType.RST:
+                case LeagueFileType.RiotStringTable:
                     return "txt";
-                case LeagueFileType.PATCHBIN:
+                case LeagueFileType.PatchPropertyBin:
                     return "bin";
-                case LeagueFileType.JPG:
+                case LeagueFileType.JpegImage:
                     return "jpg";
                 default:
                     return "";
@@ -267,23 +267,24 @@ namespace LeagueToolkit.Helpers
     public enum LeagueFileType
     {
         Unknown,
-        ANM,
-        BIN,
-        BNK,
-        DDS,
-        LIGHTGRID,
-        LUAOBJ,
-        MAPGEO,
-        PNG,
-        PRELOAD,
-        SCB,
-        SCO,
-        SKL,
-        SKN,
-        WGEO,
-        WPK,
-        JPG,
-        RST,
-        PATCHBIN
+        Animation,
+        PropertyBin,
+        WwiseBank,
+        DdsImage,
+        Lightgrid,
+        LuaObj,
+        MapGeometry,
+        PngImage,
+        Preload,
+        StaticObjectBinary,
+        StaticObjectAscii,
+        Skeleton,
+        SimpleSkin,
+        WorldGeometry,
+        WwisePackage,
+        JpegImage,
+        RiotStringTable,
+        PatchPropertyBin,
+        WadArchive
     }
 }

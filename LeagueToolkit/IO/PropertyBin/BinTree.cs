@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -41,15 +42,11 @@ namespace LeagueToolkit.IO.PropertyBin
 
                     ulong unknown = br.ReadUInt64();
                     magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                }
-
-                if(magic != "PROP")
-                {
-                    throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
+                    if (magic != "PROP") throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
                 }
 
                 uint version = br.ReadUInt32();
-                if (version != 1 && version != 2)
+                if (version != 1 && version != 2 && version != 3)
                 {
                     throw new UnsupportedFileVersionException();
                 }
@@ -77,22 +74,25 @@ namespace LeagueToolkit.IO.PropertyBin
             }
         }
 
-        public void Write(string fileLocation)
+        public void Write(string fileLocation, Version version)
         {
-            Write(File.OpenWrite(fileLocation));
+            Write(File.OpenWrite(fileLocation), version);
         }
-        public void Write(Stream stream)
+        public void Write(Stream stream, Version version)
         {
             using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
-                bw.Write((uint)2); // version
+                bw.Write(version.PackToInt()); // version
 
-                bw.Write(this.Dependencies.Count);
-                foreach (string dependency in this.Dependencies)
+                if(version.Major >= 2)
                 {
-                    bw.Write((ushort)dependency.Length);
-                    bw.Write(Encoding.UTF8.GetBytes(dependency));
+                    bw.Write(this.Dependencies.Count);
+                    foreach (string dependency in this.Dependencies)
+                    {
+                        bw.Write((ushort)dependency.Length);
+                        bw.Write(Encoding.UTF8.GetBytes(dependency));
+                    }
                 }
 
                 bw.Write(this._objects.Count);
