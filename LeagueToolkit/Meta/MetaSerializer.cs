@@ -32,7 +32,7 @@ namespace LeagueToolkit.Meta
             // Assign values to the object properties
             AssignMetaClassProperties(environment, metaClassObject, metaClassObjectType, treeObject.Properties);
 
-            // Registered the object in the environment for link resolving
+            // Register the object in the environment for link resolving
             environment.RegisterObject(treeObject.PathHash, metaClassObject);
 
             return metaClassObject;
