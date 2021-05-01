@@ -26,6 +26,9 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
             {
                 if (pair.Key.Type != keyType) throw new ArgumentException("Found a key that does not match the specified key type", nameof(map));
                 if (pair.Value.Type != valueType) throw new ArgumentException("Found a value that does not match the specified value type", nameof(map));
+
+                pair.Key.Parent = this;
+                pair.Value.Parent = this;
             }
 
             this._map = new Dictionary<BinTreeProperty, BinTreeProperty>(map);

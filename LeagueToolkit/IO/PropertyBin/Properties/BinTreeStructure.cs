@@ -26,6 +26,8 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
                 {
                     throw new ArgumentException($"Found two properties with the same name hash: {property.NameHash}");
                 }
+
+                property.Parent = this;
             }
 
             this._properties = new List<BinTreeProperty>(properties);

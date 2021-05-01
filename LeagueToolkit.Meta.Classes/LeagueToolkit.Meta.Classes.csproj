@@ -5,6 +5,7 @@
     <Authors>Crauzer</Authors>
     <Version>10.21.339.2173</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

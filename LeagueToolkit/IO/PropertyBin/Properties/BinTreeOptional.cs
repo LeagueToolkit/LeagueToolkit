@@ -12,6 +12,8 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
         {
             this.ValueType = type;
             this.Value = value;
+
+            this.Value.Parent = this;
         }
         internal BinTreeOptional(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
         {

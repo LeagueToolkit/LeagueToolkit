@@ -27,6 +27,8 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
                 {
                     throw new ArgumentException($"Found a property with a different type ({property.Type}) than the specified one {propertiesType}");
                 }
+
+                property.Parent = this;
             }
 
             this._properties = new List<BinTreeProperty>(properties);

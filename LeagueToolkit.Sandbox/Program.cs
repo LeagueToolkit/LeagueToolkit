@@ -33,8 +33,10 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            BinTree nn = new BinTree(@"C:\Users\Crauzer\Downloads\D373034A82E109D1.bin");
+            LeagueAnimation anm = new(@"C:\Users\Crauzer\Desktop\New folder (3)\assets\characters\rengar\skins\base\animations\rengar_attack4.anm");
 
+            BinTree nn = new BinTree(@"C:\Users\Crauzer\Downloads\D373034A82E109D1.bin");
+            BinTree panth = new BinTree(@"C:\Users\Crauzer\Desktop\skin0.bin");
 
             BinTree binTree = new BinTree(@"C:\Users\Crauzer\Desktop\New folder\data\characters\aatrox\skins\skin0.bin");
             MetaEnvironment environment = MetaEnvironment.Create(
