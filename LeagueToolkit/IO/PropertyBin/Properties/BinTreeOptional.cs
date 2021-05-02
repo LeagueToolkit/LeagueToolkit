@@ -13,7 +13,10 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
             this.ValueType = type;
             this.Value = value;
 
-            this.Value.Parent = this;
+            if (value is not null)
+            {
+                value.Parent = this;
+            }
         }
         internal BinTreeOptional(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
         {

@@ -26,6 +26,7 @@ using LeagueToolkit.Meta.Attributes;
 using System.Numerics;
 using LeagueToolkit.Meta.Dump;
 using System.Reflection;
+using LeagueToolkit.Helpers;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -33,6 +34,10 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
+            BinTree xxx1 = new BinTree(@"C:\Users\Crauzer\Desktop\New folder (2)\data\maps\mapgeometry\map11\base.materials.bin");
+            xxx1.Write(@"C:\Users\Crauzer\Desktop\New folder (2)\data\maps\mapgeometry\map11\xxx.bin", FileVersionProvider.GetSupportedVersions(LeagueFileType.PropertyBin).Last());
+            BinTree xxx = new BinTree(@"C:\Users\Crauzer\Desktop\New folder (2)\data\maps\mapgeometry\map11\xxx.bin");
+
             LeagueAnimation anm = new(@"C:\Users\Crauzer\Desktop\New folder (3)\assets\characters\rengar\skins\base\animations\rengar_attack4.anm");
 
             BinTree nn = new BinTree(@"C:\Users\Crauzer\Downloads\D373034A82E109D1.bin");
