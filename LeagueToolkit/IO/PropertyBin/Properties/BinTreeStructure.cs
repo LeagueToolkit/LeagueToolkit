@@ -62,6 +62,28 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
             }
         }
 
+        public void AddProperty(BinTreeProperty property)
+        {
+            if (this._properties.Any(x => x.NameHash == property.NameHash))
+            {
+                throw new InvalidOperationException("A property with the same name already exists");
+            }
+
+            this._properties.Add(property);
+        }
+        public bool RemoveProperty(BinTreeProperty property)
+        {
+            if (property is not null)
+            {
+                return this._properties.Remove(property);
+            }
+            else return false;
+        }
+        public bool RemoveProperty(uint nameHash)
+        {
+            return RemoveProperty(this._properties.FirstOrDefault(x => x.NameHash == nameHash));
+        }
+
         internal override int GetSize(bool includeHeader)
         {
             int size = includeHeader ? HEADER_SIZE : 0;
