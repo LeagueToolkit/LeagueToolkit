@@ -34,9 +34,21 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            BinTree xxx1 = new BinTree(@"C:\Users\Crauzer\Desktop\New folder (2)\data\maps\mapgeometry\map11\base.materials.bin");
-            xxx1.Write(@"C:\Users\Crauzer\Desktop\New folder (2)\data\maps\mapgeometry\map11\xxx.bin", FileVersionProvider.GetSupportedVersions(LeagueFileType.PropertyBin).Last());
-            BinTree xxx = new BinTree(@"C:\Users\Crauzer\Desktop\New folder (2)\data\maps\mapgeometry\map11\xxx.bin");
+            MetaDump dump = MetaDump.Deserialize(File.ReadAllText(@"C:\Users\Crauzer\Downloads\meta_11.8.370.4668.json"));
+
+            List<string> propertyNames = new List<string>();
+            List<string> classNames = new List<string>();
+
+            foreach (string line in File.ReadAllLines(@"C:\Users\Crauzer\Documents\Fantome\Scavenger\Scavenger\bin\x64\ReleasePortable\netcoreapp3.1\win-x64\publish\FIELDS_HASHTABLE.txt"))
+            {
+                propertyNames.Add(line.Split(' ')[1]);
+            }
+            foreach (string line in File.ReadAllLines(@"C:\Users\Crauzer\Documents\Fantome\Scavenger\Scavenger\bin\x64\ReleasePortable\netcoreapp3.1\win-x64\publish\TYPES_HASHTABLE.txt"))
+            {
+                classNames.Add(line.Split(' ')[1]);
+            }
+
+            dump.WriteMetaClasses(@"C:\Users\Crauzer\Downloads\meta_11.8.370.4668.cs", classNames, propertyNames);
 
             LeagueAnimation anm = new(@"C:\Users\Crauzer\Desktop\New folder (3)\assets\characters\rengar\skins\base\animations\rengar_attack4.anm");
 
@@ -49,22 +61,7 @@ namespace LeagueToolkit.Sandbox
                 .GetTypes()
                 .Where(x => x.IsClass && x.Namespace == "LeagueToolkit.Meta.Classes")
                 .ToList());
-
-            MetaDump dump = MetaDump.Deserialize(File.ReadAllText(@"C:\Users\Crauzer\Downloads\meta_10.21.339.2173.json"));
-
-            List<string> propertyNames = new List<string>();
-            List<string> classNames = new List<string>();
-
-            foreach(string line in File.ReadAllLines(@"C:\Users\Crauzer\Downloads\hashes.binfields.txt"))
-            {
-                propertyNames.Add(line.Split(' ')[1]);
-            }
-            foreach (string line in File.ReadAllLines(@"C:\Users\Crauzer\Downloads\hashes.bintypes.txt"))
-            {
-                classNames.Add(line.Split(' ')[1]);
-            }
-
-            dump.WriteMetaClasses(@"C:\Users\Crauzer\Downloads\meta_10.21.339.2173.cs", classNames, propertyNames);
+            
 
             //var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
         }

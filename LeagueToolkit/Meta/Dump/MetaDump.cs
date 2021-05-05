@@ -2,6 +2,7 @@
 using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.IO.PropertyBin;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +14,7 @@ namespace LeagueToolkit.Meta.Dump
     public sealed class MetaDump
     {
         public string Version { get; set; }
-        public List<MetaDumpClass> Classes { get; set; }
+        public Dictionary<string, MetaDumpClass> Classes { get; set; }
 
         public void WriteMetaClasses(string fileLocation, ICollection<string> classNames, ICollection<string> propertyNames)
         {
@@ -65,51 +66,50 @@ namespace LeagueToolkit.Meta.Dump
 
         private void WriteClasses(StreamWriter sw, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
-            foreach (MetaDumpClass dumpClass in this.Classes)
+            foreach (var dumpClass in this.Classes)
             {
-                WriteClass(sw, dumpClass, classNames, propertyNames);
+                WriteClass(sw, dumpClass.Key, dumpClass.Value, classNames, propertyNames);
             }
         }
-        private void WriteClassAttribute(StreamWriter sw, MetaDumpClass dumpClass, Dictionary<uint, string> classNames)
+        private void WriteClassAttribute(StreamWriter sw, string dumpClassHash, MetaDumpClass dumpClass, Dictionary<uint, string> classNames)
         {
-            if (classNames.TryGetValue(dumpClass.Hash, out string className))
+            if (classNames.TryGetValue(Convert.ToUInt32(dumpClassHash, 16), out string className))
             {
                 sw.WriteLineIndented(1, @"[MetaClass(""{0}"")]", className);
             }
             else
             {
-                sw.WriteLineIndented(1, "[MetaClass({0})]", dumpClass.Hash);
+                sw.WriteLineIndented(1, "[MetaClass({0})]", Convert.ToUInt32(dumpClassHash, 16));
             }
         }
-        private void WriteClass(StreamWriter sw, MetaDumpClass dumpClass, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
+        private void WriteClass(StreamWriter sw, string classHash, MetaDumpClass dumpClass, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
-            WriteClassAttribute(sw, dumpClass, classNames);
+            WriteClassAttribute(sw, classHash, dumpClass, classNames);
 
             sw.Write("    public ");
-            sw.Write(dumpClass.IsInterface ? "interface" : "class");
-            sw.Write(" {0}", GetClassNameOrDefault(dumpClass.Hash, classNames));
+            sw.Write(dumpClass.Is.Interface ? "interface" : "class");
+            sw.Write(" {0}", GetClassNameOrDefault(classHash, classNames));
 
-            MetaDumpClass mainParent = this.Classes.FirstOrDefault(x => x.Hash == dumpClass.ParentClass);
-            if (mainParent is null)
+            if(dumpClass.ParentClass is not null && this.Classes.ContainsKey(dumpClass.ParentClass))
             {
                 sw.Write(" : ");
-                sw.Write("IMetaClass");
+                sw.Write(GetClassNameOrDefault(dumpClass.ParentClass, classNames));
             }
             else
             {
                 sw.Write(" : ");
-                sw.Write(GetClassNameOrDefault(mainParent.Hash, classNames));
+                sw.Write("IMetaClass");
             }
 
             // Write interfaces
-            List<uint> interfaces = dumpClass.GetInterfaces(this.Classes, false);
+            List<string> interfaces = dumpClass.GetInterfaces(this.Classes, false);
             if (interfaces.Count != 0)
             {
                 sw.Write(", ");
 
                 for (int i = 0; i < interfaces.Count; i++)
                 {
-                    uint interfaceHash = interfaces[i];
+                    string interfaceHash = interfaces[i];
                     string interfaceName = GetClassNameOrDefault(interfaceHash, classNames);
 
                     sw.Write(" {0}", interfaceName);
@@ -127,63 +127,73 @@ namespace LeagueToolkit.Meta.Dump
             // Start members
             sw.WriteLineIndented(1, "{");
 
-            WriteClassProperties(sw, dumpClass, classNames, propertyNames);
+            WriteClassProperties(sw, classHash, dumpClass, classNames, propertyNames);
 
             // End members
             sw.WriteLineIndented(1, "}");
         }
-        private void WriteClassProperties(StreamWriter sw, MetaDumpClass dumpClass, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
+        private void WriteClassProperties(StreamWriter sw, string classHash, MetaDumpClass dumpClass, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
             // Write properties of interfaces
-            if(dumpClass.IsInterface is false)
+            if(dumpClass.Is.Interface is false)
             {
-                foreach (uint interfaceHash in dumpClass.GetInterfacesRecursive(this.Classes, true))
+                foreach (string interfaceHash in dumpClass.GetInterfacesRecursive(this.Classes, true))
                 {
-                    if (this.Classes.FirstOrDefault(x => x.Hash == interfaceHash && x.IsInterface) is MetaDumpClass interaceClass)
+                    if(this.Classes.TryGetValue(interfaceHash, out MetaDumpClass interfaceClass) && interfaceClass.Is.Interface)
                     {
-                        foreach (MetaDumpProperty property in interaceClass.Properties)
+                        foreach (var property in interfaceClass.Properties)
                         {
-                            WriteProperty(sw, interaceClass, property, true, classNames, propertyNames);
+                            WriteProperty(sw, interfaceHash, dumpClass, property.Key, property.Value, true, classNames, propertyNames);
                         }
                     }
                 }
             }
 
-            foreach (MetaDumpProperty property in dumpClass.Properties)
+            foreach (var property in dumpClass.Properties)
             {
-                WriteProperty(sw, dumpClass, property, !dumpClass.IsInterface, classNames, propertyNames);
+                WriteProperty(sw, classHash, dumpClass, property.Key, property.Value, !dumpClass.Is.Interface, classNames, propertyNames);
             }
         }
 
-        private void WriteProperty(StreamWriter sw, MetaDumpClass dumpClass, MetaDumpProperty property, bool isPublic, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
+        private void WriteProperty(StreamWriter sw,
+            string classHash, MetaDumpClass dumpClass, 
+            string propertyHash, MetaDumpProperty property,
+            bool isPublic, 
+            Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
-            WritePropertyAttribute(sw, property, propertyNames);
+            WritePropertyAttribute(sw, propertyHash, property, propertyNames);
 
             string visibility = isPublic ? "public " : string.Empty;
             string typeDeclaration = GetPropertyTypeDeclaration(property, classNames);
-            string propertyName = StylizePropertyName(GetPropertyNameOrDefault(property.Hash, propertyNames));
+            string propertyName = StylizePropertyName(GetPropertyNameOrDefault(propertyHash, propertyNames));
 
             // Check that property name isn't the same as the class name
-            string className = GetClassNameOrDefault(dumpClass.Hash, classNames);
+            string className = GetClassNameOrDefault(classHash, classNames);
             if (className == propertyName)
             {
                 propertyName = 'm' + propertyName;
             }
 
-            string formatted = string.Format("{0}{1} {2}", visibility, typeDeclaration, propertyName);
-            sw.WriteLineIndented(2, formatted + " { get; set; }");
+            string propertyLine = $"{visibility}{typeDeclaration} {propertyName} {{ get; set; }}";
+            if(dumpClass.Is.Interface is false)
+            {
+                string defaultValue = GetPropertyDefaultValue(dumpClass.Defaults[propertyHash], property, classNames);
+                propertyLine = $"{propertyLine} = {defaultValue};";
+            }
+
+            sw.WriteLineIndented(2, propertyLine);
         }
-        private void WritePropertyAttribute(StreamWriter sw, MetaDumpProperty property, Dictionary<uint, string> propertyNames)
+        private void WritePropertyAttribute(StreamWriter sw, string propertyHash, MetaDumpProperty property, Dictionary<uint, string> propertyNames)
         {
             BinPropertyType propertyType = BinUtilities.UnpackType(property.Type);
 
-            if (propertyNames.TryGetValue(property.Hash, out string propertyName))
+            if (propertyNames.TryGetValue(Convert.ToUInt32(propertyHash, 16), out string propertyName))
             {
                 sw.WriteLineIndented(2, @"[MetaProperty(""{0}"", BinPropertyType.{1})]", propertyName, propertyType);
             }
             else
             {
-                sw.WriteLineIndented(2, @"[MetaProperty({0}, BinPropertyType.{1})]", property.Hash, propertyType);
+                sw.WriteLineIndented(2, @"[MetaProperty({0}, BinPropertyType.{1})]", Convert.ToUInt32(propertyHash, 16), propertyType);
             }
         }
 
@@ -197,7 +207,7 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(property.OtherClass, classNames),
                 BinPropertyType.Optional => GetOptionalTypeDeclaration(property.OtherClass, property.Container, classNames),
                 BinPropertyType.Map => GetMapTypeDeclaration(property.OtherClass, property.Map, classNames),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, true)
+                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
             };
         }
         private string GetPrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
@@ -233,7 +243,7 @@ namespace LeagueToolkit.Meta.Dump
                 false => typeDeclaration
             };
         }
-        private string GetContainerTypeDeclaration(uint elementClass, MetaDumpContainerI container, bool isUnorderedContainer, Dictionary<uint, string> classNames)
+        private string GetContainerTypeDeclaration(string elementClass, MetaDumpContainer container, bool isUnorderedContainer, Dictionary<uint, string> classNames)
         {
             string typeDeclarationFormat = isUnorderedContainer ? "MetaUnorderedContainer<{0}>" : "MetaContainer<{0}>";
             string elementName = BinUtilities.UnpackType(container.Type) switch
@@ -245,15 +255,15 @@ namespace LeagueToolkit.Meta.Dump
 
             return string.Format(typeDeclarationFormat, elementName);
         }
-        private string GetStructureTypeDeclaration(uint classNameHash, Dictionary<uint, string> classNames)
+        private string GetStructureTypeDeclaration(string classNameHash, Dictionary<uint, string> classNames)
         {
             return GetClassNameOrDefault(classNameHash, classNames);
         }
-        private string GetEmbeddedTypeDeclaration(uint classNameHash, Dictionary<uint, string> classNames)
+        private string GetEmbeddedTypeDeclaration(string classNameHash, Dictionary<uint, string> classNames)
         {
             return string.Format("MetaEmbedded<{0}>", GetClassNameOrDefault(classNameHash, classNames));
         }
-        private string GetOptionalTypeDeclaration(uint otherClass, MetaDumpContainerI container, Dictionary<uint, string> classNames)
+        private string GetOptionalTypeDeclaration(string otherClass, MetaDumpContainer container, Dictionary<uint, string> classNames)
         {
             string optionalFormat = "MetaOptional<{0}>";
 
@@ -264,7 +274,7 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType type => string.Format(optionalFormat, GetPrimitivePropertyTypeDeclaration(type, false))
             };
         }
-        private string GetMapTypeDeclaration(uint otherClass, MetaDumpMapI map, Dictionary<uint, string> classNames)
+        private string GetMapTypeDeclaration(string otherClass, MetaDumpMap map, Dictionary<uint, string> classNames)
         {
             string mapFormat = "Dictionary<{0}, {1}>";
             string keyDeclaration = GetPrimitivePropertyTypeDeclaration(BinUtilities.UnpackType(map.KeyType), false);
@@ -278,13 +288,84 @@ namespace LeagueToolkit.Meta.Dump
             return string.Format(mapFormat, keyDeclaration, valueDeclaration);
         }
 
-        private string GetClassNameOrDefault(uint hash, Dictionary<uint, string> classNames)
+        private string GetClassNameOrDefault(string hash, Dictionary<uint, string> classNames)
         {
-            return classNames.GetValueOrDefault(hash, "Class" + hash);
+            return classNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "Class" + hash);
         }
-        private string GetPropertyNameOrDefault(uint hash, Dictionary<uint, string> propertyNames)
+        private string GetPropertyNameOrDefault(string hash, Dictionary<uint, string> propertyNames)
         {
-            return propertyNames.GetValueOrDefault(hash, "m" + hash);
+            return propertyNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "m" + Convert.ToUInt32(hash, 16));
+        }
+
+        private string GetPropertyDefaultValue(object defaultValue, MetaDumpProperty property, Dictionary<uint, string> classNames)
+        {
+            switch (defaultValue)
+            {
+                case bool boolValue when (property.Type == BinPropertyType.Bool):
+                {
+                    return boolValue ? "true" : "false";
+                }
+                case bool boolValue when (property.Type == BinPropertyType.BitBool):
+                {
+                    return boolValue switch
+                    {
+                        true => "new (1)",
+                        false => "new (0)",
+                    };
+                }
+                case string stringValue when (property.Type == BinPropertyType.Hash):
+                {
+                    return $"new({Convert.ToUInt32(stringValue, 16)})";
+                }
+                case string stringValue when (property.Type == BinPropertyType.ObjectLink):
+                {
+                    return $"new({Convert.ToUInt32(stringValue, 16)})";
+                }
+                case string stringValue when (property.Type == BinPropertyType.WadEntryLink):
+                {
+                    return $"new({Convert.ToUInt64(stringValue, 16)})";
+                }
+                case JObject when (property.Type == BinPropertyType.Embedded):
+                {
+                    return $"new (new ())";
+                }
+                case null when (property.Type == BinPropertyType.Structure):
+                {
+                    return "null";
+                }
+                case object when property.Type == BinPropertyType.Optional:
+                case null:
+                {
+                    string valueType = GetPrimitivePropertyTypeDeclaration(property.Container.Type, false);
+
+                    return $"new MetaOptional<{valueType}>(default({valueType}), false)";
+                }
+                default:
+                {
+                    return defaultValue switch
+                    {
+                        long _ => defaultValue.ToString(),
+                        string _ => $"\"{defaultValue}\"",
+                        double _ => $"{defaultValue}f",
+                        JObject _ => "new()",
+                        JArray jArray => property.Type switch
+                        {
+                            BinPropertyType.Vector2 => $"new Vector2({jArray[0]}f, {jArray[1]}f)",
+                            BinPropertyType.Vector3 => $"new Vector3({jArray[0]}f, {jArray[1]}f, {jArray[2]}f)",
+                            BinPropertyType.Vector4 => $"new Vector4({jArray[0]}f, {jArray[1]}f, {jArray[2]}f, {jArray[3]}f)",
+                            BinPropertyType.Color => $"new Color({jArray[0]}f, {jArray[1]}f, {jArray[2]}f, {jArray[3]}f)",
+                            BinPropertyType.Matrix44 => $"new R3DMatrix44({jArray[0][0]}f, {jArray[0][1]}f, {jArray[0][2]}f, {jArray[0][3]}f," +
+                            $" {jArray[1][0]}f, {jArray[1][1]}f, {jArray[1][2]}f, {jArray[1][3]}f," +
+                            $" {jArray[2][0]}f, {jArray[2][1]}f, {jArray[2][2]}f, {jArray[2][3]}f," +
+                            $" {jArray[3][0]}f, {jArray[3][1]}f, {jArray[3][2]}f, {jArray[3][3]}f)",
+                            BinPropertyType.Container => "new()",
+                            BinPropertyType.UnorderedContainer => "new()",
+                            _ => throw new NotImplementedException()
+                        },
+                        _ => throw new NotImplementedException()
+                    };
+                }
+            }
         }
 
         private string StylizePropertyName(string propertyName)
