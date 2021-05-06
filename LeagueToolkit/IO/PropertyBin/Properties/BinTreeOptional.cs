@@ -59,7 +59,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
             if (other is BinTreeOptional otherProperty)
             {
                 if (this.ValueType != otherProperty.ValueType) return false;
-                return this.Value.Equals(otherProperty.Value);
+                return this.Value is BinTreeProperty value && value.Equals(otherProperty.Value);
             }
             else return false;
         }
