@@ -54,15 +54,14 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
 
         public override bool Equals(BinTreeProperty other)
         {
-            if (this.NameHash != other.NameHash) return false;
+            if (this.NameHash != other?.NameHash) return false;
 
             if (other is BinTreeOptional otherProperty)
             {
                 if (this.ValueType != otherProperty.ValueType) return false;
-                return this.Value.Equals(otherProperty.Value);
+                return this.Value is BinTreeProperty value && value.Equals(otherProperty.Value);
             }
-
-            return true;
+            else return false;
         }
     }
 }
