@@ -96,17 +96,17 @@ namespace LeagueToolkit.IO.AnimationFile
 
             // Read frames
             br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-            Dictionary<uint, Dictionary<float, Vector3>> translations = new(jointCount);
-            Dictionary<uint, Dictionary<float, Vector3>> scales = new(jointCount);
-            Dictionary<uint, Dictionary<float, Quaternion>> rotations = new(jointCount);
+            List<KeyValuePair<uint, Dictionary<float, Vector3>>> translations = new(jointCount);
+            List<KeyValuePair<uint, Dictionary<float, Vector3>>> scales = new(jointCount);
+            List<KeyValuePair<uint, Dictionary<float, Quaternion>>> rotations = new(jointCount);
             
             for(int i = 0; i < jointCount; i++)
             {
                 uint jointHash = jointHashes[i];
 
-                translations.Add(jointHash, new Dictionary<float, Vector3>());
-                scales.Add(jointHash, new Dictionary<float, Vector3>());
-                rotations.Add(jointHash, new Dictionary<float, Quaternion>());
+                translations.Add(new KeyValuePair<uint, Dictionary<float, Vector3>>(jointHash, new Dictionary<float, Vector3>()));
+                scales.Add(new KeyValuePair<uint, Dictionary<float, Vector3>>(jointHash, new Dictionary<float, Vector3>()));
+                rotations.Add(new KeyValuePair<uint, Dictionary<float, Quaternion>>(jointHash, new Dictionary<float, Quaternion>()));
 
                 this.Tracks.Add(new AnimationTrack(jointHash));
             }
@@ -121,34 +121,33 @@ namespace LeagueToolkit.IO.AnimationFile
 
                 byte[] compressedTransform = br.ReadBytes(6);
 
-                uint jointHash = jointHashes[jointHashIndex];
                 float uncompressedTime = UncompressFrameTime(compressedTime, duration);
 
                 if (transformType == CompressedTransformType.Rotation)
                 {
                     Quaternion rotation = new QuantizedQuaternion(compressedTransform).Decompress();
 
-                    if(!rotations[jointHash].ContainsKey(uncompressedTime))
+                    if(!rotations[jointHashIndex].Value.ContainsKey(uncompressedTime))
                     {
-                        rotations[jointHash].Add(uncompressedTime, rotation);
+                        rotations[jointHashIndex].Value.Add(uncompressedTime, rotation);
                     }
                 }
                 else if(transformType == CompressedTransformType.Translation)
                 {
                     Vector3 translation = UncompressVector3(translationMin, translationMax, compressedTransform);
 
-                    if (!translations[jointHash].ContainsKey(uncompressedTime))
+                    if (!translations[jointHashIndex].Value.ContainsKey(uncompressedTime))
                     {
-                        translations[jointHash].Add(uncompressedTime, translation);
+                        translations[jointHashIndex].Value.Add(uncompressedTime, translation);
                     }
                 }
                 else if(transformType == CompressedTransformType.Scale)
                 {
                     Vector3 scale = UncompressVector3(scaleMin, scaleMax, compressedTransform);
 
-                    if (!scales[jointHash].ContainsKey(uncompressedTime))
+                    if (!scales[jointHashIndex].Value.ContainsKey(uncompressedTime))
                     {
-                        scales[jointHash].Add(uncompressedTime, scale);
+                        scales[jointHashIndex].Value.Add(uncompressedTime, scale);
                     }
                 }
                 else
@@ -160,12 +159,11 @@ namespace LeagueToolkit.IO.AnimationFile
             // Build quantized tracks
             for(int i = 0; i < jointCount; i++)
             {
-                uint jointHash = jointHashes[i];
-                AnimationTrack track = this.Tracks.First(x => x.JointHash == jointHash);
+                AnimationTrack track = this.Tracks[i];
 
-                track.Translations = translations[jointHash];
-                track.Scales = scales[jointHash];
-                track.Rotations = rotations[jointHash];
+                track.Translations = translations[i].Value;
+                track.Scales = scales[i].Value;
+                track.Rotations = rotations[i].Value;
             }
 
             // Read jump caches

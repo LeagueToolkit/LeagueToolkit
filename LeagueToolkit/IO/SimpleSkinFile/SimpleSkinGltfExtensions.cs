@@ -182,37 +182,64 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
             }
 
+            var jointsByElfHash = joints
+                .Select(joint => new KeyValuePair<uint, NodeBuilder>(Cryptography.ElfHash(joint.Name), joint))
+                .ToList();
             foreach ((string animationName, LeagueAnimation leagueAnimation) in leagueAnimations)
             {
                 foreach (AnimationTrack track in leagueAnimation.Tracks)
                 {
-                    NodeBuilder joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
-
-                    if (joint is not null)
+                    var applicableJoints = jointsByElfHash
+                        .Where(pair => pair.Key == track.JointHash)
+                        .ToList();
+                    NodeBuilder joint;
+                    switch (applicableJoints.Count)
                     {
-                        if (track.Translations.Count == 0) track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                        if (track.Translations.Count == 1) track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                        CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(animationName);
-                        foreach (var translation in track.Translations)
-                        {
-                            translationBuilder.SetPoint(translation.Key, translation.Value);
-                        }
+                        case 0: // no joints with the same hash
+                            continue;
+                        case 1: // one joint with the same hash, use that one
+                            joint = applicableJoints[0].Value;
+                            break;
+                        default:
+                            var tracksWithSameHash = leagueAnimation.Tracks
+                                .Where(t => t.JointHash == track.JointHash)
+                                .ToList();
+                            var currentTrackPosition = tracksWithSameHash.IndexOf(track);
+                            // same amount of joints and tracks with the same hash
+                            // use the position of the current track among all tracks with the same hash as index
+                            // assuming that the order of joints in the anm matches the order of joints in the skl
+                            if (applicableJoints.Count == tracksWithSameHash.Count)
+                            {
+                                joint = applicableJoints[currentTrackPosition].Value;
+                                break;
+                            }
+                            // different amount of joints and tracks with the same hash
+                            // instead of guessing, move to the next track
+                            continue;
+                    }
+                    
+                    if (track.Translations.Count == 0) track.Translations.Add(0.0f, new Vector3(0, 0, 0));
+                    if (track.Translations.Count == 1) track.Translations.Add(1.0f, new Vector3(0, 0, 0));
+                    CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(animationName);
+                    foreach (var translation in track.Translations)
+                    {
+                        translationBuilder.SetPoint(translation.Key, translation.Value);
+                    }
 
-                        if (track.Rotations.Count == 0) track.Rotations.Add(0.0f, Quaternion.Identity);
-                        if (track.Rotations.Count == 1) track.Rotations.Add(1.0f, Quaternion.Identity);
-                        CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
-                        foreach (var rotation in track.Rotations)
-                        {
-                            rotationBuilder.SetPoint(rotation.Key, rotation.Value);
-                        }
+                    if (track.Rotations.Count == 0) track.Rotations.Add(0.0f, Quaternion.Identity);
+                    if (track.Rotations.Count == 1) track.Rotations.Add(1.0f, Quaternion.Identity);
+                    CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
+                    foreach (var rotation in track.Rotations)
+                    {
+                        rotationBuilder.SetPoint(rotation.Key, rotation.Value);
+                    }
 
-                        if (track.Scales.Count == 0) track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                        if (track.Scales.Count == 1) track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                        CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
-                        foreach (var scale in track.Scales.ToList())
-                        {
-                            scaleBuilder.SetPoint(scale.Key, scale.Value);
-                        }
+                    if (track.Scales.Count == 0) track.Scales.Add(0.0f, new Vector3(1, 1, 1));
+                    if (track.Scales.Count == 1) track.Scales.Add(1.0f, new Vector3(1, 1, 1));
+                    CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
+                    foreach (var scale in track.Scales.ToList())
+                    {
+                        scaleBuilder.SetPoint(scale.Key, scale.Value);
                     }
                 }
             }
