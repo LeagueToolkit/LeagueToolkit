@@ -20,6 +20,6 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build Fantome.Libraries.League --configuration Release --no-restore
+      run: dotnet build LeagueToolkit --configuration Release --no-restore
     - name: Test
-      run: dotnet test Fantome.Libraries.League.Tests --no-restore --verbosity normal
+      run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
