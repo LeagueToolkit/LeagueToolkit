@@ -7,7 +7,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeMatrix44 : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.Matrix44;
-        public Matrix4x4 Value { get; private set; }
+        public Matrix4x4 Value { get; set; }
 
         public BinTreeMatrix44(IBinTreeParent parent, uint nameHash, Matrix4x4 value) : base(parent, nameHash)
         {

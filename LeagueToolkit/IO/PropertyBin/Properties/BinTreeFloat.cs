@@ -5,7 +5,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeFloat : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.Float;
-        public float Value { get; private set; }
+        public float Value { get; set; }
 
         public BinTreeFloat(IBinTreeParent parent, uint nameHash, float value) : base(parent, nameHash)
         {

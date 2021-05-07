@@ -6,7 +6,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.Bool;
 
-        public bool Value { get; private set; }
+        public bool Value { get; set; }
 
         public BinTreeBool(IBinTreeParent parent, uint nameHash, bool value) : base(parent, nameHash)
         {

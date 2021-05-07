@@ -6,7 +6,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.Hash;
 
-        public uint Value { get; private set; }
+        public uint Value { get; set; }
 
         public BinTreeHash(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash)
         {

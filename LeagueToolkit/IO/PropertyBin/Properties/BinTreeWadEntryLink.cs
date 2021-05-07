@@ -6,7 +6,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.WadEntryLink;
 
-        public ulong Value { get; private set; }
+        public ulong Value { get; set; }
 
         public BinTreeWadEntryLink(IBinTreeParent parent, uint nameHash, ulong value) : base(parent, nameHash) 
         {

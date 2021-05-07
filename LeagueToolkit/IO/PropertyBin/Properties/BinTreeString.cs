@@ -7,7 +7,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.String;
 
-        public string Value { get; private set; }
+        public string Value { get; set; }
 
         public BinTreeString(IBinTreeParent parent, uint nameHash, string value) : base(parent, nameHash)
         {

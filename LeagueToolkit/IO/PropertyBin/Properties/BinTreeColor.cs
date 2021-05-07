@@ -7,7 +7,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeColor : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.Color;
-        public Color Value { get; private set; }
+        public Color Value { get; set; }
 
         public BinTreeColor(IBinTreeParent parent, uint nameHash, Color value) : base(parent, nameHash)
         {

@@ -5,7 +5,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeInt16 : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.Int16;
-        public short Value { get; private set; }
+        public short Value { get; set; }
 
         public BinTreeInt16(IBinTreeParent parent, uint nameHash, short value) : base(parent, nameHash)
         {

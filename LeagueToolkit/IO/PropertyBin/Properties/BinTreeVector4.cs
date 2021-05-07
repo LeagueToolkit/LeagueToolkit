@@ -7,7 +7,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeVector4 : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.Vector4;
-        public Vector4 Value { get; private set; }
+        public Vector4 Value { get; set; }
 
         public BinTreeVector4(IBinTreeParent parent, uint nameHash, Vector4 value) : base(parent, nameHash)
         {

@@ -5,7 +5,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeObjectLink : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.ObjectLink;
-        public uint Value { get; private set; }
+        public uint Value { get; set; }
 
         public BinTreeObjectLink(IBinTreeParent parent, uint nameHash, uint value) : base(parent, nameHash)
         {

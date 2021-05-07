@@ -5,7 +5,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     public sealed class BinTreeInt32 : BinTreeProperty
     {
         public override BinPropertyType Type => BinPropertyType.Int32;
-        public int Value { get; private set; }
+        public int Value { get; set; }
 
         public BinTreeInt32(IBinTreeParent parent, uint nameHash, int value) : base(parent, nameHash)
         {
