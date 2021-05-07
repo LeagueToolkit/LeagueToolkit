@@ -140,9 +140,9 @@ namespace LeagueToolkit.IO.StaticObjectFile
                     input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
 
                     vertices.Add(new Vector3(
+                        float.Parse(input[0], CultureInfo.InvariantCulture),
                         float.Parse(input[1], CultureInfo.InvariantCulture),
-                        float.Parse(input[2], CultureInfo.InvariantCulture),
-                        float.Parse(input[3], CultureInfo.InvariantCulture)));
+                        float.Parse(input[2], CultureInfo.InvariantCulture)));
                 }
 
                 if (hasVertexColors)
