@@ -199,8 +199,8 @@ namespace LeagueToolkit.Meta.Dump
                 primaryType = property.Container.Type;
             }
 
-            string primaryTypeString = primaryType is null ? "null" : "BinPropertyType." + primaryType.ToString();
-            string secondaryTypeString = secondaryType is null ? "null" : "BinPropertyType." + secondaryType.ToString();
+            string primaryTypeString = primaryType is null ? "BinPropertyType.None" : "BinPropertyType." + primaryType.ToString();
+            string secondaryTypeString = secondaryType is null ? "BinPropertyType.None" : "BinPropertyType." + secondaryType.ToString();
             string otherClass = property.OtherClass is null ? "" : GetClassNameOrDefault(property.OtherClass, classNames);
 
             if (propertyNames.TryGetValue(Convert.ToUInt32(propertyHash, 16), out string propertyName))
