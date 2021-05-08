@@ -3,14 +3,14 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Crauzer</Authors>
-    <Version>11.8.370.4668</Version>
+    <Version>11.10.374.3777</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Platforms>x64</Platforms>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LeagueToolkit" Version="2.1.0" />
+    <PackageReference Include="LeagueToolkit" Version="2.3.2" />
   </ItemGroup>
 
 </Project>
