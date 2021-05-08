@@ -161,7 +161,7 @@ namespace LeagueToolkit.Meta.Dump
             bool isPublic, 
             Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
-            WritePropertyAttribute(sw, propertyHash, property, propertyNames);
+            WritePropertyAttribute(sw, propertyHash, property, classNames, propertyNames);
 
             string visibility = isPublic ? "public " : string.Empty;
             string typeDeclaration = GetPropertyTypeDeclaration(property, classNames);
@@ -183,17 +183,33 @@ namespace LeagueToolkit.Meta.Dump
 
             sw.WriteLineIndented(2, propertyLine);
         }
-        private void WritePropertyAttribute(StreamWriter sw, string propertyHash, MetaDumpProperty property, Dictionary<uint, string> propertyNames)
+        private void WritePropertyAttribute(StreamWriter sw, string propertyHash, MetaDumpProperty property, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
             BinPropertyType propertyType = BinUtilities.UnpackType(property.Type);
+            BinPropertyType? primaryType = null;
+            BinPropertyType? secondaryType = null;
+
+            if (property.Map is not null)
+            {
+                primaryType = property.Map.KeyType;
+                secondaryType = property.Map.ValueType;
+            }
+            else if (property.Container is not null)
+            {
+                primaryType = property.Container.Type;
+            }
+
+            string primaryTypeString = primaryType is null ? "null" : "BinPropertyType." + primaryType.ToString();
+            string secondaryTypeString = secondaryType is null ? "null" : "BinPropertyType." + secondaryType.ToString();
+            string otherClass = property.OtherClass is null ? "" : GetClassNameOrDefault(property.OtherClass, classNames);
 
             if (propertyNames.TryGetValue(Convert.ToUInt32(propertyHash, 16), out string propertyName))
             {
-                sw.WriteLineIndented(2, @"[MetaProperty(""{0}"", BinPropertyType.{1})]", propertyName, propertyType);
+                sw.WriteLineIndented(2, $"[MetaProperty(\"{propertyName}\", BinPropertyType.{propertyType}, \"{otherClass}\", {primaryTypeString}, {secondaryTypeString})]");
             }
             else
             {
-                sw.WriteLineIndented(2, @"[MetaProperty({0}, BinPropertyType.{1})]", Convert.ToUInt32(propertyHash, 16), propertyType);
+                sw.WriteLineIndented(2, $"[MetaProperty({Convert.ToUInt32(propertyHash, 16)}, BinPropertyType.{propertyType}, \"{otherClass}\", {primaryTypeString}, {secondaryTypeString})]");
             }
         }
 
