@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace LeagueToolkit.Helpers
 {
@@ -37,5 +37,7 @@ namespace LeagueToolkit.Helpers
         };
 
         public static Version[] GetSupportedVersions(LeagueFileType fileType) => SUPPORTED_VERSIONS[fileType];
+
+        public static Version GetLastSupportedVersion(LeagueFileType fileType) => GetSupportedVersions(fileType)?.OrderByDescending(x => x)?.FirstOrDefault();
     }
 }

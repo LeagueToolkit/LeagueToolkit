@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Helpers;
+using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
@@ -74,12 +75,16 @@ namespace LeagueToolkit.IO.PropertyBin
             }
         }
 
-        public void Write(string fileLocation, Version version)
+        public void Write(string fileLocation, Version version = null)
         {
-            Write(File.OpenWrite(fileLocation), version);
+            Write(File.OpenWrite(fileLocation), version ?? FileVersionProvider.GetLastSupportedVersion(LeagueFileType.PropertyBin));
         }
-        public void Write(Stream stream, Version version)
+
+        public void Write(Stream stream, Version version = null)
         {
+            if (version != null)
+                version = FileVersionProvider.GetLastSupportedVersion(LeagueFileType.PropertyBin);
+
             using (BinaryWriter bw = new BinaryWriter(stream))
             {
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
