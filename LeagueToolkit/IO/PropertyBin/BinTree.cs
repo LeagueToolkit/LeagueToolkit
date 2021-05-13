@@ -82,7 +82,7 @@ namespace LeagueToolkit.IO.PropertyBin
 
         public void Write(Stream stream, Version version = null)
         {
-            if (version != null)
+            if (version == null)
                 version = FileVersionProvider.GetLastSupportedVersion(LeagueFileType.PropertyBin);
 
             using (BinaryWriter bw = new BinaryWriter(stream))
