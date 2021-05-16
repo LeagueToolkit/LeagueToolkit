@@ -19,34 +19,33 @@ namespace LeagueToolkit.IO.WadFile
 
         internal Stream _stream;
 
+        private bool _leaveOpen;
         private bool _isDisposed = false;
-        private bool _leaveOpen = false;
 
-        internal Wad(Stream stream, bool shouldRead, bool leaveOpen) : this(stream)
+        internal Wad() 
+        {
+            this.Entries = new(this._entries);
+        }
+        private Wad(Stream stream) : this()
         {
             this._stream = stream;
+        }
+        internal Wad(Stream stream, bool leaveOpen) : this(stream)
+        {
             this._leaveOpen = leaveOpen;
 
-            if(shouldRead)
-            {
-                Read(this._stream);
-            }
-        }
-        internal Wad(Stream stream)
-        {
-            this._stream = stream;
-            this.Entries = new(this._entries);
+            Read(this._stream, leaveOpen);
         }
 
         public static Wad Mount(string fileLocation, bool leaveOpen) => Mount(File.OpenRead(fileLocation), leaveOpen);
         public static Wad Mount(Stream stream, bool leaveOpen)
         {
-            return new Wad(stream, true, leaveOpen);
+            return new Wad(stream, leaveOpen);
         }
 
-        private void Read(Stream stream)
+        private void Read(Stream stream, bool leaveOpen)
         {
-            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, true))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
                 if (magic != "RW")
@@ -86,7 +85,7 @@ namespace LeagueToolkit.IO.WadFile
                 uint fileCount = br.ReadUInt32();
                 for (int i = 0; i < fileCount; i++)
                 {
-                    WadEntry entry = new WadEntry(this, br, major);
+                    WadEntry entry = new WadEntry(this, br, major, minor);
 
                     if(this._entries.ContainsKey(entry.XXHash))
                     {
@@ -100,13 +99,13 @@ namespace LeagueToolkit.IO.WadFile
             }
         }
 
-        internal void Write(Stream stream)
+        internal void Write(Stream stream, bool leaveOpen)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, true))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
                 bw.Write((byte)3); // major
-                bw.Write((byte)0); // minor
+                bw.Write((byte)1); // minor
 
                 // Writing signature
                 bw.Write(new byte[256]);
@@ -146,9 +145,9 @@ namespace LeagueToolkit.IO.WadFile
 
         public void Dispose()
         {
-            if (!this._isDisposed)
+            if (this._isDisposed is false)
             {
-                if (!this._leaveOpen) this._stream?.Close();
+                if (this._leaveOpen is false) this._stream?.Close();
 
                 this._isDisposed = true;
             }

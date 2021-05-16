@@ -3,9 +3,9 @@ using LeagueToolkit.IO.WadFile;
 using NUnit.Framework;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
+using XXHash3NET;
 
 namespace LeagueToolkit.Tests
 {
@@ -55,7 +55,7 @@ namespace LeagueToolkit.Tests
             // Build entries
             foreach (WadEntry entry in this._originalWad.Entries.Values)
             {
-                WadEntryBuilder entryBuilder = new WadEntryBuilder();
+                WadEntryBuilder entryBuilder = new WadEntryBuilder(entry.ChecksumType);
 
                 entryBuilder
                     .WithPathXXHash(entry.XXHash);
@@ -98,7 +98,7 @@ namespace LeagueToolkit.Tests
             // Build entries
             foreach (WadEntry entry in this._originalWad.Entries.Values)
             {
-                WadEntryBuilder entryBuilder = new WadEntryBuilder();
+                WadEntryBuilder entryBuilder = new WadEntryBuilder(entry.ChecksumType);
                 Stream entryDecompressedStream = entry.GetDataHandle().GetDecompressedStream();
                 string entryFileName = "temp/" + entry.XXHash + "." + Utilities.GetExtension(Utilities.GetExtensionType(entryDecompressedStream));
 
@@ -145,12 +145,12 @@ namespace LeagueToolkit.Tests
                 if (entry.Type == WadEntryType.FileRedirection) return;
 
                 WadEntryDataHandle dataHandle = entry.GetDataHandle();
-                Stream comressedDataStream = null;
+                Stream compressedDataStream = null;
                 Stream decompressedDataStream = null;
 
                 Assert.DoesNotThrow(delegate
                 {
-                    comressedDataStream = dataHandle.GetCompressedStream();
+                    compressedDataStream = dataHandle.GetCompressedStream();
                 }, "Failed to get compressed stream");
 
                 Assert.DoesNotThrow(delegate
@@ -158,15 +158,32 @@ namespace LeagueToolkit.Tests
                     decompressedDataStream = dataHandle.GetDecompressedStream();
                 }, "Failed to get decompressed data stream");
 
-                Assert.AreEqual((int)comressedDataStream.Length, entry.CompressedSize);
+                Assert.AreEqual((int)compressedDataStream.Length, entry.CompressedSize);
                 Assert.AreEqual((int)decompressedDataStream.Length, entry.UncompressedSize);
 
-                // Verify SHA checksum
-                using (SHA256 sha = SHA256.Create())
+                // Verify checksum
+                if(entry.ChecksumType == WadEntryChecksumType.SHA256)
                 {
-                    byte[] computedHash = sha.ComputeHash(comressedDataStream).Take(8).ToArray();
+                    using (SHA256 sha = SHA256.Create())
+                    {
+                        byte[] computedHash = sha.ComputeHash(compressedDataStream).Take(8).ToArray();
 
-                    Assert.IsTrue(computedHash.SequenceEqual(entry.SHA), $"Entry ({entry.XXHash}) checksum does not match computed one");
+                        Assert.IsTrue(computedHash.SequenceEqual(entry.Checksum), $"Entry ({entry.XXHash}) SHA256 checksum does not match computed one");
+                    }
+                }
+                else if(entry.ChecksumType == WadEntryChecksumType.XXHash3)
+                {
+                    byte[] compressedData = new byte[compressedDataStream.Length];
+
+                    compressedDataStream.Seek(0, SeekOrigin.Begin);
+                    compressedDataStream.Read(compressedData);
+
+                    ulong computedHash = XXHash3.Hash64(compressedData);
+                    byte[] computedHashBytes = BitConverter.GetBytes(computedHash);
+
+                    TestContext.WriteLine($"{entry.CompressedSize} ---- {computedHashBytes.SequenceEqual(entry.Checksum)}");
+
+                    Assert.IsTrue(computedHashBytes.SequenceEqual(entry.Checksum), $"Entry ({entry.XXHash}) XXHash3 checksum does not match computed one");
                 }
             }
         }

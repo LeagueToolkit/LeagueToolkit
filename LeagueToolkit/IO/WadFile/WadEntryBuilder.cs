@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using XXHash3NET;
 using ZstdSharp;
 
 namespace LeagueToolkit.IO.WadFile
@@ -24,14 +25,16 @@ namespace LeagueToolkit.IO.WadFile
 
         public string FileRedirection { get; private set; }
 
-        public byte[] Sha256Checksum { get; internal set; }
+        public WadEntryChecksumType ChecksumType { get; internal set; }
+        public byte[] Checksum { get; internal set; }
 
-        public WadEntryBuilder()
+        public WadEntryBuilder(WadEntryChecksumType checksumType)
         {
-
+            this.ChecksumType = checksumType;
         }
         public WadEntryBuilder(WadEntry entry)
         {
+            this.ChecksumType = entry.ChecksumType;
             WithPathXXHash(entry.XXHash);
 
             switch (entry.Type)
@@ -60,7 +63,7 @@ namespace LeagueToolkit.IO.WadFile
             this.CompressedSize = compressedSize;
             this.UncompressedSize = uncompressedSize;
 
-            ComputeSha256Checksum();
+            ComputeChecksum();
 
             return this;
         }
@@ -71,7 +74,7 @@ namespace LeagueToolkit.IO.WadFile
             this.CompressedSize = compressedSize;
             this.UncompressedSize = uncompressedSize;
 
-            ComputeSha256Checksum();
+            ComputeChecksum();
 
             return this;
         }
@@ -81,7 +84,7 @@ namespace LeagueToolkit.IO.WadFile
             this.DataStream = stream;
             this.CompressedSize = this.UncompressedSize = (int)stream.Length;
 
-            ComputeSha256Checksum();
+            ComputeChecksum();
 
             return this;
         }
@@ -97,7 +100,7 @@ namespace LeagueToolkit.IO.WadFile
             this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(path));
             this.DataStream = stream;
             this._isGenericDataStream = true;
-            this.Sha256Checksum = new byte[8];
+            this.Checksum = new byte[8];
 
             return this;
         }
@@ -107,18 +110,30 @@ namespace LeagueToolkit.IO.WadFile
             this.EntryType = WadEntryType.FileRedirection;
             this.FileRedirection = fileRedirection;
             this.CompressedSize = this.UncompressedSize = fileRedirection.Length + 4;
-            this.Sha256Checksum = new byte[8];
+            this.Checksum = new byte[8];
 
             return this;
         }
 
-        internal void ComputeSha256Checksum()
+        internal void ComputeChecksum()
         {
-            using (SHA256 sha = SHA256.Create())
+            if(this.ChecksumType == WadEntryChecksumType.SHA256)
             {
-                this.DataStream.Seek(0, SeekOrigin.Begin);
+                using (SHA256 sha = SHA256.Create())
+                {
+                    this.DataStream.Seek(0, SeekOrigin.Begin);
 
-                this.Sha256Checksum = sha.ComputeHash(this.DataStream).Take(8).ToArray();
+                    this.Checksum = sha.ComputeHash(this.DataStream).Take(8).ToArray();
+                }
+            }
+            else if(this.ChecksumType == WadEntryChecksumType.XXHash3)
+            {
+                byte[] data = new byte[this.DataStream.Length];
+
+                this.DataStream.Seek(0, SeekOrigin.Begin);
+                this.DataStream.Read(data, 0, data.Length);
+
+                this.Checksum = BitConverter.GetBytes(XXHash3.Hash64(data));
             }
         }
     }

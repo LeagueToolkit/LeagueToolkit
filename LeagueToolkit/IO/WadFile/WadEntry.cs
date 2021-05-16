@@ -16,7 +16,8 @@ namespace LeagueToolkit.IO.WadFile
 
         public WadEntryType Type { get; private set; }
 
-        public byte[] SHA { get; internal set; }
+        public WadEntryChecksumType ChecksumType { get; private set; }
+        public byte[] Checksum { get; internal set; }
 
         public string FileRedirection { get; private set; }
 
@@ -25,18 +26,20 @@ namespace LeagueToolkit.IO.WadFile
 
         internal readonly Wad _wad;
  
-        internal WadEntry(Wad wad, ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType, byte[] sha, string fileRedirection, uint dataOffset)
+        internal WadEntry(Wad wad, ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType,
+            WadEntryChecksumType checksumType, byte[] checksum, string fileRedirection, uint dataOffset)
         {
             this._wad = wad;
             this.XXHash = xxhash;
             this.CompressedSize = compressedSize;
             this.UncompressedSize = uncompressedSize;
             this.Type = entryType;
-            this.SHA = sha;
+            this.ChecksumType = checksumType;
+            this.Checksum = checksum;
             this.FileRedirection = fileRedirection;
             this._dataOffset = dataOffset;
         }
-        internal WadEntry(Wad wad, BinaryReader br, byte major)
+        internal WadEntry(Wad wad, BinaryReader br, byte major, byte minor)
         {
             this._wad = wad;
             this.XXHash = br.ReadUInt64();
@@ -48,7 +51,10 @@ namespace LeagueToolkit.IO.WadFile
             br.ReadUInt16(); // pad 
             if (major >= 2)
             {
-                this.SHA = br.ReadBytes(8);
+                this.Checksum = br.ReadBytes(8);
+
+                if (major == 3 && minor == 1) this.ChecksumType = WadEntryChecksumType.XXHash3;
+                else this.ChecksumType = WadEntryChecksumType.SHA256;
             }
 
             if (this.Type == WadEntryType.FileRedirection)
@@ -71,7 +77,7 @@ namespace LeagueToolkit.IO.WadFile
             bw.Write((ushort)0); // pad
             if (major >= 2)
             {
-                bw.Write(this.SHA);
+                bw.Write(this.Checksum);
             }
         }
 
@@ -104,5 +110,11 @@ namespace LeagueToolkit.IO.WadFile
         /// The Data of this <see cref="WadEntry"/> is compressed with ZStandard
         /// </summary>
         ZStandardCompressed
+    }
+
+    public enum WadEntryChecksumType
+    {
+        SHA256,
+        XXHash3
     }
 }

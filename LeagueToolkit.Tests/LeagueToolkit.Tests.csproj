@@ -13,6 +13,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="files\wad\Aatrox.wad.client" />
+    <None Remove="files\wad\Aphelios.wad.client" />
+    <None Remove="files\wad\Yone.wad.client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="files\wad\Aatrox.wad.client">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\wad\Aphelios.wad.client">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="files\wad\Yone.wad.client">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
@@ -20,18 +38,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="files\wad\Aatrox.wad.client">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="files\wad\Aphelios.wad.client">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="files\wad\Yone.wad.client">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

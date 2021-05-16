@@ -45,7 +45,7 @@ namespace LeagueToolkit.IO.WadFile
         public void Build(string fileLocation) => Build(File.OpenWrite(fileLocation), false);
         public void Build(Stream stream, bool leaveOpen)
         {
-            using Wad wad = new Wad(stream, false, leaveOpen);
+            using Wad wad = new();
 
             long headerStartOffset = stream.Position;
 
@@ -66,7 +66,8 @@ namespace LeagueToolkit.IO.WadFile
                     entryBuilder.CompressedSize,
                     entryBuilder.UncompressedSize,
                     entryBuilder.EntryType,
-                    entryBuilder.Sha256Checksum,
+                    entryBuilder.ChecksumType,
+                    entryBuilder.Checksum,
                     entryBuilder.FileRedirection,
                     entryBuilder._dataOffset)
                 );
@@ -75,7 +76,7 @@ namespace LeagueToolkit.IO.WadFile
             // Seek to start
             stream.Seek(headerStartOffset, SeekOrigin.Begin);
 
-            wad.Write(stream);
+            wad.Write(stream, leaveOpen);
         }
 
         private void WriteEntryData(Stream wadStream, WadEntryBuilder entryBuilder)
@@ -116,7 +117,7 @@ namespace LeagueToolkit.IO.WadFile
                     throw new InvalidOperationException("Cannot have a File Redirection entry with a data stream");
                 }
 
-                entryBuilder.ComputeSha256Checksum();
+                entryBuilder.ComputeChecksum();
             }
 
             entryBuilder._dataOffset = (uint)wadStream.Position;
