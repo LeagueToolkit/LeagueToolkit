@@ -91,9 +91,9 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// Writes this <see cref="WorldGeometry"/> into the specified stream
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 uint faceCount = 0;
                 bw.Write(Encoding.ASCII.GetBytes("WGEO"));

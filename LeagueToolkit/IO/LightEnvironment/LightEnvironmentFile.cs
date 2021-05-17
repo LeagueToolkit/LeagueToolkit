@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace LeagueToolkit.IO.LightEnvironment
 {
@@ -35,9 +36,9 @@ namespace LeagueToolkit.IO.LightEnvironment
             Write(File.Create(fileLocation));
         }
 
-        private void Write(Stream stream)
+        private void Write(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
             { 
                 sw.WriteLine("3");
 

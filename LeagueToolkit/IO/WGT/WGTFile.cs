@@ -98,9 +98,9 @@ namespace LeagueToolkit.IO.WGT
         /// Writes this <see cref="WGTFile"/> into a <see cref="Stream"/>
         /// </summary>
         /// <param name="stream"><see cref="Stream"/> to write to</param>
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("r3d2wght"));
                 bw.Write(1);

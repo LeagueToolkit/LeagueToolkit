@@ -78,9 +78,9 @@ namespace LeagueToolkit.IO.AiMesh
         /// Writes this <see cref="AiMeshFile"/> to the specified stream
         /// </summary>
         /// <param name="stream">Stream to write to</param>
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("r3d2aims"));
                 bw.Write((uint)2);

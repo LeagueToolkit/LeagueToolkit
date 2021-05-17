@@ -67,7 +67,7 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
         }
 
         public void Write(string fileLocation) => Write(File.Create(fileLocation));
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
             byte[] magic = Encoding.ASCII.GetBytes("RMAN");
             byte major = 2;
@@ -83,7 +83,7 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
             byte[] compressedFile = Zstd.Compress(uncompressedFile);
             int compressedContentSize = compressedFile.Length;
 
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(magic);
                 bw.Write(major);

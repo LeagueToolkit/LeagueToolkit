@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
+using System.Text;
 
 namespace LeagueToolkit.IO.OBJ
 {
@@ -66,9 +67,9 @@ namespace LeagueToolkit.IO.OBJ
             Write(File.Create(fileLocation));
         }
 
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
             {
                 foreach (string comment in this.Comments)
                 {

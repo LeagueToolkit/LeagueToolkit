@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace LeagueToolkit.IO.LightDat
 {
@@ -32,9 +33,9 @@ namespace LeagueToolkit.IO.LightDat
             Write(File.Create(fileLocation));
         }
 
-        private void Write(Stream stream)
+        private void Write(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
             {
                 foreach (LightDatLight light in this.Lights)
                 {

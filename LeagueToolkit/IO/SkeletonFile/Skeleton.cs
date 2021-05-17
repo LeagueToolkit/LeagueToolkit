@@ -37,9 +37,9 @@ namespace LeagueToolkit.IO.SkeletonFile
             }
         }
         public Skeleton(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-        public Skeleton(Stream stream)
+        public Skeleton(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryReader br = new BinaryReader(stream))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
             {
                 br.BaseStream.Seek(4, SeekOrigin.Begin);
                 uint magic = br.ReadUInt32();

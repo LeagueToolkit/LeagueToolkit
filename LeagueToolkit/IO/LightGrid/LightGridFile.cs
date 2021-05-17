@@ -4,6 +4,7 @@ using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace LeagueToolkit.IO.LightGrid
 {
@@ -56,9 +57,9 @@ namespace LeagueToolkit.IO.LightGrid
         {
             Write(File.Create(fileLocation));
         }
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write((uint)3);
                 bw.Write((uint)76);

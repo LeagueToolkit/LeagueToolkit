@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
@@ -42,9 +43,9 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             }
         }
         public SimpleSkin(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-        public SimpleSkin(Stream stream)
+        public SimpleSkin(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryReader br = new BinaryReader(stream))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
             {
                 uint magic = br.ReadUInt32();
                 if (magic != 0x00112233)

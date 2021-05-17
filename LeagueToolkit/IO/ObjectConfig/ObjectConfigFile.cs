@@ -58,7 +58,7 @@ namespace LeagueToolkit.IO.ObjectConfig
         /// Writes this <see cref="ObjectConfigFile"/> into a <see cref="Stream"/>
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
             Dictionary<string, Dictionary<string, string>> sections = new Dictionary<string, Dictionary<string, string>>();
 
@@ -67,7 +67,7 @@ namespace LeagueToolkit.IO.ObjectConfig
                 sections.Add(section.Key, section.Value.ConvertToSection());
             }
 
-            new IniFile(sections).Write(stream);
+            new IniFile(sections).Write(stream, leaveOpen);
         }
     }
 }

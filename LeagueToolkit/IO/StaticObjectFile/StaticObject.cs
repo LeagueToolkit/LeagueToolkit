@@ -251,9 +251,9 @@ namespace LeagueToolkit.IO.StaticObjectFile
         }
 
         public void WriteSCB(string fileLocation) => WriteSCB(File.Create(fileLocation));
-        public void WriteSCB(Stream stream)
+        public void WriteSCB(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 List<StaticObjectVertex> vertices = GetVertices();
                 List<StaticObjectFace> faces = new List<StaticObjectFace>();
@@ -313,9 +313,9 @@ namespace LeagueToolkit.IO.StaticObjectFile
         }
 
         public void WriteSCO(string fileLocation) => WriteSCO(File.Create(fileLocation));
-        public void WriteSCO(Stream stream)
+        public void WriteSCO(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
             {
                 List<StaticObjectVertex> vertices = GetVertices();
                 List<StaticObjectFace> faces = new List<StaticObjectFace>();

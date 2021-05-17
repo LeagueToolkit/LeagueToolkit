@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace LeagueToolkit.IO.MapParticles
 {
@@ -62,9 +63,9 @@ namespace LeagueToolkit.IO.MapParticles
         /// Writes this <see cref="MapParticlesFile"/> into the specified <see cref="Stream"/>
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
             {
                 foreach (MapParticlesParticle particle in this.Particles)
                 {

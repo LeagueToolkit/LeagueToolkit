@@ -70,9 +70,9 @@ namespace LeagueToolkit.IO.NVR
             Write(File.Create(fileLocation));
         }
 
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 NVRBuffers buffers = this.GenerateBuffers();
                 bw.Write(ASCIIEncoding.ASCII.GetBytes("NVR\0"));

@@ -93,14 +93,14 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             Write(File.Create(fileLocation), version);
         }
-        public void Write(Stream stream, uint version)
+        public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
             if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
             {
                 throw new Exception("Unsupported version");
             }
 
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("OEGM"));
                 bw.Write(version);

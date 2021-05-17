@@ -51,9 +51,9 @@ namespace LeagueToolkit.IO.FX
         {
             Write(File.Create(fileLocation));
         }
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 foreach (FXTrack track in this.Tracks)
                 {

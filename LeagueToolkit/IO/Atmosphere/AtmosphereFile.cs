@@ -71,9 +71,9 @@ namespace LeagueToolkit.IO.Atmosphere
         /// Writes this <see cref="AtmosphereFile"/> into the specified <see cref="Stream"/>
         /// </summary>
         /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        public void Write(Stream stream)
+        public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 this.SunColor.Write(bw);
                 this.SkyColor.Write(bw);

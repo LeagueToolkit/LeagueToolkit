@@ -181,8 +181,6 @@ namespace LeagueToolkit.Tests
                     ulong computedHash = XXHash3.Hash64(compressedData);
                     byte[] computedHashBytes = BitConverter.GetBytes(computedHash);
 
-                    TestContext.WriteLine($"{entry.CompressedSize} ---- {computedHashBytes.SequenceEqual(entry.Checksum)}");
-
                     Assert.IsTrue(computedHashBytes.SequenceEqual(entry.Checksum), $"Entry ({entry.XXHash}) XXHash3 checksum does not match computed one");
                 }
             }
