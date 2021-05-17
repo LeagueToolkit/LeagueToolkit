@@ -78,9 +78,9 @@ namespace LeagueToolkit.IO.PropertyBin
         {
             Write(File.OpenWrite(fileLocation), version);
         }
-        public void Write(Stream stream, Version version)
+        public void Write(Stream stream, Version version, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
                 bw.Write(version.PackToInt()); // version
