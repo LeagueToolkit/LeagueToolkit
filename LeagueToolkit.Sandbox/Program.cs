@@ -1,32 +1,17 @@
-﻿using LeagueToolkit.Converters;
-using LeagueToolkit.Helpers.Structures.BucketGrid;
-using LeagueToolkit.IO.AnimationFile;
+﻿using LeagueToolkit.Helpers.Structures.BucketGrid;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.MapGeometry;
-using LeagueToolkit.IO.NavigationGridOverlay;
-using LeagueToolkit.IO.NVR;
 using LeagueToolkit.IO.OBJ;
-using LeagueToolkit.IO.ReleaseManifestFile;
-using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.StaticObjectFile;
-using LeagueToolkit.IO.WadFile;
-using LeagueToolkit.IO.WGT;
 using LeagueToolkit.IO.WorldGeometry;
-using ImageMagick;
-using Newtonsoft.Json;
-using SharpGLTF.Schema2;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 using LeagueToolkit.Meta;
-using LeagueToolkit.Meta.Attributes;
 using System.Numerics;
 using LeagueToolkit.Meta.Dump;
 using System.Reflection;
-using LeagueToolkit.Helpers;
 
 namespace LeagueToolkit.Sandbox
 {

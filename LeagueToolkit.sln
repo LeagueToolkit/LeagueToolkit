@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Tests", "Leag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Meta.Classes", "LeagueToolkit.Meta.Classes\LeagueToolkit.Meta.Classes.csproj", "{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.IO.Extensions", "LeagueToolkit.IO.Extensions\LeagueToolkit.IO.Extensions.csproj", "{084A1145-551A-4912-8477-0A3D575EB3C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -32,6 +34,10 @@ Global
 		{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}.Debug|x64.Build.0 = Debug|x64
 		{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}.Release|x64.ActiveCfg = Release|x64
 		{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}.Release|x64.Build.0 = Release|x64
+		{084A1145-551A-4912-8477-0A3D575EB3C5}.Debug|x64.ActiveCfg = Debug|x64
+		{084A1145-551A-4912-8477-0A3D575EB3C5}.Debug|x64.Build.0 = Debug|x64
+		{084A1145-551A-4912-8477-0A3D575EB3C5}.Release|x64.ActiveCfg = Release|x64
+		{084A1145-551A-4912-8477-0A3D575EB3C5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

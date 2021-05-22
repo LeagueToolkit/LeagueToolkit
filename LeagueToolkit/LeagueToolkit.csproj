@@ -19,17 +19,10 @@
     <AssemblyName>LeagueToolkit</AssemblyName>
     <RootNamespace>LeagueToolkit</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="SharpGLTF.Core.dll" />
-    <None Remove="SharpGLTF.Toolkit.dll" />
-  </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="FlatSharp" Version="3.3.1" />
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
+    <PackageReference Include="FlatSharp" Version="5.2.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="XXHash3.NET" Version="1.2.2" />
     <PackageReference Include="ZstdSharp" Version="0.7.1" />
   </ItemGroup>
@@ -39,13 +32,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="SharpGLTF.Core.dll" />
-    <Resource Include="SharpGLTF.Toolkit.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
   </ItemGroup>
 
 </Project>

@@ -10,20 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.21.1" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\LeagueToolkit.IO.Extensions\LeagueToolkit.IO.Extensions.csproj" />
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="SharpGLTF.Core">
-      <HintPath>..\LeagueToolkit\SharpGLTF.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpGLTF.Toolkit">
-      <HintPath>..\LeagueToolkit\SharpGLTF.Toolkit.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

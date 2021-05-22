@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.Helpers.Cryptography;
-using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.SkeletonFile;
 using ImageMagick;
@@ -15,7 +14,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using GltfAnimation = SharpGLTF.Schema2.Animation;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.IO.SimpleSkinFile

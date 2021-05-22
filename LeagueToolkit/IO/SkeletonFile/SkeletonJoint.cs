@@ -1,13 +1,7 @@
 ﻿using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Extensions;
-using ImageMagick;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueToolkit.IO.SkeletonFile
 {
@@ -31,7 +25,7 @@ namespace LeagueToolkit.IO.SkeletonFile
             }
         }
 
-        internal SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale, Quaternion localRotation)
+        public SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale, Quaternion localRotation)
         {
             this.ID = id;
             this.ParentID = parentId;
