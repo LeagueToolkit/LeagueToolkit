@@ -10,7 +10,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.Structure;
         public uint MetaClassHash { get; private set; }
-        
+
         public ReadOnlyCollection<BinTreeProperty> Properties { get; }
         protected List<BinTreeProperty> _properties = new();
 
@@ -36,7 +36,10 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
         internal BinTreeStructure(BinaryReader br, IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
         {
             this.MetaClassHash = br.ReadUInt32();
-            if (this.MetaClassHash == 0) return; // Empty structure
+            if (this.MetaClassHash == 0) {
+                this.Properties = this._properties.AsReadOnly();
+                return; // Empty structure
+            }
 
             uint size = br.ReadUInt32();
             ushort propertyCount = br.ReadUInt16();
