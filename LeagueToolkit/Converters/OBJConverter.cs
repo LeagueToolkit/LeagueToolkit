@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LeagueToolkit.IO.MapGeometry;
 using System.Numerics;
+using LeagueToolkit.IO.NVR;
 
 namespace LeagueToolkit.Converters
 {
@@ -50,6 +51,77 @@ namespace LeagueToolkit.Converters
                 }
 
                 yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, model.Indices.Select(x => (uint)x).ToList(), uvs, normals));
+            }
+        }
+
+        /// <summary>
+        /// Converts the meshes of <paramref name="nvr"/> into the <see cref="OBJFile"/> format.
+        /// </summary>
+        /// <param name="nvr">The <see cref="NVRFile"/> to convert meshes from</param>
+        /// <param name="simple">Converts simple primitives which do not contain UVs or Normals.</param>
+        /// <param name="doSet">Converted <see cref="OBJFile"/>(s) are grouped into a single <see cref="OBJFile"/> by material.</param>
+        /// <returns>Converted <see cref="NVRMesh"/> meshes in the <see cref="OBJFile"/> format</returns>
+        public static IEnumerable<OBJFile> ConvertNVRMeshes(NVRFile nvr, bool simple = false, bool doSet = false)
+        {
+            foreach (NVRMaterial material in nvr.Materials)
+            {
+                List<OBJFile> objSet = new List<OBJFile>();
+
+                foreach (NVRMesh mesh in nvr.Meshes)
+                {
+                    List<Vector3> vertices = new List<Vector3>();
+                    List<uint> indices = new List<uint>();
+                    List<Vector2> uvs = new List<Vector2>();
+                    List<Vector3> normals = new List<Vector3>();
+
+                    NVRDrawIndexedPrimitive primitive = simple ? mesh.IndexedPrimitives[1] : mesh.IndexedPrimitives[0];
+
+                    foreach (var vertex in primitive.Vertices)
+                    {
+                        vertices.Add(vertex.Position);
+                        indices.AddRange(primitive.Indices.Select(i => (uint)i));
+
+                        if (primitive.VertexType == NVRVertexType.NVRVERTEX_4)
+                        {
+                            NVRVertex4 vertex4 = vertex as NVRVertex4;
+                            uvs.Add(vertex4.UV);
+                            normals.Add(vertex4.Normal);
+                        }
+                        else if (primitive.VertexType == NVRVertexType.NVRVERTEX_8)
+                        {
+                            NVRVertex8 vertex8 = vertex as NVRVertex8;
+                            uvs.Add(vertex8.UV);
+                            normals.Add(vertex8.Normal);
+                        }
+                        else if (primitive.VertexType == NVRVertexType.NVRVERTEX_12)
+                        {
+                            NVRVertex12 vertex12 = vertex as NVRVertex12;
+                            uvs.Add(vertex12.UV);
+                            normals.Add(vertex12.Normal);
+                        }
+                    }
+
+                    if (simple)
+                    {
+                        var obj = new OBJFile(vertices, indices);
+                        if (!doSet)
+                        {
+                            yield return obj;
+                        }
+
+                        objSet.Add(obj);
+                        continue;
+                    }
+
+                    if (!doSet)
+                    {
+                        yield return new OBJFile(vertices, indices, uvs, normals);
+                    }
+
+                    objSet.Add(new OBJFile(vertices, indices, uvs, normals));
+                }
+
+                yield return new OBJFile(objSet);
             }
         }
 

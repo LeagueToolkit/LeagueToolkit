@@ -10,6 +10,7 @@ namespace LeagueToolkit.IO.NVR
     {
         public short MajorVersion { get; private set; }
         public short MinorVersion { get; private set; }
+        public List<NVRMaterial> Materials { get; private set; }
         public List<NVRMesh> Meshes { get; private set; }
 
         public NVRFile(string fileLocation)
@@ -61,6 +62,7 @@ namespace LeagueToolkit.IO.NVR
                     buffers.Nodes.Add(new NVRNode(br, buffers));
                 }
 
+                this.Materials = buffers.Materials;
                 this.Meshes = buffers.Meshes;
             }
         }

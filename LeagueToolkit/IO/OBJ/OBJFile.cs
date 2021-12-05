@@ -48,6 +48,37 @@ namespace LeagueToolkit.IO.OBJ
             }
         }
 
+        public OBJFile(IEnumerable<OBJFile> objs)
+        {
+            uint indicesOffset = 0;
+            foreach (OBJFile obj in objs)
+            {
+                this.Comments.AddRange(obj.Comments);
+                this.Vertices.AddRange(obj.Vertices);
+                this.UVs.AddRange(obj.UVs);
+                this.Normals.AddRange(obj.Normals);
+
+                if (obj.Faces.Count > 0)
+                {
+                    var tempIndices = new List<uint>();
+
+                    // Append vertex indices
+                    foreach (OBJFace face in obj.Faces)
+                    {
+                        tempIndices = new List<uint>();
+
+                        foreach (uint indice in face.VertexIndices)
+                        {
+                            tempIndices.Add(indice + indicesOffset);
+                        }
+
+                        this.Faces.Add(new OBJFace(tempIndices.ToArray()));
+                    }
+
+                    indicesOffset += (uint)obj.Vertices.Count;
+                }
+            }
+        }
 
         public OBJFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
@@ -69,7 +100,7 @@ namespace LeagueToolkit.IO.OBJ
 
         public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.Default, 1024, leaveOpen))
             {
                 foreach (string comment in this.Comments)
                 {
