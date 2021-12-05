@@ -65,10 +65,18 @@ namespace LeagueToolkit.Converters
         {
             foreach (NVRMaterial material in nvr.Materials)
             {
+                int materialIndex = nvr.Materials.IndexOf(material);
                 List<OBJFile> objSet = new List<OBJFile>();
 
                 foreach (NVRMesh mesh in nvr.Meshes)
                 {
+                    int meshMaterialIndex = nvr.Materials.IndexOf(mesh.Material);
+
+                    if (meshMaterialIndex == materialIndex)
+                    {
+                        continue;
+                    }
+
                     List<Vector3> vertices = new List<Vector3>();
                     List<uint> indices = new List<uint>();
                     List<Vector2> uvs = new List<Vector2>();
@@ -76,10 +84,11 @@ namespace LeagueToolkit.Converters
 
                     NVRDrawIndexedPrimitive primitive = simple ? mesh.IndexedPrimitives[1] : mesh.IndexedPrimitives[0];
 
+                    indices.AddRange(primitive.Indices.Select(i => (uint)i));
+
                     foreach (var vertex in primitive.Vertices)
                     {
                         vertices.Add(vertex.Position);
-                        indices.AddRange(primitive.Indices.Select(i => (uint)i));
 
                         if (primitive.VertexType == NVRVertexType.NVRVERTEX_4)
                         {
@@ -101,9 +110,9 @@ namespace LeagueToolkit.Converters
                         }
                     }
 
+                    var obj = new OBJFile(vertices, indices);
                     if (simple)
                     {
-                        var obj = new OBJFile(vertices, indices);
                         if (!doSet)
                         {
                             yield return obj;
@@ -113,12 +122,14 @@ namespace LeagueToolkit.Converters
                         continue;
                     }
 
+                    obj = new OBJFile(vertices, indices, uvs, normals);
+
                     if (!doSet)
                     {
-                        yield return new OBJFile(vertices, indices, uvs, normals);
+                        yield return obj;
                     }
 
-                    objSet.Add(new OBJFile(vertices, indices, uvs, normals));
+                    objSet.Add(obj);
                 }
 
                 yield return new OBJFile(objSet);
