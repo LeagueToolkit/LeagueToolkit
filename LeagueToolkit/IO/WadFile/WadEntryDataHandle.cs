@@ -29,6 +29,7 @@ namespace LeagueToolkit.IO.WadFile
             {
                 case WadEntryType.GZipCompressed:
                 case WadEntryType.ZStandardCompressed:
+                case WadEntryType.ZStandardChunked:
                 case WadEntryType.Uncompressed:
                 {
                     return new MemoryStream(compressedData);
@@ -67,7 +68,7 @@ namespace LeagueToolkit.IO.WadFile
 
                     return uncompressedStream;
                 }
-                case WadEntryType.ZStandardCompressed:
+                case WadEntryType.ZStandardCompressed or WadEntryType.ZStandardChunked:
                 {
                     byte[] decompressedData = Zstd.Decompress(compressedData, this._entry.UncompressedSize);
 

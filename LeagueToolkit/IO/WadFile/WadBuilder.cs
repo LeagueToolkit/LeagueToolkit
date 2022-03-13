@@ -86,42 +86,44 @@ namespace LeagueToolkit.IO.WadFile
             {
                 int uncompressedSize = (int)entryBuilder.DataStream.Length;
                 MemoryStream compressedStream = new MemoryStream();
-                if (entryBuilder.EntryType == WadEntryType.GZipCompressed)
+                switch (entryBuilder.EntryType)
                 {
-                    using (GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Compress, true))
+                    case WadEntryType.GZipCompressed:
                     {
-                        entryBuilder.DataStream.CopyTo(gzipStream);
-                    }
+                        using (GZipStream gzipStream = new GZipStream(compressedStream, CompressionMode.Compress, true))
+                        {
+                            entryBuilder.DataStream.CopyTo(gzipStream);
+                        }
 
-                    entryBuilder.DataStream = compressedStream;
-                    entryBuilder.UncompressedSize = uncompressedSize;
-                    entryBuilder.CompressedSize = (int)compressedStream.Length;
-                }
-                else if (entryBuilder.EntryType == WadEntryType.ZStandardCompressed)
-                {
-                    using (ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true))
+                        entryBuilder.DataStream = compressedStream;
+                        entryBuilder.UncompressedSize = uncompressedSize;
+                        entryBuilder.CompressedSize = (int)compressedStream.Length;
+                        break;
+                    }
+                    case WadEntryType.ZStandardCompressed or WadEntryType.ZStandardChunked:
                     {
-                        entryBuilder.DataStream.CopyTo(zstdStream);
-                    }
+                        using (ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true))
+                        {
+                            entryBuilder.DataStream.CopyTo(zstdStream);
+                        }
 
-                    entryBuilder.DataStream = compressedStream;
-                    entryBuilder.UncompressedSize = uncompressedSize;
-                    entryBuilder.CompressedSize = (int)compressedStream.Length;
-                }
-                else if (entryBuilder.EntryType == WadEntryType.Uncompressed)
-                {
-                    entryBuilder.CompressedSize = entryBuilder.UncompressedSize = (int)entryBuilder.DataStream.Length;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Cannot have a File Redirection entry with a data stream");
+                        entryBuilder.DataStream = compressedStream;
+                        entryBuilder.UncompressedSize = uncompressedSize;
+                        entryBuilder.CompressedSize = (int)compressedStream.Length;
+                        break;
+                    }
+                    case WadEntryType.Uncompressed:
+                        entryBuilder.CompressedSize = entryBuilder.UncompressedSize = (int)entryBuilder.DataStream.Length;
+                        break;
+                    default:
+                        throw new InvalidOperationException("Cannot have a File Redirection entry with a data stream");
                 }
 
                 entryBuilder.ComputeChecksum();
             }
 
             entryBuilder._dataOffset = (uint)wadStream.Position;
-        
+
             // Write data
             if (entryBuilder.EntryType == WadEntryType.FileRedirection)
             {
@@ -138,7 +140,7 @@ namespace LeagueToolkit.IO.WadFile
                 wadStream.Write(data, 0, data.Length);
             }
         }
-    
+
         public void RemoveEntry(ulong xxhash)
         {
             this._entries.Remove(xxhash);

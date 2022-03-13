@@ -41,7 +41,7 @@ namespace LeagueToolkit.IO.WadFile
             {
                 case WadEntryType.Uncompressed: WithUncompressedDataStream(entry.GetDataHandle().GetDecompressedStream()); break;
                 case WadEntryType.GZipCompressed: WithGZipDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
-                case WadEntryType.ZStandardCompressed: WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
+                case WadEntryType.ZStandardCompressed or WadEntryType.ZStandardChunked: WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
                 case WadEntryType.FileRedirection: WithFileRedirection(entry.FileRedirection); break;
             }
         }

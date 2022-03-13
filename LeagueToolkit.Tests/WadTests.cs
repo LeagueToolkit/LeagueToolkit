@@ -64,7 +64,7 @@ namespace LeagueToolkit.Tests
                 {
                     entryBuilder.WithGZipDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize);
                 }
-                else if (entry.Type == WadEntryType.ZStandardCompressed)
+                else if (entry.Type == WadEntryType.ZStandardCompressed || entry.Type == WadEntryType.ZStandardChunked)
                 {
                     entryBuilder.WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize);
                 }

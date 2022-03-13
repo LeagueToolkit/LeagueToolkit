@@ -22,7 +22,7 @@ namespace LeagueToolkit.IO.WadFile
         private bool _leaveOpen;
         private bool _isDisposed = false;
 
-        internal Wad() 
+        internal Wad()
         {
             this.Entries = new(this._entries);
         }
@@ -105,7 +105,7 @@ namespace LeagueToolkit.IO.WadFile
             {
                 bw.Write(Encoding.ASCII.GetBytes("RW"));
                 bw.Write((byte)3); // major
-                bw.Write((byte)1); // minor
+                bw.Write((byte)3); // minor
 
                 // Writing signature
                 bw.Write(new byte[256]);

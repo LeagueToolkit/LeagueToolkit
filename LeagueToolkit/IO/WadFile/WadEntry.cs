@@ -23,9 +23,11 @@ namespace LeagueToolkit.IO.WadFile
 
         internal uint _dataOffset;
         internal bool _isDuplicated;
+        private byte _subChunkCount;
+        private ushort _firstSubChunkIndex;
 
         internal readonly Wad _wad;
- 
+
         internal WadEntry(Wad wad, ulong xxhash, int compressedSize, int uncompressedSize, WadEntryType entryType,
             WadEntryChecksumType checksumType, byte[] checksum, string fileRedirection, uint dataOffset)
         {
@@ -46,9 +48,11 @@ namespace LeagueToolkit.IO.WadFile
             this._dataOffset = br.ReadUInt32();
             this.CompressedSize = br.ReadInt32();
             this.UncompressedSize = br.ReadInt32();
-            this.Type = (WadEntryType)br.ReadByte();
+            var type = br.ReadByte();
+            this._subChunkCount = (byte)(type >> 4);
+            this.Type = (WadEntryType)(type & 0xF);
             this._isDuplicated = br.ReadBoolean();
-            br.ReadUInt16(); // pad 
+            this._firstSubChunkIndex = br.ReadUInt16();
             if (major >= 2)
             {
                 this.Checksum = br.ReadBytes(8);
@@ -74,7 +78,7 @@ namespace LeagueToolkit.IO.WadFile
             bw.Write(this.UncompressedSize);
             bw.Write((byte)this.Type);
             bw.Write(this._isDuplicated);
-            bw.Write((ushort)0); // pad
+            bw.Write(0); // don't write subChunkIndex here while subchunks are not supported
             if (major >= 2)
             {
                 bw.Write(this.Checksum);
@@ -109,7 +113,11 @@ namespace LeagueToolkit.IO.WadFile
         /// <summary>
         /// The Data of this <see cref="WadEntry"/> is compressed with ZStandard
         /// </summary>
-        ZStandardCompressed
+        ZStandardCompressed,
+        /// <summary>
+        /// The Data of this <see cref="WadEntry"/> is compressed with ZStandard and split in individual "chunks"
+        /// </summary>
+        ZStandardChunked
     }
 
     public enum WadEntryChecksumType
