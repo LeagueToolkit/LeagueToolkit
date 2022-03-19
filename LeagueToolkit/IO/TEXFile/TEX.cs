@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.IO;
 using System.Text;
 using LeagueToolkit.Helpers.Exceptions;
@@ -26,10 +25,10 @@ public class TEX
 
     public const string TEX_MAGIC = "TEX\0";
 
-    public TEXHeader header { get; }
-    public byte[] textureBuffer { get; }
-    public byte[][] mipMapsBuffer { get; } // buffer for mipmaps (if present), from largest to smallest mipmap
-    public int mipMapCount { get; }
+    public TEXHeader Header { get; }
+    public byte[] TextureBuffer { get; }
+    public byte[][] MipMapsBuffer { get; } // buffer for mipmaps (if present), from largest to smallest mipmap
+    public int MipMapCount { get; }
 
     private const int MIN_WIDTH = 4;
     private const int MIN_HEIGHT = 4;
@@ -57,22 +56,22 @@ public class TEX
         }
         stream.Seek(1, SeekOrigin.Current); // unknown, always 0
         texHeader.hasMipmaps = br.ReadBoolean();
-        header = texHeader;
+        Header = texHeader;
 
-        mipMapCount = header.hasMipmaps ? (int) Math.Log(Math.Max(header.Width, header.Height), 2) : 0;
-        if (mipMapCount > 0)
+        MipMapCount = Header.hasMipmaps ? (int) Math.Log(Math.Max(Header.Width, Header.Height), 2) : 0;
+        if (MipMapCount > 0)
         {
-            mipMapsBuffer = new byte[mipMapCount][];
+            MipMapsBuffer = new byte[MipMapCount][];
             // mipmaps are written in order from smallest to largest
-            for (int i = mipMapCount; i > 0; i--)
+            for (int i = MipMapCount; i > 0; i--)
             {
-                int currentWidth = Math.Max(header.Width / (1 << i), MIN_WIDTH);
-                int currentHeight = Math.Max(header.Height / (1 << i), MIN_HEIGHT);
-                mipMapsBuffer[i - 1] = br.ReadBytes(currentWidth * currentHeight);
+                int currentWidth = Math.Max(Header.Width / (1 << i), MIN_WIDTH);
+                int currentHeight = Math.Max(Header.Height / (1 << i), MIN_HEIGHT);
+                MipMapsBuffer[i - 1] = br.ReadBytes(currentWidth * currentHeight);
             }
         }
 
-        textureBuffer = br.ReadBytes(header.Width * header.Height);
+        TextureBuffer = br.ReadBytes(Header.Width * Header.Height);
     }
 
     public void ToDds(Stream stream, bool leaveOpen = true)
@@ -81,7 +80,7 @@ public class TEX
 
         int dwFlags = 0x00001007 | 0x00080000; // DDS_HEADER_FLAGS_TEXTURE | DDS_HEADER_FLAGS_LINEARSIZE
         int dwCaps = 0x00001000; // DDS_SURFACE_FLAGS_TEXTURE
-        if (header.hasMipmaps)
+        if (Header.hasMipmaps)
         {
             dwFlags |= 0x00020000; // DDS_HEADER_FLAGS_MIPMAP
             dwCaps |= 0x00400008; // DDS_SURFACE_FLAGS_MIPMAP
@@ -89,23 +88,23 @@ public class TEX
         bw.Write(Encoding.ASCII.GetBytes("DDS ")); // magic
         bw.Write(124); // header size
         bw.Write(dwFlags);
-        bw.Write((int)header.Height);
-        bw.Write((int)header.Width);
-        bw.Write(header.Width * header.Height); // dwPitchOrLinearSize
+        bw.Write((int)Header.Height);
+        bw.Write((int)Header.Width);
+        bw.Write(Header.Width * Header.Height); // dwPitchOrLinearSize
         bw.Seek(4, SeekOrigin.Current);
-        bw.Write(mipMapCount + 1);
+        bw.Write(MipMapCount + 1);
         bw.Seek(4 * 11, SeekOrigin.Current);
         bw.Write(32); // DDS_PIXELFORMAT struct size
         bw.Write(4); // dwFlags = DDS_FOURCC
-        bw.Write(Encoding.ASCII.GetBytes(header.format == TEXFormat.DXT5 ? "DXT5" : "DXT1"));
+        bw.Write(Encoding.ASCII.GetBytes(Header.format == TEXFormat.DXT5 ? "DXT5" : "DXT1"));
         bw.Seek(4 * 5, SeekOrigin.Current);
         bw.Write(dwCaps);
         bw.Seek(4 * 4, SeekOrigin.Current);
 
-        bw.Write(textureBuffer);
-        for (int i = 0; i < mipMapCount; i++)
+        bw.Write(TextureBuffer);
+        for (int i = 0; i < MipMapCount; i++)
         {
-            bw.Write(mipMapsBuffer[i]);
+            bw.Write(MipMapsBuffer[i]);
         }
     }
 }
