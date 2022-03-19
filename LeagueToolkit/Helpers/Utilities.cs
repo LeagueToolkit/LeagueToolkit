@@ -59,7 +59,7 @@ namespace LeagueToolkit.Helpers
             {
                 return LeagueFileType.PngImage;
             }
-            else if (magicData[0] == 'D' && magicData[1] == 'D' && magicData[2] == 'S' && magicData[3] == 0x20)
+            else if (magicData[0] == 'D' && magicData[1] == 'D' && magicData[2] == 'S' && magicData[3] == ' ')
             {
                 return LeagueFileType.DdsImage;
             }
@@ -114,6 +114,9 @@ namespace LeagueToolkit.Helpers
             else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FORMAT_TOKEN)
             {
                 return LeagueFileType.Skeleton;
+            } else if (magicData[0] == 'T' && magicData[1] == 'E' && magicData[2] == 'X' && magicData[3] == '\0')
+            {
+                return LeagueFileType.TexImage;
             }
 
             return LeagueFileType.Unknown;
@@ -159,6 +162,7 @@ namespace LeagueToolkit.Helpers
                     case "wpk": return LeagueFileType.WwisePackage;
                     case "jpg": return LeagueFileType.JpegImage;
                     case "rst": return LeagueFileType.RiotStringTable;
+                    case "tex": return LeagueFileType.TexImage;
                     default: return LeagueFileType.Unknown;
                 }
             }
@@ -207,6 +211,8 @@ namespace LeagueToolkit.Helpers
                     return "bin";
                 case LeagueFileType.JpegImage:
                     return "jpg";
+                case LeagueFileType.TexImage:
+                    return "tex";
                 default:
                     return "";
             }
@@ -285,6 +291,7 @@ namespace LeagueToolkit.Helpers
         JpegImage,
         RiotStringTable,
         PatchPropertyBin,
-        WadArchive
+        WadArchive,
+        TexImage
     }
 }
