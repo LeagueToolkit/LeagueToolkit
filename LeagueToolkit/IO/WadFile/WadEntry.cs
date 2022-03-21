@@ -57,7 +57,7 @@ namespace LeagueToolkit.IO.WadFile
             {
                 this.Checksum = br.ReadBytes(8);
 
-                if (major == 3 && minor == 1) this.ChecksumType = WadEntryChecksumType.XXHash3;
+                if (major == 3 && minor >= 1) this.ChecksumType = WadEntryChecksumType.XXHash3;
                 else this.ChecksumType = WadEntryChecksumType.SHA256;
             }
 
@@ -78,7 +78,7 @@ namespace LeagueToolkit.IO.WadFile
             bw.Write(this.UncompressedSize);
             bw.Write((byte)this.Type);
             bw.Write(this._isDuplicated);
-            bw.Write(0); // don't write subChunkIndex here while subchunks are not supported
+            bw.Write((ushort)0); // don't write firstSubChunkIndex here while subchunks are not supported
             if (major >= 2)
             {
                 bw.Write(this.Checksum);

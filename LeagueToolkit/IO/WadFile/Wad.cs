@@ -109,21 +109,14 @@ namespace LeagueToolkit.IO.WadFile
 
                 // Writing signature
                 bw.Write(new byte[256]);
-
                 bw.Write((long)0);
 
-                int tocSize = 32;
-                long tocOffset = stream.Position + 4;
-
                 bw.Write(this.Entries.Count);
-
-                stream.Seek(tocOffset + (tocSize * this.Entries.Count), SeekOrigin.Begin);
 
                 List<ulong> entryKeys = this._entries.Keys.ToList();
                 entryKeys.Sort();
 
                 // Write TOC
-                stream.Seek(tocOffset, SeekOrigin.Begin);
                 foreach(ulong entryKey in entryKeys)
                 {
                     this._entries[entryKey].Write(bw, 3);
