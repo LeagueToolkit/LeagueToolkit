@@ -12,7 +12,7 @@
     <Authors>Crauzer</Authors>
     <Company></Company>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>9</LangVersion>
     <Platforms>x64</Platforms>
     <AssemblyName>LeagueToolkit</AssemblyName>
     <RootNamespace>LeagueToolkit</RootNamespace>
