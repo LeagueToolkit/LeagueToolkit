@@ -20,7 +20,7 @@ namespace LeagueToolkit.IO.WadFile
         internal Stream _stream;
 
         private bool _leaveOpen;
-        private bool _isDisposed = false;
+        private bool _isDisposed;
 
         internal Wad()
         {
@@ -34,7 +34,7 @@ namespace LeagueToolkit.IO.WadFile
         {
             this._leaveOpen = leaveOpen;
 
-            Read(this._stream, leaveOpen);
+            Read(this._stream);
         }
 
         public static Wad Mount(string fileLocation, bool leaveOpen) => Mount(File.OpenRead(fileLocation), leaveOpen);
@@ -43,9 +43,9 @@ namespace LeagueToolkit.IO.WadFile
             return new Wad(stream, leaveOpen);
         }
 
-        private void Read(Stream stream, bool leaveOpen)
+        private void Read(Stream stream)
         {
-            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
                 if (magic != "RW")
