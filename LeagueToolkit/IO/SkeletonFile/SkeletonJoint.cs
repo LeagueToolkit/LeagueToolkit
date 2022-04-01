@@ -1,6 +1,5 @@
 ﻿using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Extensions;
-using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +23,7 @@ namespace LeagueToolkit.IO.SkeletonFile
         public Matrix4x4 GlobalTransform { get; internal set; }
         public Matrix4x4 InverseBindTransform
         {
-            get 
+            get
             {
                 Matrix4x4.Invert(this.GlobalTransform, out Matrix4x4 inverted);
                 return inverted;

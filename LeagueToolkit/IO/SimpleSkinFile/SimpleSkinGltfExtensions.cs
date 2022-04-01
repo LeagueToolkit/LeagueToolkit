@@ -2,7 +2,6 @@
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.SkeletonFile;
-using ImageMagick;
 using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -15,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using CSharpImageLibrary;
 using GltfAnimation = SharpGLTF.Schema2.Animation;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
@@ -25,7 +25,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
     public static class SimpleSkinGltfExtensions
     {
-        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, MagickImage> materialTextues = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, ImageEngineImage> materialTextues = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
             var meshBuilder = VERTEX.CreateCompatibleMesh();
@@ -38,7 +38,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 // Assign submesh Image
                 if(materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
                 {
-                    MagickImage submeshImage = materialTextues[submesh.Name];
+                    ImageEngineImage submeshImage = materialTextues[submesh.Name];
                     AssignMaterialTexture(material, submeshImage);
                 }
 
@@ -67,7 +67,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             return sceneBuilder.ToGltf2();
         }
-        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, MagickImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, ImageEngineImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder();
             NodeBuilder rootNodeBuilder = new NodeBuilder("model");
@@ -84,7 +84,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 // Assign submesh Image
                 if (materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
                 {
-                    MagickImage submeshImage = materialTextues[submesh.Name];
+                    ImageEngineImage submeshImage = materialTextues[submesh.Name];
                     AssignMaterialTexture(material, submeshImage);
                 }
 
@@ -131,16 +131,14 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return sceneBuilder.ToGltf2();
         }
 
-        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, MagickImage texture)
+        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, ImageEngineImage texture)
         {
-            MemoryStream textureStream = new MemoryStream();
-
-            texture.Write(textureStream, MagickFormat.Png);
+            byte[] textureAsPng = texture.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG), MipHandling.KeepTopOnly);
 
             materialBuilder
                 .UseChannel(KnownChannel.BaseColor)
                 .UseTexture()
-                .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
+                .WithPrimaryImage(textureAsPng);
         }
         private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
         {
@@ -217,7 +215,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
             }
         }
-    
+
         public static (SimpleSkin, Skeleton) ToLeagueModel(this ModelRoot root)
         {
             if(root.LogicalMeshes.Count != 1)
@@ -236,7 +234,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             foreach(MeshPrimitive primitive in mesh.Primitives)
             {
                 List<uint> indices = new(primitive.GetIndices());
-                
+
                 IList<Vector3> vertexPositionAccessor = GetVertexAccessor("POSITION", primitive.VertexAccessors).AsVector3Array();
                 IList<Vector3> vertexNormalAccessor = GetVertexAccessor("NORMAL", primitive.VertexAccessors).AsVector3Array();
                 IList<Vector2> vertexUvAccessor = GetVertexAccessor("TEXCOORD_0", primitive.VertexAccessors).AsVector2Array();
@@ -247,7 +245,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 for(int i = 0; i < vertexPositionAccessor.Count; i++)
                 {
                     Vector4 bonesVector = vertexBonesAccessor[i];
-                    byte[] influenceBones = new byte[] 
+                    byte[] influenceBones = new byte[]
                     {
                         (byte)bonesVector.X,
                         (byte)bonesVector.Y,

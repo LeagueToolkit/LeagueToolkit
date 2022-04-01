@@ -13,7 +13,6 @@ using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.IO.WadFile;
 using LeagueToolkit.IO.WGT;
 using LeagueToolkit.IO.WorldGeometry;
-using ImageMagick;
 using Newtonsoft.Json;
 using SharpGLTF.Schema2;
 using System;
@@ -61,7 +60,7 @@ namespace LeagueToolkit.Sandbox
                 .GetTypes()
                 .Where(x => x.IsClass && x.Namespace == "LeagueToolkit.Meta.Classes")
                 .ToList());
-            
+
 
             //var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
         }
