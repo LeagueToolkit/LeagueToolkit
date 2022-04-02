@@ -202,10 +202,7 @@ namespace LeagueToolkit.Helpers.Structures
 
         public override bool Equals(object obj)
         {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((Color)obj);
+            return obj is Color other && Equals(other);
         }
 
         public override int GetHashCode()
