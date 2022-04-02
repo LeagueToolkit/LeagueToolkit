@@ -172,11 +172,11 @@ namespace LeagueToolkit.IO.OBJ
                 }
                 foreach (Vector3 vertex in this.Vertices)
                 {
-                    sw.WriteLine(string.Format("v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
+                    sw.WriteLine(string.Format(NumberFormatInfo.InvariantInfo, "v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
                 }
                 foreach (Vector2 uv in this.UVs)
                 {
-                    string format = string.Format("vt {0} {1}", uv.X, 1 - uv.Y);
+                    string format = string.Format(NumberFormatInfo.InvariantInfo, "vt {0} {1}", uv.X, 1 - uv.Y);
 
                     // Fixes issues with programs which cannot read the infinity symbol.
                     if (format.Contains("∞"))
@@ -188,7 +188,7 @@ namespace LeagueToolkit.IO.OBJ
                 }
                 foreach (Vector3 normal in this.Normals)
                 {
-                    sw.WriteLine(string.Format("vn {0} {1} {2}", normal.X, normal.Y, normal.Z));
+                    sw.WriteLine(string.Format(NumberFormatInfo.InvariantInfo, "vn {0} {1} {2}", normal.X, normal.Y, normal.Z));
                 }
                 sw.WriteLine("s " + (this.IsSmooth ? "on" : "off"));
                 foreach (OBJGroup group in this.Groups)
