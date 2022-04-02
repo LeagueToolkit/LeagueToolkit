@@ -1,28 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- project settings -->
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.5.1</Version>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageIcon>fantome.png</PackageIcon>
-    <PackageIconUrl />
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <Authors>Crauzer</Authors>
-    <Company></Company>
-    <Description>Library for Parsing and Editing file formats from League of Legends</Description>
+    <TargetFramework>netstandard2.1</TargetFramework>   
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
     <LangVersion>9</LangVersion>
+    
+    <!-- currently needed for 'Crauzer/ZstdSharp' -->
     <Platforms>x64</Platforms>
-    <AssemblyName>LeagueToolkit</AssemblyName>
-    <RootNamespace>LeagueToolkit</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="SharpGLTF.Core.dll" />
-    <None Remove="SharpGLTF.Toolkit.dll" />
-  </ItemGroup>
+  <!-- information about the assembly/project/package -->
+  <PropertyGroup>
+    <Version>2.5.1</Version>
+    <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
+    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Crauzer</Authors>
+    <PackageIcon>fantome.png</PackageIcon>
+    <Description>Library for Parsing and Editing file formats from League of Legends</Description>
+  </PropertyGroup>
 
+  <!-- package references -->
   <ItemGroup>
     <PackageReference Include="CSharpImageLibrary" Version="4.2.0" />
     <PackageReference Include="FlatSharp" Version="6.2.1" />
@@ -32,18 +33,9 @@
     <PackageReference Include="ZstdSharp" Version="0.7.2" />
   </ItemGroup>
 
+  <!-- package icon -->
   <ItemGroup>
-    <None Include="fantome.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="SharpGLTF.Core.dll" />
-    <Resource Include="SharpGLTF.Toolkit.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
+    <None Include="fantome.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
 </Project>
