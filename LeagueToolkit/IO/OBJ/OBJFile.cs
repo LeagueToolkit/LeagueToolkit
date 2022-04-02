@@ -17,7 +17,6 @@ namespace LeagueToolkit.IO.OBJ
         public List<OBJGroup> Groups { get; set; } = new List<OBJGroup>();
         public string MaterialsFile { get; set; } = "";
         public bool IsSmooth { get; set; } = false;
-        public List<OBJFace> Faces { get; set; } = new List<OBJFace>();
 
         public OBJFile(List<Vector3> vertices, List<uint> indices)
         {
