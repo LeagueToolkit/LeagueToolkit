@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LeagueToolkit.Helpers.Structures
 {
-    public struct Color: IEquatable<Color>
+    public struct Color : IEquatable<Color>
     {
         public static readonly Color Zero = new Color(0, 0, 0, 0);
 
@@ -98,7 +96,7 @@ namespace LeagueToolkit.Helpers.Structures
             int formatSize = FormatSize(format);
             byte[] colorBuffer = new byte[formatSize];
 
-            if(format == ColorFormat.RgbU8)
+            if (format == ColorFormat.RgbU8)
             {
                 colorBuffer[0] = (byte)(this.R * 255);
                 colorBuffer[1] = (byte)(this.G * 255);
@@ -124,7 +122,7 @@ namespace LeagueToolkit.Helpers.Structures
                 colorBuffer[2] = (byte)(this.R * 255);
                 colorBuffer[3] = (byte)(this.A * 255);
             }
-            else if(format == ColorFormat.RgbF32)
+            else if (format == ColorFormat.RgbF32)
             {
                 Buffer.BlockCopy(BitConverter.GetBytes(this.R), 0, colorBuffer, sizeof(float) * 0, sizeof(float));
                 Buffer.BlockCopy(BitConverter.GetBytes(this.G), 0, colorBuffer, sizeof(float) * 1, sizeof(float));
@@ -160,7 +158,7 @@ namespace LeagueToolkit.Helpers.Structures
             {
                 return string.Format("{0} {1} {2}", (byte)(this.R * 255), (byte)(this.G * 255), (byte)(this.B * 255));
             }
-            else if(format == ColorFormat.RgbaU8)
+            else if (format == ColorFormat.RgbaU8)
             {
                 return string.Format("{0} {1} {2} {3}", (byte)(this.R * 255), (byte)(this.G * 255), (byte)(this.B * 255), (byte)(this.B * 255));
             }
@@ -200,6 +198,16 @@ namespace LeagueToolkit.Helpers.Structures
                 this.G == other.G &&
                 this.B == other.B &&
                 this.A == other.A;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Color other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(R, G, B, A);
         }
 
         public static bool operator ==(Color a, Color b)
