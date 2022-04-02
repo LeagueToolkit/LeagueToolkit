@@ -58,29 +58,33 @@ namespace LeagueToolkit.Converters
         /// Converts the meshes of <paramref name="nvr"/> into the <see cref="OBJFile"/> format.
         /// </summary>
         /// <param name="nvr">The <see cref="NVRFile"/> to convert meshes from</param>
+        /// <param name="materialFile">The name of the material file that the <see cref="OBJFile"/> will use for materials.</param>
         /// <param name="simple">Converts simple primitives which do not contain UVs or Normals.</param>
-        /// <param name="doSet">Converted <see cref="OBJFile"/>(s) are grouped into a single <see cref="OBJFile"/> by material.</param>
         /// <returns>Converted <see cref="NVRMesh"/> meshes in the <see cref="OBJFile"/> format</returns>
-        public static IEnumerable<OBJFile> ConvertNVRMeshes(NVRFile nvr, bool simple = false, bool doSet = false)
+        public static List<OBJFile> ConvertNVRMeshes(NVRFile nvr, string materialFile = "", bool simple = false)
         {
+            List<OBJFile> returnList = new();
+
             foreach (NVRMaterial material in nvr.Materials)
             {
-                int materialIndex = nvr.Materials.IndexOf(material);
+                var materialIndex = nvr.Materials.IndexOf(material);
                 List<OBJFile> objSet = new();
 
-                foreach (NVRMesh mesh in nvr.Meshes)
+                for (int meshIndex = 0; meshIndex < nvr.Meshes.Count; meshIndex++)
                 {
-                    int meshMaterialIndex = nvr.Materials.IndexOf(mesh.Material);
+                    NVRMesh mesh = nvr.Meshes[meshIndex];
 
-                    if (meshMaterialIndex == materialIndex)
+                    var meshMaterialIndex = nvr.Materials.IndexOf(mesh.Material);
+
+                    if (meshMaterialIndex != materialIndex)
                     {
                         continue;
                     }
 
                     NVRDrawIndexedPrimitive primitive = simple ? mesh.IndexedPrimitives[1] : mesh.IndexedPrimitives[0];
 
-                    List<uint> indices = primitive.Indices.ConvertAll(i => (uint)i);
                     List<Vector3> vertices = new();
+                    List<uint> indices = primitive.Indices.ConvertAll(i => (uint)i);
                     List<Vector2> uvs = new();
                     List<Vector3> normals = new();
 
@@ -108,18 +112,22 @@ namespace LeagueToolkit.Converters
                         }
                     }
 
-                    var obj = simple ? new OBJFile(vertices, indices) : new OBJFile(vertices, indices, uvs, normals);
-
-                    if (!doSet)
+                    if (simple)
                     {
-                        yield return obj;
+                        objSet.Add(new OBJFile(vertices, indices));
+                        continue;
                     }
 
-                    objSet.Add(obj);
+                    var groups = new Dictionary<Tuple<string, string>, List<uint>>();
+                    groups.Add(new Tuple<string, string>(material.Name + "_" + meshIndex, material.Name), new(indices));
+
+                    objSet.Add(new OBJFile(vertices, groups, uvs, normals, materialFile));
                 }
 
-                yield return new OBJFile(objSet);
+                returnList.Add(new OBJFile(objSet));
             }
+
+            return returnList;
         }
 
         //public static OBJFile VisualiseNVRNodes(NVRFile Nvr)

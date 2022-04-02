@@ -16,26 +16,29 @@ namespace LeagueToolkit.IO.MapGeometry
                 vertices.Add(new MapGeometryVertex() { Position = vertex });
             }
 
-            foreach (OBJFace face in obj.Faces)
+            foreach (OBJGroup group in obj.Groups)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    indices.Add((ushort)face.VertexIndices[i]);
-                }
-
-                if (face.NormalIndices != null)
+                foreach (OBJFace face in group.Faces)
                 {
                     for (int i = 0; i < 3; i++)
                     {
-                        vertices[(int)face.VertexIndices[i]].Normal = obj.Normals[(int)face.NormalIndices[i]];
+                        indices.Add((ushort)face.VertexIndices[i]);
                     }
-                }
 
-                if (face.UVIndices!= null)
-                {
-                    for (int i = 0; i < 3; i++)
+                    if (face.NormalIndices != null)
                     {
-                        vertices[(int)face.VertexIndices[i]].DiffuseUV = obj.UVs[(int)face.UVIndices[i]];
+                        for (int i = 0; i < 3; i++)
+                        {
+                            vertices[(int)face.VertexIndices[i]].Normal = obj.Normals[(int)face.NormalIndices[i]];
+                        }
+                    }
+
+                    if (face.UVIndices != null)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            vertices[(int)face.VertexIndices[i]].DiffuseUV = obj.UVs[(int)face.UVIndices[i]];
+                        }
                     }
                 }
             }

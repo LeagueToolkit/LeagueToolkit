@@ -14,7 +14,7 @@ namespace LeagueToolkit.IO.NVR
 
         //Used for write stuff
         public NVRVertexType Type { get; private set; }
-        //Replaced by NVRDrawIndexedPrimitive.Vertices
+        // Placed inside NVRDrawIndexedPrimitive.Vertices in NVRFile
         public List<NVRVertex> Vertices { get; private set; } = new List<NVRVertex>();
 
         public NVRVertexBuffer(BinaryReader br)
