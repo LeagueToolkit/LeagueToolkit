@@ -118,8 +118,8 @@ namespace LeagueToolkit.Converters
                         continue;
                     }
 
-                    var groups = new Dictionary<Tuple<string, string>, List<uint>>();
-                    groups.Add(new Tuple<string, string>(material.Name + "_" + meshIndex, material.Name), new(indices));
+                    var groups = new List<OBJGroup>();
+                    groups.Add(new OBJGroup(material.Name + "_" + meshIndex, material.Name, new List<uint>(indices)));
 
                     objSet.Add(new OBJFile(vertices, groups, uvs, normals, materialFile));
                 }

@@ -39,17 +39,13 @@ namespace LeagueToolkit.IO.OBJ
             this.Groups.Add(new OBJGroup("default", "defaultMat", indices, indices, indices));
         }
 
-        public OBJFile(List<Vector3> vertices, Dictionary<Tuple<string, string>, List<uint>> groups, List<Vector2> uvs, List<Vector3> normals, string mtlFile = "")
+        public OBJFile(List<Vector3> vertices, List<OBJGroup> groups, List<Vector2> uvs, List<Vector3> normals, string mtlFile = "")
         {
             MaterialsFile = mtlFile;
             this.Vertices = vertices;
             this.UVs = uvs;
             this.Normals = normals;
-
-            foreach (KeyValuePair<Tuple<string, string>, List<uint>> group in groups)
-            {
-                this.Groups.Add(new OBJGroup(group.Key.Item1, group.Key.Item2, group.Value, group.Value, group.Value));
-            }
+            this.Groups.AddRange(groups);
         }
 
         public OBJFile(List<OBJFile> objs)
@@ -145,8 +141,8 @@ namespace LeagueToolkit.IO.OBJ
                     }
                 }
 
-                var groups = new Dictionary<Tuple<string, string>, List<uint>>();
-                groups.Add(new Tuple<string, string>(group.Name, group.Material), new List<uint>(indices));
+                List<OBJGroup> groups = new();
+                groups.Add(new OBJGroup(group.Name, group.Material, new List<uint>(indices)));
 
                 returnList.Add(new OBJFile(vertices, groups, uvs, normals));
             }
