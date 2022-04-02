@@ -173,7 +173,7 @@ namespace LeagueToolkit.IO.OBJ
 
         public void Write(Stream stream, bool leaveOpen = false)
         {
-            using (StreamWriter sw = new StreamWriter(stream, Encoding.Default, 1024, leaveOpen))
+            using (StreamWriter sw = new StreamWriter(stream, Encoding.ASCII, 1024, leaveOpen))
             {
                 foreach (string comment in this.Comments)
                 {
