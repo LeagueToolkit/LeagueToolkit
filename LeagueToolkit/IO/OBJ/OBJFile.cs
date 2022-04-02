@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -60,19 +61,10 @@ namespace LeagueToolkit.IO.OBJ
 
                 if (obj.Faces.Count > 0)
                 {
-                    var tempIndices = new List<uint>();
-
                     // Append vertex indices
                     foreach (OBJFace face in obj.Faces)
                     {
-                        tempIndices = new List<uint>();
-
-                        foreach (uint indice in face.VertexIndices)
-                        {
-                            tempIndices.Add(indice + indicesOffset);
-                        }
-
-                        this.Faces.Add(new OBJFace(tempIndices.ToArray()));
+                        this.Faces.Add(new OBJFace(face.VertexIndices.Select(index => index + indicesOffset).ToArray()));
                     }
 
                     indicesOffset += (uint)obj.Vertices.Count;

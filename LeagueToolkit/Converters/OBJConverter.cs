@@ -66,7 +66,7 @@ namespace LeagueToolkit.Converters
             foreach (NVRMaterial material in nvr.Materials)
             {
                 int materialIndex = nvr.Materials.IndexOf(material);
-                List<OBJFile> objSet = new List<OBJFile>();
+                List<OBJFile> objSet = new();
 
                 foreach (NVRMesh mesh in nvr.Meshes)
                 {
@@ -77,14 +77,12 @@ namespace LeagueToolkit.Converters
                         continue;
                     }
 
-                    List<Vector3> vertices = new List<Vector3>();
-                    List<uint> indices = new List<uint>();
-                    List<Vector2> uvs = new List<Vector2>();
-                    List<Vector3> normals = new List<Vector3>();
-
                     NVRDrawIndexedPrimitive primitive = simple ? mesh.IndexedPrimitives[1] : mesh.IndexedPrimitives[0];
 
-                    indices.AddRange(primitive.Indices.Select(i => (uint)i));
+                    List<uint> indices = primitive.Indices.ConvertAll(i => (uint)i);
+                    List<Vector3> vertices = new();
+                    List<Vector2> uvs = new();
+                    List<Vector3> normals = new();
 
                     foreach (var vertex in primitive.Vertices)
                     {
@@ -92,37 +90,25 @@ namespace LeagueToolkit.Converters
 
                         if (primitive.VertexType == NVRVertexType.NVRVERTEX_4)
                         {
-                            NVRVertex4 vertex4 = vertex as NVRVertex4;
+                            NVRVertex4 vertex4 = (NVRVertex4)vertex;
                             uvs.Add(vertex4.UV);
                             normals.Add(vertex4.Normal);
                         }
                         else if (primitive.VertexType == NVRVertexType.NVRVERTEX_8)
                         {
-                            NVRVertex8 vertex8 = vertex as NVRVertex8;
+                            NVRVertex8 vertex8 = (NVRVertex8)vertex;
                             uvs.Add(vertex8.UV);
                             normals.Add(vertex8.Normal);
                         }
                         else if (primitive.VertexType == NVRVertexType.NVRVERTEX_12)
                         {
-                            NVRVertex12 vertex12 = vertex as NVRVertex12;
+                            NVRVertex12 vertex12 = (NVRVertex12)vertex;
                             uvs.Add(vertex12.UV);
                             normals.Add(vertex12.Normal);
                         }
                     }
 
-                    var obj = new OBJFile(vertices, indices);
-                    if (simple)
-                    {
-                        if (!doSet)
-                        {
-                            yield return obj;
-                        }
-
-                        objSet.Add(obj);
-                        continue;
-                    }
-
-                    obj = new OBJFile(vertices, indices, uvs, normals);
+                    var obj = simple ? new OBJFile(vertices, indices) : new OBJFile(vertices, indices, uvs, normals);
 
                     if (!doSet)
                     {
