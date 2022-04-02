@@ -70,31 +70,23 @@ namespace LeagueToolkit.IO.OBJ
                     int mainGroupIndex = this.Groups.FindIndex(g => g.Name == group.Name);
                     List<uint> tempIndices = new();
 
-                    if (mainGroupIndex != -1)
+                    // Append vertex indices
+                    foreach (OBJFace face in group.Faces)
                     {
-                        // Append vertex indices
-                        foreach (OBJFace face in group.Faces)
+                        foreach (uint indice in face.VertexIndices)
                         {
-                            foreach (uint indice in face.VertexIndices)
-                            {
-                                tempIndices.Add(indice + indicesOffset);
-                            }
+                            tempIndices.Add(indice + indicesOffset);
                         }
+                    }
 
-                        this.Groups[mainGroupIndex].Faces.AddRange(new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices).Faces);
+                    // No groups found
+                    if (mainGroupIndex == -1)
+                    {
+                        this.Groups.Add(new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices));
                     }
                     else
                     {
-                        // Append vertex indices
-                        foreach (OBJFace face in group.Faces)
-                        {
-                            foreach (uint indice in face.VertexIndices)
-                            {
-                                tempIndices.Add(indice + indicesOffset);
-                            }
-                        }
-
-                        this.Groups.Add(new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices));
+                        this.Groups[mainGroupIndex].Faces.AddRange(new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices).Faces);
                     }
                 }
 
