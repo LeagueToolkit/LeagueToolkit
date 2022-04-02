@@ -14,7 +14,7 @@ namespace LeagueToolkit.IO.WadFile
 
         private Dictionary<ulong, WadEntryBuilder> _entries = new();
 
-        private bool _isDisposed;
+        private bool _disposedValue;
 
         public WadBuilder()
         {
@@ -146,14 +146,21 @@ namespace LeagueToolkit.IO.WadFile
             this._entries.Remove(xxhash);
         }
 
-        public void Dispose()
+        public void Dispose() => Dispose(true);
+
+        protected virtual void Dispose(bool disposing)
         {
-            if(this._isDisposed is false)
+            if (!_disposedValue)
             {
-                foreach(var entry in this._entries)
+                if (disposing)
                 {
-                    entry.Value.DataStream.Dispose();
+                    foreach (var entry in this._entries)
+                    {
+                        entry.Value.DataStream.Dispose();
+                    }
                 }
+
+                _disposedValue = true;
             }
         }
     }
