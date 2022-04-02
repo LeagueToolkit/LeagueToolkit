@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.Helpers.Exceptions;
-using LeagueToolkit.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,6 +16,8 @@ namespace LeagueToolkit.IO.PropertyBin
 
         public ReadOnlyCollection<BinTreeObject> Objects { get; }
         private List<BinTreeObject> _objects = new();
+
+        public uint Version { get; }
 
         public BinTree()
         {
@@ -45,13 +46,13 @@ namespace LeagueToolkit.IO.PropertyBin
                     if (magic != "PROP") throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
                 }
 
-                uint version = br.ReadUInt32();
-                if (version != 1 && version != 2 && version != 3)
+                Version = br.ReadUInt32();
+                if (Version != 1 && Version != 2 && Version != 3)
                 {
                     throw new UnsupportedFileVersionException();
                 }
 
-                if (version >= 2)
+                if (Version >= 2)
                 {
                     uint dependencyCount = br.ReadUInt32();
                     for (int i = 0; i < dependencyCount; i++)
@@ -74,18 +75,23 @@ namespace LeagueToolkit.IO.PropertyBin
             }
         }
 
-        public void Write(string fileLocation, Version version)
+        public void Write(string fileLocation) => Write(fileLocation, Version);
+
+        public void Write(string fileLocation, uint version)
         {
-            Write(File.OpenWrite(fileLocation), version);
+            Write(File.Create(fileLocation), version);
         }
-        public void Write(Stream stream, Version version, bool leaveOpen = false)
+
+        public void Write(Stream stream, bool leaveOpen = false) => Write(stream, Version, leaveOpen);
+
+        public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
-                bw.Write(version.PackToInt()); // version
+                bw.Write(version); // version
 
-                if(version.Major >= 2)
+                if(version >= 2)
                 {
                     bw.Write(this.Dependencies.Count);
                     foreach (string dependency in this.Dependencies)
