@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.WorldGeometry
 {
@@ -65,9 +66,8 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public WorldGeometryModel(BinaryReader br)
         {
-            this.Texture = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
-            this.Material = Encoding.ASCII.GetString(br.ReadBytes(64));
-            this.Material = this.Material.Remove(this.Material.IndexOf("\0", StringComparison.Ordinal));
+            this.Texture = br.ReadPaddedString(260);
+            this.Material = br.ReadPaddedString(64);
             this.Sphere = new R3DSphere(br);
             this.BoundingBox = new R3DBox(br);
 

@@ -18,16 +18,16 @@ namespace LeagueToolkit.IO.NVR
 
         public NVRMaterial(BinaryReader br, bool readOld)
         {
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
+            this.Name = br.ReadPaddedString(260);
             this.Type = (NVRMaterialType)br.ReadInt32();
             if(readOld)
             {
                 Color diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
-                string diffuseName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
+                string diffuseName = br.ReadPaddedString(260);
                 this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, R3DMatrix44.IdentityR3DMatrix44()));
 
                 Color emmisiveColor = br.ReadColor(ColorFormat.RgbaF32);
-                string emissiveName = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
+                string emissiveName = br.ReadPaddedString(260);
                 this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, R3DMatrix44.IdentityR3DMatrix44()));
 
                 for (int i = 0; i < 6; i++)

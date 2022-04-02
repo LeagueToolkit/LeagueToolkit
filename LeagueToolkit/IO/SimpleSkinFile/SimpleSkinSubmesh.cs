@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
@@ -26,7 +27,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
         public SimpleSkinSubmesh(BinaryReader br)
         {
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
+            this.Name = br.ReadPaddedString(64);
             this._startVertex = br.ReadUInt32();
             this._vertexCount = br.ReadUInt32();
             this._startIndex = br.ReadUInt32();

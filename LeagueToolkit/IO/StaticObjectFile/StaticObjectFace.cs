@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.StaticObjectFile
 {
@@ -22,7 +23,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
         public StaticObjectFace(BinaryReader br)
         {
             this.Indices = new uint[] { br.ReadUInt32(), br.ReadUInt32(), br.ReadUInt32() };
-            this.Material = Encoding.ASCII.GetString(br.ReadBytes(64)).Replace("\0", "");
+            this.Material = br.ReadPaddedString(64);
 
             float[] uvs = new float[] { br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle(), br.ReadSingle() };
             this.UVs = new Vector2[]
@@ -68,7 +69,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
         {
             string indices = string.Format("{0} {1} {2}", this.Indices[0], this.Indices[1], this.Indices[2]);
             string uvs = string.Format("{0} {1} {2} {3} {4} {5}",
-                this.UVs[0].X, this.UVs[1].X, this.UVs[2].X, 
+                this.UVs[0].X, this.UVs[1].X, this.UVs[2].X,
                 this.UVs[0].Y, this.UVs[1].Y, this.UVs[2].Y);
 
             sw.WriteLine(string.Format("3 {0} {1} {2}", indices, this.Material, uvs));

@@ -1,6 +1,7 @@
 ﻿using LeagueToolkit.Helpers.Structures;
 using System;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -119,7 +120,7 @@ namespace LeagueToolkit.Helpers.Extensions
 
         public static string ReadPaddedString(this BinaryReader reader, int length)
         {
-            return Encoding.ASCII.GetString(reader.ReadBytes(length)).Replace("\0", "");
+            return Encoding.ASCII.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
         }
         public static string ReadZeroTerminatedString(this BinaryReader reader)
         {

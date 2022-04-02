@@ -73,7 +73,7 @@ namespace LeagueToolkit.IO.MapObjects
         /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
         public MOBObject(BinaryReader br)
         {
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(62)).Replace("\0", "");
+            this.Name = br.ReadPaddedString(62);
             this.Type = (MOBObjectType)br.ReadByte();
             this.IgnoreCollisionOnPlacement = br.ReadBoolean();
             this.Position = br.ReadVector3();

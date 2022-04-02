@@ -14,7 +14,7 @@ namespace LeagueToolkit.IO.NVR
         public NVRChannel(BinaryReader br)
         {
             this.Color = br.ReadColor(ColorFormat.RgbaF32);
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(260)).Replace("\0", "");
+            this.Name = br.ReadPaddedString(260);
             this.Matrix = new R3DMatrix44(br);
         }
 

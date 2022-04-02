@@ -46,7 +46,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
                     throw new UnsupportedFileVersionException();
                 }
 
-                string name = Encoding.ASCII.GetString(br.ReadBytes(128)).Replace("\0", "");
+                string name = br.ReadPaddedString(128);
                 uint vertexCount = br.ReadUInt32();
                 uint faceCount = br.ReadUInt32();
                 StaticObjectFlags flags = (StaticObjectFlags)br.ReadUInt32();
@@ -349,7 +349,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
                 }
 
                 sw.WriteLine("Verts= " + vertices.Count);
-                vertices.ForEach(vertex => 
+                vertices.ForEach(vertex =>
                 {
                     sw.WriteLine("{0} {1} {2}", vertex.Position.X, vertex.Position.Y, vertex.Position.Z);
                 });
