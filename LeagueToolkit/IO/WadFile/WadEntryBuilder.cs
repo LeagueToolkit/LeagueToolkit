@@ -95,9 +95,12 @@ namespace LeagueToolkit.IO.WadFile
 
             return WithGenericDataStream(filePath, stream);
         }
-        public WadEntryBuilder WithGenericDataStream(string path, Stream stream)
+
+        public WadEntryBuilder WithGenericDataStream(LeagueFileType fileType, Stream stream) => WithGenericDataStream($".{Utilities.GetExtension(fileType)}", stream);
+        public WadEntryBuilder WithGenericDataStream(string path, Stream stream) => WithGenericDataStream(Utilities.GetExtensionWadCompressionType(Path.GetExtension(path)), stream);
+        public WadEntryBuilder WithGenericDataStream(WadEntryType entryType, Stream stream)
         {
-            this.EntryType = Utilities.GetExtensionWadCompressionType(Path.GetExtension(path));
+            this.EntryType = entryType;
             this.DataStream = stream;
             this._isGenericDataStream = true;
             this.Checksum = new byte[8];
