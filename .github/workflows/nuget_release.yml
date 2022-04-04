@@ -1,8 +1,10 @@
 name: NuGet Publish
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [ release ]
+  pull_request:
+    branches: [ release ]
 
 jobs:
   build:
@@ -20,7 +22,6 @@ jobs:
     - name: Build
       run: dotnet build LeagueToolkit --configuration Release --no-restore
     - name: Publish NuGet
-      if: startsWith(github.ref, 'refs/heads/release')
       id: publish_nuget
       uses: rohith/publish-nuget@v2
       with:
