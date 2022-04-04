@@ -2,9 +2,9 @@ name: .NET build
 
 on:
   push:
-    branches: [ master, release ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, release ]
+    branches: [ master ]
 
 jobs:
   build:
@@ -23,10 +23,3 @@ jobs:
       run: dotnet build LeagueToolkit --configuration Release --no-restore
     - name: Test
       run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
-    - name: Publish NuGet
-      if: startsWith(github.ref, 'refs/heads/release')
-      id: publish_nuget
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: LeagueToolkit/LeagueToolkit.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
