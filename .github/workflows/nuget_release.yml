@@ -1,0 +1,29 @@
+name: NuGet Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.x
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build LeagueToolkit --configuration Release --no-restore
+    - name: Publish NuGet
+      if: startsWith(github.ref, 'refs/heads/release')
+      id: publish_nuget
+      uses: rohith/publish-nuget@v2
+      with:
+        PROJECT_FILE_PATH: LeagueToolkit/LeagueToolkit.csproj
+        VERSION_REGEX: ^\s*<Version>(.*)<\/Version>\s*$
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
