@@ -14,7 +14,6 @@ using LeagueToolkit.IO.WadFile;
 using LeagueToolkit.IO.WGT;
 using LeagueToolkit.IO.WorldGeometry;
 using Newtonsoft.Json;
-using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
 using System.IO;
