@@ -36,7 +36,7 @@
     <None Include="fantome.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
-  <!-- allow Internal Variable in IO.Extensions project -->
+  <!-- allow IO.Extensions to access the internal fields/properties... -->
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
       <_Parameter1>LeagueToolkit.IO.Extensions</_Parameter1>
