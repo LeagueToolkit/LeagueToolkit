@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LeagueToolkit.Helpers.Hashing;
+using LeagueToolkit.IO.PropertyBin.Properties;
 
 namespace LeagueToolkit.IO.PropertyBin
 {
@@ -15,13 +17,17 @@ namespace LeagueToolkit.IO.PropertyBin
         public List<string> Dependencies { get; private set; } = new();
 
         public ReadOnlyCollection<BinTreeObject> Objects { get; }
-        private List<BinTreeObject> _objects = new();
+        private readonly List<BinTreeObject> _objects = new();
+
+        public ReadOnlyCollection<BinTreePatchObject> PatchObjects { get; }
+        private readonly List<BinTreePatchObject> _patchObjects = new();
 
         public uint Version { get; }
 
         public BinTree()
         {
             this.Objects = this._objects.AsReadOnly();
+            this.PatchObjects = this._patchObjects.AsReadOnly();
         }
         public BinTree(string fileLocation) : this(File.OpenRead(fileLocation))
         {
@@ -72,6 +78,47 @@ namespace LeagueToolkit.IO.PropertyBin
                 {
                     treeObject.ReadData(br);
                 }
+
+                if (Version >= 3 && IsOverride)
+                {
+                    ReadPatchSection(br);
+                }
+            }
+        }
+
+        private void ReadPatchSection(BinaryReader br)
+        {
+            uint objectCount = br.ReadUInt32();
+            for (int i = 0; i < objectCount; i++)
+            {
+                uint pathHash = br.ReadUInt32();
+                uint size = br.ReadUInt32();
+                BinPropertyType type = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+                string objectPath = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16()));
+
+                if (!this._patchObjects.Exists(o => o.PathHash == pathHash))
+                {
+                    this._patchObjects.Add(new BinTreePatchObject(pathHash));
+                }
+
+                IBinNestedProvider currentObject = this._patchObjects.Find(o => o.PathHash == pathHash);
+
+                string[] parts = objectPath.Split('.');
+                string valueName = parts[^1];
+                foreach (string part in parts)
+                {
+                    if (part == valueName) break; // don't handle the value part
+                    uint nameHash = Fnv1a.HashLower(part);
+                    if (currentObject.Properties.Find(p => p.NameHash == nameHash) == null)
+                    {
+                        currentObject.Properties.Add(new BinTreeNested(currentObject, nameHash));
+                    }
+
+                    currentObject = (IBinNestedProvider)currentObject.Properties.Find(p => p.NameHash == nameHash);
+                }
+
+                // set the actual value to the deepest BinNested
+                currentObject.Properties.Add(BinTreeProperty.Read(br, null, type));
             }
         }
 
