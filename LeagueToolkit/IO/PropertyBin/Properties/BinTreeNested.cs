@@ -30,10 +30,26 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
         protected override void WriteContent(BinaryWriter bw) => throw new NotImplementedException();
         internal override int GetSize(bool includeHeader) => throw new NotImplementedException();
 
-        public List<BinTreeProperty> Properties { get; } = new();
+        public List<(BinTreeProperty, string)> Properties { get; } = new();
 
         public BinTreeNested(IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
         {
+        }
+
+        public IEnumerable<(string, BinTreeProperty)> GetObjects()
+        {
+            foreach ((BinTreeProperty property, string name) in Properties)
+            {
+                if (property is BinTreeNested nested)
+                {
+                    foreach ((string nestedName, BinTreeProperty p) in nested.GetObjects())
+                        yield return ($"{name}.{nestedName}", p);
+                }
+                else
+                {
+                    yield return (name, property);
+                }
+            }
         }
     }
 }
