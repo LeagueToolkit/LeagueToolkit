@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit", "LeagueToolkit\LeagueToolkit.csproj", "{B7C8408C-8674-485E-94DA-8D67EC03FF6A}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Tests", "LeagueToolkit.Tests\LeagueToolkit.Tests.csproj", "{B5638E2D-0C71-4E04-ADB4-9796339AE6C0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Meta.Classes", "LeagueToolkit.Meta.Classes\LeagueToolkit.Meta.Classes.csproj", "{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.IO.Extensions", "LeagueToolkit.IO.Extensions\LeagueToolkit.IO.Extensions.csproj", "{160F2EA0-DDBB-4739-B018-B9CEAEDB7E05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}.Debug|x64.Build.0 = Debug|x64
 		{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}.Release|x64.ActiveCfg = Release|x64
 		{4C8F6B5E-066E-4994-969F-9BB4FDAF0371}.Release|x64.Build.0 = Release|x64
+		{160F2EA0-DDBB-4739-B018-B9CEAEDB7E05}.Debug|x64.ActiveCfg = Debug|x64
+		{160F2EA0-DDBB-4739-B018-B9CEAEDB7E05}.Debug|x64.Build.0 = Debug|x64
+		{160F2EA0-DDBB-4739-B018-B9CEAEDB7E05}.Release|x64.ActiveCfg = Release|x64
+		{160F2EA0-DDBB-4739-B018-B9CEAEDB7E05}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,7 +30,7 @@ namespace LeagueToolkit.IO.SkeletonFile
             }
         }
 
-        internal SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale, Quaternion localRotation)
+        public SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale, Quaternion localRotation)
         {
             this.ID = id;
             this.ParentID = parentId;
