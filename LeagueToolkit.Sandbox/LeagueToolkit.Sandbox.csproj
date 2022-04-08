@@ -6,7 +6,6 @@
     <LangVersion>preview</LangVersion>
     <AssemblyName>LeagueToolkit.Sandbox</AssemblyName>
     <RootNamespace>LeagueToolkit.Sandbox</RootNamespace>
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

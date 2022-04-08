@@ -1,5 +1,4 @@
-﻿using LeagueToolkit.Helpers.Compression;
-using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Helpers.Exceptions;
 using FlatSharp;
 using System;
 using System.Collections.Generic;
@@ -61,7 +60,10 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
                     byte[] signature = br.ReadBytes(256);
                     // NOTE: verify signature here
                 }
-                byte[] uncompressedFile = Zstd.Decompress(compressedFile, (int)uncompressedContentSize);
+
+                using var decompressor = new Decompressor();
+                    var uncompressedFile = decompressor.Unwrap(compressedFile).ToArray();
+
                 this._body = FlatBufferSerializer.Default.Parse<ReleaseManifestBody>(uncompressedFile);
             }
         }
@@ -80,7 +82,9 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
             int uncompressedContentSize = FlatBufferSerializer.Default.Serialize(this._body, uncompressedFile);
             Array.Resize(ref uncompressedFile, uncompressedContentSize);
 
-            byte[] compressedFile = Zstd.Compress(uncompressedFile);
+            using var compressor = new Compressor();
+                var compressedFile = compressor.Wrap(uncompressedFile).ToArray();
+
             int compressedContentSize = compressedFile.Length;
 
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
