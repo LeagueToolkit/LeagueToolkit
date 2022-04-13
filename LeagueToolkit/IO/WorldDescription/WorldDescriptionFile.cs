@@ -15,7 +15,7 @@ namespace LeagueToolkit.IO.WorldDescription
         public List<WorldDescriptionObject> Objects { get; set; } = new List<WorldDescriptionObject>();
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public WorldDescriptionFile() { }
 
@@ -46,7 +46,7 @@ namespace LeagueToolkit.IO.WorldDescription
         /// <param name="fileLocation">The location to write to</param>
         public void Write(string fileLocation)
         {
-            Write(File.OpenWrite(fileLocation));
+            Write(File.Create(fileLocation));
         }
 
         /// <summary>

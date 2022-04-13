@@ -18,11 +18,11 @@ namespace LeagueToolkit.Meta.Dump
 
         public void WriteMetaClasses(string fileLocation, ICollection<string> classNames, ICollection<string> propertyNames)
         {
-            WriteMetaClasses(File.OpenWrite(fileLocation), classNames, propertyNames);
+            WriteMetaClasses(File.Create(fileLocation), classNames, propertyNames);
         }
         public void WriteMetaClasses(string fileLocation, Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
-            WriteMetaClasses(File.OpenWrite(fileLocation), classNames, propertyNames);
+            WriteMetaClasses(File.Create(fileLocation), classNames, propertyNames);
         }
         public void WriteMetaClasses(Stream stream, ICollection<string> classNames, ICollection<string> propertyNames)
         {
@@ -156,9 +156,9 @@ namespace LeagueToolkit.Meta.Dump
         }
 
         private void WriteProperty(StreamWriter sw,
-            string classHash, MetaDumpClass dumpClass, 
+            string classHash, MetaDumpClass dumpClass,
             string propertyHash, MetaDumpProperty property,
-            bool isPublic, 
+            bool isPublic,
             Dictionary<uint, string> classNames, Dictionary<uint, string> propertyNames)
         {
             WritePropertyAttribute(sw, propertyHash, property, classNames, propertyNames);
