@@ -25,6 +25,13 @@ namespace LeagueToolkit.IO.PropertyBin
             this.NameHash = nameHash;
         }
 
+        internal static BinTreeProperty Read(BinaryReader br, IBinTreeParent parent, BinPropertyType type, uint nameHash)
+        {
+            BinTreeProperty x = Read(br, parent, type);
+            x.NameHash = nameHash;
+            return x;
+        }
+
         internal static BinTreeProperty Read(BinaryReader br, IBinTreeParent parent, BinPropertyType? type = null)
         {
             uint nameHash = 0;

@@ -5,6 +5,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using LeagueToolkit.Helpers.Hashing;
+using LeagueToolkit.IO.PropertyBin.Properties;
 
 namespace LeagueToolkit.IO.PropertyBin
 {
@@ -15,13 +17,18 @@ namespace LeagueToolkit.IO.PropertyBin
         public List<string> Dependencies { get; private set; } = new();
 
         public ReadOnlyCollection<BinTreeObject> Objects { get; }
-        private List<BinTreeObject> _objects = new();
+        private readonly List<BinTreeObject> _objects = new();
+
+        public ReadOnlyCollection<BinTreePatchObject> PatchObjects { get; }
+        private readonly List<BinTreePatchObject> _patchObjects = new();
+        private uint _patchObjectCount;
 
         public uint Version { get; }
 
         public BinTree()
         {
             this.Objects = this._objects.AsReadOnly();
+            this.PatchObjects = this._patchObjects.AsReadOnly();
         }
         public BinTree(string fileLocation) : this(File.OpenRead(fileLocation))
         {
@@ -72,6 +79,48 @@ namespace LeagueToolkit.IO.PropertyBin
                 {
                     treeObject.ReadData(br);
                 }
+
+                if (Version >= 3 && IsOverride)
+                {
+                    ReadPatchSection(br);
+                }
+            }
+        }
+
+        private void ReadPatchSection(BinaryReader br)
+        {
+            _patchObjectCount = br.ReadUInt32();
+            for (int i = 0; i < _patchObjectCount; i++)
+            {
+                uint pathHash = br.ReadUInt32();
+                uint size = br.ReadUInt32();
+                BinPropertyType type = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+                string objectPath = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
+
+                if (!this._patchObjects.Exists(o => o.PathHash == pathHash))
+                {
+                    this._patchObjects.Add(new BinTreePatchObject(pathHash));
+                }
+
+                IBinNestedProvider currentObject = this._patchObjects.Find(o => o.PathHash == pathHash);
+
+                string[] parts = objectPath.Split('.');
+                string valueName = parts[^1];
+                foreach (string part in parts)
+                {
+                    if (part == valueName) break; // don't handle the value part
+                    uint nameHash = Fnv1a.HashLower(part);
+                    if (currentObject.Properties.Find(((BinTreeProperty property, string) p) => p.property.NameHash == nameHash) == (null, null))
+                    {
+                        currentObject.Properties.Add((new BinTreeNested(currentObject, nameHash), part));
+                    }
+
+                    (BinTreeProperty property, _) = currentObject.Properties.Find(((BinTreeProperty property, string) p) => p.property.NameHash == nameHash);
+                    currentObject = (IBinNestedProvider)property;
+                }
+
+                // set the actual value to the deepest BinNested
+                currentObject.Properties.Add((BinTreeProperty.Read(br, currentObject, type, Fnv1a.HashLower(valueName)), valueName));
             }
         }
 
@@ -88,10 +137,17 @@ namespace LeagueToolkit.IO.PropertyBin
         {
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
             {
+                if (IsOverride)
+                {
+                    bw.Write(Encoding.ASCII.GetBytes("PTCH"));
+                    bw.Write(1); // unknown
+                    bw.Write(0); // unknown
+                }
+
                 bw.Write(Encoding.ASCII.GetBytes("PROP"));
                 bw.Write(version); // version
 
-                if(version >= 2)
+                if (version >= 2)
                 {
                     bw.Write(this.Dependencies.Count);
                     foreach (string dependency in this.Dependencies)
@@ -109,6 +165,15 @@ namespace LeagueToolkit.IO.PropertyBin
                 foreach (BinTreeObject treeObject in this._objects)
                 {
                     treeObject.WriteContent(bw);
+                }
+
+                if (version >= 3 && IsOverride)
+                {
+                    bw.Write(this._patchObjectCount);
+                    foreach (BinTreePatchObject patchObject in this._patchObjects)
+                    {
+                        patchObject.Write(bw);
+                    }
                 }
             }
         }
