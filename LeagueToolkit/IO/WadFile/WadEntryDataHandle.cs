@@ -70,7 +70,8 @@ namespace LeagueToolkit.IO.WadFile
                 }
                 case WadEntryType.ZStandardCompressed or WadEntryType.ZStandardChunked:
                 {
-                    byte[] decompressedData = Zstd.Decompress(compressedData, this._entry.UncompressedSize);
+                    using var decompressor = new Decompressor();
+                    var decompressedData = decompressor.Unwrap(compressedData).ToArray();
 
                     return new MemoryStream(decompressedData);
                 }

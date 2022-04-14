@@ -5,8 +5,6 @@
 
     <IsPackable>false</IsPackable>
 
-    <Platforms>x64</Platforms>
-
     <AssemblyName>LeagueToolkit.Tests</AssemblyName>
 
     <RootNamespace>LeagueToolkit.Tests</RootNamespace>

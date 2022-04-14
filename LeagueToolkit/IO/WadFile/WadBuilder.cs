@@ -102,9 +102,9 @@ namespace LeagueToolkit.IO.WadFile
                     }
                     case WadEntryType.ZStandardCompressed or WadEntryType.ZStandardChunked:
                     {
-                        using (ZstdStream zstdStream = new ZstdStream(compressedStream, ZstdStreamMode.Compress, true))
+                        using (var compressorStream = new CompressionStream(compressedStream))
                         {
-                            entryBuilder.DataStream.CopyTo(zstdStream);
+                            entryBuilder.DataStream.CopyTo(compressorStream);
                         }
 
                         entryBuilder.DataStream = compressedStream;
