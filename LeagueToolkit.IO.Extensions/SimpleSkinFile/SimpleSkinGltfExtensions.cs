@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.Helpers.Cryptography;
-using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.SkeletonFile;
 using SharpGLTF.Animations;
@@ -14,8 +13,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using CSharpImageLibrary;
-using GltfAnimation = SharpGLTF.Schema2.Animation;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
@@ -25,7 +22,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
     public static class SimpleSkinGltfExtensions
     {
-        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, ImageEngineImage> materialTextues = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Dictionary<string, SixLabors.ImageSharp.Image> materialTextues = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder("model");
             var meshBuilder = VERTEX.CreateCompatibleMesh();
@@ -38,7 +35,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 // Assign submesh Image
                 if(materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
                 {
-                    ImageEngineImage submeshImage = materialTextues[submesh.Name];
+                    var submeshImage = materialTextues[submesh.Name];
                     AssignMaterialTexture(material, submeshImage);
                 }
 
@@ -67,7 +64,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             return sceneBuilder.ToGltf2();
         }
-        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, ImageEngineImage> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
+        public static ModelRoot ToGltf(this SimpleSkin skn, Skeleton skeleton, Dictionary<string, SixLabors.ImageSharp.Image> materialTextues = null, List<(string, LeagueAnimation)> leagueAnimations = null)
         {
             SceneBuilder sceneBuilder = new SceneBuilder();
             NodeBuilder rootNodeBuilder = new NodeBuilder("model");
@@ -84,7 +81,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 // Assign submesh Image
                 if (materialTextues is not null && materialTextues.ContainsKey(submesh.Name))
                 {
-                    ImageEngineImage submeshImage = materialTextues[submesh.Name];
+                    var submeshImage = materialTextues[submesh.Name];
                     AssignMaterialTexture(material, submeshImage);
                 }
 
@@ -131,14 +128,15 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return sceneBuilder.ToGltf2();
         }
 
-        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, ImageEngineImage texture)
+        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, SixLabors.ImageSharp.Image texture)
         {
-            byte[] textureAsPng = texture.Save(new ImageFormats.ImageEngineFormatDetails(ImageEngineFormat.PNG), MipHandling.KeepTopOnly);
+            MemoryStream textureStream = new MemoryStream();
+            texture.Save(textureStream, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
 
             materialBuilder
                 .UseChannel(KnownChannel.BaseColor)
                 .UseTexture()
-                .WithPrimaryImage(textureAsPng);
+                .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
         }
         private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(NodeBuilder rootNode, Skeleton skeleton)
         {

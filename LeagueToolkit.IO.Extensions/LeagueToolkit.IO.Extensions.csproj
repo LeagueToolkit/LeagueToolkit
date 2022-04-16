@@ -22,8 +22,8 @@
 
   <!-- package references -->
   <ItemGroup>
-    <PackageReference Include="CSharpImageLibrary" Version="4.2.0" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
   </ItemGroup>
 
   <!-- project references -->
