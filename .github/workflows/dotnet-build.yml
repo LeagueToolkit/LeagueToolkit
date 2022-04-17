@@ -19,14 +19,17 @@ jobs:
         dotnet-version: 6.x
     - name: Install dependencies
       run: dotnet restore
+      working-directory: src
     - name: Build
       run: dotnet build LeagueToolkit --configuration Release --no-restore
+      working-directory: src
     - name: Test
       run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
+      working-directory: src
     - name: Publish NuGet
       if: startsWith(github.ref, 'refs/heads/release')
       id: publish_nuget
       uses: rohith/publish-nuget@v2
       with:
-        PROJECT_FILE_PATH: LeagueToolkit/LeagueToolkit.csproj
+        PROJECT_FILE_PATH: src/LeagueToolkit/LeagueToolkit.csproj
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
