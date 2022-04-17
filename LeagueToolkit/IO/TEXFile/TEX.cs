@@ -18,8 +18,8 @@ namespace LeagueToolkit.IO.TEXFile
 
         public struct TEXHeader
         {
-            public ushort Width;
-            public ushort Height;
+            public ushort width;
+            public ushort height;
             public TEXFormat format;
             public bool hasMipmaps;
         }
@@ -46,8 +46,8 @@ namespace LeagueToolkit.IO.TEXFile
 
             TEXHeader texHeader = new()
             {
-                Width = br.ReadUInt16(),
-                Height = br.ReadUInt16()
+                width = br.ReadUInt16(),
+                height = br.ReadUInt16()
             };
             stream.Seek(1, SeekOrigin.Current); // unknown, always 1
             texHeader.format = (TEXFormat)br.ReadByte();
@@ -60,22 +60,23 @@ namespace LeagueToolkit.IO.TEXFile
             texHeader.hasMipmaps = br.ReadBoolean();
             Header = texHeader;
 
-            MipMapCount = Header.hasMipmaps ? (int)Math.Log(Math.Max(Header.Width, Header.Height), 2) : 0;
+            MipMapCount = Header.hasMipmaps ? (int)Math.Log(Math.Max(Header.width, Header.height), 2) : 0;
             if (MipMapCount > 0)
             {
                 MipMapsBuffer = new byte[MipMapCount][];
                 // mipmaps are written in order from smallest to largest
                 for (int i = MipMapCount; i > 0; i--)
                 {
-                    int currentWidth = Math.Max(Header.Width / (1 << i), MIN_WIDTH);
-                    int currentHeight = Math.Max(Header.Height / (1 << i), MIN_HEIGHT);
+                    int currentWidth = Math.Max(Header.width / (1 << i), MIN_WIDTH);
+                    int currentHeight = Math.Max(Header.height / (1 << i), MIN_HEIGHT);
                     MipMapsBuffer[i - 1] = br.ReadBytes(currentWidth * currentHeight);
                 }
             }
 
-            TextureBuffer = br.ReadBytes(Header.Width * Header.Height);
+            TextureBuffer = br.ReadBytes(Header.width * Header.height);
         }
 
+        public void ToDds(string fileLocation) => ToDds(File.Create(fileLocation), false);
         public void ToDds(Stream stream, bool leaveOpen = true)
         {
             using BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen);
@@ -91,9 +92,9 @@ namespace LeagueToolkit.IO.TEXFile
             bw.Write(Encoding.ASCII.GetBytes("DDS ")); // magic
             bw.Write(124); // header size
             bw.Write(dwFlags);
-            bw.Write((int)Header.Height);
-            bw.Write((int)Header.Width);
-            bw.Write(Header.Width * Header.Height); // dwPitchOrLinearSize
+            bw.Write((int)Header.height);
+            bw.Write((int)Header.width);
+            bw.Write(Header.width * Header.height); // dwPitchOrLinearSize
             bw.Seek(4, SeekOrigin.Current);
             bw.Write(MipMapCount + 1);
             bw.Seek(4 * 11, SeekOrigin.Current);
@@ -109,6 +110,27 @@ namespace LeagueToolkit.IO.TEXFile
             {
                 bw.Write(MipMapsBuffer[i]);
             }
+        }
+
+        public void Write(string fileLocation) => Write(File.Create(fileLocation), false);
+        public void Write(Stream stream, bool leaveOpen = true)
+        {
+            using BinaryWriter bw = new BinaryWriter(stream, Encoding.ASCII, leaveOpen);
+            bw.Write(Encoding.ASCII.GetBytes(TEX_MAGIC));
+            bw.Write(Header.width);
+            bw.Write(Header.height);
+            bw.Write((byte)1); // unknown
+            bw.Write((byte)Header.format);
+            bw.Write((byte)0); // unknown
+            bw.Write(Header.hasMipmaps);
+
+            // mipmaps are written in order from smallest to largest
+            for (int i = MipMapCount; i > 0; i--)
+            {
+                bw.Write(MipMapsBuffer[i - 1]);
+            }
+
+            bw.Write(TextureBuffer);
         }
     }
 }
