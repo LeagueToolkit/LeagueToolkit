@@ -103,7 +103,7 @@ namespace LeagueToolkit.Tests
                 string entryFileName = "temp/" + entry.XXHash + "." + Utilities.GetExtension(Utilities.GetExtensionType(entryDecompressedStream));
 
                 // Extract entry data to temporary file
-                using (FileStream writeEntryFileStream = File.OpenWrite(entryFileName))
+                using (FileStream writeEntryFileStream = File.Create(entryFileName))
                 {
                     entry.GetDataHandle().GetDecompressedStream().CopyTo(writeEntryFileStream);
                 }

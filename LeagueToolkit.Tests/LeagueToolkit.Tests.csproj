@@ -1,39 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- project settings -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
-    <AssemblyName>LeagueToolkit.Tests</AssemblyName>
-
-    <RootNamespace>LeagueToolkit.Tests</RootNamespace>
   </PropertyGroup>
 
+  <!-- settings for test wad-files -->
   <ItemGroup>
-    <None Remove="files\wad\Aatrox.wad.client" />
-    <None Remove="files\wad\Aphelios.wad.client" />
-    <None Remove="files\wad\Yone.wad.client" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="files\wad\Aatrox.wad.client">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\wad\Aphelios.wad.client">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="files\wad\Yone.wad.client">
+    <Content Include="files\wad\*.wad.client">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
+  <!-- package references -->
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
   </ItemGroup>
 
+  <!-- project references -->
   <ItemGroup>
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
   </ItemGroup>
