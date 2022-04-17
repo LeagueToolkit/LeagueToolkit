@@ -81,7 +81,7 @@ namespace LeagueToolkit.IO.LightGrid
 
         public void WriteTexture(string fileLocation)
         {
-            using (BinaryWriter bw = new BinaryWriter(File.OpenWrite(fileLocation)))
+            using (BinaryWriter bw = new BinaryWriter(File.Create(fileLocation)))
             {
                 bw.Write((byte)0); //ID Length
                 bw.Write((byte)0); //ColorMap Type

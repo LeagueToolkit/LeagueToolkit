@@ -42,7 +42,7 @@ namespace LeagueToolkit.IO.WadFile
             return this;
         }
 
-        public void Build(string fileLocation) => Build(File.OpenWrite(fileLocation), false);
+        public void Build(string fileLocation) => Build(File.Create(fileLocation), false);
         public void Build(Stream stream, bool leaveOpen)
         {
             using Wad wad = new();
