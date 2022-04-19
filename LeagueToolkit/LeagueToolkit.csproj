@@ -18,6 +18,7 @@
     <Authors>Crauzer</Authors>
     <PackageIcon>fantome.png</PackageIcon>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <!-- package references -->

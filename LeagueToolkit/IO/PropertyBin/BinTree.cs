@@ -80,7 +80,7 @@ namespace LeagueToolkit.IO.PropertyBin
                     treeObject.ReadData(br);
                 }
 
-                if (Version >= 3 && IsOverride)
+                if (this.Version >= 3 && this.IsOverride)
                 {
                     ReadPatchSection(br);
                 }
@@ -89,8 +89,8 @@ namespace LeagueToolkit.IO.PropertyBin
 
         private void ReadPatchSection(BinaryReader br)
         {
-            _patchObjectCount = br.ReadUInt32();
-            for (int i = 0; i < _patchObjectCount; i++)
+            this._patchObjectCount = br.ReadUInt32();
+            for (int i = 0; i < this._patchObjectCount; i++)
             {
                 uint pathHash = br.ReadUInt32();
                 uint size = br.ReadUInt32();
@@ -135,45 +135,44 @@ namespace LeagueToolkit.IO.PropertyBin
 
         public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
+            using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
+
+            if (this.IsOverride)
             {
-                if (IsOverride)
-                {
-                    bw.Write(Encoding.ASCII.GetBytes("PTCH"));
-                    bw.Write(1); // unknown
-                    bw.Write(0); // unknown
-                }
+                bw.Write(Encoding.ASCII.GetBytes("PTCH"));
+                bw.Write(1); // unknown
+                bw.Write(0); // unknown
+            }
 
-                bw.Write(Encoding.ASCII.GetBytes("PROP"));
-                bw.Write(version); // version
+            bw.Write(Encoding.ASCII.GetBytes("PROP"));
+            bw.Write(version); // version
 
-                if (version >= 2)
+            if (version >= 2)
+            {
+                bw.Write(this.Dependencies.Count);
+                foreach (string dependency in this.Dependencies)
                 {
-                    bw.Write(this.Dependencies.Count);
-                    foreach (string dependency in this.Dependencies)
-                    {
-                        bw.Write((ushort)dependency.Length);
-                        bw.Write(Encoding.UTF8.GetBytes(dependency));
-                    }
+                    bw.Write((ushort)dependency.Length);
+                    bw.Write(Encoding.UTF8.GetBytes(dependency));
                 }
+            }
 
-                bw.Write(this._objects.Count);
-                foreach (BinTreeObject treeObject in this._objects)
-                {
-                    bw.Write(treeObject.MetaClassHash);
-                }
-                foreach (BinTreeObject treeObject in this._objects)
-                {
-                    treeObject.WriteContent(bw);
-                }
+            bw.Write(this._objects.Count);
+            foreach (BinTreeObject treeObject in this._objects)
+            {
+                bw.Write(treeObject.MetaClassHash);
+            }
+            foreach (BinTreeObject treeObject in this._objects)
+            {
+                treeObject.WriteContent(bw);
+            }
 
-                if (version >= 3 && IsOverride)
+            if (version >= 3 && this.IsOverride)
+            {
+                bw.Write(this._patchObjectCount);
+                foreach (BinTreePatchObject patchObject in this._patchObjects)
                 {
-                    bw.Write(this._patchObjectCount);
-                    foreach (BinTreePatchObject patchObject in this._patchObjects)
-                    {
-                        patchObject.Write(bw);
-                    }
+                    patchObject.Write(bw);
                 }
             }
         }

@@ -9,6 +9,33 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
     {
         public override BinPropertyType Type => BinPropertyType.None;
 
+        public List<(BinTreeProperty, string)> Properties { get; } = new();
+
+        public BinTreeNested(IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
+        {
+        }
+
+        protected override void WriteContent(BinaryWriter bw) => throw new NotImplementedException();
+        internal override int GetSize(bool includeHeader) => throw new NotImplementedException();
+
+        public IEnumerable<(string, BinTreeProperty)> GetObjects()
+        {
+            foreach ((BinTreeProperty property, string name) in this.Properties)
+            {
+                if (property is BinTreeNested nested)
+                {
+                    foreach ((string nestedName, BinTreeProperty p) in nested.GetObjects())
+                    {
+                        yield return ($"{name}.{nestedName}", p);
+                    }
+                }
+                else
+                {
+                    yield return (name, property);
+                }
+            }
+        }
+
         public override bool Equals(BinTreeProperty other)
         {
             if (other is BinTreeNested otherProperty)
@@ -25,31 +52,6 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
             }
 
             return false;
-        }
-
-        protected override void WriteContent(BinaryWriter bw) => throw new NotImplementedException();
-        internal override int GetSize(bool includeHeader) => throw new NotImplementedException();
-
-        public List<(BinTreeProperty, string)> Properties { get; } = new();
-
-        public BinTreeNested(IBinTreeParent parent, uint nameHash) : base(parent, nameHash)
-        {
-        }
-
-        public IEnumerable<(string, BinTreeProperty)> GetObjects()
-        {
-            foreach ((BinTreeProperty property, string name) in Properties)
-            {
-                if (property is BinTreeNested nested)
-                {
-                    foreach ((string nestedName, BinTreeProperty p) in nested.GetObjects())
-                        yield return ($"{name}.{nestedName}", p);
-                }
-                else
-                {
-                    yield return (name, property);
-                }
-            }
         }
     }
 }
