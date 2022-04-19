@@ -36,54 +36,53 @@ namespace LeagueToolkit.IO.PropertyBin
         }
         public BinTree(Stream stream) : this()
         {
-            using (BinaryReader br = new BinaryReader(stream))
+            using BinaryReader br = new(stream);
+
+            string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+            if (magic != "PROP" && magic != "PTCH")
             {
-                string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                if (magic != "PROP" && magic != "PTCH")
-                {
-                    throw new InvalidFileSignatureException();
-                }
+                throw new InvalidFileSignatureException();
+            }
 
-                if (magic == "PTCH")
-                {
-                    this.IsOverride = true;
+            if (magic == "PTCH")
+            {
+                this.IsOverride = true;
 
-                    ulong unknown = br.ReadUInt64();
-                    magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                    if (magic != "PROP") throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
-                }
+                ulong unknown = br.ReadUInt64();
+                magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+                if (magic != "PROP") throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
+            }
 
-                Version = br.ReadUInt32();
-                if (Version != 1 && Version != 2 && Version != 3)
-                {
-                    throw new UnsupportedFileVersionException();
-                }
+            this.Version = br.ReadUInt32();
+            if (this.Version != 1 && this.Version != 2 && this.Version != 3)
+            {
+                throw new UnsupportedFileVersionException();
+            }
 
-                if (Version >= 2)
+            if (this.Version >= 2)
+            {
+                uint dependencyCount = br.ReadUInt32();
+                for (int i = 0; i < dependencyCount; i++)
                 {
-                    uint dependencyCount = br.ReadUInt32();
-                    for (int i = 0; i < dependencyCount; i++)
-                    {
-                        this.Dependencies.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
-                    }
+                    this.Dependencies.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
                 }
+            }
 
-                uint objectCount = br.ReadUInt32();
-                for (int i = 0; i < objectCount; i++)
-                {
-                    uint objectMetaClass = br.ReadUInt32();
-                    this._objects.Add(new BinTreeObject(objectMetaClass));
-                }
+            uint objectCount = br.ReadUInt32();
+            for (int i = 0; i < objectCount; i++)
+            {
+                uint objectMetaClass = br.ReadUInt32();
+                this._objects.Add(new BinTreeObject(objectMetaClass));
+            }
 
-                foreach (BinTreeObject treeObject in this._objects)
-                {
-                    treeObject.ReadData(br);
-                }
+            foreach (BinTreeObject treeObject in this._objects)
+            {
+                treeObject.ReadData(br);
+            }
 
-                if (this.Version >= 3 && this.IsOverride)
-                {
-                    ReadPatchSection(br);
-                }
+            if (this.Version >= 3 && this.IsOverride)
+            {
+                ReadPatchSection(br);
             }
         }
 
@@ -124,15 +123,9 @@ namespace LeagueToolkit.IO.PropertyBin
             }
         }
 
-        public void Write(string fileLocation) => Write(fileLocation, Version);
-
-        public void Write(string fileLocation, uint version)
-        {
-            Write(File.Create(fileLocation), version);
-        }
-
-        public void Write(Stream stream, bool leaveOpen = false) => Write(stream, Version, leaveOpen);
-
+        public void Write(string fileLocation) => Write(fileLocation, this.Version);
+        public void Write(string fileLocation, uint version) => Write(File.Create(fileLocation), version);
+        public void Write(Stream stream, bool leaveOpen = false) => Write(stream, this.Version, leaveOpen);
         public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
             using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);

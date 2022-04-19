@@ -15,7 +15,7 @@ namespace LeagueToolkit.IO.PropertyBin.Properties
         {
         }
 
-        protected override void WriteContent(BinaryWriter bw) => throw new NotImplementedException();
+        override protected void WriteContent(BinaryWriter bw) => throw new NotImplementedException();
         internal override int GetSize(bool includeHeader) => throw new NotImplementedException();
 
         public IEnumerable<(string, BinTreeProperty)> GetObjects()
