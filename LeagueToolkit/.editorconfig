@@ -72,7 +72,7 @@ csharp_style_expression_bodied_accessors = true:suggestion
 #prefer block bodies for constructors
 csharp_style_expression_bodied_constructors = false:suggestion
 #prefer block bodies for methods
-csharp_style_expression_bodied_methods = false:suggestion
+csharp_style_expression_bodied_methods =when_on_single_line:suggestion
 #prefer block bodies for operators
 csharp_style_expression_bodied_operators = false:suggestion
 #prefer expression-bodied members for properties
