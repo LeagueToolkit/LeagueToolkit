@@ -32,7 +32,7 @@ namespace LeagueToolkit.IO.TEXFile
         public byte[][] MipMapsBuffer { get; } // buffer for mipmaps (if present), from largest to smallest mipmap
         public int MipMapCount { get; }
 
-        private static int BlockSize(TEXFormat format) => format switch
+        private static int GetFormatBlockSize(TEXFormat format) => format switch
         {
             TEXFormat.DXT1 => 4,
             TEXFormat.DXT5 => 4,
@@ -40,7 +40,7 @@ namespace LeagueToolkit.IO.TEXFile
             _ => 1
         };
 
-        private static int BytesPerBlock(TEXFormat format) => format switch
+        private static int GetFormatBytesPerBlock(TEXFormat format) => format switch
         {
             TEXFormat.DXT1 => 8,
             TEXFormat.DXT5 => 16,
@@ -73,6 +73,8 @@ namespace LeagueToolkit.IO.TEXFile
             stream.Seek(1, SeekOrigin.Current); // unknown, always 0
             texHeader.hasMipmaps = br.ReadBoolean();
             this.Header = texHeader;
+            int blockSize = GetFormatBlockSize(this.Header.format);
+            int bytesPerBlock = GetFormatBytesPerBlock(this.Header.format);
 
             this.MipMapCount = Header.hasMipmaps ? (int)Math.Log(Math.Max(Header.width, Header.height), 2) : 0;
             if (this.MipMapCount > 0)
@@ -83,14 +85,12 @@ namespace LeagueToolkit.IO.TEXFile
                 {
                     int currentWidth = Math.Max(this.Header.width / (1 << i), 1);
                     int currentHeight = Math.Max(this.Header.height / (1 << i), 1);
-                    int currentSize = Math.Max(currentWidth * currentHeight * BytesPerBlock(this.Header.format) /
-                                      (BlockSize(this.Header.format) * BlockSize(this.Header.format)), BytesPerBlock(this.Header.format));
+                    int currentSize = Math.Max(currentWidth * currentHeight * bytesPerBlock / (blockSize * blockSize), bytesPerBlock);
                     MipMapsBuffer[i - 1] = br.ReadBytes(currentSize);
                 }
             }
 
-            this.TextureBuffer = br.ReadBytes(Math.Max(this.Header.width * this.Header.height * BytesPerBlock(this.Header.format) /
-                                                       (BlockSize(this.Header.format) * BlockSize(this.Header.format)), BytesPerBlock(this.Header.format)));
+            this.TextureBuffer = br.ReadBytes(Math.Max(this.Header.width * this.Header.height * bytesPerBlock / (blockSize * blockSize), bytesPerBlock));
         }
 
         public void ToDds(string fileLocation) => ToDds(File.Create(fileLocation), false);
@@ -100,7 +100,7 @@ namespace LeagueToolkit.IO.TEXFile
             {
                 throw new InvalidOperationException($"Cannot convert TEX format {this.Header.format} to DDS format.");
             }
-            
+
             using BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen);
 
             int dwFlags = 0x00001007; // DDS_HEADER_FLAGS_TEXTURE
