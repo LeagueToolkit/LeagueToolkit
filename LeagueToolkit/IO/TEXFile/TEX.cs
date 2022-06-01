@@ -13,7 +13,8 @@ namespace LeagueToolkit.IO.TEXFile
             UNK2 = 2,
             UNK3 = 3,
             DXT1 = 0xA,
-            DXT5 = 0xC
+            DXT5 = 0xC,
+            RGBA8 = 0x14
         }
 
         public struct TEXHeader
@@ -31,12 +32,25 @@ namespace LeagueToolkit.IO.TEXFile
         public byte[][] MipMapsBuffer { get; } // buffer for mipmaps (if present), from largest to smallest mipmap
         public int MipMapCount { get; }
 
-        private const int MIN_WIDTH = 4;
-        private const int MIN_HEIGHT = 4;
+        private static int GetFormatBlockSize(TEXFormat format) => format switch
+        {
+            TEXFormat.DXT1 => 4,
+            TEXFormat.DXT5 => 4,
+            TEXFormat.RGBA8 => 1,
+            _ => 1
+        };
+
+        private static int GetFormatBytesPerBlock(TEXFormat format) => format switch
+        {
+            TEXFormat.DXT1 => 8,
+            TEXFormat.DXT5 => 16,
+            TEXFormat.RGBA8 => 1,
+            _ => 1
+        };
 
         public TEX(Stream stream)
         {
-            using BinaryReader br = new BinaryReader(stream);
+            using BinaryReader br = new BinaryReader(stream, Encoding.UTF8, true);
 
             string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
             if (magic != TEX_MAGIC)
@@ -58,32 +72,40 @@ namespace LeagueToolkit.IO.TEXFile
 
             stream.Seek(1, SeekOrigin.Current); // unknown, always 0
             texHeader.hasMipmaps = br.ReadBoolean();
-            Header = texHeader;
+            this.Header = texHeader;
+            int blockSize = GetFormatBlockSize(this.Header.format);
+            int bytesPerBlock = GetFormatBytesPerBlock(this.Header.format);
 
-            MipMapCount = Header.hasMipmaps ? (int)Math.Log(Math.Max(Header.width, Header.height), 2) : 0;
-            if (MipMapCount > 0)
+            this.MipMapCount = Header.hasMipmaps ? (int)Math.Log(Math.Max(Header.width, Header.height), 2) : 0;
+            if (this.MipMapCount > 0)
             {
-                MipMapsBuffer = new byte[MipMapCount][];
+                MipMapsBuffer = new byte[this.MipMapCount][];
                 // mipmaps are written in order from smallest to largest
-                for (int i = MipMapCount; i > 0; i--)
+                for (int i = this.MipMapCount; i > 0; i--)
                 {
-                    int currentWidth = Math.Max(Header.width / (1 << i), MIN_WIDTH);
-                    int currentHeight = Math.Max(Header.height / (1 << i), MIN_HEIGHT);
-                    MipMapsBuffer[i - 1] = br.ReadBytes(currentWidth * currentHeight);
+                    int currentWidth = Math.Max(this.Header.width / (1 << i), 1);
+                    int currentHeight = Math.Max(this.Header.height / (1 << i), 1);
+                    int currentSize = Math.Max(currentWidth * currentHeight * bytesPerBlock / (blockSize * blockSize), bytesPerBlock);
+                    MipMapsBuffer[i - 1] = br.ReadBytes(currentSize);
                 }
             }
 
-            TextureBuffer = br.ReadBytes(Header.width * Header.height);
+            this.TextureBuffer = br.ReadBytes(Math.Max(this.Header.width * this.Header.height * bytesPerBlock / (blockSize * blockSize), bytesPerBlock));
         }
 
         public void ToDds(string fileLocation) => ToDds(File.Create(fileLocation), false);
         public void ToDds(Stream stream, bool leaveOpen = true)
         {
+            if (this.Header.format is not TEXFormat.DXT1 or TEXFormat.DXT5 or TEXFormat.RGBA8)
+            {
+                throw new InvalidOperationException($"Cannot convert TEX format {this.Header.format} to DDS format.");
+            }
+
             using BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen);
 
-            int dwFlags = 0x00001007 | 0x00080000; // DDS_HEADER_FLAGS_TEXTURE | DDS_HEADER_FLAGS_LINEARSIZE
+            int dwFlags = 0x00001007; // DDS_HEADER_FLAGS_TEXTURE
             int dwCaps = 0x00001000; // DDS_SURFACE_FLAGS_TEXTURE
-            if (Header.hasMipmaps)
+            if (this.Header.hasMipmaps)
             {
                 dwFlags |= 0x00020000; // DDS_HEADER_FLAGS_MIPMAP
                 dwCaps |= 0x00400008; // DDS_SURFACE_FLAGS_MIPMAP
@@ -92,23 +114,36 @@ namespace LeagueToolkit.IO.TEXFile
             bw.Write(Encoding.ASCII.GetBytes("DDS ")); // magic
             bw.Write(124); // header size
             bw.Write(dwFlags);
-            bw.Write((int)Header.height);
-            bw.Write((int)Header.width);
-            bw.Write(Header.width * Header.height); // dwPitchOrLinearSize
-            bw.Seek(4, SeekOrigin.Current);
-            bw.Write(MipMapCount + 1);
+            bw.Write((int)this.Header.height);
+            bw.Write((int)this.Header.width);
+            bw.Seek(4 * 2, SeekOrigin.Current);
+            bw.Write(this.MipMapCount + 1);
             bw.Seek(4 * 11, SeekOrigin.Current);
             bw.Write(32); // DDS_PIXELFORMAT struct size
-            bw.Write(4); // dwFlags = DDS_FOURCC
-            bw.Write(Encoding.ASCII.GetBytes(Header.format == TEXFormat.DXT5 ? "DXT5" : "DXT1"));
-            bw.Seek(4 * 5, SeekOrigin.Current);
+            if (this.Header.format == TEXFormat.RGBA8)
+            {
+                bw.Write(0x41); // dwFlags = DDS_RGBA
+                bw.Seek(4, SeekOrigin.Current); // don't write any fourCC value
+                bw.Write(8 * 4); // dwRGBBitCount
+                bw.Write(0x000000ff); // dwRBitMask
+                bw.Write(0x0000ff00); // dwGBitMask
+                bw.Write(0x00ff0000); // dwBBitMask
+                bw.Write(0xff000000); // dwABitMask
+            }
+            else
+            {
+                bw.Write(4); // dwFlags = DDS_FOURCC
+                bw.Write(Encoding.ASCII.GetBytes(this.Header.format == TEXFormat.DXT5 ? "DXT5" : "DXT1"));
+                bw.Seek(4 * 5, SeekOrigin.Current);
+            }
+
             bw.Write(dwCaps);
             bw.Seek(4 * 4, SeekOrigin.Current);
 
-            bw.Write(TextureBuffer);
-            for (int i = 0; i < MipMapCount; i++)
+            bw.Write(this.TextureBuffer);
+            for (int i = 0; i < this.MipMapCount; i++)
             {
-                bw.Write(MipMapsBuffer[i]);
+                bw.Write(this.MipMapsBuffer[i]);
             }
         }
 
