@@ -44,7 +44,7 @@ namespace LeagueToolkit.IO.TEXFile
         {
             TEXFormat.DXT1 => 8,
             TEXFormat.DXT5 => 16,
-            TEXFormat.RGBA8 => 1,
+            TEXFormat.RGBA8 => 4,
             _ => 1
         };
 
@@ -65,7 +65,7 @@ namespace LeagueToolkit.IO.TEXFile
             };
             stream.Seek(1, SeekOrigin.Current); // unknown, always 1
             texHeader.format = (TEXFormat)br.ReadByte();
-            if (texHeader.format is not (TEXFormat.DXT1 or TEXFormat.DXT5))
+            if (texHeader.format is not (TEXFormat.DXT1 or TEXFormat.DXT5 or TEXFormat.RGBA8))
             {
                 throw new InvalidOperationException($"Unsupported TEX format value {texHeader.format}");
             }
@@ -96,7 +96,7 @@ namespace LeagueToolkit.IO.TEXFile
         public void ToDds(string fileLocation) => ToDds(File.Create(fileLocation), false);
         public void ToDds(Stream stream, bool leaveOpen = true)
         {
-            if (this.Header.format is not TEXFormat.DXT1 or TEXFormat.DXT5 or TEXFormat.RGBA8)
+            if (this.Header.format is not (TEXFormat.DXT1 or TEXFormat.DXT5 or TEXFormat.RGBA8))
             {
                 throw new InvalidOperationException($"Cannot convert TEX format {this.Header.format} to DDS format.");
             }
