@@ -153,9 +153,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             bw.Write(SimpleSkinVertex.GetVertexTypeSize(vertexType));
             bw.Write((uint)vertexType);
 
-            Box box = GetBoundingBox();
-            bw.WriteBox(box);
             Vector3[] allVertexPositions = this.Submeshes.SelectMany(submesh => submesh.Vertices).Select(vertex => vertex.Position).Distinct().ToArray();
+            bw.WriteBox(Box.FromVertices(allVertexPositions));
             R3DSphere.CalculateBoundingSphere(allVertexPositions).Write(bw);
 
             ushort indexOffset = 0;
@@ -180,26 +179,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             bw.Write(new byte[12]); //End tab
         }
 
-        // TODO: Use Box.FromVertices
-        public Box GetBoundingBox()
-        {
-            Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-
-            foreach (SimpleSkinSubmesh submesh in this.Submeshes)
-            {
-                foreach (SimpleSkinVertex vertex in submesh.Vertices)
-                {
-                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
-                }
-            }
-
-            return new Box(min, max);
-        }
+        public Box GetBoundingBox() => Box.FromVertices(this.Submeshes.SelectMany(submesh => submesh.Vertices).Select(vertex => vertex.Position));
     }
 }
