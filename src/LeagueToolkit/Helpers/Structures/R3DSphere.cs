@@ -1,5 +1,8 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 
 namespace LeagueToolkit.Helpers.Structures
@@ -53,6 +56,94 @@ namespace LeagueToolkit.Helpers.Structures
         {
             bw.WriteVector3(this.Position);
             bw.Write(this.Radius);
+        }
+
+        public bool Contains(Vector3 point)
+        {
+            const double tolerance = 0.001; // need to give a bit of leniency here
+            return Math.Pow(Position.X - point.X, 2) + Math.Pow(Position.Y - point.Y, 2) + Math.Pow(Position.Z - point.Z, 2) <=
+                   Math.Pow(Radius, 2) * (1 + tolerance) + tolerance;
+        }
+
+        public static R3DSphere CalculateBoundingSphere(IEnumerable<Vector3> points)
+        {
+            Random random = new();
+            Vector3[] shuffledPoints = points.OrderBy(_ => random.Next()).ToArray();
+
+            return Welzl(new ArraySegment<Vector3>(shuffledPoints), new List<Vector3>(4));
+        }
+
+        private static R3DSphere Welzl(ArraySegment<Vector3> points, List<Vector3> boundaryPoints)
+        {
+            // see https://en.wikipedia.org/wiki/Smallest-circle_problem#Welzl's_algorithm
+            while (true)
+            {
+                if (points.Count == 0 || boundaryPoints.Count == 4)
+                {
+                    return BoundingSphereFromPoints(boundaryPoints);
+                }
+
+                Vector3 currentPoint = points.Last();
+                points = new ArraySegment<Vector3>(points.Array!, 0, points.Count - 1);
+                R3DSphere foundBoundingSphere = Welzl(points, new List<Vector3>(boundaryPoints));
+                if (foundBoundingSphere.Contains(currentPoint))
+                {
+                    return foundBoundingSphere;
+                }
+
+                boundaryPoints.Add(currentPoint);
+            }
+        }
+
+        private static R3DSphere BoundingSphereFromPoints(IReadOnlyList<Vector3> boundaryPoints)
+        {
+            switch (boundaryPoints.Count)
+            {
+                case 0:
+                    return new R3DSphere(Vector3.Zero, 0);
+                case 1:
+                    return new R3DSphere(boundaryPoints[0], 0);
+                case 2:
+                {
+                    Vector3 centralPoint = (boundaryPoints[0] + boundaryPoints[1]) / 2;
+                    return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, boundaryPoints[0]));
+                }
+                case 3:
+                {
+                    Vector3 originA = boundaryPoints[0] - boundaryPoints.Last();
+                    Vector3 originB = boundaryPoints[1] - boundaryPoints.Last();
+                    // logic from wikipedia https://en.wikipedia.org/wiki/Circumscribed_circle#Higher_dimensions
+                    Vector3 centralPoint = boundaryPoints.Last() +
+                                           Vector3.Cross(originA.LengthSquared() * originB - originB.LengthSquared() * originA,
+                                               Vector3.Cross(originA, originB)) / (2 * Vector3.Cross(originA, originB).LengthSquared());
+                    float radius = Vector3.Distance(centralPoint, boundaryPoints.Last());
+                    return new R3DSphere(centralPoint, radius);
+                }
+                case 4:
+                {
+                    Vector3 originA = boundaryPoints[0] - boundaryPoints.Last();
+                    Vector3 originB = boundaryPoints[1] - boundaryPoints.Last();
+                    Vector3 originC = boundaryPoints[2] - boundaryPoints.Last();
+                    Vector3 crossAB = Vector3.Cross(originA, originB);
+                    Vector3 crossCA = Vector3.Cross(originC, originA);
+                    Vector3 crossBC = Vector3.Cross(originB, originC);
+                    // logic taken from https://gist.github.com/Darkyenus/c0b31a79e6115508822ce2128ab42cbf
+                    float determinant = crossBC.X * originA.X + crossCA.X * originB.X + crossAB.X * originC.X;
+
+                    // logic from https://math.stackexchange.com/questions/2414640/circumsphere-of-a-tetrahedron
+                    Vector3 centralPoint =
+                        (originA.LengthSquared() * crossBC +
+                         originB.LengthSquared() * crossCA +
+                         originC.LengthSquared() * crossAB)
+                        / (2 * determinant);
+
+                    float radius = centralPoint.Length();
+                    centralPoint += boundaryPoints.Last();
+                    return new R3DSphere(centralPoint, radius);
+                }
+                default: // impossible
+                    throw new InvalidOperationException($"Invalid amount of boundary points: {boundaryPoints.Count} (must be between 0 and 4).");
+            }
         }
     }
 }

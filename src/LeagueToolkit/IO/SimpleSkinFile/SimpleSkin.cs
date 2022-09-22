@@ -155,7 +155,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             Box box = GetBoundingBox();
             bw.WriteBox(box);
-            box.GetBoundingSphere().Write(bw);
+            Vector3[] allVertexPositions = this.Submeshes.SelectMany(submesh => submesh.Vertices).Select(vertex => vertex.Position).Distinct().ToArray();
+            R3DSphere.CalculateBoundingSphere(allVertexPositions).Write(bw);
 
             ushort indexOffset = 0;
             foreach (SimpleSkinSubmesh submesh in this.Submeshes)
