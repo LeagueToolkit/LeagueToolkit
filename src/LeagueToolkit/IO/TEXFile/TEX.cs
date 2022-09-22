@@ -85,7 +85,9 @@ namespace LeagueToolkit.IO.TEXFile
                 {
                     int currentWidth = Math.Max(this.Header.width / (1 << i), 1);
                     int currentHeight = Math.Max(this.Header.height / (1 << i), 1);
-                    int currentSize = Math.Max(currentWidth * currentHeight * bytesPerBlock / (blockSize * blockSize), bytesPerBlock);
+                    int blockWidth = (currentWidth + blockSize - 1) / blockSize;
+                    int blockHeight = (currentHeight + blockSize - 1) / blockSize;
+                    int currentSize = bytesPerBlock * blockWidth * blockHeight;
                     MipMapsBuffer[i - 1] = br.ReadBytes(currentSize);
                 }
             }
