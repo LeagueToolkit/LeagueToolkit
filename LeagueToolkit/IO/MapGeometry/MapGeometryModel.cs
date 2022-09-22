@@ -26,6 +26,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public string BakedPaintTexture { get; set; } = string.Empty;
         public Color Color { get; set; } = new Color(0, 0, 0, 1);
         public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
+        public byte[] UnknownBytes { get; set; } = Array.Empty<byte>();
 
         internal int _vertexElementGroupID;
         internal int _vertexBufferID;
@@ -70,7 +71,8 @@ namespace LeagueToolkit.IO.MapGeometry
         }
         public MapGeometryModel(BinaryReader br, List<MapGeometryVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            if (version <= 11)
+                this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             uint vertexCount = br.ReadUInt32();
             uint vertexBufferCount = br.ReadUInt32();
             int vertexElementGroup = br.ReadInt32();
@@ -138,20 +140,28 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.Color = br.ReadColor(ColorFormat.RgbaF32);
             }
-            else if(version >= 9)
+            else
             {
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.Color = br.ReadColor(ColorFormat.RgbaF32);
 
                 this.BakedPaintTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.BakedPaintColor = br.ReadColor(ColorFormat.RgbaF32);
+
+                if (version >= 12)
+                {
+                    this.UnknownBytes = br.ReadBytes(20); // unknown, always 0?
+                }
             }
         }
 
         public void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
         {
-            bw.Write(this.Name.Length);
-            bw.Write(Encoding.ASCII.GetBytes(this.Name));
+            if (version <= 11)
+            {
+                bw.Write(this.Name.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.Name));
+            }
 
             bw.Write(this.Vertices.Count);
             bw.Write((uint)1);
@@ -213,7 +223,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
                 bw.WriteColor(this.Color, ColorFormat.RgbaF32);
             }
-            else if(version >= 9)
+            else
             {
                 bw.Write(this.Lightmap.Length);
                 if (this.Lightmap.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.Lightmap)); }
@@ -222,6 +232,13 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write(this.BakedPaintTexture.Length);
                 if (this.BakedPaintTexture.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture)); }
                 bw.WriteColor(this.BakedPaintColor, ColorFormat.RgbaF32);
+
+                if (version >= 12)
+                {
+                    byte[] toWrite = new byte[20]; // make sure to always write exactly 20 bytes
+                    Array.Copy(this.UnknownBytes, toWrite, Math.Min(this.UnknownBytes.Length, 20));
+                    bw.Write(toWrite);
+                }
             }
         }
 

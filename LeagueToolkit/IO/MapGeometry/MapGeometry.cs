@@ -26,7 +26,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 }
 
                 uint version = br.ReadUInt32();
-                if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
+                if (version is not (5 or 6 or 7 or 9 or 11 or 12))
                 {
                     throw new UnsupportedFileVersionException();
                 }
@@ -95,7 +95,7 @@ namespace LeagueToolkit.IO.MapGeometry
         }
         public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
-            if (version != 5 && version != 6 && version != 7 && version != 9 && version != 11)
+            if (version is not (5 or 6 or 7 or 9 or 11 or 12))
             {
                 throw new Exception("Unsupported version");
             }
