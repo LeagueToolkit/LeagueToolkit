@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 
 namespace LeagueToolkit.Helpers.Structures
 {
-    public struct QuantizedQuaternion
+    public readonly struct QuantizedQuaternion : IEquatable<QuantizedQuaternion>, IComparable<QuantizedQuaternion>
     {
-        private ushort[] _data;
+        private readonly ushort[] _data;
 
         public QuantizedQuaternion(byte[] data)
         {
@@ -25,20 +26,56 @@ namespace LeagueToolkit.Helpers.Structures
             ushort v_b = (ushort)((bits >> 15) & 0x7FFFu);
             ushort v_c = (ushort)(bits & 0x7FFFu);
 
-            double sqrt2 = 1.41421356237;
+            const double sqrt2 = 1.41421356237;
             float a = (float)((v_a / 32767.0) * sqrt2 - 1 / sqrt2);
             float b = (float)((v_b / 32767.0) * sqrt2 - 1 / sqrt2);
             float c = (float)((v_c / 32767.0) * sqrt2 - 1 / sqrt2);
             float sub = Math.Max(0, 1 - (a * a + b * b + c * c));
             float d = (float)Math.Sqrt(sub);
 
-            switch(maxIndex)
+            return maxIndex switch
             {
-                case 0: return new Quaternion(d, a, b, c);
-                case 1: return new Quaternion(a, d, b, c);
-                case 2: return new Quaternion(a, b, d, c);
-                default: return new Quaternion(a, b, c, d);
-            }
+                0 => new Quaternion(d, a, b, c),
+                1 => new Quaternion(a, d, b, c),
+                2 => new Quaternion(a, b, d, c),
+                _ => new Quaternion(a, b, c, d)
+            };
         }
+
+        public static QuantizedQuaternion Compress(Quaternion quaternion)
+        {
+            double sqrt2 = Math.Sqrt(2);
+            float[] quaternionFloats = { quaternion.X, quaternion.Y, quaternion.Z, quaternion.W };
+            if (quaternionFloats.Any(f => -f > 1 / sqrt2))
+                quaternionFloats = quaternionFloats.Select(f => -f).ToArray(); // no float is allowed with a value of < -1 / sqrt(2)
+            int maxIndex = Array.IndexOf(quaternionFloats, quaternionFloats.Max());
+            ulong bits = (ulong)((long)maxIndex << 45);
+
+            for (int i = 0, compressedIndex = 0; i < 4; i++)
+            {
+                if (i == maxIndex) continue;
+                ushort compressedValue = (ushort)Math.Round(32767 / 2.0 * (sqrt2 * quaternionFloats[i] + 1));
+                bits |= (ulong)(compressedValue & 0x7FFF) << (15 * (2 - compressedIndex));
+
+                compressedIndex++;
+            }
+
+            return new QuantizedQuaternion(BitConverter.GetBytes(bits).Take(6).ToArray());
+        }
+
+        public byte[] GetBytes() => BitConverter.GetBytes(this._data[0] | (ulong)this._data[1] << 16 | (ulong)this._data[2] << 32).Take(6).ToArray();
+
+        public bool Equals(QuantizedQuaternion other) => _data.SequenceEqual(other._data);
+
+        public int CompareTo(QuantizedQuaternion other) =>
+            this._data[0] == other._data[0]
+                ? this._data[1] == other._data[1]
+                    ? this._data[2].CompareTo(other._data[2])
+                    : this._data[1].CompareTo(other._data[1])
+                : this._data[0].CompareTo(other._data[0]);
+
+        public override bool Equals(object obj) => obj is QuantizedQuaternion other && Equals(other);
+
+        public override int GetHashCode() => _data != null ? _data[0] + _data[1] * 17 + _data[2] * 661 : 0;
     }
 }

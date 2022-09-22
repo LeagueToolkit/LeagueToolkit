@@ -186,28 +186,31 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                     if (joint is not null)
                     {
-                        if (track.Translations.Count == 0) track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                        if (track.Translations.Count == 1) track.Translations.Add(1.0f, new Vector3(0, 0, 0));
+                        if (track.Translations.Count == 0) track.Translations.Add(new Vector3(0, 0, 0));
+                        if (track.Translations.Count == 1) track.Translations.Add(new Vector3(0, 0, 0));
                         CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(animationName);
-                        foreach (var translation in track.Translations)
+                        for (int frame = 0; frame < track.Translations.Count; frame++)
                         {
-                            translationBuilder.SetPoint(translation.Key, translation.Value);
+                            Vector3 translation = track.Translations[frame];
+                            translationBuilder.SetPoint(frame * leagueAnimation.FrameDuration, translation);
                         }
 
-                        if (track.Rotations.Count == 0) track.Rotations.Add(0.0f, Quaternion.Identity);
-                        if (track.Rotations.Count == 1) track.Rotations.Add(1.0f, Quaternion.Identity);
+                        if (track.Rotations.Count == 0) track.Rotations.Add(Quaternion.Identity);
+                        if (track.Rotations.Count == 1) track.Rotations.Add(Quaternion.Identity);
                         CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
-                        foreach (var rotation in track.Rotations)
+                        for (int frame = 0; frame < track.Rotations.Count; frame++)
                         {
-                            rotationBuilder.SetPoint(rotation.Key, rotation.Value);
+                            Quaternion rotation = track.Rotations[frame];
+                            rotationBuilder.SetPoint(frame * leagueAnimation.FrameDuration, rotation);
                         }
 
-                        if (track.Scales.Count == 0) track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                        if (track.Scales.Count == 1) track.Scales.Add(1.0f, new Vector3(1, 1, 1));
+                        if (track.Scales.Count == 0) track.Scales.Add(new Vector3(1, 1, 1));
+                        if (track.Scales.Count == 1) track.Scales.Add(new Vector3(1, 1, 1));
                         CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
-                        foreach (var scale in track.Scales.ToList())
+                        for (int frame = 0; frame < track.Scales.Count; frame++)
                         {
-                            scaleBuilder.SetPoint(scale.Key, scale.Value);
+                            Vector3 scale = track.Scales[frame];
+                            scaleBuilder.SetPoint(frame * leagueAnimation.FrameDuration, scale);
                         }
                     }
                 }
