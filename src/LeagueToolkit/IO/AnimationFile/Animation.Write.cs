@@ -39,7 +39,7 @@ namespace LeagueToolkit.IO.AnimationFile
             bw.Write(3); // version 3
 
             bw.Write(0x84211248); // format token
-            bw.Write((uint)this.Tracks.Count); // joint count
+            bw.Write(this.Tracks.Count); // joint count
             bw.Write(this.FramesPerTrack);
             bw.Write((uint)this.FPS);
 
@@ -47,11 +47,10 @@ namespace LeagueToolkit.IO.AnimationFile
 
             foreach (AnimationTrack joint in this.Tracks)
             {
-                string name = joint.JointName;
-                if (!string.IsNullOrEmpty(name))
+                if (!string.IsNullOrEmpty(joint.JointName))
                 {
                     Array.Clear(nameFile, 0, nameFile.Length);
-                    Encoding.UTF8.GetBytes(name, 0, name.Length, nameFile, 0);
+                    Encoding.UTF8.GetBytes(joint.JointName, nameFile);
                     bw.Write(nameFile);
                     bw.Write(joint.V3Flag);
                     for (int frame = 0; frame < this.FramesPerTrack; frame++)
@@ -155,9 +154,7 @@ namespace LeagueToolkit.IO.AnimationFile
             bw.Seek(12, SeekOrigin.Current); // padding
 
             // write all vectors
-            List<Vector3> allVectors = this.Tracks.SelectMany(joint => joint.Scales.Concat(joint.Translations))
-                .Distinct()
-                .ToList();
+            List<Vector3> allVectors = this.Tracks.SelectMany(joint => joint.Scales.Concat(joint.Translations)).Distinct().ToList();
             allVectors.Sort(Vector3Extensions.Vector3Comparer.Comparer);
             foreach (Vector3 vector in allVectors)
             {
