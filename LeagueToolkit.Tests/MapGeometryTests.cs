@@ -1,21 +1,13 @@
-﻿using LeagueToolkit.IO.MapGeometry;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LeagueToolkit.IO.MapGeometry;
 
 namespace LeagueToolkit.Tests
 {
-    [TestFixture(Author = "Crauzer", Category = "MapGeometry")]
     public class MapGeometryTests { }
 
-    [TestFixture(Author = "Crauzer", Category = "MapGeometry")]
     public class MapGeometryVertexElementGroupTests
     {
-        [Test(ExpectedResult = true)]
-        public bool TestIEquatable_Equal()
+        [Fact]
+        public void TestIEquatable_Equal()
         {
             MapGeometryVertexElementGroup a =
                 new(
@@ -34,22 +26,22 @@ namespace LeagueToolkit.Tests
                     }
                 );
 
-            return a.Equals(b);
+            Assert.True(a.Equals(b));
         }
 
-        [Test(ExpectedResult = false)]
-        public bool TestIEquatable_UsageMismatch()
+        [Fact]
+        public void TestIEquatable_UsageMismatch()
         {
             MapGeometryVertexElementGroup a =
                 new(MapGeometryVertexElementGroupUsage.Static, new List<MapGeometryVertexElement>());
             MapGeometryVertexElementGroup b =
                 new(MapGeometryVertexElementGroupUsage.Dynamic, new List<MapGeometryVertexElement>());
 
-            return a.Equals(b);
+            Assert.False(a.Equals(b));
         }
 
-        [Test(ExpectedResult = false)]
-        public bool TestIEquatable_ElementMismatch()
+        [Fact]
+        public void TestIEquatable_ElementMismatch()
         {
             MapGeometryVertexElementGroup a =
                 new(
@@ -70,10 +62,7 @@ namespace LeagueToolkit.Tests
                     }
                 );
 
-            return a.Equals(b);
+            Assert.False(a.Equals(b));
         }
     }
-
-    [TestFixture(Author = "Crauzer", Category = "MapGeometry")]
-    public class MapGeometryVertexElementTests { }
 }
