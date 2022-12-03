@@ -6,11 +6,13 @@ using System.Linq;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
-    [DebuggerDisplay("VertexElementGroup - {Usage} ({VertexElements.Count})")]
+    [DebuggerDisplay("VertexElementGroup<{DebuggerDisplay,nq}>")]
     public class MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>
     {
         public MapGeometryVertexElementGroupUsage Usage { get; private set; }
         public List<MapGeometryVertexElement> VertexElements { get; private set; } = new();
+
+        internal string DebuggerDisplay => string.Join(' ', this.VertexElements.Select(x => x.Name));
 
         public MapGeometryVertexElementGroup(
             MapGeometryVertexElementGroupUsage usage,
