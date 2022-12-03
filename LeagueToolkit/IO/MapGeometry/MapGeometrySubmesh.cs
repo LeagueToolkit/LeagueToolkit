@@ -16,7 +16,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public uint StartIndex { get; private set; }
         public uint IndexCount { get; private set; }
         public uint StartVertex { get; private set; }
-        public uint VertexCount { get; private set; }
+        public uint VertexCount { get; private set; }   
 
         public MapGeometrySubmesh(string material, uint startIndex, uint indexCount, uint startVertex, uint vertexCount)
         {
