@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
@@ -9,14 +10,23 @@ namespace LeagueToolkit.IO.MapGeometry
     public class MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>
     {
         public MapGeometryVertexElementGroupUsage Usage { get; private set; }
-        public List<MapGeometryVertexElement> VertexElements { get; private set; } = new List<MapGeometryVertexElement>();
+        public List<MapGeometryVertexElement> VertexElements { get; private set; } = new();
+
+        public MapGeometryVertexElementGroup(
+            MapGeometryVertexElementGroupUsage usage,
+            IEnumerable<MapGeometryVertexElement> vertexElements
+        )
+        {
+            this.Usage = usage;
+            this.VertexElements = new(vertexElements);
+        }
 
         public MapGeometryVertexElementGroup(BinaryReader br)
         {
             this.Usage = (MapGeometryVertexElementGroupUsage)br.ReadUInt32();
 
             uint vertexElementCount = br.ReadUInt32();
-            for(int i = 0; i < vertexElementCount; i++)
+            for (int i = 0; i < vertexElementCount; i++)
             {
                 this.VertexElements.Add(new MapGeometryVertexElement(br));
             }
@@ -28,25 +38,50 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             this.Usage = MapGeometryVertexElementGroupUsage.Static;
 
-            if(vertex.Position != null)
+            if (vertex.Position is not null)
             {
-                this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.Position, MapGeometryVertexElementFormat.XYZ_Float32));
+                this.VertexElements.Add(
+                    new MapGeometryVertexElement(
+                        MapGeometryVertexElementName.Position,
+                        MapGeometryVertexElementFormat.XYZ_Float32
+                    )
+                );
             }
-            if (vertex.Normal != null)
+            if (vertex.Normal is not null)
             {
-                this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.Normal, MapGeometryVertexElementFormat.XYZ_Float32));
+                this.VertexElements.Add(
+                    new MapGeometryVertexElement(
+                        MapGeometryVertexElementName.Normal,
+                        MapGeometryVertexElementFormat.XYZ_Float32
+                    )
+                );
             }
-            if (vertex.DiffuseUV != null)
+            if (vertex.DiffuseUV is not null)
             {
-                this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.DiffuseUV, MapGeometryVertexElementFormat.XY_Float32));
+                this.VertexElements.Add(
+                    new MapGeometryVertexElement(
+                        MapGeometryVertexElementName.DiffuseUV,
+                        MapGeometryVertexElementFormat.XY_Float32
+                    )
+                );
             }
-            if (vertex.LightmapUV != null)
+            if (vertex.LightmapUV is not null)
             {
-                this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.LightmapUV, MapGeometryVertexElementFormat.XY_Float32));
+                this.VertexElements.Add(
+                    new MapGeometryVertexElement(
+                        MapGeometryVertexElementName.LightmapUV,
+                        MapGeometryVertexElementFormat.XY_Float32
+                    )
+                );
             }
-            if (vertex.SecondaryColor != null)
+            if (vertex.SecondaryColor is not null)
             {
-                this.VertexElements.Add(new MapGeometryVertexElement(MapGeometryVertexElementName.SecondaryColor, MapGeometryVertexElementFormat.BGRA_Packed8888));
+                this.VertexElements.Add(
+                    new MapGeometryVertexElement(
+                        MapGeometryVertexElementName.SecondaryColor,
+                        MapGeometryVertexElementFormat.BGRA_Packed8888
+                    )
+                );
             }
         }
 
@@ -55,14 +90,17 @@ namespace LeagueToolkit.IO.MapGeometry
             bw.Write((uint)this.Usage);
             bw.Write(this.VertexElements.Count);
 
-            foreach(MapGeometryVertexElement vertexElement in this.VertexElements)
+            foreach (MapGeometryVertexElement vertexElement in this.VertexElements)
             {
                 vertexElement.Write(bw);
             }
 
-            for(int i = 0; i < 15 - this.VertexElements.Count; i++)
+            for (int i = 0; i < 15 - this.VertexElements.Count; i++)
             {
-                new MapGeometryVertexElement(MapGeometryVertexElementName.Position, MapGeometryVertexElementFormat.XYZW_Float32).Write(bw);
+                new MapGeometryVertexElement(
+                    MapGeometryVertexElementName.Position,
+                    MapGeometryVertexElementFormat.XYZW_Float32
+                ).Write(bw);
             }
         }
 
@@ -70,7 +108,7 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             int size = 0;
 
-            foreach(MapGeometryVertexElement vertexElement in this.VertexElements)
+            foreach (MapGeometryVertexElement vertexElement in this.VertexElements)
             {
                 size += vertexElement.GetElementSize();
             }
@@ -80,27 +118,22 @@ namespace LeagueToolkit.IO.MapGeometry
 
         public bool Equals(MapGeometryVertexElementGroup other)
         {
-            bool result = false;
-
+            // If usage is not the same
             if (this.Usage != other.Usage)
             {
                 return false;
             }
 
+            // Check if Vertex Element count is the same
             if (this.VertexElements.Count == other.VertexElements.Count)
             {
-                for (int i = 0; i < this.VertexElements.Count; i++)
-                {
-                    result = this.VertexElements[i].Equals(other.VertexElements[i]);
-                }
+                // If Vertex Element count is the same, compare them
+                return Enumerable.SequenceEqual(this.VertexElements, other.VertexElements);
             }
             else
             {
                 return false;
             }
-
-
-            return result;
         }
     }
 

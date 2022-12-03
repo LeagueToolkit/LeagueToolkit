@@ -44,12 +44,18 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 size = 4;
             }
-            else throw new InvalidOperationException($"unsupported {nameof(MapGeometryVertexElement)} format: {this.Format}");
+            else
+            {
+                throw new InvalidOperationException(
+                    $"unsupported {nameof(MapGeometryVertexElement)} format: {this.Format}"
+                );
+            }
 
             return size;
         }
 
-        public bool Equals(MapGeometryVertexElement other) => (this.Name == other.Name) && (this.Format == other.Format);
+        public bool Equals(MapGeometryVertexElement other) =>
+            (this.Name == other.Name) && (this.Format == other.Format);
     }
 
     public enum MapGeometryVertexElementName : uint
