@@ -25,16 +25,26 @@ namespace LeagueToolkit.IO.MapGeometry
         public List<Vector3> UnknownFloats { get; set; } = new();
         public string Lightmap { get; set; } = string.Empty;
         public string BakedPaintTexture { get; set; } = string.Empty;
+        public string UnknownTexture { get; set; } = string.Empty;
         public Color Color { get; set; } = new Color(0, 0, 0, 1);
         public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
+        public Color UnknownColor { get; set; } = new Color(0, 0, 0, 1);
         public byte[] UnknownBytes { get; set; } = Array.Empty<byte>();
+
+        public uint MAX_SUBMESH_COUNT = 64;
 
         internal int _vertexElementGroupId;
         internal int _vertexBufferId;
         internal int _indexBufferId;
 
         public MapGeometryModel() { }
-        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes)
+
+        public MapGeometryModel(
+            string name,
+            List<MapGeometryVertex> vertices,
+            List<ushort> indices,
+            List<MapGeometrySubmesh> submeshes
+        )
         {
             this.Name = name;
             this.Vertices = vertices;
@@ -48,31 +58,68 @@ namespace LeagueToolkit.IO.MapGeometry
 
             this.BoundingBox = GetBoundingBox();
         }
-        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, MapGeometryLayer layer)
-            : this(name, vertices, indices, submeshes)
+
+        public MapGeometryModel(
+            string name,
+            List<MapGeometryVertex> vertices,
+            List<ushort> indices,
+            List<MapGeometrySubmesh> submeshes,
+            MapGeometryLayer layer
+        ) : this(name, vertices, indices, submeshes)
         {
             this.Layer = layer;
         }
-        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, R3DMatrix44 transformation)
-            : this(name, vertices, indices, submeshes)
+
+        public MapGeometryModel(
+            string name,
+            List<MapGeometryVertex> vertices,
+            List<ushort> indices,
+            List<MapGeometrySubmesh> submeshes,
+            R3DMatrix44 transformation
+        ) : this(name, vertices, indices, submeshes)
         {
             this.Transformation = transformation;
         }
-        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, MapGeometryLayer layer, R3DMatrix44 transformation)
-            : this(name, vertices, indices, submeshes)
+
+        public MapGeometryModel(
+            string name,
+            List<MapGeometryVertex> vertices,
+            List<ushort> indices,
+            List<MapGeometrySubmesh> submeshes,
+            MapGeometryLayer layer,
+            R3DMatrix44 transformation
+        ) : this(name, vertices, indices, submeshes)
         {
             this.Layer = layer;
             this.Transformation = transformation;
         }
-        public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes, string lightmap, Color color)
-            : this(name, vertices, indices, submeshes)
+
+        public MapGeometryModel(
+            string name,
+            List<MapGeometryVertex> vertices,
+            List<ushort> indices,
+            List<MapGeometrySubmesh> submeshes,
+            string lightmap,
+            Color color
+        ) : this(name, vertices, indices, submeshes)
         {
             this.Lightmap = lightmap;
             this.Color = color;
         }
-        public MapGeometryModel(BinaryReader br, List<MapGeometryVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
+
+        public MapGeometryModel(
+            BinaryReader br,
+            List<MapGeometryVertexElementGroup> vertexElementGroups,
+            List<long> vertexBufferOffsets,
+            List<ushort[]> indexBuffers,
+            bool useSeparatePointLights,
+            uint version
+        )
         {
-            if (version <= 11) this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            if (version <= 11)
+            {
+                this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            }
 
             uint vertexCount = br.ReadUInt32();
             uint vertexBufferCount = br.ReadUInt32();
@@ -83,7 +130,11 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.Vertices.Add(new());
             }
 
-            for (int i = 0, currentVertexElementGroup = vertexElementGroup; i < vertexBufferCount; i++, currentVertexElementGroup++)
+            for (
+                int i = 0, currentVertexElementGroup = vertexElementGroup;
+                i < vertexBufferCount;
+                i++, currentVertexElementGroup++
+            )
             {
                 int vertexBufferId = br.ReadInt32();
                 long returnPosition = br.BaseStream.Position;
@@ -91,7 +142,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 for (int j = 0; j < vertexCount; j++)
                 {
-                    this.Vertices[j] = MapGeometryVertex.Combine(this.Vertices[j], new(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
+                    this.Vertices[j] = MapGeometryVertex.Combine(
+                        this.Vertices[j],
+                        new(br, vertexElementGroups[currentVertexElementGroup].VertexElements)
+                    );
                 }
 
                 br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
@@ -156,7 +210,8 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 if (version >= 12)
                 {
-                    this.UnknownBytes = br.ReadBytes(20); // unknown, always 0?
+                    this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.UnknownColor = br.ReadColor(ColorFormat.RgbaF32);
                 }
             }
         }
@@ -231,17 +286,17 @@ namespace LeagueToolkit.IO.MapGeometry
                 }
 
                 bw.Write(this.Lightmap.Length);
-                if (this.Lightmap.Length != 0) bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
                 bw.WriteColor(this.Color, ColorFormat.RgbaF32);
             }
             else
             {
                 bw.Write(this.Lightmap.Length);
-                if (this.Lightmap.Length != 0) bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
                 bw.WriteColor(this.Color, ColorFormat.RgbaF32);
 
                 bw.Write(this.BakedPaintTexture.Length);
-                if (this.BakedPaintTexture.Length != 0) bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture));
+                bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture));
                 bw.WriteColor(this.BakedPaintColor, ColorFormat.RgbaF32);
 
                 if (version >= 12)
@@ -272,12 +327,30 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 foreach (MapGeometryVertex vertex in this.Vertices)
                 {
-                    if (min.X > vertex.Position.Value.X) min.X = vertex.Position.Value.X;
-                    if (min.Y > vertex.Position.Value.Y) min.Y = vertex.Position.Value.Y;
-                    if (min.Z > vertex.Position.Value.Z) min.Z = vertex.Position.Value.Z;
-                    if (max.X < vertex.Position.Value.X) max.X = vertex.Position.Value.X;
-                    if (max.Y < vertex.Position.Value.Y) max.Y = vertex.Position.Value.Y;
-                    if (max.Z < vertex.Position.Value.Z) max.Z = vertex.Position.Value.Z;
+                    if (min.X > vertex.Position.Value.X)
+                    {
+                        min.X = vertex.Position.Value.X;
+                    }
+                    if (min.Y > vertex.Position.Value.Y)
+                    {
+                        min.Y = vertex.Position.Value.Y;
+                    }
+                    if (min.Z > vertex.Position.Value.Z)
+                    {
+                        min.Z = vertex.Position.Value.Z;
+                    }
+                    if (max.X < vertex.Position.Value.X)
+                    {
+                        max.X = vertex.Position.Value.X;
+                    }
+                    if (max.Y < vertex.Position.Value.Y)
+                    {
+                        max.Y = vertex.Position.Value.Y;
+                    }
+                    if (max.Z < vertex.Position.Value.Z)
+                    {
+                        max.Z = vertex.Position.Value.Z;
+                    }
                 }
 
                 return new R3DBox(min, max);
