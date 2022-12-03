@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>   
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
-    <LangVersion>9</LangVersion>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
