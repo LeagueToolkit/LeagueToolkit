@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
+    [DebuggerDisplay("{Name} - {Format}")]
     public class MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>
     {
         public MapGeometryVertexElementName Name { get; set; }

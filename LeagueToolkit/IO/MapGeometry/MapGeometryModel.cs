@@ -3,6 +3,7 @@ using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -11,9 +12,9 @@ namespace LeagueToolkit.IO.MapGeometry
     public class MapGeometryModel
     {
         public string Name { get; set; }
-        public List<MapGeometryVertex> Vertices { get; set; } = new List<MapGeometryVertex>();
-        public List<ushort> Indices { get; set; } = new List<ushort>();
-        public List<MapGeometrySubmesh> Submeshes { get; set; } = new List<MapGeometrySubmesh>();
+        public List<MapGeometryVertex> Vertices { get; set; } = new();
+        public List<ushort> Indices { get; set; } = new();
+        public List<MapGeometrySubmesh> Submeshes { get; set; } = new();
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
@@ -21,15 +22,16 @@ namespace LeagueToolkit.IO.MapGeometry
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public byte UnknownByte { get; set; }
         public Vector3? SeparatePointLight { get; set; }
-        public List<Vector3> UnknownFloats { get; set; } = new List<Vector3>();
+        public List<Vector3> UnknownFloats { get; set; } = new();
         public string Lightmap { get; set; } = string.Empty;
         public string BakedPaintTexture { get; set; } = string.Empty;
         public Color Color { get; set; } = new Color(0, 0, 0, 1);
         public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
+        public byte[] UnknownBytes { get; set; } = Array.Empty<byte>();
 
-        internal int _vertexElementGroupID;
-        internal int _vertexBufferID;
-        internal int _indexBufferID;
+        internal int _vertexElementGroupId;
+        internal int _vertexBufferId;
+        internal int _indexBufferId;
 
         public MapGeometryModel() { }
         public MapGeometryModel(string name, List<MapGeometryVertex> vertices, List<ushort> indices, List<MapGeometrySubmesh> submeshes)
@@ -39,7 +41,7 @@ namespace LeagueToolkit.IO.MapGeometry
             this.Indices = indices;
             this.Submeshes = submeshes;
 
-            foreach(MapGeometrySubmesh submesh in submeshes)
+            foreach (MapGeometrySubmesh submesh in submeshes)
             {
                 submesh.Parent = this;
             }
@@ -70,38 +72,44 @@ namespace LeagueToolkit.IO.MapGeometry
         }
         public MapGeometryModel(BinaryReader br, List<MapGeometryVertexElementGroup> vertexElementGroups, List<long> vertexBufferOffsets, List<ushort[]> indexBuffers, bool useSeparatePointLights, uint version)
         {
-            this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            if (version <= 11) this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+
             uint vertexCount = br.ReadUInt32();
             uint vertexBufferCount = br.ReadUInt32();
             int vertexElementGroup = br.ReadInt32();
 
             for (int i = 0; i < vertexCount; i++)
             {
-                this.Vertices.Add(new MapGeometryVertex());
+                this.Vertices.Add(new());
             }
 
             for (int i = 0, currentVertexElementGroup = vertexElementGroup; i < vertexBufferCount; i++, currentVertexElementGroup++)
             {
-                int vertexBufferID = br.ReadInt32();
+                int vertexBufferId = br.ReadInt32();
                 long returnPosition = br.BaseStream.Position;
-                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferID], SeekOrigin.Begin);
+                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferId], SeekOrigin.Begin);
 
                 for (int j = 0; j < vertexCount; j++)
                 {
-                    this.Vertices[j] = MapGeometryVertex.Combine(this.Vertices[j], new MapGeometryVertex(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
+                    this.Vertices[j] = MapGeometryVertex.Combine(this.Vertices[j], new(br, vertexElementGroups[currentVertexElementGroup].VertexElements));
                 }
 
                 br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
             }
 
             uint indexCount = br.ReadUInt32();
-            int indexBuffer = br.ReadInt32();
-            this.Indices.AddRange(indexBuffers[indexBuffer]);
+            int indexBufferId = br.ReadInt32();
+            this.Indices.AddRange(indexBuffers[indexBufferId]);
+
+            if (version >= 13)
+            {
+                this.Layer = (MapGeometryLayer)br.ReadByte();
+            }
 
             uint submeshCount = br.ReadUInt32();
             for (int i = 0; i < submeshCount; i++)
             {
-                this.Submeshes.Add(new MapGeometrySubmesh(br, this));
+                this.Submeshes.Add(new(br, this));
             }
 
             if (version != 5)
@@ -109,18 +117,18 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.FlipNormals = br.ReadBoolean();
             }
 
-            this.BoundingBox = new R3DBox(br);
-            this.Transformation = new R3DMatrix44(br);
+            this.BoundingBox = new(br);
+            this.Transformation = new(br);
             this.Flags = (MapGeometryModelFlags)br.ReadByte();
 
-            if (version >= 7)
+            if (version >= 7 && version <= 12)
             {
                 this.Layer = (MapGeometryLayer)br.ReadByte();
+            }
 
-                if(version >= 11)
-                {
-                    this.UnknownByte = br.ReadByte();
-                }
+            if (version >= 11)
+            {
+                this.UnknownByte = br.ReadByte();
             }
 
             if (useSeparatePointLights && (version < 7))
@@ -128,7 +136,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.SeparatePointLight = br.ReadVector3();
             }
 
-            if(version < 9)
+            if (version < 9)
             {
                 for (int i = 0; i < 9; i++)
                 {
@@ -138,28 +146,41 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.Color = br.ReadColor(ColorFormat.RgbaF32);
             }
-            else if(version >= 9)
+            else
             {
                 this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.Color = br.ReadColor(ColorFormat.RgbaF32);
 
                 this.BakedPaintTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 this.BakedPaintColor = br.ReadColor(ColorFormat.RgbaF32);
+
+                if (version >= 12)
+                {
+                    this.UnknownBytes = br.ReadBytes(20); // unknown, always 0?
+                }
             }
         }
 
         public void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
         {
-            bw.Write(this.Name.Length);
-            bw.Write(Encoding.ASCII.GetBytes(this.Name));
+            if (version <= 11)
+            {
+                bw.Write(this.Name.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.Name));
+            }
 
             bw.Write(this.Vertices.Count);
             bw.Write((uint)1);
-            bw.Write(this._vertexElementGroupID);
-            bw.Write(this._vertexBufferID); //we only have one vertex buffer
+            bw.Write(this._vertexElementGroupId);
+            bw.Write(this._vertexBufferId); //we only have one vertex buffer
 
             bw.Write(this.Indices.Count);
-            bw.Write(this._indexBufferID);
+            bw.Write(this._indexBufferId);
+
+            if (version >= 13)
+            {
+                bw.Write((byte)this.Layer);
+            }
 
             bw.Write(this.Submeshes.Count);
             foreach (MapGeometrySubmesh submesh in this.Submeshes)
@@ -176,19 +197,19 @@ namespace LeagueToolkit.IO.MapGeometry
             this.Transformation.Write(bw);
             bw.Write((byte)this.Flags);
 
-            if (version >= 7)
+            if (version >= 7 && version <= 12)
             {
                 bw.Write((byte)this.Layer);
-
-                if(version >= 11)
-                {
-                    bw.Write(this.UnknownByte);
-                }
             }
 
-            if(version < 9)
+            if (version >= 11)
             {
-                if(useSeparatePointLights)
+                bw.Write(this.UnknownByte);
+            }
+
+            if (version < 9)
+            {
+                if (useSeparatePointLights)
                 {
                     if (this.SeparatePointLight is Vector3 separatePointLight)
                     {
@@ -210,18 +231,25 @@ namespace LeagueToolkit.IO.MapGeometry
                 }
 
                 bw.Write(this.Lightmap.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
+                if (this.Lightmap.Length != 0) bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
                 bw.WriteColor(this.Color, ColorFormat.RgbaF32);
             }
-            else if(version >= 9)
+            else
             {
                 bw.Write(this.Lightmap.Length);
-                if (this.Lightmap.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.Lightmap)); }
+                if (this.Lightmap.Length != 0) bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
                 bw.WriteColor(this.Color, ColorFormat.RgbaF32);
 
                 bw.Write(this.BakedPaintTexture.Length);
-                if (this.BakedPaintTexture.Length != 0) { bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture)); }
+                if (this.BakedPaintTexture.Length != 0) bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture));
                 bw.WriteColor(this.BakedPaintColor, ColorFormat.RgbaF32);
+
+                if (version >= 12)
+                {
+                    byte[] toWrite = new byte[20]; // make sure to always write exactly 20 bytes
+                    Array.Copy(this.UnknownBytes, toWrite, Math.Min(this.UnknownBytes.Length, 20));
+                    bw.Write(toWrite);
+                }
             }
         }
 

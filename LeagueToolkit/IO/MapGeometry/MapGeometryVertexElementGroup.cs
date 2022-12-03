@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
+    [DebuggerDisplay("VertexElementGroup - {Usage} ({VertexElements.Count})")]
     public class MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>
     {
         public MapGeometryVertexElementGroupUsage Usage { get; private set; }
