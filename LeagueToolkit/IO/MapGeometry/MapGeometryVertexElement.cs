@@ -32,11 +32,11 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             int size = 0;
 
-            if(this.Format == MapGeometryVertexElementFormat.XYZ_Float32)
+            if (this.Format == MapGeometryVertexElementFormat.XYZ_Float32)
             {
                 size = 12;
             }
-            else if(this.Format == MapGeometryVertexElementFormat.XY_Float32)
+            else if (this.Format == MapGeometryVertexElementFormat.XY_Float32)
             {
                 size = 8;
             }
@@ -44,14 +44,12 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 size = 4;
             }
+            else throw new InvalidOperationException($"unsupported {nameof(MapGeometryVertexElement)} format: {this.Format}");
 
             return size;
         }
 
-        public bool Equals(MapGeometryVertexElement other)
-        {
-            return (this.Name == other.Name) && (this.Format == other.Format);
-        }
+        public bool Equals(MapGeometryVertexElement other) => (this.Name == other.Name) && (this.Format == other.Format);
     }
 
     public enum MapGeometryVertexElementName : uint
