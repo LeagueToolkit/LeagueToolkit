@@ -13,6 +13,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public string UnknownString2 { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
+        public List<MapGeometryUnkMatrixBBVec> UnknownMatrixBBVecList { get; set; } = new();
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public MapGeometry(Stream stream)
@@ -96,6 +97,15 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             this.BucketGrid = new(br);
+
+            if(version >= 13)
+            {
+                uint unknownMatrixBBVecCount = br.ReadUInt32();
+                for (int i = 0; i < unknownMatrixBBVecCount; i++)
+                {
+                    this.UnknownMatrixBBVecList.Add(new(br));
+                }
+            }
         }
 
         public void Write(string fileLocation, uint version)
@@ -177,6 +187,15 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             this.BucketGrid.Write(bw);
+
+            if(version >= 13)
+            {
+                bw.Write(this.UnknownMatrixBBVecList.Count);
+                foreach(MapGeometryUnkMatrixBBVec unknownMatrixBBVec in this.UnknownMatrixBBVecList)
+                {
+                    unknownMatrixBBVec.Write(bw);
+                }
+            }
         }
 
         public void AddModel(MapGeometryModel model)
