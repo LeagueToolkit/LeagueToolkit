@@ -20,7 +20,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
         public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
-        public byte UnknownByte { get; set; }
+        public byte UnknownFlags { get; set; }
         public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new();
         public string Lightmap { get; set; } = string.Empty;
@@ -29,9 +29,8 @@ namespace LeagueToolkit.IO.MapGeometry
         public Color Color { get; set; } = new Color(0, 0, 0, 1);
         public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
         public Color UnknownColor { get; set; } = new Color(0, 0, 0, 1);
-        public byte[] UnknownBytes { get; set; } = Array.Empty<byte>();
 
-        public uint MAX_SUBMESH_COUNT = 64;
+        public const uint MAX_SUBMESH_COUNT = 64;
 
         internal int _vertexElementGroupId;
         internal int _vertexBufferId;
@@ -182,7 +181,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                this.UnknownByte = br.ReadByte();
+                this.UnknownFlags = br.ReadByte();
             }
 
             if (useSeparatePointLights && (version < 7))
@@ -259,7 +258,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                bw.Write(this.UnknownByte);
+                bw.Write(this.UnknownFlags);
             }
 
             if (version < 9)
@@ -301,9 +300,9 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 if (version >= 12)
                 {
-                    byte[] toWrite = new byte[20]; // make sure to always write exactly 20 bytes
-                    Array.Copy(this.UnknownBytes, toWrite, Math.Min(this.UnknownBytes.Length, 20));
-                    bw.Write(toWrite);
+                    bw.Write(this.UnknownTexture.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture));
+                    bw.WriteColor(this.UnknownColor, ColorFormat.RgbaF32);
                 }
             }
         }
