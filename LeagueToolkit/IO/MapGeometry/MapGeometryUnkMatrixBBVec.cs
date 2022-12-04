@@ -11,6 +11,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public R3DBox UnknownBoundingBox { get; set; }
         public Vector3 UnknownVector { get; set; }
 
+        public MapGeometryUnkMatrixBBVec() { }
         public MapGeometryUnkMatrixBBVec(BinaryReader br)
         {
             this.UnknownMatrix = new(br);

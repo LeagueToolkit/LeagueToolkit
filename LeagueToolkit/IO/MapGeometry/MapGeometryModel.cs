@@ -20,7 +20,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
         public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
-        public byte UnknownFlags { get; set; }
+        public MapGeometryModelUnknownFlags UnknownFlags { get; set; }
         public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new();
         public string Lightmap { get; set; } = string.Empty;
@@ -181,7 +181,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                this.UnknownFlags = br.ReadByte();
+                this.UnknownFlags = (MapGeometryModelUnknownFlags)br.ReadByte();
             }
 
             if (useSeparatePointLights && (version < 7))
@@ -258,7 +258,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                bw.Write(this.UnknownFlags);
+                bw.Write((byte)this.UnknownFlags);
             }
 
             if (version < 9)
@@ -375,12 +375,37 @@ namespace LeagueToolkit.IO.MapGeometry
     [Flags]
     public enum MapGeometryModelFlags : byte
     {
+        /// <summary>
+        /// Maybe FLAG_GROUND ?
+        /// </summary>
         UnknownTransparency = 1,
+        /// <summary>
+        /// Maybe FLAG_NO_SHADOW ?
+        /// </summary>
         UnknownLightning = 2,
+        /// <summary>
+        /// FLAG_VERTALPHA ?
+        /// </summary>
         Unknown3 = 4,
+        /// <summary>
+        /// FLAG_LIGHTMAPPED ?
+        /// </summary>
         Unknown4 = 8,
+        /// <summary>
+        /// FLAG_DUAL_VTXCOLOR ?
+        /// </summary>
         UnknownConst1 = 16,
 
         GenericObject = UnknownTransparency | UnknownLightning | Unknown3 | Unknown4 | UnknownConst1
+    }
+
+    [Flags]
+    public enum MapGeometryModelUnknownFlags : byte
+    {
+        /// <summary>
+        /// Game will not render particles of type such as Corki's Q indicator or Corki's W fire
+        /// </summary>
+        DoNotRenderGroundParticles = 1,
+        Unknown2 = 2
     }
 }
