@@ -70,29 +70,58 @@ namespace LeagueToolkit.Helpers.Structures
             Random random = new();
             Vector3[] shuffledPoints = points.OrderBy(_ => random.Next()).ToArray();
 
-            return Welzl(new ArraySegment<Vector3>(shuffledPoints), new List<Vector3>(4));
+            return Welzl(shuffledPoints);
         }
 
-        private static R3DSphere Welzl(ArraySegment<Vector3> points, List<Vector3> boundaryPoints)
+        // see https://en.wikipedia.org/wiki/Smallest-circle_problem#Welzl's_algorithm
+        // non-recursive implementation taken from https://gist.github.com/Darkyenus/c0b31a79e6115508822ce2128ab42cbf
+        private static R3DSphere Welzl(IReadOnlyList<Vector3> points)
         {
-            // see https://en.wikipedia.org/wiki/Smallest-circle_problem#Welzl's_algorithm
-            while (true)
+            R3DSphere currentBoundingSphere = null!;
+            Vector3[] boundaryPoints = new Vector3[4];
+
+            int currentPointCount = 0;
+            int boundaryPointCount = 0;
+
+            // true at index x if a virtual recursion was started from point count x
+            bool[] virtualRecursionStart = new bool[points.Count];
+            bool descending = true;
+            do
             {
-                if (points.Count == 0 || boundaryPoints.Count == 4)
+                if (descending)
                 {
-                    return BoundingSphereFromPoints(boundaryPoints);
-                }
+                    currentBoundingSphere = BoundingSphereFromPoints(boundaryPoints[..boundaryPointCount]);
+                    if (boundaryPointCount == 4)
+                        currentPointCount++;
+                    else
+                        currentPointCount = 1;
 
-                Vector3 currentPoint = points.Last();
-                points = new ArraySegment<Vector3>(points.Array!, 0, points.Count - 1);
-                R3DSphere foundBoundingSphere = Welzl(points, new List<Vector3>(boundaryPoints));
-                if (foundBoundingSphere.Contains(currentPoint))
+                    descending = false;
+                }
+                else if (virtualRecursionStart[currentPointCount])
                 {
-                    return foundBoundingSphere;
+                    virtualRecursionStart[currentPointCount] = false;
+                    boundaryPointCount--;
+                    currentPointCount++;
                 }
+                else
+                {
+                    Vector3 lastPoint = points[currentPointCount-1];
+                    if (currentBoundingSphere.Contains(lastPoint))
+                    {
+                        currentPointCount++;
+                    }
+                    else
+                    {
+                        boundaryPoints[boundaryPointCount++] = lastPoint;
+                        virtualRecursionStart[currentPointCount] = true;
+                        currentPointCount--;
+                        descending = true;
+                    }
+                }
+            } while (currentPointCount < points.Count);
 
-                boundaryPoints.Add(currentPoint);
-            }
+            return currentBoundingSphere;
         }
 
         private static R3DSphere BoundingSphereFromPoints(IReadOnlyList<Vector3> boundaryPoints)
