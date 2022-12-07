@@ -9,8 +9,14 @@ namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometry
     {
-        public string UnknownString1 { get; set; } = string.Empty;
-        public string UnknownString2 { get; set; } = string.Empty;
+        /// <summary>
+        /// Might not be an accurate name
+        /// </summary>
+        public string DefaultTextureShaderName { get; set; } = string.Empty;
+        /// <summary>
+        /// Might not be an accurate name
+        /// </summary>
+        public string DefaultTextureParameterShaderName { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
         public List<MapGeometryUnkMatrixBBVec> UnknownMatrixBBVecList { get; set; } = new();
@@ -40,11 +46,11 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 9)
             {
-                this.UnknownString1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.DefaultTextureShaderName = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
 
                 if (version >= 11)
                 {
-                    this.UnknownString2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.DefaultTextureParameterShaderName = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 }
             }
 
@@ -133,13 +139,13 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 9)
             {
-                bw.Write(this.UnknownString1.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.UnknownString1));
+                bw.Write(this.DefaultTextureShaderName.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.DefaultTextureShaderName));
 
                 if (version >= 11)
                 {
-                    bw.Write(this.UnknownString2.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownString2));
+                    bw.Write(this.DefaultTextureParameterShaderName.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(this.DefaultTextureParameterShaderName));
                 }
             }
 

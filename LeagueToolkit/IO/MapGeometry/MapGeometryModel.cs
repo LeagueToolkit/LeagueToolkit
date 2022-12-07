@@ -3,7 +3,6 @@ using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -18,17 +17,17 @@ namespace LeagueToolkit.IO.MapGeometry
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
         public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
-        public MapGeometryModelFlags Flags { get; set; } = MapGeometryModelFlags.GenericObject;
+        public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
-        public MapGeometryModelUnknownFlags UnknownFlags { get; set; }
+        public MapGeometryMeshFlags MeshFlags { get; set; }
         public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new();
         public string Lightmap { get; set; } = string.Empty;
         public string BakedPaintTexture { get; set; } = string.Empty;
-        public string UnknownTexture { get; set; } = string.Empty;
+        public string DiffuseTexture { get; set; } = string.Empty;
         public Color Color { get; set; } = new Color(0, 0, 0, 1);
         public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
-        public Color UnknownColor { get; set; } = new Color(0, 0, 0, 1);
+        public Color DiffuseColor { get; set; } = new Color(0, 0, 0, 1);
 
         public const uint MAX_SUBMESH_COUNT = 64;
 
@@ -172,7 +171,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             this.BoundingBox = new(br);
             this.Transformation = new(br);
-            this.Flags = (MapGeometryModelFlags)br.ReadByte();
+            this.QualityFilter = (MapGeometryQualityFilter)br.ReadByte();
 
             if (version >= 7 && version <= 12)
             {
@@ -181,7 +180,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                this.UnknownFlags = (MapGeometryModelUnknownFlags)br.ReadByte();
+                this.MeshFlags = (MapGeometryMeshFlags)br.ReadByte();
             }
 
             if (useSeparatePointLights && (version < 7))
@@ -209,8 +208,8 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 if (version >= 12)
                 {
-                    this.UnknownTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                    this.UnknownColor = br.ReadColor(ColorFormat.RgbaF32);
+                    this.DiffuseTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.DiffuseColor = br.ReadColor(ColorFormat.RgbaF32);
                 }
             }
         }
@@ -249,7 +248,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             this.BoundingBox.Write(bw);
             this.Transformation.Write(bw);
-            bw.Write((byte)this.Flags);
+            bw.Write((byte)this.QualityFilter);
 
             if (version >= 7 && version <= 12)
             {
@@ -258,7 +257,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                bw.Write((byte)this.UnknownFlags);
+                bw.Write((byte)this.MeshFlags);
             }
 
             if (version < 9)
@@ -300,9 +299,9 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 if (version >= 12)
                 {
-                    bw.Write(this.UnknownTexture.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.UnknownTexture));
-                    bw.WriteColor(this.UnknownColor, ColorFormat.RgbaF32);
+                    bw.Write(this.DiffuseTexture.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(this.DiffuseTexture));
+                    bw.WriteColor(this.DiffuseColor, ColorFormat.RgbaF32);
                 }
             }
         }
@@ -373,39 +372,26 @@ namespace LeagueToolkit.IO.MapGeometry
     }
 
     [Flags]
-    public enum MapGeometryModelFlags : byte
+    public enum MapGeometryQualityFilter : byte
     {
-        /// <summary>
-        /// Maybe FLAG_GROUND ?
-        /// </summary>
-        UnknownTransparency = 1,
-        /// <summary>
-        /// Maybe FLAG_NO_SHADOW ?
-        /// </summary>
-        UnknownLightning = 2,
-        /// <summary>
-        /// FLAG_VERTALPHA ?
-        /// </summary>
-        Unknown3 = 4,
-        /// <summary>
-        /// FLAG_LIGHTMAPPED ?
-        /// </summary>
-        Unknown4 = 8,
-        /// <summary>
-        /// FLAG_DUAL_VTXCOLOR ?
-        /// </summary>
-        UnknownConst1 = 16,
+        Quality0 = 1,
+        Quality1 = 2,
+        Quality2 = 4,
+        Quality3 = 8,
+        Quality4 = 16,
 
-        GenericObject = UnknownTransparency | UnknownLightning | Unknown3 | Unknown4 | UnknownConst1
+        QualityAll = Quality0 | Quality1 | Quality2 | Quality3 | Quality4
     }
 
     [Flags]
-    public enum MapGeometryModelUnknownFlags : byte
+    public enum MapGeometryMeshFlags : byte
     {
         /// <summary>
         /// Game will not render particles of type such as Corki's Q indicator or Corki's W fire
         /// </summary>
         DoNotRenderGroundParticles = 1,
-        Unknown2 = 2
+        UnknownConstructDistortionBuffer = 2,
+        RenderOnlyIfEyeCandyOn = 4, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
+        RenderOnlyIfEyeCandyOff = 8 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
     }
 }
