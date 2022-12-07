@@ -19,7 +19,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
         public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
-        public MapGeometryMeshFlags MeshFlags { get; set; }
+        public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }
         public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new();
         public string Lightmap { get; set; } = string.Empty;
@@ -180,7 +180,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                this.MeshFlags = (MapGeometryMeshFlags)br.ReadByte();
+                this.MeshRenderFlags = (MapGeometryMeshRenderFlags)br.ReadByte();
             }
 
             if (useSeparatePointLights && (version < 7))
@@ -257,7 +257,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 11)
             {
-                bw.Write((byte)this.MeshFlags);
+                bw.Write((byte)this.MeshRenderFlags);
             }
 
             if (version < 9)
@@ -384,14 +384,22 @@ namespace LeagueToolkit.IO.MapGeometry
     }
 
     [Flags]
-    public enum MapGeometryMeshFlags : byte
+    public enum MapGeometryMeshRenderFlags : byte
     {
         /// <summary>
-        /// Game will not render particles of type such as Corki's Q indicator or Corki's W fire
+        /// Mesh will have a higher render priority which causes it to be rendered
+        /// on top of certain meshes such as particles with the following properties:
+        /// <code>miscRenderFlags: u8 = 1 || isGroundLayer: flag = true || useNavmeshMask: flag = true</code>
         /// </summary>
-        DoNotRenderGroundParticles = 1,
+        HighRenderPriority = 1,
         UnknownConstructDistortionBuffer = 2,
+        /// <summary>
+        /// Mesh will be rendered only if "Hide Eye Candy" option is unchecked
+        /// </summary>
         RenderOnlyIfEyeCandyOn = 4, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
+        /// <summary>
+        /// Mesh will be rendered only if "Hide Eye Candy" option is checked
+        /// </summary>
         RenderOnlyIfEyeCandyOff = 8 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
     }
 }
