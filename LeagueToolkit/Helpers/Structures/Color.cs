@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace LeagueToolkit.Helpers.Structures
 {
+    [DebuggerDisplay("{R} {G} {B} {A}")]
     public struct Color : IEquatable<Color>
     {
         public static readonly Color Zero = new Color(0, 0, 0, 0);
