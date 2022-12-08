@@ -22,12 +22,18 @@ namespace LeagueToolkit.IO.MapGeometry
         public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }
         public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new();
-        public string Lightmap { get; set; } = string.Empty;
+        
+        public string StationaryLightTexture { get; set; } = string.Empty;
+        public Vector2 StationaryLightScale { get; set; } = new();
+        public Vector2 StationaryLightBias { get; set; } = new();
+
+        public string BakedLightTexture { get; set; } = string.Empty;
+        public Vector2 BakedLightScale { get; set; } = new();
+        public Vector2 BakedLightBias { get; set; } = new();
+
         public string BakedPaintTexture { get; set; } = string.Empty;
-        public string DiffuseTexture { get; set; } = string.Empty;
-        public Color Color { get; set; } = new Color(0, 0, 0, 1);
-        public Color BakedPaintColor { get; set; } = new Color(0, 0, 0, 1);
-        public Color DiffuseColor { get; set; } = new Color(0, 0, 0, 1);
+        public Vector2 BakedPaintScale { get; set; } = new();
+        public Vector2 BakedPaintBias { get; set; } = new();
 
         public const uint MAX_SUBMESH_COUNT = 64;
 
@@ -97,12 +103,14 @@ namespace LeagueToolkit.IO.MapGeometry
             List<MapGeometryVertex> vertices,
             List<ushort> indices,
             List<MapGeometrySubmesh> submeshes,
-            string lightmap,
-            Color color
+            string stationaryLight,
+            Vector2 stationaryLightScale,
+            Vector2 stationaryLightBias
         ) : this(name, vertices, indices, submeshes)
         {
-            this.Lightmap = lightmap;
-            this.Color = color;
+            this.StationaryLightTexture = stationaryLight;
+            this.StationaryLightScale = stationaryLightScale;
+            this.StationaryLightBias = stationaryLightBias;
         }
 
         public MapGeometryModel(
@@ -195,21 +203,25 @@ namespace LeagueToolkit.IO.MapGeometry
                     this.UnknownFloats.Add(br.ReadVector3());
                 }
 
-                this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.Color = br.ReadColor(ColorFormat.RgbaF32);
+                this.StationaryLightTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.StationaryLightScale = br.ReadVector2();
+                this.StationaryLightBias = br.ReadVector2();
             }
             else
             {
-                this.Lightmap = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.Color = br.ReadColor(ColorFormat.RgbaF32);
+                this.StationaryLightTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.StationaryLightScale = br.ReadVector2();
+                this.StationaryLightBias = br.ReadVector2();
 
-                this.BakedPaintTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.BakedPaintColor = br.ReadColor(ColorFormat.RgbaF32);
+                this.BakedLightTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.BakedLightScale = br.ReadVector2();
+                this.BakedLightBias= br.ReadVector2();
 
                 if (version >= 12)
                 {
-                    this.DiffuseTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                    this.DiffuseColor = br.ReadColor(ColorFormat.RgbaF32);
+                    this.BakedPaintTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.BakedPaintScale = br.ReadVector2();
+                    this.BakedPaintBias = br.ReadVector2();
                 }
             }
         }
@@ -283,33 +295,38 @@ namespace LeagueToolkit.IO.MapGeometry
                     bw.WriteVector3(Vector3.Zero);
                 }
 
-                bw.Write(this.Lightmap.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
-                bw.WriteColor(this.Color, ColorFormat.RgbaF32);
+                bw.Write(this.StationaryLightTexture.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.StationaryLightTexture));
+                bw.WriteVector2(this.StationaryLightScale);
+                bw.WriteVector2(this.StationaryLightBias);
             }
             else
             {
-                bw.Write(this.Lightmap.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.Lightmap));
-                bw.WriteColor(this.Color, ColorFormat.RgbaF32);
+                bw.Write(this.StationaryLightTexture.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.StationaryLightTexture));
+                bw.WriteVector2(this.StationaryLightScale);
+                bw.WriteVector2(this.StationaryLightBias);
 
-                bw.Write(this.BakedPaintTexture.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture));
-                bw.WriteColor(this.BakedPaintColor, ColorFormat.RgbaF32);
+                bw.Write(this.BakedLightTexture.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.BakedLightTexture));
+                bw.WriteVector2(this.BakedLightScale);
+                bw.WriteVector2(this.BakedLightBias);
 
                 if (version >= 12)
                 {
-                    bw.Write(this.DiffuseTexture.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.DiffuseTexture));
-                    bw.WriteColor(this.DiffuseColor, ColorFormat.RgbaF32);
+                    bw.Write(this.BakedPaintTexture.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture));
+                    bw.WriteVector2(this.BakedPaintScale);
+                    bw.WriteVector2(this.BakedPaintBias);
                 }
             }
         }
 
-        public void AssignLightmap(string lightmap, Color color)
+        public void AssignLightmap(string lightmap, Vector2 stationaryLightScale, Vector2 stationaryLightBias)
         {
-            this.Lightmap = lightmap;
-            this.Color = color;
+            this.StationaryLightTexture = lightmap;
+            this.StationaryLightScale = stationaryLightScale;
+            this.StationaryLightBias = stationaryLightBias;
         }
 
         public R3DBox GetBoundingBox()

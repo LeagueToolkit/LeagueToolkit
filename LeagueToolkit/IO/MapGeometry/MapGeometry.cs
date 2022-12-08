@@ -12,11 +12,11 @@ namespace LeagueToolkit.IO.MapGeometry
         /// <summary>
         /// Might not be an accurate name
         /// </summary>
-        public string DefaultTextureShaderName { get; set; } = string.Empty;
+        public string ShaderSampler1 { get; set; } = string.Empty;
         /// <summary>
         /// Might not be an accurate name
         /// </summary>
-        public string DefaultTextureParameterShaderName { get; set; } = string.Empty;
+        public string ShaderSampler2 { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
         public List<MapGeometryUnkMatrixBBVec> UnknownMatrixBBVecList { get; set; } = new();
@@ -46,11 +46,11 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 9)
             {
-                this.DefaultTextureShaderName = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.ShaderSampler1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
 
                 if (version >= 11)
                 {
-                    this.DefaultTextureParameterShaderName = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.ShaderSampler2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 }
             }
 
@@ -139,13 +139,13 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 9)
             {
-                bw.Write(this.DefaultTextureShaderName.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.DefaultTextureShaderName));
+                bw.Write(this.ShaderSampler1.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.ShaderSampler1));
 
                 if (version >= 11)
                 {
-                    bw.Write(this.DefaultTextureParameterShaderName.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.DefaultTextureParameterShaderName));
+                    bw.Write(this.ShaderSampler2.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(this.ShaderSampler2));
                 }
             }
 
