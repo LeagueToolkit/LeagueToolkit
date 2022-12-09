@@ -16,7 +16,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public List<MapGeometrySubmesh> Submeshes { get; set; } = new();
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
-        public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IdentityR3DMatrix44();
+        public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IDENTITY;
         public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }

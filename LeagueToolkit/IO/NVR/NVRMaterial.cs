@@ -24,15 +24,15 @@ namespace LeagueToolkit.IO.NVR
             {
                 Color diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
                 string diffuseName = br.ReadPaddedString(260);
-                this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, R3DMatrix44.IdentityR3DMatrix44()));
+                this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, R3DMatrix44.IDENTITY));
 
                 Color emmisiveColor = br.ReadColor(ColorFormat.RgbaF32);
                 string emissiveName = br.ReadPaddedString(260);
-                this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, R3DMatrix44.IdentityR3DMatrix44()));
+                this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, R3DMatrix44.IDENTITY));
 
                 for (int i = 0; i < 6; i++)
                 {
-                    this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IdentityR3DMatrix44()));
+                    this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IDENTITY));
                 }
             }
             else
@@ -66,10 +66,10 @@ namespace LeagueToolkit.IO.NVR
         public static NVRMaterial CreateMaterial(string materialName, string textureName, Color color, NVRMaterialType matType, NVRMaterialFlags matFlags)
         {
             List<NVRChannel> channels = new List<NVRChannel>();
-            channels.Add(new NVRChannel(textureName, color, R3DMatrix44.IdentityR3DMatrix44()));
+            channels.Add(new NVRChannel(textureName, color, R3DMatrix44.IDENTITY));
             for (int i = 0; i < 7; i++)
             {
-                channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IdentityR3DMatrix44()));
+                channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IDENTITY));
             }
             NVRMaterial newMat = new NVRMaterial(materialName, matType, matFlags, channels);
             return newMat;
