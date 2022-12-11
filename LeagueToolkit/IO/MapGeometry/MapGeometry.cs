@@ -19,7 +19,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public string ShaderSampler2 { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
-        public List<MapGeometryUnkMatrixBBVec> UnknownMatrixBBVecList { get; set; } = new();
+        public List<MapGeometryCameraTransformer> CameraTransformers { get; set; } = new();
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public MapGeometry(Stream stream)
@@ -106,10 +106,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if(version >= 13)
             {
-                uint unknownMatrixBBVecCount = br.ReadUInt32();
-                for (int i = 0; i < unknownMatrixBBVecCount; i++)
+                uint cameraTransformerCount = br.ReadUInt32();
+                for (int i = 0; i < cameraTransformerCount; i++)
                 {
-                    this.UnknownMatrixBBVecList.Add(new(br));
+                    this.CameraTransformers.Add(new(br));
                 }
             }
         }
@@ -196,10 +196,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if(version >= 13)
             {
-                bw.Write(this.UnknownMatrixBBVecList.Count);
-                foreach(MapGeometryUnkMatrixBBVec unknownMatrixBBVec in this.UnknownMatrixBBVecList)
+                bw.Write(this.CameraTransformers.Count);
+                foreach(MapGeometryCameraTransformer cameraTransformer in this.CameraTransformers)
                 {
-                    unknownMatrixBBVec.Write(bw);
+                    cameraTransformer.Write(bw);
                 }
             }
         }
