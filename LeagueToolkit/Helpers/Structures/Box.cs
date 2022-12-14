@@ -27,11 +27,11 @@ namespace LeagueToolkit.Helpers.Structures
         /// <summary>
         /// Creates a clone of a <see cref="Box"/> object
         /// </summary>
-        /// <param name="r3dBox">The <see cref="Box"/> to clone</param>
-        public Box(Box r3dBox)
+        /// <param name="box">The <see cref="Box"/> to clone</param>
+        public Box(Box box)
         {
-            this.Min = r3dBox.Min;
-            this.Max = r3dBox.Max;
+            this.Min = box.Min;
+            this.Max = box.Max;
         }
 
         public static Box FromVertices(IEnumerable<Vector3> vertices)
