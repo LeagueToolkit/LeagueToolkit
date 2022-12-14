@@ -39,11 +39,11 @@ namespace LeagueToolkit.IO.MapGeometry
      *     
      *       // Copies camera settings from Global::r3dRendererData->CameraData.CurrentRenderTargetData.CameraPtr
      *       // into the renderer structure that called this function (thiscall in vtable)
-     *     - CallerRenderer.CameraData.Camera = Camera::Init(UnkCameraPtr)
-     *     - Camera::SetType(CallerRenderer.CameraData.Camera, CameraType.kTPS = 2)
+     *     - UnkPlanarCameraData.Camera = Camera::Init(UnkCameraPtr)
+     *     - Camera::SetType(UnkPlanarCameraData.Camera, CameraType.kTPS = 2)
      * 
      *     - cameraRotationOverride = Vector4f(unkVecNormalized, W = unkNegativeDotProduct)
-     *     - Camera::SetRotationOverride(CallerRenderer.CameraData.Camera, cameraRotationOverride)
+     *     - Camera::SetRotationOverride(UnkPlanarCameraData.Camera, cameraRotationOverride)
      *     
      *     - newUnkScreenBufferWidth = Global::r3dRendererData->CameraData.CurrentRenderTargetData.Data.Rect.x2
      *                               - Global::r3dRendererData->CameraData.CurrentRenderTargetData.Data.Rect.x1
@@ -54,9 +54,9 @@ namespace LeagueToolkit.IO.MapGeometry
      *         newUnkScreenBufferWidth, newUnkScreenBufferHeight,
      *         newUnkScreenBufferDesc { 0x00000000, 0x0101, 0x00, 0x00000000}
      *     );
-     *     - CallerRenderer->CameraData.CurrentRenderTarget = newUnkScreenBuffer
+     *     - UnkPlanarCameraData->Camera.RenderTargets = newUnkScreenBuffer
      *     - renderTargetData = Riot::MaybeRenderTargetData::Init(renderTargetDataBuffer, newUnkScreenBuffer.Width, newUnkScreenBuffer.Height)
-     *     - Riot::CameraRenderTargetData::SetMaybeRenderTargetData(CallerRenderer.CameraData.CurrentRenderTargetData, renderTargetData)
+     *     - Riot::CameraRenderTargetData::SetMaybeRenderTargetData(UnkPlanarCameraData.Camera.CurrentRenderTargetData, renderTargetData)
      * - END FOREACH LOOP (RENDER TARGET SET)
      */
     public class MapGeometryCameraTransformer
@@ -65,7 +65,7 @@ namespace LeagueToolkit.IO.MapGeometry
         /// This matrix is used for creating an Expanded Bounding Box by multiplying all of the vertices of <see cref="BoundingBox"/> by <see cref="Transform"/>
         /// <br>It is also used to transform the Camera's World Matrix through multiplication</br>
         /// </summary>
-        public R3DMatrix44 Transform { get; set; }
+        public Matrix4x4 Transform { get; set; }
         public R3DBox BoundingBox { get; set; }
         /// <summary>
         /// Rotation Vector which gets normalized and transformed into a quaternion
@@ -79,14 +79,14 @@ namespace LeagueToolkit.IO.MapGeometry
         public MapGeometryCameraTransformer() { }
         public MapGeometryCameraTransformer(BinaryReader br)
         {
-            this.Transform = new(br);
+            this.Transform = br.ReadMatrix4x4RowMajor();
             this.BoundingBox = new(br);
             this.RotationVector = br.ReadVector3();
         }
 
         public void Write(BinaryWriter bw)
         {
-            this.Transform.Write(bw);
+            bw.WriteMatrix4x4RowMajor(this.Transform);
             this.BoundingBox.Write(bw);
             bw.WriteVector3(this.RotationVector);
         }
