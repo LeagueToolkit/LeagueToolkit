@@ -10,8 +10,8 @@ namespace LeagueToolkit.Helpers.Structures
     /// </summary>
     public struct Box
     {
-        public Vector3 Min { get; set; }
-        public Vector3 Max { get; set; }
+        public Vector3 Min { get; set; } = new(float.MaxValue, float.MaxValue, float.MaxValue);
+        public Vector3 Max { get; set; } = new(float.MinValue, float.MinValue, float.MinValue);
 
         /// <summary>
         /// Initializes a new <see cref="Box"/> instance
@@ -22,16 +22,6 @@ namespace LeagueToolkit.Helpers.Structures
         {
             this.Min = min;
             this.Max = max;
-        }
-
-        /// <summary>
-        /// Initializes a new <see cref="Box"/> instance from a <see cref="BinaryReader"/>
-        /// </summary>
-        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
-        public Box(BinaryReader br)
-        {
-            this.Min = br.ReadVector3();
-            this.Max = br.ReadVector3();
         }
 
         /// <summary>
@@ -78,16 +68,6 @@ namespace LeagueToolkit.Helpers.Structures
             }
 
             return new(min, max);
-        }
-
-        /// <summary>
-        /// Writes this <see cref="Box"/> into a <see cref="BinaryWriter"/>
-        /// </summary>
-        /// <param name="bw"></param>
-        public void Write(BinaryWriter bw)
-        {
-            bw.WriteVector3(this.Min);
-            bw.WriteVector3(this.Max);
         }
 
         /// <summary>

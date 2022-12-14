@@ -50,7 +50,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
                 uint vertexCount = br.ReadUInt32();
                 uint faceCount = br.ReadUInt32();
                 StaticObjectFlags flags = (StaticObjectFlags)br.ReadUInt32();
-                Box boundingBox = new Box(br);
+                Box boundingBox = br.ReadBox();
 
                 bool hasVertexColors = false;
                 if (major == 3 && minor == 2)
@@ -286,7 +286,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
                 bw.Write(vertices.Count);
                 bw.Write(faces.Count);
                 bw.Write((uint)flags);
-                GetBoundingBox().Write(bw);
+                bw.WriteBox(GetBoundingBox());
                 bw.Write((uint)(flags & StaticObjectFlags.VERTEX_COLORS));
 
                 vertices.ForEach(vertex => bw.WriteVector3(vertex.Position));

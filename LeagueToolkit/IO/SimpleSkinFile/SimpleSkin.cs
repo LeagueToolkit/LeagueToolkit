@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.IO.WGT;
@@ -86,7 +87,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                     uint vertexSize = major == 4 ? br.ReadUInt32() : 52;
                     vertexType = major == 4 ? (SimpleSkinVertexType)br.ReadUInt32() : SimpleSkinVertexType.Basic;
-                    Box boundingBox = major == 4 ? new Box(br) : new Box(Vector3.Zero, Vector3.Zero);
+                    Box boundingBox = major == 4 ? br.ReadBox() : new();
                     R3DSphere boundingSphere = major == 4 ? new R3DSphere(br) : R3DSphere.Infinite;
                 }
 
@@ -167,7 +168,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
 
                 Box box = GetBoundingBox();
-                box.Write(bw);
+                bw.WriteBox(box);
                 box.GetBoundingSphere().Write(bw);
 
                 ushort indexOffset = 0;

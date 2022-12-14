@@ -177,7 +177,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.FlipNormals = br.ReadBoolean();
             }
 
-            this.BoundingBox = new(br);
+            this.BoundingBox = br.ReadBox();
             this.Transformation = br.ReadMatrix4x4RowMajor();
             this.QualityFilter = (MapGeometryQualityFilter)br.ReadByte();
 
@@ -258,7 +258,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write(this.FlipNormals);
             }
 
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.WriteMatrix4x4RowMajor(this.Transformation);
             bw.Write((byte)this.QualityFilter);
 

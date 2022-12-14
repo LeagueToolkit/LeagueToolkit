@@ -7,6 +7,7 @@ using System.IO;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.OBJ;
 using System.Numerics;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.NVR
 {
@@ -30,7 +31,7 @@ namespace LeagueToolkit.IO.NVR
                 this.Flag = br.ReadInt32();
             }
             this.BoundingSphere = new R3DSphere(br);
-            this.BoundingBox = new Box(br);
+            this.BoundingBox = br.ReadBox();
             this.Material = buffers.Materials[br.ReadInt32()];
             this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(br, buffers, this, true);
             this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(br, buffers, this, false);
@@ -69,7 +70,7 @@ namespace LeagueToolkit.IO.NVR
             bw.Write((int)this.QualityLevel);
             bw.Write(this.Flag);
             this.BoundingSphere.Write(bw);
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.Write(this.MaterialIndex);
             this.IndexedPrimitives[0].Write(bw);
             this.IndexedPrimitives[1].Write(bw);

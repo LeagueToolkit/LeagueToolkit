@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using LeagueToolkit.Helpers.Structures;
 using System.Numerics;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.NVR
 {
@@ -27,7 +28,7 @@ namespace LeagueToolkit.IO.NVR
 
         public NVRNode(BinaryReader br, NVRBuffers buffers)
         {
-            this.BoundingBox = new Box(br);
+            this.BoundingBox = br.ReadBox();
             this.FirstMesh = br.ReadInt32();
             this.MeshCount = br.ReadInt32();
             this.FirstChildNode = br.ReadInt32();
@@ -142,7 +143,7 @@ namespace LeagueToolkit.IO.NVR
 
         public void Write(BinaryWriter bw)
         {
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.Write(this.FirstMesh);
             bw.Write(this.MeshCount);
             bw.Write(this.FirstChildNode);

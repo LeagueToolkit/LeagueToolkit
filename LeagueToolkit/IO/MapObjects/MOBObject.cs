@@ -79,7 +79,7 @@ namespace LeagueToolkit.IO.MapObjects
             this.Position = br.ReadVector3();
             this.Rotation = br.ReadVector3();
             this.Scale = br.ReadVector3();
-            this.BoundingBox = new Box(br);
+            this.BoundingBox = br.ReadBox();
             this.SkinID = br.ReadUInt32();
         }
 
@@ -95,7 +95,7 @@ namespace LeagueToolkit.IO.MapObjects
             bw.WriteVector3(this.Position);
             bw.WriteVector3(this.Rotation);
             bw.WriteVector3(this.Scale);
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.Write(this.SkinID);
         }
     }

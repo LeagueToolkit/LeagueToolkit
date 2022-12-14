@@ -69,7 +69,7 @@ namespace LeagueToolkit.IO.WorldGeometry
             this.Texture = br.ReadPaddedString(260);
             this.Material = br.ReadPaddedString(64);
             this.Sphere = new R3DSphere(br);
-            this.BoundingBox = new Box(br);
+            this.BoundingBox = br.ReadBox();
 
             uint vertexCount = br.ReadUInt32();
             uint indexCount = br.ReadUInt32();
@@ -105,7 +105,7 @@ namespace LeagueToolkit.IO.WorldGeometry
 
             Tuple<R3DSphere, Box> boundingGeometry = CalculateBoundingGeometry();
             boundingGeometry.Item1.Write(bw);
-            boundingGeometry.Item2.Write(bw);
+            bw.WriteBox(boundingGeometry.Item2);
 
             bw.Write(this.Vertices.Count);
             bw.Write(this.Indices.Count);
