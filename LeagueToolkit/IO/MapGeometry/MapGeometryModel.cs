@@ -15,7 +15,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public List<ushort> Indices { get; set; } = new();
         public List<MapGeometrySubmesh> Submeshes { get; set; } = new();
         public bool FlipNormals { get; set; }
-        public R3DBox BoundingBox { get; set; }
+        public Box BoundingBox { get; set; }
         public Matrix4x4 Transformation { get; set; } = Matrix4x4.Identity;
         public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
@@ -177,7 +177,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.FlipNormals = br.ReadBoolean();
             }
 
-            this.BoundingBox = new(br);
+            this.BoundingBox = br.ReadBox();
             this.Transformation = br.ReadMatrix4x4RowMajor();
             this.QualityFilter = (MapGeometryQualityFilter)br.ReadByte();
 
@@ -258,7 +258,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write(this.FlipNormals);
             }
 
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.WriteMatrix4x4RowMajor(this.Transformation);
             bw.Write((byte)this.QualityFilter);
 
@@ -329,11 +329,11 @@ namespace LeagueToolkit.IO.MapGeometry
             this.StationaryLightBias = stationaryLightBias;
         }
 
-        public R3DBox GetBoundingBox()
+        public Box GetBoundingBox()
         {
             if (this.Vertices == null || this.Vertices.Count == 0)
             {
-                return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+                return new Box(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
             }
             else
             {
@@ -368,7 +368,7 @@ namespace LeagueToolkit.IO.MapGeometry
                     }
                 }
 
-                return new R3DBox(min, max);
+                return new Box(min, max);
             }
         }
     }

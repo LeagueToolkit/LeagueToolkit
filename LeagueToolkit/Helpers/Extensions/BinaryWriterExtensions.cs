@@ -113,5 +113,11 @@ namespace LeagueToolkit.Helpers.Extensions
             writer.Write(matrix.M43);
             writer.Write(matrix.M44);
         }
+    
+        public static void WriteBox(this BinaryWriter writer, Box box)
+        {
+            writer.WriteVector3(box.Min);
+            writer.WriteVector3(box.Max);
+        }
     }
 }

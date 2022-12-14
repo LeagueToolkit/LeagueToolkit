@@ -66,7 +66,7 @@ namespace LeagueToolkit.IO.MapGeometry
         /// <br>It is also used to transform the Camera's World Matrix through multiplication</br>
         /// </summary>
         public Matrix4x4 Transform { get; set; }
-        public R3DBox BoundingBox { get; set; }
+        public Box BoundingBox { get; set; }
         /// <summary>
         /// Rotation Vector which gets normalized and transformed into a quaternion
         /// <code>
@@ -80,14 +80,14 @@ namespace LeagueToolkit.IO.MapGeometry
         public MapGeometryCameraTransformer(BinaryReader br)
         {
             this.Transform = br.ReadMatrix4x4RowMajor();
-            this.BoundingBox = new(br);
+            this.BoundingBox = br.ReadBox();
             this.RotationVector = br.ReadVector3();
         }
 
         public void Write(BinaryWriter bw)
         {
             bw.WriteMatrix4x4RowMajor(this.Transform);
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.WriteVector3(this.RotationVector);
         }
     }

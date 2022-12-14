@@ -42,7 +42,7 @@ namespace LeagueToolkit.IO.MapObjects
         /// <summary>
         /// Bounding Box of this <see cref="MOBObject"/>
         /// </summary>
-        public R3DBox BoundingBox { get; set; }
+        public Box BoundingBox { get; set; }
 
         /// <summary>
         /// Initializes a new <see cref="MOBObject"/>
@@ -55,7 +55,7 @@ namespace LeagueToolkit.IO.MapObjects
         /// <param name="rotation">Scale of this <see cref="MOBObject"/></param>
         /// <param name="scale">Scale of this <see cref="MOBObject"/></param>
         /// <param name="boundingBox">Bounding Box of this <see cref="MOBObject"/></param>
-        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, R3DBox boundingBox)
+        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, Box boundingBox)
         {
             this.Name = name;
             this.Type = type;
@@ -79,7 +79,7 @@ namespace LeagueToolkit.IO.MapObjects
             this.Position = br.ReadVector3();
             this.Rotation = br.ReadVector3();
             this.Scale = br.ReadVector3();
-            this.BoundingBox = new R3DBox(br);
+            this.BoundingBox = br.ReadBox();
             this.SkinID = br.ReadUInt32();
         }
 
@@ -95,7 +95,7 @@ namespace LeagueToolkit.IO.MapObjects
             bw.WriteVector3(this.Position);
             bw.WriteVector3(this.Rotation);
             bw.WriteVector3(this.Scale);
-            this.BoundingBox.Write(bw);
+            bw.WriteBox(this.BoundingBox);
             bw.Write(this.SkinID);
         }
     }

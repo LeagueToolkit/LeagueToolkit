@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.IO.WGT;
@@ -86,7 +87,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                     uint vertexSize = major == 4 ? br.ReadUInt32() : 52;
                     vertexType = major == 4 ? (SimpleSkinVertexType)br.ReadUInt32() : SimpleSkinVertexType.Basic;
-                    R3DBox boundingBox = major == 4 ? new R3DBox(br) : new R3DBox(Vector3.Zero, Vector3.Zero);
+                    Box boundingBox = major == 4 ? br.ReadBox() : new();
                     R3DSphere boundingSphere = major == 4 ? new R3DSphere(br) : R3DSphere.Infinite;
                 }
 
@@ -166,8 +167,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     bw.Write((uint)SimpleSkinVertexType.Basic);
                 }
 
-                R3DBox box = GetBoundingBox();
-                box.Write(bw);
+                Box box = GetBoundingBox();
+                bw.WriteBox(box);
                 box.GetBoundingSphere().Write(bw);
 
                 ushort indexOffset = 0;
@@ -193,7 +194,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             }
         }
 
-        public R3DBox GetBoundingBox()
+        public Box GetBoundingBox()
         {
             Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
@@ -211,7 +212,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
             }
 
-            return new R3DBox(min, max);
+            return new Box(min, max);
         }
     }
 }

@@ -8,43 +8,33 @@ namespace LeagueToolkit.Helpers.Structures
     /// <summary>
     /// Represents an Axis-Aligned Bounding Box
     /// </summary>
-    public class R3DBox
+    public struct Box
     {
-        public Vector3 Min { get; private set; }
-        public Vector3 Max { get; private set; }
+        public Vector3 Min { get; set; } = new(float.MaxValue, float.MaxValue, float.MaxValue);
+        public Vector3 Max { get; set; } = new(float.MinValue, float.MinValue, float.MinValue);
 
         /// <summary>
-        /// Initializes a new <see cref="R3DBox"/> instance
+        /// Initializes a new <see cref="Box"/> instance
         /// </summary>
         /// <param name="min"></param>
         /// <param name="max"></param>
-        public R3DBox(Vector3 min, Vector3 max)
+        public Box(Vector3 min, Vector3 max)
         {
             this.Min = min;
             this.Max = max;
         }
 
         /// <summary>
-        /// Initializes a new <see cref="R3DBox"/> instance from a <see cref="BinaryReader"/>
+        /// Creates a clone of a <see cref="Box"/> object
         /// </summary>
-        /// <param name="br">The <see cref="BinaryReader"/> to read from</param>
-        public R3DBox(BinaryReader br)
-        {
-            this.Min = br.ReadVector3();
-            this.Max = br.ReadVector3();
-        }
-
-        /// <summary>
-        /// Creates a clone of a <see cref="R3DBox"/> object
-        /// </summary>
-        /// <param name="r3dBox">The <see cref="R3DBox"/> to clone</param>
-        public R3DBox(R3DBox r3dBox)
+        /// <param name="r3dBox">The <see cref="Box"/> to clone</param>
+        public Box(Box r3dBox)
         {
             this.Min = r3dBox.Min;
             this.Max = r3dBox.Max;
         }
 
-        public static R3DBox FromVertices(IEnumerable<Vector3> vertices)
+        public static Box FromVertices(IEnumerable<Vector3> vertices)
         {
             Vector3 min = new(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 max = new(float.MinValue, float.MinValue, float.MinValue);
@@ -81,17 +71,7 @@ namespace LeagueToolkit.Helpers.Structures
         }
 
         /// <summary>
-        /// Writes this <see cref="R3DBox"/> into a <see cref="BinaryWriter"/>
-        /// </summary>
-        /// <param name="bw"></param>
-        public void Write(BinaryWriter bw)
-        {
-            bw.WriteVector3(this.Min);
-            bw.WriteVector3(this.Max);
-        }
-
-        /// <summary>
-        /// Calculates the proportions of this <see cref="R3DBox"/>
+        /// Calculates the proportions of this <see cref="Box"/>
         /// </summary>
         public Vector3 GetProportions()
         {
@@ -115,10 +95,10 @@ namespace LeagueToolkit.Helpers.Structures
         }
 
         /// <summary>
-        /// Determines wheter this <see cref="R3DBox"/> contains the <see cref="Vector3"/> <paramref name="point"/>
+        /// Determines wheter this <see cref="Box"/> contains the <see cref="Vector3"/> <paramref name="point"/>
         /// </summary>
         /// <param name="point">The containing point</param>
-        /// <returns>Wheter this <see cref="R3DBox"/> contains the <see cref="Vector3"/> <paramref name="point"/></returns>
+        /// <returns>Wheter this <see cref="Box"/> contains the <see cref="Vector3"/> <paramref name="point"/></returns>
         public bool ContainsPoint(Vector3 point)
         {
             return (point.X >= this.Min.X)
