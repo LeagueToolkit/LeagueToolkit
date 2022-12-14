@@ -387,9 +387,9 @@ namespace LeagueToolkit.Helpers.Structures
         {
             return new()
             {
-                X = (this.M11 * vector.X) + (this.M12 * vector.Y) + (this.M13 * vector.Z) + this.M14,
-                Y = (this.M21 * vector.X) + (this.M22 * vector.Y) + (this.M23 * vector.Z) + this.M24,
-                Z = (this.M31 * vector.X) + (this.M32 * vector.Y) + (this.M33 * vector.Z) + this.M34
+                X = (this.M11 * vector.X) + (this.M12 * vector.Y) + (this.M13 * vector.Z) + this.M41,
+                Y = (this.M21 * vector.X) + (this.M22 * vector.Y) + (this.M23 * vector.Z) + this.M42,
+                Z = (this.M31 * vector.X) + (this.M32 * vector.Y) + (this.M33 * vector.Z) + this.M43
             };
         }
 
