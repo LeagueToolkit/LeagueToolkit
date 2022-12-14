@@ -16,7 +16,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public List<MapGeometrySubmesh> Submeshes { get; set; } = new();
         public bool FlipNormals { get; set; }
         public R3DBox BoundingBox { get; set; }
-        public R3DMatrix44 Transformation { get; set; } = R3DMatrix44.IDENTITY;
+        public Matrix4x4 Transformation { get; set; } = Matrix4x4.Identity;
         public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }
@@ -79,7 +79,7 @@ namespace LeagueToolkit.IO.MapGeometry
             List<MapGeometryVertex> vertices,
             List<ushort> indices,
             List<MapGeometrySubmesh> submeshes,
-            R3DMatrix44 transformation
+            Matrix4x4 transformation
         ) : this(name, vertices, indices, submeshes)
         {
             this.Transformation = transformation;
@@ -91,7 +91,7 @@ namespace LeagueToolkit.IO.MapGeometry
             List<ushort> indices,
             List<MapGeometrySubmesh> submeshes,
             MapGeometryLayer layer,
-            R3DMatrix44 transformation
+            Matrix4x4 transformation
         ) : this(name, vertices, indices, submeshes)
         {
             this.Layer = layer;
@@ -178,7 +178,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             this.BoundingBox = new(br);
-            this.Transformation = new(br);
+            this.Transformation = br.ReadMatrix4x4RowMajor();
             this.QualityFilter = (MapGeometryQualityFilter)br.ReadByte();
 
             if (version >= 7 && version <= 12)
@@ -259,7 +259,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             this.BoundingBox.Write(bw);
-            this.Transformation.Write(bw);
+            bw.WriteMatrix4x4RowMajor(this.Transformation);
             bw.Write((byte)this.QualityFilter);
 
             if (version >= 7 && version <= 12)
