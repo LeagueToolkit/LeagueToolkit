@@ -8,7 +8,7 @@ namespace LeagueToolkit.Helpers.Structures
     /// <summary>
     /// Represents an Axis-Aligned Bounding Box
     /// </summary>
-    public class Box
+    public struct Box
     {
         public Vector3 Min { get; set; }
         public Vector3 Max { get; set; }
