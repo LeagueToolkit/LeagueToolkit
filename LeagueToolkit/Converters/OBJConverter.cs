@@ -42,7 +42,14 @@ namespace LeagueToolkit.Converters
 
                 foreach (MapGeometryVertex vertex in model.Vertices)
                 {
-                    vertices.Add(model.Transformation.ApplyTransformation(vertex.Position.Value));
+                    if (vertex.Position is null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Model with index: {mgeo.Models.IndexOf(model)} contains a vertex without a Position element"
+                        );
+                    }
+
+                    vertices.Add(Vector3.Transform((Vector3)vertex.Position, model.Transformation));
                     normals.Add(vertex.Normal.Value);
                     if (vertex.DiffuseUV != null)
                     {
