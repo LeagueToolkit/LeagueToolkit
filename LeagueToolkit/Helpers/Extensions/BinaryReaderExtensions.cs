@@ -81,10 +81,12 @@ namespace LeagueToolkit.Helpers.Extensions
         {
             return new Vector2(reader.ReadSingle(), reader.ReadSingle());
         }
+
         public static Vector3 ReadVector3(this BinaryReader reader)
         {
             return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
         }
+
         public static Vector4 ReadVector4(this BinaryReader reader)
         {
             return new Vector4(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
@@ -118,10 +120,16 @@ namespace LeagueToolkit.Helpers.Extensions
             };
         }
 
+        public static Box ReadBox(this BinaryReader reader)
+        {
+            return new(reader.ReadVector3(), reader.ReadVector3());
+        }
+
         public static string ReadPaddedString(this BinaryReader reader, int length)
         {
             return Encoding.ASCII.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
         }
+
         public static string ReadZeroTerminatedString(this BinaryReader reader)
         {
             string returnString = "";
