@@ -133,7 +133,7 @@ namespace LeagueToolkit.IO.NVR
 
             foreach (NVRNode childNode in Children)
             {
-                Vector3 proportions = childNode.CentralPointsBoundingBox.GetProportions();
+                Vector3 proportions = childNode.CentralPointsBoundingBox.GetSize();
                 if ((childNode.Meshes.Count > 1) && (proportions.X > 100 || proportions.Z > 100))
                 {
                     childNode.Split();

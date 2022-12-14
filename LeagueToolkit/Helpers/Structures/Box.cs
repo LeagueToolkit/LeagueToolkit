@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -10,8 +11,16 @@ namespace LeagueToolkit.Helpers.Structures
     /// </summary>
     public struct Box
     {
-        public Vector3 Min { get; set; } = new(float.MaxValue, float.MaxValue, float.MaxValue);
-        public Vector3 Max { get; set; } = new(float.MinValue, float.MinValue, float.MinValue);
+        public Vector3 Min;
+        public Vector3 Max;
+
+        public const int VERTEX_COUNT = 8;
+
+        public Box() 
+        {
+            this.Min = new(float.MaxValue, float.MaxValue, float.MaxValue);
+            this.Max = new(float.MinValue, float.MinValue, float.MinValue);
+        }
 
         /// <summary>
         /// Initializes a new <see cref="Box"/> instance
@@ -70,13 +79,15 @@ namespace LeagueToolkit.Helpers.Structures
             return new(min, max);
         }
 
-        /// <summary>
-        /// Calculates the proportions of this <see cref="Box"/>
-        /// </summary>
-        public Vector3 GetProportions()
+        public static Box ExpandByPoint(Box box, Vector3 point)
         {
-            return this.Max - this.Min;
+            return new(Vector3.Min(box.Min, point), Vector3.Max(box.Max, point));
         }
+
+        /// <summary>
+        /// Calculates the size of this <see cref="Box"/>
+        /// </summary>
+        public Vector3 GetSize() => this.Max - this.Min;
 
         public Vector3 GetCentralPoint()
         {
@@ -85,6 +96,38 @@ namespace LeagueToolkit.Helpers.Structures
                 0.5f * (this.Min.Y + this.Max.Y),
                 0.5f * (this.Min.Z + this.Max.Z)
             );
+        }
+
+        /// <summary>
+        /// Get vertex using same way League does
+        /// <br>xyz - 0-Min 1-Max</br>
+        /// <br>000 - 0</br>
+        /// <br>010 - 1</br>
+        /// <br>100 - 2</br>
+        /// <br>110 - 3</br>
+        /// <br>001 - 4</br>
+        /// <br>011 - 5</br>
+        /// <br>101 - 6</br>
+        /// <br>111 - 7</br>
+        /// </summary>
+        public Vector3 GetVertex(int index)
+        {
+            return index switch
+            {
+                0 => this.Min,
+                1 => new(this.Min.X, this.Max.Y, this.Min.Z),
+                2 => new(this.Max.X, this.Min.Y, this.Min.Z),
+                3 => new(this.Max.X, this.Max.Y, this.Min.Z),
+
+                4 => new(this.Min.X, this.Min.Y, this.Max.Z),
+                5 => new(this.Min.X, this.Max.Y, this.Max.Z),
+                6 => new(this.Max.X, this.Min.Y, this.Max.Z),
+                7 => this.Max,
+                _
+                    => throw new ArgumentOutOfRangeException(
+                        $"The provided index: {index} is outside of the allowed range (0-7)"
+                    ),
+            };
         }
 
         public R3DSphere GetBoundingSphere()
