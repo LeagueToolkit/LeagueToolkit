@@ -12,7 +12,7 @@ namespace LeagueToolkit.IO.NVR
     public class NVRNode
     {
         public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255, 127, 255 }, 0);
-        public R3DBox BoundingBox { get; private set; }
+        public Box BoundingBox { get; private set; }
         public List<NVRNode> Children { get; private set; } = new List<NVRNode>();
         public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();
 
@@ -23,11 +23,11 @@ namespace LeagueToolkit.IO.NVR
         public int ChildNodeCount;
 
         //Values used when writing
-        public R3DBox CentralPointsBoundingBox;
+        public Box CentralPointsBoundingBox;
 
         public NVRNode(BinaryReader br, NVRBuffers buffers)
         {
-            this.BoundingBox = new R3DBox(br);
+            this.BoundingBox = new Box(br);
             this.FirstMesh = br.ReadInt32();
             this.MeshCount = br.ReadInt32();
             this.FirstChildNode = br.ReadInt32();
@@ -42,7 +42,7 @@ namespace LeagueToolkit.IO.NVR
             }
         }
 
-        public NVRNode(R3DBox centralPointsBox, NVRNode parentNode)
+        public NVRNode(Box centralPointsBox, NVRNode parentNode)
         {
             // Used if we create it from a parent node.
             this.CentralPointsBoundingBox = centralPointsBox;
@@ -59,7 +59,7 @@ namespace LeagueToolkit.IO.NVR
             this.CentralPointsBoundingBox = this.CalculateCentralPointsBoundingBox();
         }
 
-        private R3DBox CalculateBoundingBox()
+        private Box CalculateBoundingBox()
         {
             if (Meshes.Count > 0)
             {
@@ -67,7 +67,7 @@ namespace LeagueToolkit.IO.NVR
                 Vector3 max = new Vector3(Meshes[0].BoundingBox.Max.X, Meshes[0].BoundingBox.Max.Y, Meshes[0].BoundingBox.Max.Z);
                 for (int i = 1; i < Meshes.Count; i++)
                 {
-                    R3DBox box = Meshes[i].BoundingBox;
+                    Box box = Meshes[i].BoundingBox;
                     if (box.Min.X < min.X) { min.X = box.Min.X; }
                     if (box.Min.Y < min.Y) { min.Y = box.Min.Y; }
                     if (box.Min.Z < min.Z) { min.Z = box.Min.Z; }
@@ -75,16 +75,16 @@ namespace LeagueToolkit.IO.NVR
                     if (box.Max.Y > max.Y) { max.Y = box.Max.Y; }
                     if (box.Max.Z > max.Z) { max.Z = box.Max.Z; }
                 }
-                return new R3DBox(min, max);
+                return new Box(min, max);
             }
             else
             {
                 // No meshes inside, set bounding box to 
-                return new R3DBox(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
+                return new Box(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
             }
         }
 
-        private R3DBox CalculateCentralPointsBoundingBox()
+        private Box CalculateCentralPointsBoundingBox()
         {
             if (Meshes.Count > 0)
             {
@@ -100,35 +100,35 @@ namespace LeagueToolkit.IO.NVR
                     if (spherePosition.Y > max.Y) { max.Y = spherePosition.Y; }
                     if (spherePosition.Z > max.Z) { max.Z = spherePosition.Z; }
                 }
-                return new R3DBox(min, max);
+                return new Box(min, max);
             }
-            return new R3DBox(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
+            return new Box(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
         }
 
         public void Split()
         {
-            R3DBox pBox = CentralPointsBoundingBox;
+            Box pBox = CentralPointsBoundingBox;
             float middleX = (pBox.Min.X + pBox.Max.X) / 2;
             float middleZ = (pBox.Min.Z + pBox.Max.Z) / 2;
             // Node 1 (bottom-left)
             Vector3 node1Min = new Vector3(pBox.Min.X, pBox.Min.Y, pBox.Min.Z);
             Vector3 node1Max = new Vector3(middleX, pBox.Max.Y, middleZ);
-            NVRNode node1 = new NVRNode(new R3DBox(node1Min, node1Max), this);
+            NVRNode node1 = new NVRNode(new Box(node1Min, node1Max), this);
 
             // Node 2 (top-left)
             Vector3 node2Min = new Vector3(pBox.Min.X, pBox.Min.Y, middleZ);
             Vector3 node2Max = new Vector3(middleX, pBox.Max.Y, pBox.Max.Z);
-            NVRNode node2 = new NVRNode(new R3DBox(node2Min, node2Max), this);
+            NVRNode node2 = new NVRNode(new Box(node2Min, node2Max), this);
 
             // Node 3 (top-right)
             Vector3 node3Min = new Vector3(middleX, pBox.Min.Y, middleZ);
             Vector3 node3Max = new Vector3(pBox.Max.X, pBox.Max.Y, pBox.Max.Z);
-            NVRNode node3 = new NVRNode(new R3DBox(node3Min, node3Max), this);
+            NVRNode node3 = new NVRNode(new Box(node3Min, node3Max), this);
 
             // Node 4 (bottom-right)
             Vector3 node4Min = new Vector3(middleX, pBox.Min.Y, pBox.Min.Z);
             Vector3 node4Max = new Vector3(pBox.Max.X, pBox.Max.Y, middleZ);
-            NVRNode node4 = new NVRNode(new R3DBox(node4Min, node4Max), this);
+            NVRNode node4 = new NVRNode(new Box(node4Min, node4Max), this);
 
             foreach (NVRNode childNode in Children)
             {

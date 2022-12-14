@@ -28,7 +28,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// <summary>
         /// Axis Aligned Bounding Box of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public R3DBox BoundingBox { get; private set; }
+        public Box BoundingBox { get; private set; }
         /// <summary>
         /// Vertices of this <see cref="WorldGeometryModel"/>
         /// </summary>
@@ -69,7 +69,7 @@ namespace LeagueToolkit.IO.WorldGeometry
             this.Texture = br.ReadPaddedString(260);
             this.Material = br.ReadPaddedString(64);
             this.Sphere = new R3DSphere(br);
-            this.BoundingBox = new R3DBox(br);
+            this.BoundingBox = new Box(br);
 
             uint vertexCount = br.ReadUInt32();
             uint indexCount = br.ReadUInt32();
@@ -103,7 +103,7 @@ namespace LeagueToolkit.IO.WorldGeometry
             bw.Write(Encoding.ASCII.GetBytes(this.Texture.PadRight(260, '\u0000')));
             bw.Write(Encoding.ASCII.GetBytes(this.Material.PadRight(64, '\u0000')));
 
-            Tuple<R3DSphere, R3DBox> boundingGeometry = CalculateBoundingGeometry();
+            Tuple<R3DSphere, Box> boundingGeometry = CalculateBoundingGeometry();
             boundingGeometry.Item1.Write(bw);
             boundingGeometry.Item2.Write(bw);
 
@@ -130,21 +130,21 @@ namespace LeagueToolkit.IO.WorldGeometry
             }
         }
 
-        public Tuple<R3DSphere, R3DBox> CalculateBoundingGeometry()
+        public Tuple<R3DSphere, Box> CalculateBoundingGeometry()
         {
-            R3DBox box = CalculateBoundingBox();
+            Box box = CalculateBoundingBox();
             R3DSphere sphere = CalculateSphere(box);
-            return new Tuple<R3DSphere, R3DBox>(sphere, box);
+            return new Tuple<R3DSphere, Box>(sphere, box);
         }
 
         /// <summary>
         /// Calculates the Axis Aligned Bounding Box of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public R3DBox CalculateBoundingBox()
+        public Box CalculateBoundingBox()
         {
             if(this.Vertices == null || this.Vertices.Count == 0)
             {
-                return new R3DBox(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+                return new Box(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
             }
             else
             {
@@ -161,7 +161,7 @@ namespace LeagueToolkit.IO.WorldGeometry
                     if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
                 }
 
-                return new R3DBox(min, max);
+                return new Box(min, max);
             }
         }
 
@@ -170,7 +170,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// </summary>
         public R3DSphere CalculateSphere()
         {
-            R3DBox box = CalculateBoundingBox();
+            Box box = CalculateBoundingBox();
             Vector3 centralPoint = new Vector3(0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
                 0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
                 0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z));
@@ -179,10 +179,10 @@ namespace LeagueToolkit.IO.WorldGeometry
         }
 
         /// <summary>
-        /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/> from the specified <see cref="R3DBox"/>
+        /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/> from the specified <see cref="Box"/>
         /// </summary>
-        /// <param name="box"><see cref="R3DBox"/> to use for calculation</param>
-        public R3DSphere CalculateSphere(R3DBox box)
+        /// <param name="box"><see cref="Box"/> to use for calculation</param>
+        public R3DSphere CalculateSphere(Box box)
         {
             Vector3 centralPoint = new Vector3(0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
                 0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),

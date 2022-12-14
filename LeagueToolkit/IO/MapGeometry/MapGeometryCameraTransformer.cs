@@ -66,7 +66,7 @@ namespace LeagueToolkit.IO.MapGeometry
         /// <br>It is also used to transform the Camera's World Matrix through multiplication</br>
         /// </summary>
         public Matrix4x4 Transform { get; set; }
-        public R3DBox BoundingBox { get; set; }
+        public Box BoundingBox { get; set; }
         /// <summary>
         /// Rotation Vector which gets normalized and transformed into a quaternion
         /// <code>

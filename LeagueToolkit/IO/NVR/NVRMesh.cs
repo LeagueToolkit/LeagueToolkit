@@ -15,7 +15,7 @@ namespace LeagueToolkit.IO.NVR
         public NVRMeshQuality QualityLevel { get; set; }
         public int Flag { get; private set; }
         public R3DSphere BoundingSphere { get; private set; }
-        public R3DBox BoundingBox { get; private set; }
+        public Box BoundingBox { get; private set; }
         public NVRMaterial Material { get; private set; }
         public NVRDrawIndexedPrimitive[] IndexedPrimitives { get; private set; } = new NVRDrawIndexedPrimitive[2];
 
@@ -30,7 +30,7 @@ namespace LeagueToolkit.IO.NVR
                 this.Flag = br.ReadInt32();
             }
             this.BoundingSphere = new R3DSphere(br);
-            this.BoundingBox = new R3DBox(br);
+            this.BoundingBox = new Box(br);
             this.Material = buffers.Materials[br.ReadInt32()];
             this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(br, buffers, this, true);
             this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(br, buffers, this, false);
@@ -56,7 +56,7 @@ namespace LeagueToolkit.IO.NVR
                 if (position.Y > max[1]) { max[1] = position.Y; }
                 if (position.Z > max[2]) { max[2] = position.Z; }
             }
-            this.BoundingBox = new R3DBox(new Vector3(min[0], min[1], min[2]), new Vector3(max[0], max[1], max[2]));
+            this.BoundingBox = new Box(new Vector3(min[0], min[1], min[2]), new Vector3(max[0], max[1], max[2]));
 
             float radius = max[0] - min[0];
             if (max[1] - min[1] > radius) { radius = max[1] - min[1]; }
