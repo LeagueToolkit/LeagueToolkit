@@ -11,29 +11,28 @@ namespace LeagueToolkit.IO.MapGeometry
     public class MapGeometryModel
     {
         public string Name { get; set; }
+
         public List<MapGeometryVertex> Vertices { get; set; } = new();
         public List<ushort> Indices { get; set; } = new();
         public List<MapGeometrySubmesh> Submeshes { get; set; } = new();
+
         public bool FlipNormals { get; set; }
+
         public Box BoundingBox { get; set; }
         public Matrix4x4 Transformation { get; set; } = Matrix4x4.Identity;
+
         public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
         public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }
+
         public Vector3? SeparatePointLight { get; set; }
         public List<Vector3> UnknownFloats { get; set; } = new();
-        
-        public string StationaryLightTexture { get; set; } = string.Empty;
-        public Vector2 StationaryLightScale { get; set; } = new();
-        public Vector2 StationaryLightBias { get; set; } = new();
 
-        public string BakedLightTexture { get; set; } = string.Empty;
-        public Vector2 BakedLightScale { get; set; } = new();
-        public Vector2 BakedLightBias { get; set; } = new();
+        public MapGeometrySamplerData StationaryLight { get; set; } = new();
 
-        public string BakedPaintTexture { get; set; } = string.Empty;
-        public Vector2 BakedPaintScale { get; set; } = new();
-        public Vector2 BakedPaintBias { get; set; } = new();
+        public MapGeometrySamplerData BakedLight { get; set; } = new();
+
+        public MapGeometrySamplerData BakedPaint { get; set; } = new();
 
         public const uint MAX_SUBMESH_COUNT = 64;
 
@@ -103,14 +102,10 @@ namespace LeagueToolkit.IO.MapGeometry
             List<MapGeometryVertex> vertices,
             List<ushort> indices,
             List<MapGeometrySubmesh> submeshes,
-            string stationaryLight,
-            Vector2 stationaryLightScale,
-            Vector2 stationaryLightBias
+            MapGeometrySamplerData stationaryLight
         ) : this(name, vertices, indices, submeshes)
         {
-            this.StationaryLightTexture = stationaryLight;
-            this.StationaryLightScale = stationaryLightScale;
-            this.StationaryLightBias = stationaryLightBias;
+            this.StationaryLight = stationaryLight;
         }
 
         public MapGeometryModel(
@@ -203,25 +198,16 @@ namespace LeagueToolkit.IO.MapGeometry
                     this.UnknownFloats.Add(br.ReadVector3());
                 }
 
-                this.StationaryLightTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.StationaryLightScale = br.ReadVector2();
-                this.StationaryLightBias = br.ReadVector2();
+                this.StationaryLight = MapGeometrySamplerData.Read(br);
             }
             else
             {
-                this.StationaryLightTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.StationaryLightScale = br.ReadVector2();
-                this.StationaryLightBias = br.ReadVector2();
-
-                this.BakedLightTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                this.BakedLightScale = br.ReadVector2();
-                this.BakedLightBias= br.ReadVector2();
+                this.StationaryLight = MapGeometrySamplerData.Read(br);
+                this.BakedLight = MapGeometrySamplerData.Read(br);
 
                 if (version >= 12)
                 {
-                    this.BakedPaintTexture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                    this.BakedPaintScale = br.ReadVector2();
-                    this.BakedPaintBias = br.ReadVector2();
+                    this.BakedPaint = MapGeometrySamplerData.Read(br);
                 }
             }
         }
@@ -276,14 +262,7 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 if (useSeparatePointLights)
                 {
-                    if (this.SeparatePointLight is Vector3 separatePointLight)
-                    {
-                        bw.WriteVector3(separatePointLight);
-                    }
-                    else
-                    {
-                        bw.WriteVector3(Vector3.Zero);
-                    }
+                    bw.WriteVector3(this.SeparatePointLight ?? Vector3.Zero);
                 }
 
                 foreach (Vector3 pointLight in this.UnknownFloats)
@@ -295,38 +274,18 @@ namespace LeagueToolkit.IO.MapGeometry
                     bw.WriteVector3(Vector3.Zero);
                 }
 
-                bw.Write(this.StationaryLightTexture.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.StationaryLightTexture));
-                bw.WriteVector2(this.StationaryLightScale);
-                bw.WriteVector2(this.StationaryLightBias);
+                this.StationaryLight.Write(bw);
             }
             else
             {
-                bw.Write(this.StationaryLightTexture.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.StationaryLightTexture));
-                bw.WriteVector2(this.StationaryLightScale);
-                bw.WriteVector2(this.StationaryLightBias);
-
-                bw.Write(this.BakedLightTexture.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.BakedLightTexture));
-                bw.WriteVector2(this.BakedLightScale);
-                bw.WriteVector2(this.BakedLightBias);
+                this.StationaryLight.Write(bw);
+                this.BakedLight.Write(bw);
 
                 if (version >= 12)
                 {
-                    bw.Write(this.BakedPaintTexture.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.BakedPaintTexture));
-                    bw.WriteVector2(this.BakedPaintScale);
-                    bw.WriteVector2(this.BakedPaintBias);
+                    this.BakedPaint.Write(bw);
                 }
             }
-        }
-
-        public void AssignLightmap(string lightmap, Vector2 stationaryLightScale, Vector2 stationaryLightBias)
-        {
-            this.StationaryLightTexture = lightmap;
-            this.StationaryLightScale = stationaryLightScale;
-            this.StationaryLightBias = stationaryLightBias;
         }
 
         public Box GetBoundingBox()
@@ -410,10 +369,12 @@ namespace LeagueToolkit.IO.MapGeometry
         /// </summary>
         HighRenderPriority = 1,
         UnknownConstructDistortionBuffer = 2,
+
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is unchecked
         /// </summary>
         RenderOnlyIfEyeCandyOn = 4, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
+
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is checked
         /// </summary>
