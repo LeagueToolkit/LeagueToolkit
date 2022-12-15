@@ -9,14 +9,8 @@ namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometry
     {
-        /// <summary>
-        /// Might not be an accurate name
-        /// </summary>
-        public string ShaderSampler1 { get; set; } = string.Empty;
-        /// <summary>
-        /// Might not be an accurate name
-        /// </summary>
-        public string ShaderSampler2 { get; set; } = string.Empty;
+        public string BakedTerrainPrimarySampler { get; set; } = string.Empty;
+        public string BakedTerrainSecondarySampler { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
         public List<MapGeometryPlanarReflector> PlanarReflectors { get; set; } = new();
@@ -46,11 +40,11 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 9)
             {
-                this.ShaderSampler1 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                this.BakedTerrainPrimarySampler = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
 
                 if (version >= 11)
                 {
-                    this.ShaderSampler2 = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                    this.BakedTerrainSecondarySampler = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
                 }
             }
 
@@ -139,13 +133,13 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 9)
             {
-                bw.Write(this.ShaderSampler1.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.ShaderSampler1));
+                bw.Write(this.BakedTerrainPrimarySampler.Length);
+                bw.Write(Encoding.ASCII.GetBytes(this.BakedTerrainPrimarySampler));
 
                 if (version >= 11)
                 {
-                    bw.Write(this.ShaderSampler2.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.ShaderSampler2));
+                    bw.Write(this.BakedTerrainSecondarySampler.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(this.BakedTerrainSecondarySampler));
                 }
             }
 
