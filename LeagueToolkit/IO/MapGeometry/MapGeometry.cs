@@ -19,7 +19,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public string ShaderSampler2 { get; set; } = string.Empty;
         public List<MapGeometryModel> Models { get; set; } = new();
         public BucketGrid BucketGrid { get; set; }
-        public List<MapGeometryCameraTransformer> CameraTransformers { get; set; } = new();
+        public List<MapGeometryPlanarReflector> PlanarReflectors { get; set; } = new();
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
         public MapGeometry(Stream stream)
@@ -106,10 +106,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if(version >= 13)
             {
-                uint cameraTransformerCount = br.ReadUInt32();
-                for (int i = 0; i < cameraTransformerCount; i++)
+                uint planarReflectorCount = br.ReadUInt32();
+                for (int i = 0; i < planarReflectorCount; i++)
                 {
-                    this.CameraTransformers.Add(new(br));
+                    this.PlanarReflectors.Add(new(br));
                 }
             }
         }
@@ -196,10 +196,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if(version >= 13)
             {
-                bw.Write(this.CameraTransformers.Count);
-                foreach(MapGeometryCameraTransformer cameraTransformer in this.CameraTransformers)
+                bw.Write(this.PlanarReflectors.Count);
+                foreach(MapGeometryPlanarReflector planarReflector in this.PlanarReflectors)
                 {
-                    cameraTransformer.Write(bw);
+                    planarReflector.Write(bw);
                 }
             }
         }
