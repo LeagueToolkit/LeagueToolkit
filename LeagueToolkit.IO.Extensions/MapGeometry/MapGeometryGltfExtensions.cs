@@ -25,12 +25,12 @@ namespace LeagueToolkit.IO.MapGeometry
             var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
             foreach(MapGeometryModel model in mgeo.Models)
             {
-                if(!layerModelMap.ContainsKey(model.Layer))
+                if(!layerModelMap.ContainsKey(model.LayerMask))
                 {
-                    layerModelMap.Add(model.Layer, new List<MapGeometryModel>());
+                    layerModelMap.Add(model.LayerMask, new List<MapGeometryModel>());
                 }
 
-                layerModelMap[model.Layer].Add(model);
+                layerModelMap[model.LayerMask].Add(model);
             }
 
             // Create node for each layer combination
@@ -44,7 +44,7 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(model);
 
-                layerNodeMap[model.Layer]
+                layerNodeMap[model.LayerMask]
                     .CreateNode()
                     .WithMesh(root.CreateMesh(meshBuilder))
                     .WithLocalTransform(new AffineTransform(model.Transformation));

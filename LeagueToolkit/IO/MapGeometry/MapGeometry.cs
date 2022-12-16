@@ -16,6 +16,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public List<MapGeometryPlanarReflector> PlanarReflectors { get; set; } = new();
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+
         public MapGeometry(Stream stream)
         {
             using BinaryReader br = new(stream);
@@ -93,12 +94,14 @@ namespace LeagueToolkit.IO.MapGeometry
             uint modelCount = br.ReadUInt32();
             for (int i = 0; i < modelCount; i++)
             {
-                this.Models.Add(new(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version));
+                this.Models.Add(
+                    new(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version)
+                );
             }
 
             this.BucketGrid = new(br);
 
-            if(version >= 13)
+            if (version >= 13)
             {
                 uint planarReflectorCount = br.ReadUInt32();
                 for (int i = 0; i < planarReflectorCount; i++)
@@ -112,6 +115,7 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             Write(File.Create(fileLocation), version);
         }
+
         public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
             if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
@@ -150,18 +154,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 vertexElementGroup.Write(bw);
             }
 
-            List<(MapGeometryLayer, byte[])> vertexBuffers = GenerateVertexBuffers(vertexElementGroups);
-            bw.Write(vertexBuffers.Count);
-            foreach ((MapGeometryLayer layers, byte[] vertexBuffer) in vertexBuffers)
-            {
-                if (version >= 13)
-                {
-                    bw.Write((byte)layers);
-                }
-
-                bw.Write(vertexBuffer.Length);
-                bw.Write(vertexBuffer);
-            }
+            WriteVertexBuffers(bw, vertexElementGroups, version);
 
             List<(MapGeometryLayer, ushort[])> indexBuffers = GenerateIndexBuffers();
             bw.Write(indexBuffers.Count);
@@ -188,10 +181,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
             this.BucketGrid.Write(bw);
 
-            if(version >= 13)
+            if (version >= 13)
             {
                 bw.Write(this.PlanarReflectors.Count);
-                foreach(MapGeometryPlanarReflector planarReflector in this.PlanarReflectors)
+                foreach (MapGeometryPlanarReflector planarReflector in this.PlanarReflectors)
                 {
                     planarReflector.Write(bw);
                 }
@@ -234,29 +227,43 @@ namespace LeagueToolkit.IO.MapGeometry
 
             return vertexElementGroups;
         }
-        private List<(MapGeometryLayer, byte[])> GenerateVertexBuffers(List<MapGeometryVertexElementGroup> vertexElementGroups)
-        {
-            List<(MapGeometryLayer, byte[])> vertexBuffers = new();
-            int vertexBufferId = 0;
 
+        private void WriteVertexBuffers(
+            BinaryWriter bw,
+            List<MapGeometryVertexElementGroup> vertexElementGroups,
+            uint version
+        )
+        {
+            // Write count of buffers
+            bw.Write(this.Models.Count);
+
+            int currentVertexBufferId = 0;
             foreach (MapGeometryModel model in this.Models)
             {
                 int vertexSize = vertexElementGroups[model._vertexElementGroupId].GetVertexSize();
-                byte[] vertexBuffer = new byte[vertexSize * model.Vertices.Count];
+                int vertexBufferSize = model.Vertices.Count * vertexSize;
 
-                for (int i = 0; i < model.Vertices.Count; i++)
+                // Write buffer layer mask
+                if (version >= 13)
                 {
-                    byte[] vertexElementsBuffer = model.Vertices[i].ToArray(vertexSize);
-                    Buffer.BlockCopy(vertexElementsBuffer, 0, vertexBuffer, i * vertexSize, vertexElementsBuffer.Length);
+                    bw.Write((byte)model.LayerMask);
                 }
 
-                vertexBuffers.Add((model.Layer, vertexBuffer));
-                model._vertexBufferId = vertexBufferId;
-                vertexBufferId++;
-            }
+                // Write buffer size
+                bw.Write(vertexBufferSize);
 
-            return vertexBuffers;
+                // Write buffer data
+                foreach (MapGeometryVertex vertex in model.Vertices)
+                {
+                    vertex.Write(bw);
+                }
+
+                model._vertexBufferId = currentVertexBufferId;
+
+                currentVertexBufferId++;
+            }
         }
+
         private List<(MapGeometryLayer, ushort[])> GenerateIndexBuffers()
         {
             List<(MapGeometryLayer, ushort[])> indexBuffers = new();
@@ -264,7 +271,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             foreach (MapGeometryModel model in this.Models)
             {
-                indexBuffers.Add((model.Layer, model.Indices.ToArray()));
+                indexBuffers.Add((model.LayerMask, model.Indices.ToArray()));
 
                 model._indexBufferId = indexBufferId;
                 indexBufferId++;

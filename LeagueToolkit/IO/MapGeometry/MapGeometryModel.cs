@@ -23,7 +23,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public Matrix4x4 Transformation { get; set; } = Matrix4x4.Identity;
 
         public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
-        public MapGeometryLayer Layer { get; set; } = MapGeometryLayer.AllLayers;
+        public MapGeometryLayer LayerMask { get; set; } = MapGeometryLayer.AllLayers;
         public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }
 
         public Vector3? SeparatePointLight { get; set; }
@@ -71,7 +71,7 @@ namespace LeagueToolkit.IO.MapGeometry
             MapGeometryLayer layer
         ) : this(name, vertices, indices, submeshes)
         {
-            this.Layer = layer;
+            this.LayerMask = layer;
         }
 
         public MapGeometryModel(
@@ -94,7 +94,7 @@ namespace LeagueToolkit.IO.MapGeometry
             Matrix4x4 transformation
         ) : this(name, vertices, indices, submeshes)
         {
-            this.Layer = layer;
+            this.LayerMask = layer;
             this.Transformation = transformation;
         }
 
@@ -162,7 +162,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 13)
             {
-                this.Layer = (MapGeometryLayer)br.ReadByte();
+                this.LayerMask = (MapGeometryLayer)br.ReadByte();
             }
 
             uint submeshCount = br.ReadUInt32();
@@ -182,7 +182,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 7 && version <= 12)
             {
-                this.Layer = (MapGeometryLayer)br.ReadByte();
+                this.LayerMask = (MapGeometryLayer)br.ReadByte();
             }
 
             if (version >= 11)
@@ -234,7 +234,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 13)
             {
-                bw.Write((byte)this.Layer);
+                bw.Write((byte)this.LayerMask);
             }
 
             bw.Write(this.Submeshes.Count);
@@ -254,7 +254,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 7 && version <= 12)
             {
-                bw.Write((byte)this.Layer);
+                bw.Write((byte)this.LayerMask);
             }
 
             if (version >= 11)
