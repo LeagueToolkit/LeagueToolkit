@@ -3,6 +3,7 @@ using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
@@ -59,7 +60,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 submesh.Parent = this;
             }
 
-            this.BoundingBox = GetBoundingBox();
+            this.BoundingBox = Box.FromVertices(vertices.Select(vertex => vertex.Position ?? Vector3.Zero));
         }
 
         public MapGeometryModel(
@@ -285,49 +286,6 @@ namespace LeagueToolkit.IO.MapGeometry
                 {
                     this.BakedPaint.Write(bw);
                 }
-            }
-        }
-
-        public Box GetBoundingBox()
-        {
-            if (this.Vertices == null || this.Vertices.Count == 0)
-            {
-                return new Box(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-            }
-            else
-            {
-                Vector3 min = this.Vertices[0].Position.Value;
-                Vector3 max = this.Vertices[0].Position.Value;
-
-                foreach (MapGeometryVertex vertex in this.Vertices)
-                {
-                    if (min.X > vertex.Position.Value.X)
-                    {
-                        min.X = vertex.Position.Value.X;
-                    }
-                    if (min.Y > vertex.Position.Value.Y)
-                    {
-                        min.Y = vertex.Position.Value.Y;
-                    }
-                    if (min.Z > vertex.Position.Value.Z)
-                    {
-                        min.Z = vertex.Position.Value.Z;
-                    }
-                    if (max.X < vertex.Position.Value.X)
-                    {
-                        max.X = vertex.Position.Value.X;
-                    }
-                    if (max.Y < vertex.Position.Value.Y)
-                    {
-                        max.Y = vertex.Position.Value.Y;
-                    }
-                    if (max.Z < vertex.Position.Value.Z)
-                    {
-                        max.Z = vertex.Position.Value.Z;
-                    }
-                }
-
-                return new Box(min, max);
             }
         }
     }
