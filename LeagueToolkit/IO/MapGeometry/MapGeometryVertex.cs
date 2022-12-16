@@ -137,5 +137,40 @@ namespace LeagueToolkit.IO.MapGeometry
                     (a.SecondaryColor == null && b.SecondaryColor != null) ? b.SecondaryColor : a.SecondaryColor
             };
         }
+
+        internal static void ReadAndCombineElements(
+            MapGeometryVertex vertex,
+            MapGeometryVertexElementGroup vertexDescription,
+            BinaryReader br
+        )
+        {
+            foreach (MapGeometryVertexElement element in vertexDescription.Elements)
+            {
+                if (element.Name == MapGeometryVertexElementName.Position)
+                {
+                    vertex.Position = br.ReadVector3();
+                }
+                else if (element.Name == MapGeometryVertexElementName.Normal)
+                {
+                    vertex.Normal = br.ReadVector3();
+                }
+                else if (element.Name == MapGeometryVertexElementName.DiffuseUV)
+                {
+                    vertex.DiffuseUV = br.ReadVector2();
+                }
+                else if (element.Name == MapGeometryVertexElementName.LightmapUV)
+                {
+                    vertex.LightmapUV = br.ReadVector2();
+                }
+                else if (element.Name == MapGeometryVertexElementName.SecondaryColor)
+                {
+                    vertex.SecondaryColor = br.ReadColor(ColorFormat.BgraU8);
+                }
+                else
+                {
+                    throw new Exception("Unknown Element Type: " + element.Name);
+                }
+            }
+        }
     }
 }

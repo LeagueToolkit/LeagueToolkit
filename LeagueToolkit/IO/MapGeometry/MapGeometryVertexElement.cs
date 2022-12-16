@@ -58,7 +58,7 @@ namespace LeagueToolkit.IO.MapGeometry
             (this.Name == other.Name) && (this.Format == other.Format);
     }
 
-    public enum MapGeometryVertexElementName : uint
+    public enum MapGeometryVertexElementName : int
     {
         Position,
         BlendWeight,

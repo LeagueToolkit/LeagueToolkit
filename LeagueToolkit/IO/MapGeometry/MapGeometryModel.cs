@@ -123,20 +123,22 @@ namespace LeagueToolkit.IO.MapGeometry
                 this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             }
 
-            uint vertexCount = br.ReadUInt32();
+            int vertexCount = br.ReadInt32();
             uint vertexBufferCount = br.ReadUInt32();
-            int vertexElementGroup = br.ReadInt32();
+            int baseVertexElementGroup = br.ReadInt32();
 
+            //if(vertexBufferCount != 1)
+            //{
+            //
+            //}
+
+            // Pre-allocate mesh vertex list
+            this.Vertices = new(vertexCount);
             for (int i = 0; i < vertexCount; i++)
             {
                 this.Vertices.Add(new());
             }
-
-            for (
-                int i = 0, currentVertexElementGroup = vertexElementGroup;
-                i < vertexBufferCount;
-                i++, currentVertexElementGroup++
-            )
+            for (int i = 0; i < vertexBufferCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
                 long returnPosition = br.BaseStream.Position;
@@ -144,9 +146,10 @@ namespace LeagueToolkit.IO.MapGeometry
 
                 for (int j = 0; j < vertexCount; j++)
                 {
-                    this.Vertices[j] = MapGeometryVertex.Combine(
+                    MapGeometryVertex.ReadAndCombineElements(
                         this.Vertices[j],
-                        new(br, vertexElementGroups[currentVertexElementGroup].VertexElements)
+                        vertexElementGroups[baseVertexElementGroup + i],
+                        br
                     );
                 }
 

@@ -10,17 +10,19 @@ namespace LeagueToolkit.IO.MapGeometry
     public class MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>
     {
         public MapGeometryVertexElementGroupUsage Usage { get; private set; }
-        public List<MapGeometryVertexElement> VertexElements { get; private set; } = new();
+        public VertexElementGroupDescriptionFlags DescriptionFlags { get; private set; }
+        public List<MapGeometryVertexElement> Elements { get; private set; } = new();
 
-        internal string DebuggerDisplay => string.Join(' ', this.VertexElements.Select(x => x.Name));
+        internal string DebuggerDisplay => string.Join(' ', this.Elements.Select(x => x.Name));
 
         public MapGeometryVertexElementGroup(
             MapGeometryVertexElementGroupUsage usage,
-            IEnumerable<MapGeometryVertexElement> vertexElements
+            IEnumerable<MapGeometryVertexElement> elements
         )
         {
             this.Usage = usage;
-            this.VertexElements = new(vertexElements);
+            this.Elements = new(elements);
+            this.DescriptionFlags = GenerateDescriptionFlags(elements.Select(elem => elem.Name));
         }
 
         public MapGeometryVertexElementGroup(BinaryReader br)
@@ -30,8 +32,10 @@ namespace LeagueToolkit.IO.MapGeometry
             uint vertexElementCount = br.ReadUInt32();
             for (int i = 0; i < vertexElementCount; i++)
             {
-                this.VertexElements.Add(new MapGeometryVertexElement(br));
+                this.Elements.Add(new MapGeometryVertexElement(br));
             }
+
+            this.DescriptionFlags = GenerateDescriptionFlags(this.Elements.Select(elem => elem.Name));
 
             br.BaseStream.Seek(8 * (15 - vertexElementCount), SeekOrigin.Current);
         }
@@ -42,7 +46,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (vertex.Position is not null)
             {
-                this.VertexElements.Add(
+                this.Elements.Add(
                     new MapGeometryVertexElement(
                         MapGeometryVertexElementName.Position,
                         MapGeometryVertexElementFormat.XYZ_Float32
@@ -51,7 +55,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
             if (vertex.Normal is not null)
             {
-                this.VertexElements.Add(
+                this.Elements.Add(
                     new MapGeometryVertexElement(
                         MapGeometryVertexElementName.Normal,
                         MapGeometryVertexElementFormat.XYZ_Float32
@@ -60,7 +64,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
             if (vertex.DiffuseUV is not null)
             {
-                this.VertexElements.Add(
+                this.Elements.Add(
                     new MapGeometryVertexElement(
                         MapGeometryVertexElementName.DiffuseUV,
                         MapGeometryVertexElementFormat.XY_Float32
@@ -69,7 +73,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
             if (vertex.LightmapUV is not null)
             {
-                this.VertexElements.Add(
+                this.Elements.Add(
                     new MapGeometryVertexElement(
                         MapGeometryVertexElementName.LightmapUV,
                         MapGeometryVertexElementFormat.XY_Float32
@@ -78,26 +82,28 @@ namespace LeagueToolkit.IO.MapGeometry
             }
             if (vertex.SecondaryColor is not null)
             {
-                this.VertexElements.Add(
+                this.Elements.Add(
                     new MapGeometryVertexElement(
                         MapGeometryVertexElementName.SecondaryColor,
                         MapGeometryVertexElementFormat.BGRA_Packed8888
                     )
                 );
             }
+
+            this.DescriptionFlags = GenerateDescriptionFlags(this.Elements.Select(elem => elem.Name));
         }
 
         public void Write(BinaryWriter bw)
         {
             bw.Write((uint)this.Usage);
-            bw.Write(this.VertexElements.Count);
+            bw.Write(this.Elements.Count);
 
-            foreach (MapGeometryVertexElement vertexElement in this.VertexElements)
+            foreach (MapGeometryVertexElement vertexElement in this.Elements)
             {
                 vertexElement.Write(bw);
             }
 
-            for (int i = 0; i < 15 - this.VertexElements.Count; i++)
+            for (int i = 0; i < 15 - this.Elements.Count; i++)
             {
                 new MapGeometryVertexElement(
                     MapGeometryVertexElementName.Position,
@@ -110,12 +116,26 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             int size = 0;
 
-            foreach (MapGeometryVertexElement vertexElement in this.VertexElements)
+            foreach (MapGeometryVertexElement vertexElement in this.Elements)
             {
                 size += vertexElement.GetElementSize();
             }
 
             return size;
+        }
+
+        public static VertexElementGroupDescriptionFlags GenerateDescriptionFlags(
+            IEnumerable<MapGeometryVertexElementName> elements
+        )
+        {
+            VertexElementGroupDescriptionFlags descriptionFlags = 0;
+
+            foreach (MapGeometryVertexElementName element in elements)
+            {
+                descriptionFlags |= (VertexElementGroupDescriptionFlags)(1 << (int)element);
+            }
+
+            return descriptionFlags;
         }
 
         public bool Equals(MapGeometryVertexElementGroup other)
@@ -127,10 +147,10 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             // Check if Vertex Element count is the same
-            if (this.VertexElements.Count == other.VertexElements.Count)
+            if (this.Elements.Count == other.Elements.Count)
             {
                 // If Vertex Element count is the same, compare them
-                return Enumerable.SequenceEqual(this.VertexElements, other.VertexElements);
+                return Enumerable.SequenceEqual(this.Elements, other.Elements);
             }
             else
             {
@@ -155,5 +175,26 @@ namespace LeagueToolkit.IO.MapGeometry
         /// Streaming Vertex Data (changed every frame)
         /// </summary>
         Stream
+    }
+
+    [Flags]
+    public enum VertexElementGroupDescriptionFlags : ushort
+    {
+        Position = 1 << MapGeometryVertexElementName.Position,
+        BlendWeight = 1 << MapGeometryVertexElementName.BlendWeight,
+        Normal = 1 << MapGeometryVertexElementName.Normal,
+        PrimaryColor = 1 << MapGeometryVertexElementName.PrimaryColor,
+        SecondaryColor = 1 << MapGeometryVertexElementName.SecondaryColor,
+        FogCoordinate = 1 << MapGeometryVertexElementName.FogCoordinate,
+        BlendIndex = 1 << MapGeometryVertexElementName.BlendIndex,
+        DiffuseUV = 1 << MapGeometryVertexElementName.DiffuseUV,
+        Texcoord1 = 1 << MapGeometryVertexElementName.Texcoord1,
+        Texcoord2 = 1 << MapGeometryVertexElementName.Texcoord2,
+        Texcoord3 = 1 << MapGeometryVertexElementName.Texcoord3,
+        Texcoord4 = 1 << MapGeometryVertexElementName.Texcoord4,
+        Texcoord5 = 1 << MapGeometryVertexElementName.Texcoord5,
+        Texcoord6 = 1 << MapGeometryVertexElementName.Texcoord6,
+        LightmapUV = 1 << MapGeometryVertexElementName.LightmapUV,
+        StreamIndexCount = 1 << MapGeometryVertexElementName.StreamIndexCount
     }
 }
