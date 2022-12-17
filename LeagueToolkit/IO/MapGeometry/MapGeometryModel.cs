@@ -17,11 +17,11 @@ namespace LeagueToolkit.IO.MapGeometry
         public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices;
         public ReadOnlySpan<ushort> Indices => this._indices;
 
-        private MapGeometryVertex[] _vertices;
-        private ushort[] _indices;
+        private readonly MapGeometryVertex[] _vertices;
+        private readonly ushort[] _indices;
 
         public ReadOnlyCollection<MapGeometrySubmesh> Submeshes => this._submeshes.AsReadOnly();
-        private List<MapGeometrySubmesh> _submeshes = new();
+        private readonly List<MapGeometrySubmesh> _submeshes = new();
 
         public bool FlipNormals { get; private set; }
 
