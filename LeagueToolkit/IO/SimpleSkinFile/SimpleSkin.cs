@@ -123,77 +123,63 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         public void Write(string fileLocation) => Write(File.Create(fileLocation));
         public void Write(Stream stream)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream))
+            using BinaryWriter bw = new(stream);
+
+            bw.Write(0x00112233);
+            bw.Write((ushort)4);
+            bw.Write((ushort)1);
+            bw.Write(this.Submeshes.Count);
+
+            SimpleSkinVertexType vertexType = SimpleSkinVertexType.Basic;
+            uint indexCount = 0;
+            uint vertexCount = 0;
+            foreach (SimpleSkinSubmesh submesh in this.Submeshes)
             {
-                bw.Write(0x00112233);
-                bw.Write((ushort)4);
-                bw.Write((ushort)1);
-                bw.Write(this.Submeshes.Count);
-
-                bool hasVertexColors = false;
-                uint indexCount = 0;
-                uint vertexCount = 0;
-                foreach (SimpleSkinSubmesh submesh in this.Submeshes)
+                // All vertices have to be of same type, otherwise we throw
+                if(submesh.Vertices.Count != 0)
                 {
-                    if (!hasVertexColors)
-                    {
-                        foreach (SimpleSkinVertex vertex in submesh.Vertices)
-                        {
-                            if (vertex.Color != null)
-                            {
-                                hasVertexColors = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    submesh.Write(bw, vertexCount, indexCount);
-
-                    indexCount += (uint)submesh.Indices.Count;
-                    vertexCount += (uint)submesh.Vertices.Count;
+                    vertexType = submesh.Vertices[0].GetVertexType();
                 }
 
-                bw.Write((uint)0); //Flags
-                bw.Write(indexCount);
-                bw.Write(vertexCount);
-                if (hasVertexColors)
-                {
-                    bw.Write((uint)56);
-                    bw.Write((uint)SimpleSkinVertexType.Color);
-                }
-                else
-                {
-                    bw.Write((uint)52);
-                    bw.Write((uint)SimpleSkinVertexType.Basic);
-                }
+                submesh.Write(bw, vertexCount, indexCount);
 
-                Box box = GetBoundingBox();
-                bw.WriteBox(box);
-                box.GetBoundingSphere().Write(bw);
-
-                ushort indexOffset = 0;
-                foreach (SimpleSkinSubmesh submesh in this.Submeshes)
-                {
-                    foreach (ushort index in submesh.Indices.Select(x => x += indexOffset))
-                    {
-                        bw.Write(index);
-                    }
-
-                    indexOffset += submesh.Indices.Max();
-                }
-
-                foreach (SimpleSkinSubmesh submesh in this.Submeshes)
-                {
-                    foreach (SimpleSkinVertex vertex in submesh.Vertices)
-                    {
-                        vertex.Write(bw, hasVertexColors ? SimpleSkinVertexType.Color : SimpleSkinVertexType.Basic);
-                    }
-                }
-
-                bw.Write(new byte[12]); //End tab
+                indexCount += (uint)submesh.Indices.Count;
+                vertexCount += (uint)submesh.Vertices.Count;
             }
+
+            bw.Write((uint)0); // Flags
+            bw.Write(indexCount);
+            bw.Write(vertexCount);
+            bw.Write(SimpleSkinVertex.GetVertexTypeSize(vertexType));
+            bw.Write((uint)vertexType);
+
+            Box box = GetBoundingBox();
+            bw.WriteBox(box);
+            box.GetBoundingSphere().Write(bw);
+
+            ushort indexOffset = 0;
+            foreach (SimpleSkinSubmesh submesh in this.Submeshes)
+            {
+                foreach (ushort index in submesh.Indices.Select(x => x += indexOffset))
+                {
+                    bw.Write(index);
+                }
+
+                indexOffset += (ushort)(submesh.Indices.Max() + 1);
+            }
+
+            foreach (SimpleSkinSubmesh submesh in this.Submeshes)
+            {
+                foreach (SimpleSkinVertex vertex in submesh.Vertices)
+                {
+                    vertex.Write(bw, vertexType);
+                }
+            }
+
+            bw.Write(new byte[12]); //End tab
         }
 
+        // TODO: Use Box.FromVertices
         public Box GetBoundingBox()
         {
             Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
