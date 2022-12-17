@@ -12,7 +12,7 @@ namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometryModel
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices;
         public ReadOnlySpan<ushort> Indices => this._indices;
