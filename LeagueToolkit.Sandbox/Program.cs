@@ -32,36 +32,9 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            MetaDump dump = MetaDump.Deserialize(File.ReadAllText(@"C:\Users\Crauzer\Downloads\meta_11.8.370.4668.json"));
-
-            List<string> propertyNames = new List<string>();
-            List<string> classNames = new List<string>();
-
-            foreach (string line in File.ReadAllLines(@"C:\Users\Crauzer\Documents\Fantome\Scavenger\Scavenger\bin\x64\ReleasePortable\netcoreapp3.1\win-x64\publish\FIELDS_HASHTABLE.txt"))
-            {
-                propertyNames.Add(line.Split(' ')[1]);
-            }
-            foreach (string line in File.ReadAllLines(@"C:\Users\Crauzer\Documents\Fantome\Scavenger\Scavenger\bin\x64\ReleasePortable\netcoreapp3.1\win-x64\publish\TYPES_HASHTABLE.txt"))
-            {
-                classNames.Add(line.Split(' ')[1]);
-            }
-
-            dump.WriteMetaClasses(@"C:\Users\Crauzer\Downloads\meta_11.8.370.4668.cs", classNames, propertyNames);
-
-            LeagueAnimation anm = new(@"C:\Users\Crauzer\Desktop\New folder (3)\assets\characters\rengar\skins\base\animations\rengar_attack4.anm");
-
-            BinTree nn = new BinTree(@"C:\Users\Crauzer\Downloads\D373034A82E109D1.bin");
-            BinTree panth = new BinTree(@"C:\Users\Crauzer\Desktop\skin0.bin");
-
-            BinTree binTree = new BinTree(@"C:\Users\Crauzer\Desktop\New folder\data\characters\aatrox\skins\skin0.bin");
-            MetaEnvironment environment = MetaEnvironment.Create(
-                Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(x => x.IsClass && x.Namespace == "LeagueToolkit.Meta.Classes")
-                .ToList());
-
-
-            //var scdp = MetaSerializer.Deserialize<SkinCharacterDataProperties>(environment, binTree.Objects[0]);
+            SimpleSkin skn = new("akali.skn");
+            skn.Write("akali_rewritten.skn");
+            SimpleSkin skn1 = new("akali_rewritten.skn");
         }
 
         static void TestMapgeo()
