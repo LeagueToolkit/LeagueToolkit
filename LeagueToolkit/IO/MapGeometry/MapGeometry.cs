@@ -96,7 +96,7 @@ namespace LeagueToolkit.IO.MapGeometry
             for (int i = 0; i < modelCount; i++)
             {
                 this.Models.Add(
-                    new(br, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version)
+                    new(br, i, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version)
                 );
             }
 

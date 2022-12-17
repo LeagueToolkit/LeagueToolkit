@@ -12,9 +12,21 @@ namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometryModel
     {
+        /// <summary>
+        /// The name of this mesh
+        /// </summary>
+        /// <remarks>
+        /// This feature is supported only if <c>version &lt; 12</c>
+        /// </remarks>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// A read-only view into the serialized vertex buffer
+        /// </summary>
         public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices;
+        /// <summary>
+        /// A read-only view into the index buffer
+        /// </summary>
         public ReadOnlySpan<ushort> Indices => this._indices;
 
         private readonly MapGeometryVertex[] _vertices;
@@ -35,7 +47,7 @@ namespace LeagueToolkit.IO.MapGeometry
         /// <summary>
         /// </summary>
         /// <remarks>
-        /// This feature is supported only up until version 7
+        /// This feature is supported only if <c>version &lt; 7</c>
         /// </remarks>
         public Vector3? PointLight { get; private set; }
 
@@ -44,17 +56,17 @@ namespace LeagueToolkit.IO.MapGeometry
         /// see <see href="https://docs.unity3d.com/Manual/LightProbes-TechnicalInformation.html">Unity - Light Probes</see>
         /// </summary>
         /// <remarks>
-        /// This feature is supported only up until version 9
+        /// This feature is supported only if <c>version &lt; 9</c>
         /// <br>Since version 9, terrain meshes use baked light instead</br>
         /// </remarks>
         public ReadOnlyCollection<Vector3> LightProbes => Array.AsReadOnly(this._lightProbes);
         private readonly Vector3[] _lightProbes;
 
-        public MapGeometrySamplerData StationaryLight { get; private set; } = new();
+        public MapGeometrySamplerData StationaryLight { get; private set; }
 
-        public MapGeometrySamplerData BakedLight { get; private set; } = new();
+        public MapGeometrySamplerData BakedLight { get; private set; }
 
-        public MapGeometrySamplerData BakedPaint { get; private set; } = new();
+        public MapGeometrySamplerData BakedPaint { get; private set; }
 
         public const uint MAX_SUBMESH_COUNT = 64;
 
@@ -127,6 +139,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
         internal MapGeometryModel(
             BinaryReader br,
+            int id,
             List<MapGeometryVertexElementGroup> vertexElementGroups,
             List<long> vertexBufferOffsets,
             List<ushort[]> indexBuffers,
@@ -137,6 +150,11 @@ namespace LeagueToolkit.IO.MapGeometry
             if (version <= 11)
             {
                 this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            }
+            else 
+            {
+                // League assigns this name to the meshes automatically during reading
+                this.Name = $"MapGeo_Instance_{id}";
             }
 
             int vertexCount = br.ReadInt32();
