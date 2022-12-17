@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using LeagueToolkit.Helpers.Structures;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometrySubmesh
     {
-        public MapGeometryModel Parent { get; internal set; }
-        public uint Hash { get; internal set; } = 0;
-        public string Material { get; set; }
-        public uint StartIndex { get; private set; }
-        public uint IndexCount { get; private set; }
-        public uint StartVertex { get; private set; }
-        public uint VertexCount { get; private set; }   
+        public uint Hash { get; private set; }
+        public string Material { get; private set; }
+        public int StartIndex { get; private set; }
+        public int IndexCount { get; private set; }
+        public int StartVertex { get; private set; }
+        public int VertexCount { get; private set; }
 
-        public MapGeometrySubmesh(string material, uint startIndex, uint indexCount, uint startVertex, uint vertexCount)
+        public MapGeometrySubmesh(string material, int startIndex, int indexCount, int startVertex, int vertexCount)
         {
             this.Material = material;
             this.StartIndex = startIndex;
@@ -26,44 +20,20 @@ namespace LeagueToolkit.IO.MapGeometry
             this.StartVertex = startVertex;
             this.VertexCount = vertexCount;
         }
-        public MapGeometrySubmesh(BinaryReader br, MapGeometryModel parent)
+
+        public MapGeometrySubmesh(BinaryReader br)
         {
-            this.Parent = parent;
             this.Hash = br.ReadUInt32();
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            this.StartIndex = br.ReadUInt32();
-            this.IndexCount = br.ReadUInt32();
-            this.StartVertex = br.ReadUInt32(); //MinVertex
-            this.VertexCount = br.ReadUInt32() + 1; //MaxVertex
+            this.StartIndex = br.ReadInt32();
+            this.IndexCount = br.ReadInt32();
+            this.StartVertex = br.ReadInt32(); //MinVertex
+            this.VertexCount = br.ReadInt32() + 1; //MaxVertex
 
             if (this.StartVertex != 0)
             {
                 this.StartVertex--;
             }
-        }
-
-        public (List<ushort>, List<MapGeometryVertex>) GetData(bool normalize = true)
-        {
-            return (GetIndices(normalize), GetVertices());
-        }
-        public List<ushort> GetIndices(bool normalize = true)
-        {
-            List<ushort> indices = this.Parent.Indices.GetRange((int)this.StartIndex, (int)this.IndexCount);
-
-            if(normalize)
-            {
-                ushort minIndex = indices.Min();
-
-                return indices.Select(x => x -= minIndex).ToList();
-            }
-            else
-            {
-                return indices;
-            }
-        }
-        public List<MapGeometryVertex> GetVertices()
-        {
-            return this.Parent.Vertices.GetRange((int)this.StartVertex, (int)(this.VertexCount - this.StartVertex));
         }
 
         public void Write(BinaryWriter bw)
@@ -73,8 +43,8 @@ namespace LeagueToolkit.IO.MapGeometry
             bw.Write(Encoding.ASCII.GetBytes(this.Material));
             bw.Write(this.StartIndex);
             bw.Write(this.IndexCount);
-            bw.Write((this.StartVertex == 0) ? this.StartVertex : this.StartVertex + 1); //edit later
-            bw.Write(this.VertexCount - 1); //edit later
+            bw.Write((this.StartVertex == 0) ? this.StartVertex : this.StartVertex + 1);
+            bw.Write(this.VertexCount - 1);
         }
     }
 }

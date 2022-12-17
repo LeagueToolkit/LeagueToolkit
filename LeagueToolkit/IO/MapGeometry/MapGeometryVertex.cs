@@ -8,6 +8,7 @@ using System.Numerics;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
+    // TODO: Convert to struct
     public class MapGeometryVertex
     {
         public Vector3? Position { get; set; }
@@ -68,7 +69,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
         internal void Write(BinaryWriter bw)
         {
-            if(this.Position is Vector3 position)
+            if (this.Position is Vector3 position)
             {
                 bw.WriteVector3(position);
             }

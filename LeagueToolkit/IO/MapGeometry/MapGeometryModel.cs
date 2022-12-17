@@ -2,6 +2,7 @@
 using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -13,27 +14,32 @@ namespace LeagueToolkit.IO.MapGeometry
     {
         public string Name { get; set; }
 
-        public List<MapGeometryVertex> Vertices { get; set; } = new();
-        public List<ushort> Indices { get; set; } = new();
-        public List<MapGeometrySubmesh> Submeshes { get; set; } = new();
+        public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices;
+        public ReadOnlySpan<ushort> Indices => this._indices;
 
-        public bool FlipNormals { get; set; }
+        private MapGeometryVertex[] _vertices;
+        private ushort[] _indices;
 
-        public Box BoundingBox { get; set; }
-        public Matrix4x4 Transformation { get; set; } = Matrix4x4.Identity;
+        public ReadOnlyCollection<MapGeometrySubmesh> Submeshes => this._submeshes.AsReadOnly();
+        private List<MapGeometrySubmesh> _submeshes = new();
 
-        public MapGeometryQualityFilter QualityFilter { get; set; } = MapGeometryQualityFilter.QualityAll;
-        public MapGeometryLayer LayerMask { get; set; } = MapGeometryLayer.AllLayers;
-        public MapGeometryMeshRenderFlags MeshRenderFlags { get; set; }
+        public bool FlipNormals { get; private set; }
 
-        public Vector3? SeparatePointLight { get; set; }
-        public List<Vector3> UnknownFloats { get; set; } = new();
+        public Box BoundingBox { get; private set; }
+        public Matrix4x4 Transformation { get; private set; } = Matrix4x4.Identity;
 
-        public MapGeometrySamplerData StationaryLight { get; set; } = new();
+        public MapGeometryQualityFilter QualityFilter { get; private set; } = MapGeometryQualityFilter.QualityAll;
+        public MapGeometryLayer LayerMask { get; private set; } = MapGeometryLayer.AllLayers;
+        public MapGeometryMeshRenderFlags MeshRenderFlags { get; private set; }
 
-        public MapGeometrySamplerData BakedLight { get; set; } = new();
+        public Vector3? SeparatePointLight { get; private set; }
+        public List<Vector3> UnknownFloats { get; private set; } = new();
 
-        public MapGeometrySamplerData BakedPaint { get; set; } = new();
+        public MapGeometrySamplerData StationaryLight { get; private set; } = new();
+
+        public MapGeometrySamplerData BakedLight { get; private set; } = new();
+
+        public MapGeometrySamplerData BakedPaint { get; private set; } = new();
 
         public const uint MAX_SUBMESH_COUNT = 64;
 
@@ -45,29 +51,24 @@ namespace LeagueToolkit.IO.MapGeometry
 
         public MapGeometryModel(
             string name,
-            List<MapGeometryVertex> vertices,
-            List<ushort> indices,
-            List<MapGeometrySubmesh> submeshes
+            IEnumerable<MapGeometryVertex> vertices,
+            ushort[] indices,
+            IEnumerable<MapGeometrySubmesh> submeshes
         )
         {
             this.Name = name;
-            this.Vertices = vertices;
-            this.Indices = indices;
-            this.Submeshes = submeshes;
-
-            foreach (MapGeometrySubmesh submesh in submeshes)
-            {
-                submesh.Parent = this;
-            }
+            this._vertices = vertices.ToArray();
+            this._indices = indices;
+            this._submeshes = new(submeshes);
 
             this.BoundingBox = Box.FromVertices(vertices.Select(vertex => vertex.Position ?? Vector3.Zero));
         }
 
         public MapGeometryModel(
             string name,
-            List<MapGeometryVertex> vertices,
-            List<ushort> indices,
-            List<MapGeometrySubmesh> submeshes,
+            IEnumerable<MapGeometryVertex> vertices,
+            ushort[] indices,
+            IEnumerable<MapGeometrySubmesh> submeshes,
             MapGeometryLayer layer
         ) : this(name, vertices, indices, submeshes)
         {
@@ -76,9 +77,9 @@ namespace LeagueToolkit.IO.MapGeometry
 
         public MapGeometryModel(
             string name,
-            List<MapGeometryVertex> vertices,
-            List<ushort> indices,
-            List<MapGeometrySubmesh> submeshes,
+            IEnumerable<MapGeometryVertex> vertices,
+            ushort[] indices,
+            IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transformation
         ) : this(name, vertices, indices, submeshes)
         {
@@ -87,9 +88,9 @@ namespace LeagueToolkit.IO.MapGeometry
 
         public MapGeometryModel(
             string name,
-            List<MapGeometryVertex> vertices,
-            List<ushort> indices,
-            List<MapGeometrySubmesh> submeshes,
+            IEnumerable<MapGeometryVertex> vertices,
+            ushort[] indices,
+            IEnumerable<MapGeometrySubmesh> submeshes,
             MapGeometryLayer layer,
             Matrix4x4 transformation
         ) : this(name, vertices, indices, submeshes)
@@ -100,16 +101,16 @@ namespace LeagueToolkit.IO.MapGeometry
 
         public MapGeometryModel(
             string name,
-            List<MapGeometryVertex> vertices,
-            List<ushort> indices,
-            List<MapGeometrySubmesh> submeshes,
+            IEnumerable<MapGeometryVertex> vertices,
+            ushort[] indices,
+            IEnumerable<MapGeometrySubmesh> submeshes,
             MapGeometrySamplerData stationaryLight
         ) : this(name, vertices, indices, submeshes)
         {
             this.StationaryLight = stationaryLight;
         }
 
-        public MapGeometryModel(
+        internal MapGeometryModel(
             BinaryReader br,
             List<MapGeometryVertexElementGroup> vertexElementGroups,
             List<long> vertexBufferOffsets,
@@ -127,16 +128,11 @@ namespace LeagueToolkit.IO.MapGeometry
             uint vertexBufferCount = br.ReadUInt32();
             int baseVertexElementGroup = br.ReadInt32();
 
-            //if(vertexBufferCount != 1)
-            //{
-            //
-            //}
-
-            // Pre-allocate mesh vertex list
-            this.Vertices = new(vertexCount);
+            // Pre-allocate mesh vertex buffer
+            this._vertices = new MapGeometryVertex[vertexCount];
             for (int i = 0; i < vertexCount; i++)
             {
-                this.Vertices.Add(new());
+                this._vertices[i] = new();
             }
             for (int i = 0; i < vertexBufferCount; i++)
             {
@@ -147,7 +143,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 for (int j = 0; j < vertexCount; j++)
                 {
                     MapGeometryVertex.ReadAndCombineElements(
-                        this.Vertices[j],
+                        this._vertices[j],
                         vertexElementGroups[baseVertexElementGroup + i],
                         br
                     );
@@ -158,7 +154,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             uint indexCount = br.ReadUInt32();
             int indexBufferId = br.ReadInt32();
-            this.Indices.AddRange(indexBuffers[indexBufferId]);
+            this._indices = indexBuffers[indexBufferId];
 
             if (version >= 13)
             {
@@ -168,7 +164,7 @@ namespace LeagueToolkit.IO.MapGeometry
             uint submeshCount = br.ReadUInt32();
             for (int i = 0; i < submeshCount; i++)
             {
-                this.Submeshes.Add(new(br, this));
+                this._submeshes.Add(new(br));
             }
 
             if (version != 5)
@@ -216,7 +212,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
         }
 
-        public void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
+        internal void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
         {
             if (version <= 11)
             {
@@ -224,12 +220,12 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write(Encoding.ASCII.GetBytes(this.Name));
             }
 
-            bw.Write(this.Vertices.Count);
+            bw.Write(this._vertices.Length);
             bw.Write((uint)1);
             bw.Write(this._vertexElementGroupId);
             bw.Write(this._vertexBufferId); //we only have one vertex buffer
 
-            bw.Write(this.Indices.Count);
+            bw.Write(this._indices.Length);
             bw.Write(this._indexBufferId);
 
             if (version >= 13)
@@ -237,8 +233,8 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write((byte)this.LayerMask);
             }
 
-            bw.Write(this.Submeshes.Count);
-            foreach (MapGeometrySubmesh submesh in this.Submeshes)
+            bw.Write(this._submeshes.Count);
+            foreach (MapGeometrySubmesh submesh in this._submeshes)
             {
                 submesh.Write(bw);
             }

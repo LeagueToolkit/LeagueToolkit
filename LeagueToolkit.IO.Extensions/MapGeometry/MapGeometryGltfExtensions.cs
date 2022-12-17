@@ -7,6 +7,7 @@ using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
@@ -88,23 +89,24 @@ namespace LeagueToolkit.IO.MapGeometry
 
             foreach (MapGeometrySubmesh submesh in model.Submeshes)
             {
-                List<MapGeometryVertex> vertices = submesh.GetVertices();
-                List<ushort> indices = submesh.GetIndices();
+                ReadOnlySpan<MapGeometryVertex> vertices = model.Vertices.Slice(submesh.StartVertex, submesh.VertexCount);
+                ReadOnlySpan<ushort> indices = model.Indices.Slice(submesh.StartIndex, submesh.StartVertex);
 
                 MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
                 var primitive = meshBuilder.UsePrimitive(material);
 
-                List<VERTEX> gltfVertices = new List<VERTEX>();
-                foreach (MapGeometryVertex vertex in vertices)
+                VERTEX[] gltfVertices = new VERTEX[vertices.Length];
+                for (int i = 0; i < vertices.Length; i++)
                 {
-                    gltfVertices.Add(CreateVertex(vertex));
+                    gltfVertices[i] = CreateVertex(vertices[i]);
                 }
 
-                for (int i = 0; i < indices.Count; i += 3)
+                ushort baseIndex = indices.Min();
+                for (int i = 0; i < indices.Length; i += 3)
                 {
-                    VERTEX v1 = gltfVertices[indices[i + 0]];
-                    VERTEX v2 = gltfVertices[indices[i + 1]];
-                    VERTEX v3 = gltfVertices[indices[i + 2]];
+                    VERTEX v1 = gltfVertices[indices[i + 0] - baseIndex];
+                    VERTEX v2 = gltfVertices[indices[i + 1] - baseIndex];
+                    VERTEX v3 = gltfVertices[indices[i + 2] - baseIndex];
 
                     primitive.AddTriangle(v1, v2, v3);
                 }

@@ -36,12 +36,14 @@ namespace LeagueToolkit.Converters
         {
             foreach (MapGeometryModel model in mgeo.Models)
             {
-                List<Vector3> vertices = new List<Vector3>();
-                List<Vector3> normals = new List<Vector3>();
-                List<Vector2> uvs = new List<Vector2>();
+                List<Vector3> vertices = new();
+                List<Vector3> normals = new();
+                List<Vector2> uvs = new();
 
-                foreach (MapGeometryVertex vertex in model.Vertices)
+                for (int i = 0; i < model.Vertices.Length; i++)
                 {
+                    MapGeometryVertex vertex = model.Vertices[i];
+
                     if (vertex.Position is null)
                     {
                         throw new InvalidOperationException(
@@ -57,7 +59,14 @@ namespace LeagueToolkit.Converters
                     }
                 }
 
-                yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, model.Indices.Select(x => (uint)x).ToList(), uvs, normals));
+                // TODO: Rework OBJ API
+                List<uint> indices = new(model.Indices.Length);
+                for(int i = 0; i < model.Indices.Length; i++)
+                {
+                    indices.Add(model.Indices[i]);
+                }
+
+                yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, indices, uvs, normals));
             }
         }
 
