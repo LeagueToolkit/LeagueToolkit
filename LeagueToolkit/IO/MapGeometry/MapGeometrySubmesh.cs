@@ -5,46 +5,50 @@ namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometrySubmesh
     {
+        /// <summary>
+        /// This is the default material name for a <see cref="MapGeometrySubmesh"/>
+        /// unless a specific one is provided
+        /// </summary>
+        public const string MISSING_MATERIAL = "-missing@environment-";
+
         public uint Hash { get; private set; }
         public string Material { get; private set; }
+
         public int StartIndex { get; private set; }
         public int IndexCount { get; private set; }
-        public int StartVertex { get; private set; }
-        public int VertexCount { get; private set; }
 
-        public MapGeometrySubmesh(string material, int startIndex, int indexCount, int startVertex, int vertexCount)
+        public int VertexCount => this.MaxVertex - this.MinVertex + 1;
+        public int MinVertex { get; private set; }
+        public int MaxVertex { get; private set; }
+
+        internal MapGeometrySubmesh(string material, int startIndex, int indexCount, int minVertex, int maxVertex)
         {
-            this.Material = material;
+            this.Material = material ?? MISSING_MATERIAL;
             this.StartIndex = startIndex;
             this.IndexCount = indexCount;
-            this.StartVertex = startVertex;
-            this.VertexCount = vertexCount;
+            this.MinVertex = minVertex;
+            this.MaxVertex = maxVertex;
         }
 
-        public MapGeometrySubmesh(BinaryReader br)
+        internal MapGeometrySubmesh(BinaryReader br)
         {
             this.Hash = br.ReadUInt32();
             this.Material = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
             this.StartIndex = br.ReadInt32();
             this.IndexCount = br.ReadInt32();
-            this.StartVertex = br.ReadInt32(); //MinVertex
-            this.VertexCount = br.ReadInt32() + 1; //MaxVertex
-
-            if (this.StartVertex != 0)
-            {
-                this.StartVertex--;
-            }
+            this.MinVertex = br.ReadInt32();
+            this.MaxVertex = br.ReadInt32();
         }
 
-        public void Write(BinaryWriter bw)
+        internal void Write(BinaryWriter bw)
         {
             bw.Write(this.Hash);
             bw.Write(this.Material.Length);
             bw.Write(Encoding.ASCII.GetBytes(this.Material));
             bw.Write(this.StartIndex);
             bw.Write(this.IndexCount);
-            bw.Write((this.StartVertex == 0) ? this.StartVertex : this.StartVertex + 1);
-            bw.Write(this.VertexCount - 1);
+            bw.Write(this.MinVertex);
+            bw.Write(this.MaxVertex);
         }
     }
 }
