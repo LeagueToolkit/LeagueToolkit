@@ -185,7 +185,7 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             foreach (MapGeometryModel model in this.Models)
             {
-                if (model.SeparatePointLight != null)
+                if (model.PointLight is not null)
                 {
                     return true;
                 }

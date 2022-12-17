@@ -26,14 +26,29 @@ namespace LeagueToolkit.IO.MapGeometry
         public bool FlipNormals { get; private set; }
 
         public Box BoundingBox { get; private set; }
-        public Matrix4x4 Transformation { get; private set; } = Matrix4x4.Identity;
+        public Matrix4x4 Transformation { get; private set; }
 
         public MapGeometryQualityFilter QualityFilter { get; private set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer LayerMask { get; private set; } = MapGeometryLayer.AllLayers;
         public MapGeometryMeshRenderFlags MeshRenderFlags { get; private set; }
 
-        public Vector3? SeparatePointLight { get; private set; }
-        public List<Vector3> UnknownFloats { get; private set; } = new();
+        /// <summary>
+        /// </summary>
+        /// <remarks>
+        /// This feature is supported only up until version 7
+        /// </remarks>
+        public Vector3? PointLight { get; private set; }
+
+        /// <summary>
+        /// For more information about generating light probes,
+        /// see <see href="https://docs.unity3d.com/Manual/LightProbes-TechnicalInformation.html">Unity - Light Probes</see>
+        /// </summary>
+        /// <remarks>
+        /// This feature is supported only up until version 9
+        /// <br>Since version 9, terrain meshes use baked light instead</br>
+        /// </remarks>
+        public ReadOnlyCollection<Vector3> LightProbes => Array.AsReadOnly(this._lightProbes);
+        private readonly Vector3[] _lightProbes;
 
         public MapGeometrySamplerData StationaryLight { get; private set; } = new();
 
@@ -188,14 +203,15 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (useSeparatePointLights && (version < 7))
             {
-                this.SeparatePointLight = br.ReadVector3();
+                this.PointLight = br.ReadVector3();
             }
 
             if (version < 9)
             {
+                this._lightProbes = new Vector3[9];
                 for (int i = 0; i < 9; i++)
                 {
-                    this.UnknownFloats.Add(br.ReadVector3());
+                    this._lightProbes[i] = br.ReadVector3();
                 }
 
                 this.StationaryLight = MapGeometrySamplerData.Read(br);
@@ -262,14 +278,14 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 if (useSeparatePointLights)
                 {
-                    bw.WriteVector3(this.SeparatePointLight ?? Vector3.Zero);
+                    bw.WriteVector3(this.PointLight ?? Vector3.Zero);
                 }
 
-                foreach (Vector3 pointLight in this.UnknownFloats)
+                foreach (Vector3 pointLight in this.LightProbes)
                 {
                     bw.WriteVector3(pointLight);
                 }
-                for (int i = 0; i < 9 - this.UnknownFloats.Count; i++)
+                for (int i = 0; i < 9 - this.LightProbes.Count; i++)
                 {
                     bw.WriteVector3(Vector3.Zero);
                 }
