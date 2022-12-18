@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     [DebuggerDisplay("VertexElementGroup<{DebuggerDisplay,nq}>")]
     public struct MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>

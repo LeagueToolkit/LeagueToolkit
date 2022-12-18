@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     public struct MapGeometrySubmesh
     {

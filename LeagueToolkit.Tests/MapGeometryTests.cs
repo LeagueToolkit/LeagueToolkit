@@ -1,4 +1,4 @@
-using LeagueToolkit.IO.MapGeometry;
+using LeagueToolkit.IO.MapGeometryFile;
 
 namespace LeagueToolkit.Tests
 {

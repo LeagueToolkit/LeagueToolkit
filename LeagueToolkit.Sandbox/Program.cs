@@ -2,7 +2,7 @@
 using LeagueToolkit.Helpers.Structures.BucketGrid;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.PropertyBin;
-using LeagueToolkit.IO.MapGeometry;
+using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.NavigationGridOverlay;
 using LeagueToolkit.IO.NVR;
 using LeagueToolkit.IO.OBJ;
@@ -25,7 +25,7 @@ using System.Numerics;
 using LeagueToolkit.Meta.Dump;
 using System.Reflection;
 using LeagueToolkit.Helpers;
-using LeagueToolkit.IO.MapGeometry.Builder;
+using LeagueToolkit.IO.MapGeometryFile.Builder;
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Buffers;
 

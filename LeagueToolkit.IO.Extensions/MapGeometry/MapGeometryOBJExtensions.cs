@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     public static class MapGeometryOBJExtensions
     {

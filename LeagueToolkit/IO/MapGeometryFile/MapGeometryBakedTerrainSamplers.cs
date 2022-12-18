@@ -1,4 +1,4 @@
-﻿namespace LeagueToolkit.IO.MapGeometry
+﻿namespace LeagueToolkit.IO.MapGeometryFile
 {
     public struct MapGeometryBakedTerrainSamplers
     {

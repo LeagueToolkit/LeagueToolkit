@@ -6,7 +6,7 @@ using LeagueToolkit.Helpers;
 using LeagueToolkit.Helpers.Extensions;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     public struct MapGeometryVertex
     {

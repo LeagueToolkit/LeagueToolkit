@@ -4,7 +4,7 @@ using LeagueToolkit.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LeagueToolkit.IO.MapGeometry;
+using LeagueToolkit.IO.MapGeometryFile;
 using System.Numerics;
 using LeagueToolkit.IO.NVR;
 

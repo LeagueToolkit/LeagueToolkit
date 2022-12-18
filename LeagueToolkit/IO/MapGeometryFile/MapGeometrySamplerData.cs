@@ -5,7 +5,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     public struct MapGeometrySamplerData
     {

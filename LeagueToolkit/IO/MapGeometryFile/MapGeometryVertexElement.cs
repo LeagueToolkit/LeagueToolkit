@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     [DebuggerDisplay("{Name} - {Format}")]
     public struct MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>

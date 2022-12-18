@@ -3,7 +3,7 @@ using LeagueToolkit.Helpers.Structures.BucketGrid;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LeagueToolkit.IO.MapGeometry.Builder
+namespace LeagueToolkit.IO.MapGeometryFile.Builder
 {
     public class MapGeometryBuilder
     {

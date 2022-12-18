@@ -8,7 +8,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometry.Builder
+namespace LeagueToolkit.IO.MapGeometryFile.Builder
 {
     public sealed class MapGeometryModelBuilder
     {

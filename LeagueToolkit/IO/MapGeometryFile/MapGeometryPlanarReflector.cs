@@ -3,7 +3,7 @@ using LeagueToolkit.Helpers.Structures;
 using System.IO;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     /*
      * Process:

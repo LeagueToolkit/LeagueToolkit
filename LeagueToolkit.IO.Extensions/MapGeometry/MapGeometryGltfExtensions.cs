@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     using VERTEX = VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexEmpty>;
 
