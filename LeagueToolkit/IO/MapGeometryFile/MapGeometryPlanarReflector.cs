@@ -59,6 +59,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
      *     - Riot::CameraRenderTargetData::SetMaybeRenderTargetData(planarCameraData.Camera.CurrentRenderTargetData, renderTargetData)
      * - END FOREACH LOOP (RENDER TARGET SET)
      */
+
+    /// <summary>
+    /// Describes a <see href="http://www.bluevoid.com/opengl/sig00/advanced00/notes/node164.html">planar reflector</see> plane
+    /// </summary>
+    /// <remarks>
+    /// Only 1 <see cref="MapGeometryPlanarReflector"/> can be active in a scene at the same time
+    /// (This is determined by frustum culling)
+    /// </remarks>
     public struct MapGeometryPlanarReflector
     {
         /// <summary>
