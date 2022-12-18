@@ -49,7 +49,7 @@ namespace LeagueToolkit.Converters
                         throw new InvalidOperationException("Mesh contains a vertex without a Position element");
                     }
 
-                    vertices.Add(Vector3.Transform((Vector3)vertex.Position, mesh.Transformation));
+                    vertices.Add(Vector3.Transform((Vector3)vertex.Position, mesh.Transform));
                     normals.Add(vertex.Normal.Value);
                     if (vertex.DiffuseUV != null)
                     {

@@ -39,7 +39,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public bool FlipNormals { get; private set; }
 
         public Box BoundingBox { get; private set; }
-        public Matrix4x4 Transformation { get; private set; }
+        public Matrix4x4 Transform { get; private set; }
 
         public MapGeometryQualityFilter QualityFilter { get; private set; } = MapGeometryQualityFilter.QualityAll;
         public MapGeometryLayer LayerMask { get; private set; } = MapGeometryLayer.AllLayers;
@@ -94,7 +94,7 @@ namespace LeagueToolkit.IO.MapGeometry
             this._vertices = vertices;
             this._indices = indices;
             this._submeshes = new(submeshes);
-            this.Transformation = transform;
+            this.Transform = transform;
             this.FlipNormals = flipNormals;
             this.QualityFilter = qualityFilter;
             this.LayerMask = layerMask;
@@ -138,7 +138,7 @@ namespace LeagueToolkit.IO.MapGeometry
             Matrix4x4 transformation
         ) : this(name, vertices, indices, submeshes)
         {
-            this.Transformation = transformation;
+            this.Transform = transformation;
         }
 
         public MapGeometryModel(
@@ -151,7 +151,7 @@ namespace LeagueToolkit.IO.MapGeometry
         ) : this(name, vertices, indices, submeshes)
         {
             this.LayerMask = layer;
-            this.Transformation = transformation;
+            this.Transform = transformation;
         }
 
         public MapGeometryModel(
@@ -226,7 +226,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             this.BoundingBox = br.ReadBox();
-            this.Transformation = br.ReadMatrix4x4RowMajor();
+            this.Transform = br.ReadMatrix4x4RowMajor();
             this.QualityFilter = (MapGeometryQualityFilter)br.ReadByte();
 
             if (version >= 7 && version <= 12)
@@ -299,7 +299,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             bw.WriteBox(this.BoundingBox);
-            bw.WriteMatrix4x4RowMajor(this.Transformation);
+            bw.WriteMatrix4x4RowMajor(this.Transform);
             bw.Write((byte)this.QualityFilter);
 
             if (version >= 7 && version <= 12)

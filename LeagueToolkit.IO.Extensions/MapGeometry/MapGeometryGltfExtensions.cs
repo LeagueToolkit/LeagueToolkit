@@ -51,7 +51,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 layerNodeMap[mesh.LayerMask]
                     .CreateNode()
                     .WithMesh(root.CreateMesh(meshBuilder))
-                    .WithLocalTransform(new AffineTransform(mesh.Transformation));
+                    .WithLocalTransform(new AffineTransform(mesh.Transform));
             }
 
             return root;
