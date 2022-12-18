@@ -3,7 +3,7 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
-    public class MapGeometrySubmesh
+    public struct MapGeometrySubmesh
     {
         /// <summary>
         /// This is the default material name for a <see cref="MapGeometrySubmesh"/>
