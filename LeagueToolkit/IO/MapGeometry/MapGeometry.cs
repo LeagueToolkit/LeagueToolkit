@@ -1,5 +1,7 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
+﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Structures.BucketGrid;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,11 +12,15 @@ namespace LeagueToolkit.IO.MapGeometry
 {
     public class MapGeometry
     {
-        public string BakedTerrainPrimarySampler { get; set; } = string.Empty;
-        public string BakedTerrainSecondarySampler { get; set; } = string.Empty;
-        public List<MapGeometryModel> Models { get; set; } = new();
+        public MapGeometryBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
+
+        public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
+        private readonly List<MapGeometryModel> _meshes = new();
+
         public BucketGrid BucketGrid { get; set; }
-        public List<MapGeometryPlanarReflector> PlanarReflectors { get; set; } = new();
+
+        public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
+        private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
 
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
@@ -40,15 +46,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 useSeparatePointLights = br.ReadBoolean();
             }
 
-            if (version >= 9)
-            {
-                this.BakedTerrainPrimarySampler = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-
-                if (version >= 11)
-                {
-                    this.BakedTerrainSecondarySampler = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-                }
-            }
+            ReadBakedTerrainSamplers(br, version);
 
             List<MapGeometryVertexElementGroup> vertexElementGroups = new();
             uint vertexElementGroupCount = br.ReadUInt32();
@@ -95,7 +93,7 @@ namespace LeagueToolkit.IO.MapGeometry
             uint modelCount = br.ReadUInt32();
             for (int i = 0; i < modelCount; i++)
             {
-                this.Models.Add(
+                this._meshes.Add(
                     new(br, i, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version)
                 );
             }
@@ -107,9 +105,42 @@ namespace LeagueToolkit.IO.MapGeometry
                 uint planarReflectorCount = br.ReadUInt32();
                 for (int i = 0; i < planarReflectorCount; i++)
                 {
-                    this.PlanarReflectors.Add(new(br));
+                    this._planarReflectors.Add(new(br));
                 }
             }
+        }
+
+        internal MapGeometry(
+            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            IEnumerable<MapGeometryModel> meshes,
+            BucketGrid bucketGrid,
+            IEnumerable<MapGeometryPlanarReflector> planarReflectors
+        )
+        {
+            Guard.IsNotNull(meshes, nameof(meshes));
+            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
+            Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
+
+            this.BakedTerrainSamplers = bakedTerrainSamplers;
+            this._meshes = new(meshes);
+            this.BucketGrid = bucketGrid;
+            this._planarReflectors = new(planarReflectors);
+        }
+
+        internal void ReadBakedTerrainSamplers(BinaryReader br, uint version)
+        {
+            MapGeometryBakedTerrainSamplers bakedTerrainSamplers = new();
+            if (version >= 9)
+            {
+                bakedTerrainSamplers.Primary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+
+                if (version >= 11)
+                {
+                    bakedTerrainSamplers.Secondary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+                }
+            }
+
+            this.BakedTerrainSamplers = bakedTerrainSamplers;
         }
 
         public void Write(string fileLocation, uint version)
@@ -121,7 +152,7 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
             {
-                throw new Exception("Unsupported version");
+                throw new ArgumentException($"Unsupported version: {version}", nameof(version));
             }
 
             using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
@@ -136,17 +167,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.Write(usesSeparatePointLights);
             }
 
-            if (version >= 9)
-            {
-                bw.Write(this.BakedTerrainPrimarySampler.Length);
-                bw.Write(Encoding.ASCII.GetBytes(this.BakedTerrainPrimarySampler));
-
-                if (version >= 11)
-                {
-                    bw.Write(this.BakedTerrainSecondarySampler.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(this.BakedTerrainSecondarySampler));
-                }
-            }
+            WriteBakedTerrainSamplers(bw, version);
 
             List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
             bw.Write(vertexElementGroups.Count);
@@ -158,8 +179,8 @@ namespace LeagueToolkit.IO.MapGeometry
             WriteVertexBuffers(bw, vertexElementGroups, version);
             WriteIndexBuffers(bw, version);
 
-            bw.Write(this.Models.Count);
-            foreach (MapGeometryModel model in this.Models)
+            bw.Write(this._meshes.Count);
+            foreach (MapGeometryModel model in this._meshes)
             {
                 model.Write(bw, usesSeparatePointLights, version);
             }
@@ -176,16 +197,11 @@ namespace LeagueToolkit.IO.MapGeometry
             }
         }
 
-        public void AddModel(MapGeometryModel model)
-        {
-            this.Models.Add(model);
-        }
-
         private bool UsesSeparatePointLights()
         {
-            foreach (MapGeometryModel model in this.Models)
+            foreach (MapGeometryModel mesh in this.Meshes)
             {
-                if (model.PointLight is not null)
+                if (mesh.PointLight is not null)
                 {
                     return true;
                 }
@@ -198,21 +214,47 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             List<MapGeometryVertexElementGroup> vertexElementGroups = new();
 
-            foreach (MapGeometryModel model in this.Models)
+            foreach (MapGeometryModel mesh in this.Meshes)
             {
                 // TODO: Create method which verifies that each vertex is of the same format
                 //       and throws if it detects an inconsistency
-                MapGeometryVertexElementGroup vertexElementGroup = new(model.Vertices[0]);
+                MapGeometryVertexElementGroup vertexElementGroup = new(mesh.Vertices[0]);
 
                 if (!vertexElementGroups.Contains(vertexElementGroup))
                 {
                     vertexElementGroups.Add(vertexElementGroup);
                 }
 
-                model._vertexElementGroupId = vertexElementGroups.IndexOf(vertexElementGroup);
+                mesh._vertexElementGroupId = vertexElementGroups.IndexOf(vertexElementGroup);
             }
 
             return vertexElementGroups;
+        }
+
+        private void WriteBakedTerrainSamplers(BinaryWriter bw, uint version)
+        {
+            if (version >= 9)
+            {
+                WriteSampler(this.BakedTerrainSamplers.Primary);
+
+                if (version >= 11)
+                {
+                    WriteSampler(this.BakedTerrainSamplers.Secondary);
+                }
+            }
+
+            void WriteSampler(string sampler)
+            {
+                if (string.IsNullOrEmpty(sampler))
+                {
+                    bw.Write(0); // Length
+                }
+                else
+                {
+                    bw.Write(sampler.Length);
+                    bw.Write(Encoding.ASCII.GetBytes(sampler));
+                }
+            }
         }
 
         private void WriteVertexBuffers(
@@ -222,30 +264,30 @@ namespace LeagueToolkit.IO.MapGeometry
         )
         {
             // Write count of buffers
-            bw.Write(this.Models.Count);
+            bw.Write(this.Meshes.Count);
 
             int currentVertexBufferId = 0;
-            foreach (MapGeometryModel model in this.Models)
+            foreach (MapGeometryModel mesh in this.Meshes)
             {
-                int vertexSize = vertexElementGroups[model._vertexElementGroupId].GetVertexSize();
-                int vertexBufferSize = model.Vertices.Length * vertexSize;
+                int vertexSize = vertexElementGroups[mesh._vertexElementGroupId].GetVertexSize();
+                int vertexBufferSize = mesh.Vertices.Length * vertexSize;
 
                 // Write buffer layer mask
                 if (version >= 13)
                 {
-                    bw.Write((byte)model.LayerMask);
+                    bw.Write((byte)mesh.LayerMask);
                 }
 
                 // Write buffer size
                 bw.Write(vertexBufferSize);
 
                 // Write buffer data
-                for (int currentVertex = 0; currentVertex < model.Vertices.Length; currentVertex++)
+                for (int currentVertex = 0; currentVertex < mesh.Vertices.Length; currentVertex++)
                 {
-                    model.Vertices[currentVertex].Write(bw);
+                    mesh.Vertices[currentVertex].Write(bw);
                 }
 
-                model._vertexBufferId = currentVertexBufferId;
+                mesh._vertexBufferId = currentVertexBufferId;
 
                 currentVertexBufferId++;
             }
@@ -254,25 +296,25 @@ namespace LeagueToolkit.IO.MapGeometry
         private void WriteIndexBuffers(BinaryWriter bw, uint version)
         {
             // Write count of buffers
-            bw.Write(this.Models.Count);
+            bw.Write(this.Meshes.Count);
 
             int currentIndexBufferId = 0;
-            foreach (MapGeometryModel model in this.Models)
+            foreach (MapGeometryModel mesh in this.Meshes)
             {
-                // Marshal Indices array of model into a buffer for writing into the stream
-                ReadOnlySpan<byte> indexBuffer = MemoryMarshal.AsBytes(model.Indices);
+                // Marshal Indices array of mesh into a buffer for writing into the stream
+                ReadOnlySpan<byte> indexBuffer = MemoryMarshal.AsBytes(mesh.Indices);
 
                 // Write buffer layer mask
                 if (version >= 13)
                 {
-                    bw.Write((byte)model.LayerMask);
+                    bw.Write((byte)mesh.LayerMask);
                 }
 
                 // Write size of buffer and the buffer itself
                 bw.Write(indexBuffer.Length);
                 bw.Write(indexBuffer);
 
-                model._indexBufferId = currentIndexBufferId;
+                mesh._indexBufferId = currentIndexBufferId;
                 currentIndexBufferId++;
             }
         }

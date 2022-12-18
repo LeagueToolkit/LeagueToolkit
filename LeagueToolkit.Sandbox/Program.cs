@@ -32,42 +32,15 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            SimpleSkin skn = new("akali.skn");
-            skn.Write("akali_rewritten.skn");
-            SimpleSkin skn1 = new("akali_rewritten.skn");
+            ProfileMapgeo(@"C:\Users\Filip\Desktop\erftygerdfghdfg\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo");
         }
 
-        static void TestMapgeo()
+        static void ProfileMapgeo(string path)
         {
-            MapGeometry mgeo = new MapGeometry(@"C:/Users/Crauzer/Desktop/data/maps/mapgeometry/sr/base_srx.mapgeo");
+            MapGeometry mgeo = new(path);
 
-            string randomMaterialName = mgeo.Models[180].Submeshes[0].Material;
-
-            mgeo.Models.Clear();
-
-            OBJFile object1 = new OBJFile("room155.obj");
-            OBJFile object2 = new OBJFile("room156.obj");
-            OBJFile object3 = new OBJFile("room157.obj");
-
-            AddOBJ(object1, "MapGeo_Instance_0");
-            AddOBJ(object2, "MapGeo_Instance_1");
-            AddOBJ(object3, "MapGeo_Instance_2");
-
-            mgeo.Write("base_srx.mapgeo.edited", 7);
-
-            void AddOBJ(OBJFile obj, string name)
-            {
-                //We will add each object 2 times just for fun to see how transformation works
-
-                (List<ushort> indices, List<MapGeometryVertex> vertices) = obj.GetMGEOData();
-
-                Matrix4x4 transformation = Matrix4x4.CreateTranslation(new Vector3(0, 50, 100));
-
-                MapGeometrySubmesh submesh = new MapGeometrySubmesh("", 0, (uint)indices.Count, 0, (uint)vertices.Count);
-                MapGeometryModel model1 = new MapGeometryModel(name, vertices, indices, new List<MapGeometrySubmesh>() { submesh }, MapGeometryLayer.AllLayers);
-
-                mgeo.AddModel(model1);
-            }
+            mgeo.Write(@"C:\Users\Filip\Desktop\worlds_trophyonly_saved.mapgeo", 13);
+            //mgeo.ToGLTF().SaveGLTF(@"C:\Users\Filip\Desktop\worlds_trophyonly_gltf.gltf");
         }
 
         static void TestWGEO()

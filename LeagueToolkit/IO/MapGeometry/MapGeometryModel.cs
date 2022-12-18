@@ -23,16 +23,17 @@ namespace LeagueToolkit.IO.MapGeometry
         /// <summary>
         /// A read-only view into the serialized vertex buffer
         /// </summary>
-        public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices;
+        public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices.Span;
+
         /// <summary>
         /// A read-only view into the index buffer
         /// </summary>
-        public ReadOnlySpan<ushort> Indices => this._indices;
+        public ReadOnlySpan<ushort> Indices => this._indices.Span;
 
-        private readonly MapGeometryVertex[] _vertices;
-        private readonly ushort[] _indices;
+        private readonly Memory<MapGeometryVertex> _vertices;
+        private readonly Memory<ushort> _indices;
 
-        public ReadOnlyCollection<MapGeometrySubmesh> Submeshes => this._submeshes.AsReadOnly();
+        public IReadOnlyList<MapGeometrySubmesh> Submeshes => this._submeshes;
         private readonly List<MapGeometrySubmesh> _submeshes = new();
 
         public bool FlipNormals { get; private set; }
@@ -59,7 +60,7 @@ namespace LeagueToolkit.IO.MapGeometry
         /// This feature is supported only if <c>version &lt; 9</c>
         /// <br>Since version 9, terrain meshes use baked light instead</br>
         /// </remarks>
-        public ReadOnlyCollection<Vector3> LightProbes => Array.AsReadOnly(this._lightProbes);
+        public IReadOnlyList<Vector3> LightProbes => this._lightProbes;
         private readonly Vector3[] _lightProbes;
 
         public MapGeometrySamplerData StationaryLight { get; private set; }
@@ -74,7 +75,34 @@ namespace LeagueToolkit.IO.MapGeometry
         internal int _vertexBufferId;
         internal int _indexBufferId;
 
-        public MapGeometryModel() { }
+        internal MapGeometryModel(
+            int id,
+            Memory<MapGeometryVertex> vertices,
+            Memory<ushort> indices,
+            IEnumerable<MapGeometrySubmesh> submeshes,
+            Matrix4x4 transform,
+            bool flipNormals,
+            MapGeometryQualityFilter qualityFilter,
+            MapGeometryLayer layerMask,
+            MapGeometryMeshRenderFlags renderFlags,
+            MapGeometrySamplerData stationaryLight,
+            MapGeometrySamplerData bakedLight,
+            MapGeometrySamplerData bakedPaint
+        )
+        {
+            this.Name = CreateName(id);
+            this._vertices = vertices;
+            this._indices = indices;
+            this._submeshes = new(submeshes);
+            this.Transformation = transform;
+            this.FlipNormals = flipNormals;
+            this.QualityFilter = qualityFilter;
+            this.LayerMask = layerMask;
+            this.MeshRenderFlags = renderFlags;
+            this.StationaryLight = stationaryLight;
+            this.BakedLight = bakedLight;
+            this.BakedPaint = bakedPaint;
+        }
 
         public MapGeometryModel(
             string name,
@@ -147,15 +175,7 @@ namespace LeagueToolkit.IO.MapGeometry
             uint version
         )
         {
-            if (version <= 11)
-            {
-                this.Name = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            }
-            else 
-            {
-                // League assigns this name to the meshes automatically during reading
-                this.Name = $"MapGeo_Instance_{id}";
-            }
+            this.Name = version <= 11 ? Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32())) : CreateName(id);
 
             int vertexCount = br.ReadInt32();
             uint vertexBufferCount = br.ReadUInt32();
@@ -165,7 +185,7 @@ namespace LeagueToolkit.IO.MapGeometry
             this._vertices = new MapGeometryVertex[vertexCount];
             for (int i = 0; i < vertexCount; i++)
             {
-                this._vertices[i] = new();
+                this._vertices.Span[i] = new();
             }
             for (int i = 0; i < vertexBufferCount; i++)
             {
@@ -176,7 +196,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 for (int j = 0; j < vertexCount; j++)
                 {
                     MapGeometryVertex.ReadAndCombineElements(
-                        this._vertices[j],
+                        this._vertices.Span[j],
                         vertexElementGroups[baseVertexElementGroup + i],
                         br
                     );
@@ -320,6 +340,12 @@ namespace LeagueToolkit.IO.MapGeometry
                     this.BakedPaint.Write(bw);
                 }
             }
+        }
+
+        public static string CreateName(int id)
+        {
+            // League assigns this name to the meshes automatically during reading
+            return $"MapGeo_Instance_{id}";
         }
     }
 

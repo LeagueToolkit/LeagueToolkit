@@ -90,5 +90,33 @@ namespace LeagueToolkit.IO.MapGeometry
                 bw.WriteColor(secondaryColor, ColorFormat.BgraU8);
             }
         }
+
+        public VertexElementGroupDescriptionFlags GetDescriptionFlags()
+        {
+            VertexElementGroupDescriptionFlags descriptionFlags = 0;
+
+            if (this.Position is not null)
+            {
+                descriptionFlags |= VertexElementGroupDescriptionFlags.Position;
+            }
+            if (this.Normal is not null)
+            {
+                descriptionFlags |= VertexElementGroupDescriptionFlags.Normal;
+            }
+            if (this.DiffuseUV is not null)
+            {
+                descriptionFlags |= VertexElementGroupDescriptionFlags.DiffuseUV;
+            }
+            if (this.LightmapUV is not null)
+            {
+                descriptionFlags |= VertexElementGroupDescriptionFlags.LightmapUV;
+            }
+            if (this.SecondaryColor is not null)
+            {
+                descriptionFlags |= VertexElementGroupDescriptionFlags.SecondaryColor;
+            }
+
+            return descriptionFlags;
+        }
     }
 }

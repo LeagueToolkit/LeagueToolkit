@@ -24,14 +24,14 @@ namespace LeagueToolkit.IO.MapGeometry
             // Find all layer combinations used in the Map
             // so we can group the meshes
             var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
-            foreach (MapGeometryModel model in mgeo.Models)
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                if (!layerModelMap.ContainsKey(model.LayerMask))
+                if (!layerModelMap.ContainsKey(mesh.LayerMask))
                 {
-                    layerModelMap.Add(model.LayerMask, new List<MapGeometryModel>());
+                    layerModelMap.Add(mesh.LayerMask, new List<MapGeometryModel>());
                 }
 
-                layerModelMap[model.LayerMask].Add(model);
+                layerModelMap[mesh.LayerMask].Add(mesh);
             }
 
             // Create node for each layer combination
@@ -44,14 +44,14 @@ namespace LeagueToolkit.IO.MapGeometry
                 );
             }
 
-            foreach (MapGeometryModel model in mgeo.Models)
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(model);
+                IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(mesh);
 
-                layerNodeMap[model.LayerMask]
+                layerNodeMap[mesh.LayerMask]
                     .CreateNode()
                     .WithMesh(root.CreateMesh(meshBuilder))
-                    .WithLocalTransform(new AffineTransform(model.Transformation));
+                    .WithLocalTransform(new AffineTransform(mesh.Transformation));
             }
 
             return root;
