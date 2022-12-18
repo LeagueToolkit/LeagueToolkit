@@ -104,67 +104,6 @@ namespace LeagueToolkit.IO.MapGeometry
             this.BakedPaint = bakedPaint;
         }
 
-        public MapGeometryModel(
-            string name,
-            IEnumerable<MapGeometryVertex> vertices,
-            ushort[] indices,
-            IEnumerable<MapGeometrySubmesh> submeshes
-        )
-        {
-            this.Name = name;
-            this._vertices = vertices.ToArray();
-            this._indices = indices;
-            this._submeshes = new(submeshes);
-
-            this.BoundingBox = Box.FromVertices(vertices.Select(vertex => vertex.Position ?? Vector3.Zero));
-        }
-
-        public MapGeometryModel(
-            string name,
-            IEnumerable<MapGeometryVertex> vertices,
-            ushort[] indices,
-            IEnumerable<MapGeometrySubmesh> submeshes,
-            MapGeometryLayer layer
-        ) : this(name, vertices, indices, submeshes)
-        {
-            this.LayerMask = layer;
-        }
-
-        public MapGeometryModel(
-            string name,
-            IEnumerable<MapGeometryVertex> vertices,
-            ushort[] indices,
-            IEnumerable<MapGeometrySubmesh> submeshes,
-            Matrix4x4 transformation
-        ) : this(name, vertices, indices, submeshes)
-        {
-            this.Transform = transformation;
-        }
-
-        public MapGeometryModel(
-            string name,
-            IEnumerable<MapGeometryVertex> vertices,
-            ushort[] indices,
-            IEnumerable<MapGeometrySubmesh> submeshes,
-            MapGeometryLayer layer,
-            Matrix4x4 transformation
-        ) : this(name, vertices, indices, submeshes)
-        {
-            this.LayerMask = layer;
-            this.Transform = transformation;
-        }
-
-        public MapGeometryModel(
-            string name,
-            IEnumerable<MapGeometryVertex> vertices,
-            ushort[] indices,
-            IEnumerable<MapGeometrySubmesh> submeshes,
-            MapGeometrySamplerData stationaryLight
-        ) : this(name, vertices, indices, submeshes)
-        {
-            this.StationaryLight = stationaryLight;
-        }
-
         internal MapGeometryModel(
             BinaryReader br,
             int id,

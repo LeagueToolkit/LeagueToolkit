@@ -8,8 +8,7 @@ using System.Numerics;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
-    // TODO: Convert to struct
-    public class MapGeometryVertex
+    public struct MapGeometryVertex
     {
         public Vector3? Position { get; set; }
         public Vector3? Normal { get; set; }

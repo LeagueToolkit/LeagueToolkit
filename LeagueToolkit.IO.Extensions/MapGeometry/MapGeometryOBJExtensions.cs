@@ -30,7 +30,11 @@ namespace LeagueToolkit.IO.MapGeometry
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            vertices[(int)face.VertexIndices[i]].Normal = obj.Normals[(int)face.NormalIndices[i]];
+                            MapGeometryVertex vertex = vertices[(int)face.VertexIndices[i]];
+
+                            vertex.Normal = obj.Normals[(int)face.NormalIndices[i]];
+
+                            vertices[(int)face.VertexIndices[i]] = vertex;
                         }
                     }
 
@@ -38,7 +42,11 @@ namespace LeagueToolkit.IO.MapGeometry
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            vertices[(int)face.VertexIndices[i]].DiffuseUV = obj.UVs[(int)face.UVIndices[i]];
+                            MapGeometryVertex vertex = vertices[(int)face.VertexIndices[i]];
+
+                            vertex.DiffuseUV = obj.UVs[(int)face.UVIndices[i]];
+
+                            vertices[(int)face.VertexIndices[i]] = vertex;
                         }
                     }
                 }
