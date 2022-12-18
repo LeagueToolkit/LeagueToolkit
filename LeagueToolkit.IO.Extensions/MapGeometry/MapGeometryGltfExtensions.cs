@@ -23,19 +23,19 @@ namespace LeagueToolkit.IO.MapGeometry
 
             // Find all layer combinations used in the Map
             // so we can group the meshes
-            var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
+            var layerModelMap = new Dictionary<MapGeometryVisibilityFlags, List<MapGeometryModel>>();
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                if (!layerModelMap.ContainsKey(mesh.LayerMask))
+                if (!layerModelMap.ContainsKey(mesh.VisibilityFlags))
                 {
-                    layerModelMap.Add(mesh.LayerMask, new List<MapGeometryModel>());
+                    layerModelMap.Add(mesh.VisibilityFlags, new List<MapGeometryModel>());
                 }
 
-                layerModelMap[mesh.LayerMask].Add(mesh);
+                layerModelMap[mesh.VisibilityFlags].Add(mesh);
             }
 
             // Create node for each layer combination
-            var layerNodeMap = new Dictionary<MapGeometryLayer, Node>();
+            var layerNodeMap = new Dictionary<MapGeometryVisibilityFlags, Node>();
             foreach (var layerModelPair in layerModelMap)
             {
                 layerNodeMap.Add(
@@ -48,7 +48,7 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(mesh);
 
-                layerNodeMap[mesh.LayerMask]
+                layerNodeMap[mesh.VisibilityFlags]
                     .CreateNode()
                     .WithMesh(root.CreateMesh(meshBuilder))
                     .WithLocalTransform(new AffineTransform(mesh.Transform));
@@ -57,13 +57,13 @@ namespace LeagueToolkit.IO.MapGeometry
             return root;
         }
 
-        private static string DeriveLayerCombinationName(MapGeometryLayer layerCombination)
+        private static string DeriveLayerCombinationName(MapGeometryVisibilityFlags layerCombination)
         {
-            if (layerCombination == MapGeometryLayer.NoLayer)
+            if (layerCombination == MapGeometryVisibilityFlags.NoLayer)
             {
                 return "NoLayer";
             }
-            else if (layerCombination == MapGeometryLayer.AllLayers)
+            else if (layerCombination == MapGeometryVisibilityFlags.AllLayers)
             {
                 return "AllLayers";
             }
@@ -71,12 +71,12 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 string name = "Layer-";
 
-                foreach (MapGeometryLayer layerFlag in Enum.GetValues(typeof(MapGeometryLayer)))
+                foreach (MapGeometryVisibilityFlags layerFlag in Enum.GetValues(typeof(MapGeometryVisibilityFlags)))
                 {
                     if (
                         layerCombination.HasFlag(layerFlag)
-                        && layerFlag != MapGeometryLayer.AllLayers
-                        && layerFlag != MapGeometryLayer.NoLayer
+                        && layerFlag != MapGeometryVisibilityFlags.AllLayers
+                        && layerFlag != MapGeometryVisibilityFlags.NoLayer
                     )
                     {
                         byte layerIndex = byte.Parse(layerFlag.ToString().Replace("Layer", ""));

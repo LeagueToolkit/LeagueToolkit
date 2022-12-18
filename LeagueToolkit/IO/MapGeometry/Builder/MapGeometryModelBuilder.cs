@@ -15,8 +15,8 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
         private Matrix4x4 _transform;
 
         private bool _flipNormals;
-        private MapGeometryQualityFilter _qualityMask;
-        private MapGeometryLayer _layerMask;
+        private MapGeometryEnvironmentQualityFilter _environmentQualityMask;
+        private MapGeometryVisibilityFlags _visibilityFlags;
         private MapGeometryMeshRenderFlags _renderFlags;
 
         private MapGeometrySamplerData _stationaryLight;
@@ -44,8 +44,8 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
                 this._submeshes.Select(submesh => submesh.Build()),
                 this._transform,
                 this._flipNormals,
-                this._qualityMask,
-                this._layerMask,
+                this._environmentQualityMask,
+                this._visibilityFlags,
                 this._renderFlags,
                 this._stationaryLight,
                 this._bakedLight,
@@ -112,16 +112,6 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
             }
         }
 
-        public MapGeometryModelBuilder UseGeometry(MemoryOwner<MapGeometryVertex> vertices, MemoryOwner<ushort> indices)
-        {
-            Guard.HasSizeGreaterThan(vertices.Span, 0, nameof(vertices));
-            Guard.HasSizeGreaterThan(indices.Span, 0, nameof(indices));
-
-            this._vertices = vertices;
-            this._indices = indices;
-            return this;
-        }
-
         public void UseGeometry(
             int indexCount,
             int vertexCount,
@@ -180,15 +170,17 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
             return this;
         }
 
-        public MapGeometryModelBuilder UseQualityMask(MapGeometryQualityFilter qualityMask)
+        public MapGeometryModelBuilder UseEnvironmentQualityFilter(
+            MapGeometryEnvironmentQualityFilter environmentQualityFilter
+        )
         {
-            this._qualityMask = qualityMask;
+            this._environmentQualityMask = environmentQualityFilter;
             return this;
         }
 
-        public MapGeometryModelBuilder UseLayerMask(MapGeometryLayer layerMask)
+        public MapGeometryModelBuilder UseVisibilityFlags(MapGeometryVisibilityFlags visibilityFlags)
         {
-            this._layerMask = layerMask;
+            this._visibilityFlags = visibilityFlags;
             return this;
         }
 

@@ -59,9 +59,9 @@ namespace LeagueToolkit.Sandbox
                 meshBuilder
                     .UseTransform(mesh.Transform)
                     .UseFlipNormalsToggle(mesh.FlipNormals)
-                    .UseQualityMask(mesh.QualityFilter)
-                    .UseLayerMask(mesh.LayerMask)
-                    .UseRenderFlags(mesh.MeshRenderFlags)
+                    .UseEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
+                    .UseVisibilityFlags(mesh.VisibilityFlags)
+                    .UseRenderFlags(mesh.RenderFlags)
                     .UseStationaryLightSampler(mesh.StationaryLight)
                     .UseBakedLightSampler(mesh.BakedLight)
                     .UseBakedPaintSampler(mesh.BakedPaint)

@@ -12,7 +12,7 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
-    public sealed class MapGeometryModel: IDisposable
+    public sealed class MapGeometryModel : IDisposable
     {
         /// <summary>
         /// The name of this mesh
@@ -46,9 +46,10 @@ namespace LeagueToolkit.IO.MapGeometry
         public Box BoundingBox { get; private set; }
         public Matrix4x4 Transform { get; private set; }
 
-        public MapGeometryQualityFilter QualityFilter { get; private set; } = MapGeometryQualityFilter.QualityAll;
-        public MapGeometryLayer LayerMask { get; private set; } = MapGeometryLayer.AllLayers;
-        public MapGeometryMeshRenderFlags MeshRenderFlags { get; private set; }
+        public MapGeometryEnvironmentQualityFilter EnvironmentQualityFilter { get; private set; } =
+            MapGeometryEnvironmentQualityFilter.AllQualities;
+        public MapGeometryVisibilityFlags VisibilityFlags { get; private set; } = MapGeometryVisibilityFlags.AllLayers;
+        public MapGeometryMeshRenderFlags RenderFlags { get; private set; }
 
         /// <summary>
         /// </summary>
@@ -87,8 +88,8 @@ namespace LeagueToolkit.IO.MapGeometry
             IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transform,
             bool flipNormals,
-            MapGeometryQualityFilter qualityFilter,
-            MapGeometryLayer layerMask,
+            MapGeometryEnvironmentQualityFilter environmentQualityFilter,
+            MapGeometryVisibilityFlags visibilityFlags,
             MapGeometryMeshRenderFlags renderFlags,
             MapGeometrySamplerData stationaryLight,
             MapGeometrySamplerData bakedLight,
@@ -101,9 +102,9 @@ namespace LeagueToolkit.IO.MapGeometry
             this._submeshes = new(submeshes);
             this.Transform = transform;
             this.FlipNormals = flipNormals;
-            this.QualityFilter = qualityFilter;
-            this.LayerMask = layerMask;
-            this.MeshRenderFlags = renderFlags;
+            this.EnvironmentQualityFilter = environmentQualityFilter;
+            this.VisibilityFlags = visibilityFlags;
+            this.RenderFlags = renderFlags;
             this.StationaryLight = stationaryLight;
             this.BakedLight = bakedLight;
             this.BakedPaint = bakedPaint;
@@ -160,7 +161,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 13)
             {
-                this.LayerMask = (MapGeometryLayer)br.ReadByte();
+                this.VisibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
             }
 
             uint submeshCount = br.ReadUInt32();
@@ -176,16 +177,16 @@ namespace LeagueToolkit.IO.MapGeometry
 
             this.BoundingBox = br.ReadBox();
             this.Transform = br.ReadMatrix4x4RowMajor();
-            this.QualityFilter = (MapGeometryQualityFilter)br.ReadByte();
+            this.EnvironmentQualityFilter = (MapGeometryEnvironmentQualityFilter)br.ReadByte();
 
             if (version >= 7 && version <= 12)
             {
-                this.LayerMask = (MapGeometryLayer)br.ReadByte();
+                this.VisibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
             }
 
             if (version >= 11)
             {
-                this.MeshRenderFlags = (MapGeometryMeshRenderFlags)br.ReadByte();
+                this.RenderFlags = (MapGeometryMeshRenderFlags)br.ReadByte();
             }
 
             if (useSeparatePointLights && (version < 7))
@@ -233,7 +234,7 @@ namespace LeagueToolkit.IO.MapGeometry
 
             if (version >= 13)
             {
-                bw.Write((byte)this.LayerMask);
+                bw.Write((byte)this.VisibilityFlags);
             }
 
             bw.Write(this._submeshes.Count);
@@ -249,16 +250,16 @@ namespace LeagueToolkit.IO.MapGeometry
 
             bw.WriteBox(this.BoundingBox);
             bw.WriteMatrix4x4RowMajor(this.Transform);
-            bw.Write((byte)this.QualityFilter);
+            bw.Write((byte)this.EnvironmentQualityFilter);
 
             if (version >= 7 && version <= 12)
             {
-                bw.Write((byte)this.LayerMask);
+                bw.Write((byte)this.VisibilityFlags);
             }
 
             if (version >= 11)
             {
-                bw.Write((byte)this.MeshRenderFlags);
+                bw.Write((byte)this.RenderFlags);
             }
 
             if (version < 9)
@@ -307,7 +308,7 @@ namespace LeagueToolkit.IO.MapGeometry
     }
 
     [Flags]
-    public enum MapGeometryLayer : byte
+    public enum MapGeometryVisibilityFlags : byte
     {
         NoLayer = 0,
         Layer1 = 1,
@@ -322,15 +323,15 @@ namespace LeagueToolkit.IO.MapGeometry
     }
 
     [Flags]
-    public enum MapGeometryQualityFilter : byte
+    public enum MapGeometryEnvironmentQualityFilter : byte
     {
-        Quality0 = 1,
-        Quality1 = 2,
-        Quality2 = 4,
-        Quality3 = 8,
-        Quality4 = 16,
+        VeryLow = 1,
+        Low = 2,
+        Medium = 4,
+        High = 8,
+        VeryHigh = 16,
 
-        QualityAll = Quality0 | Quality1 | Quality2 | Quality3 | Quality4
+        AllQualities = VeryLow | Low | Medium | High | VeryHigh
     }
 
     [Flags]

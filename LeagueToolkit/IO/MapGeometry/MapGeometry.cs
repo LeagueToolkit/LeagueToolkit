@@ -62,7 +62,7 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 if (version >= 13)
                 {
-                    MapGeometryLayer layers = (MapGeometryLayer)br.ReadByte();
+                    MapGeometryVisibilityFlags visibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
                 }
 
                 uint bufferSize = br.ReadUInt32();
@@ -77,7 +77,7 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 if (version >= 13)
                 {
-                    MapGeometryLayer layers = (MapGeometryLayer)br.ReadByte();
+                    MapGeometryVisibilityFlags visibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
                 }
 
                 int bufferSize = br.ReadInt32();
@@ -276,7 +276,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 // Write buffer layer mask
                 if (version >= 13)
                 {
-                    bw.Write((byte)mesh.LayerMask);
+                    bw.Write((byte)mesh.VisibilityFlags);
                 }
 
                 // Write buffer size
@@ -308,7 +308,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 // Write buffer layer mask
                 if (version >= 13)
                 {
-                    bw.Write((byte)mesh.LayerMask);
+                    bw.Write((byte)mesh.VisibilityFlags);
                 }
 
                 // Write size of buffer and the buffer itself
