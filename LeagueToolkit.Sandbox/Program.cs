@@ -80,8 +80,6 @@ namespace LeagueToolkit.Sandbox
 
             using MapGeometry builtMap = mapBuilder.Build();
             builtMap.Write(rewriteTo, 13);
-
-            using MapGeometry builtMapReread = new(rewriteTo);
         }
 
         static void TestWGEO()

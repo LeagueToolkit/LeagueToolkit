@@ -18,7 +18,7 @@ namespace LeagueToolkit.IO.MapGeometry
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
-        public BucketGrid BucketGrid { get; set; }
+        public BucketGrid BucketGrid { get; private set; }
 
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
