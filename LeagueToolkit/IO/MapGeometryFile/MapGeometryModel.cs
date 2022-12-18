@@ -43,8 +43,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public Box BoundingBox { get; private set; }
         public Matrix4x4 Transform { get; private set; }
 
+        /// <summary>
+        /// Tells the game on which "Environment Quality" settings this mesh should be rendered
+        /// </summary>
         public MapGeometryEnvironmentQualityFilter EnvironmentQualityFilter { get; private set; } =
             MapGeometryEnvironmentQualityFilter.AllQualities;
+
+        /// <summary>
+        /// Tells the game on which Visibility Flags this mesh should be rendered
+        /// </summary>
         public MapGeometryVisibilityFlags VisibilityFlags { get; private set; } = MapGeometryVisibilityFlags.AllLayers;
         public MapGeometryMeshRenderFlags RenderFlags { get; private set; }
 
