@@ -1,6 +1,8 @@
-﻿using LeagueToolkit.Helpers.Extensions;
+﻿using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -10,7 +12,7 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
-    public class MapGeometryModel
+    public sealed class MapGeometryModel: IDisposable
     {
         /// <summary>
         /// The name of this mesh
@@ -30,8 +32,8 @@ namespace LeagueToolkit.IO.MapGeometry
         /// </summary>
         public ReadOnlySpan<ushort> Indices => this._indices.Span;
 
-        private readonly Memory<MapGeometryVertex> _vertices;
-        private readonly Memory<ushort> _indices;
+        private MemoryOwner<MapGeometryVertex> _vertices;
+        private MemoryOwner<ushort> _indices;
 
         public IReadOnlyList<MapGeometrySubmesh> Submeshes => this._submeshes;
         private readonly List<MapGeometrySubmesh> _submeshes = new();
@@ -77,8 +79,8 @@ namespace LeagueToolkit.IO.MapGeometry
 
         internal MapGeometryModel(
             int id,
-            Memory<MapGeometryVertex> vertices,
-            Memory<ushort> indices,
+            MemoryOwner<MapGeometryVertex> vertices,
+            MemoryOwner<ushort> indices,
             IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transform,
             bool flipNormals,
@@ -119,7 +121,7 @@ namespace LeagueToolkit.IO.MapGeometry
             int id,
             List<MapGeometryVertexElementGroup> vertexElementGroups,
             List<long> vertexBufferOffsets,
-            List<ushort[]> indexBuffers,
+            List<MemoryOwner<ushort>> indexBuffers,
             bool useSeparatePointLights,
             uint version
         )
@@ -130,8 +132,7 @@ namespace LeagueToolkit.IO.MapGeometry
             uint vertexBufferCount = br.ReadUInt32();
             int baseVertexElementGroup = br.ReadInt32();
 
-            // Pre-allocate mesh vertex buffer
-            this._vertices = new MapGeometryVertex[vertexCount];
+            this._vertices = MemoryOwner<MapGeometryVertex>.Allocate(vertexCount, AllocationMode.Clear);
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
@@ -291,6 +292,14 @@ namespace LeagueToolkit.IO.MapGeometry
         {
             // League assigns this name to the meshes automatically during reading
             return $"MapGeo_Instance_{id}";
+        }
+
+        public void Dispose()
+        {
+            this._indices?.Dispose();
+            this._vertices?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
     }
 

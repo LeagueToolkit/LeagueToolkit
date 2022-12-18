@@ -26,6 +26,8 @@ using LeagueToolkit.Meta.Dump;
 using System.Reflection;
 using LeagueToolkit.Helpers;
 using LeagueToolkit.IO.MapGeometry.Builder;
+using CommunityToolkit.HighPerformance.Buffers;
+using System.Buffers;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -38,7 +40,7 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
-            MapGeometry mgeo = new(toRead);
+            using MapGeometry mgeo = new(toRead);
             MapGeometryBuilder mapBuilder = new();
 
             mapBuilder.UseBucketGrid(mgeo.BucketGrid).UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
@@ -46,12 +48,6 @@ namespace LeagueToolkit.Sandbox
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
                 MapGeometryModelBuilder meshBuilder = new();
-
-                MapGeometryVertex[] vertices = new MapGeometryVertex[mesh.Vertices.Length];
-                ushort[] indices = new ushort[mesh.Indices.Length];
-
-                mesh.Vertices.CopyTo(vertices);
-                mesh.Indices.CopyTo(indices);
 
                 for (int i = 0; i < mesh.Submeshes.Count; i++)
                 {
@@ -61,7 +57,6 @@ namespace LeagueToolkit.Sandbox
                 }
 
                 meshBuilder
-                    .UseGeometry(vertices, indices)
                     .UseTransform(mesh.Transform)
                     .UseFlipNormalsToggle(mesh.FlipNormals)
                     .UseQualityMask(mesh.QualityFilter)
@@ -69,13 +64,24 @@ namespace LeagueToolkit.Sandbox
                     .UseRenderFlags(mesh.MeshRenderFlags)
                     .UseStationaryLightSampler(mesh.StationaryLight)
                     .UseBakedLightSampler(mesh.BakedLight)
-                    .UseBakedPaintSampler(mesh.BakedPaint);
+                    .UseBakedPaintSampler(mesh.BakedPaint)
+                    .UseGeometry(
+                        mesh.Indices.Length,
+                        mesh.Vertices.Length,
+                        (indexBufferWriter, vertexBufferWriter) =>
+                        {
+                            indexBufferWriter.Write(mesh.Indices);
+                            vertexBufferWriter.Write(mesh.Vertices);
+                        }
+                    );
 
                 mapBuilder.UseMesh(meshBuilder);
             }
 
-            MapGeometry builtMap = mapBuilder.Build();
+            using MapGeometry builtMap = mapBuilder.Build();
             builtMap.Write(rewriteTo, 13);
+
+            using MapGeometry builtMapReread = new(rewriteTo);
         }
 
         static void TestWGEO()

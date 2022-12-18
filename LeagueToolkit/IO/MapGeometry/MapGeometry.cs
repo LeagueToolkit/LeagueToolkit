@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Structures.BucketGrid;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,7 +11,7 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometry
 {
-    public class MapGeometry
+    public sealed class MapGeometry : IDisposable
     {
         public MapGeometryBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
 
@@ -71,7 +72,7 @@ namespace LeagueToolkit.IO.MapGeometry
             }
 
             uint indexBufferCount = br.ReadUInt32();
-            List<ushort[]> indexBuffers = new();
+            List<MemoryOwner<ushort>> indexBuffers = new();
             for (int i = 0; i < indexBufferCount; i++)
             {
                 if (version >= 13)
@@ -79,12 +80,12 @@ namespace LeagueToolkit.IO.MapGeometry
                     MapGeometryLayer layers = (MapGeometryLayer)br.ReadByte();
                 }
 
-                uint bufferSize = br.ReadUInt32();
-                ushort[] indexBuffer = new ushort[bufferSize / 2];
+                int bufferSize = br.ReadInt32();
+                MemoryOwner<ushort> indexBuffer = MemoryOwner<ushort>.Allocate(bufferSize / 2);
 
                 for (int j = 0; j < bufferSize / 2; j++)
                 {
-                    indexBuffer[j] = br.ReadUInt16();
+                    indexBuffer.Span[j] = br.ReadUInt16();
                 }
 
                 indexBuffers.Add(indexBuffer);
@@ -317,6 +318,21 @@ namespace LeagueToolkit.IO.MapGeometry
                 mesh._indexBufferId = currentIndexBufferId;
                 currentIndexBufferId++;
             }
+        }
+
+        public void Dispose()
+        {
+            if (this._meshes is null)
+            {
+                return;
+            }
+
+            foreach (MapGeometryModel mesh in this._meshes)
+            {
+                mesh?.Dispose();
+            }
+
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Helpers.Extensions;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -24,8 +26,8 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
         private readonly List<MapGeometryModelBuilderRange> _submeshes = new();
 
         // TODO: Make a buffer wrapper for these
-        private Memory<MapGeometryVertex> _vertices;
-        private Memory<ushort> _indices;
+        private MemoryOwner<MapGeometryVertex> _vertices;
+        private MemoryOwner<ushort> _indices;
 
         public MapGeometryModelBuilder() { }
 
@@ -71,10 +73,10 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
                     );
                 }
 
-                ReadOnlyMemory<ushort> submeshIndices = this._indices.Slice(submesh.StartIndex, submesh.IndexCount);
+                ReadOnlySpan<ushort> submeshIndices = this._indices.Span.Slice(submesh.StartIndex, submesh.IndexCount);
 
-                ushort minVertex = submeshIndices.Span.Min();
-                ushort maxVertex = submeshIndices.Span.Max();
+                ushort minVertex = submeshIndices.Min();
+                ushort maxVertex = submeshIndices.Max();
 
                 // Vertex interval must be within range
                 if (minVertex + 1 > this._vertices.Length || maxVertex - 1 > this._vertices.Length)
@@ -110,14 +112,50 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
             }
         }
 
-        public MapGeometryModelBuilder UseGeometry(Memory<MapGeometryVertex> vertices, Memory<ushort> indices)
+        public MapGeometryModelBuilder UseGeometry(MemoryOwner<MapGeometryVertex> vertices, MemoryOwner<ushort> indices)
         {
-            Guard.HasSizeGreaterThan(vertices, 0, nameof(vertices));
-            Guard.HasSizeGreaterThan(indices, 0, nameof(indices));
+            Guard.HasSizeGreaterThan(vertices.Span, 0, nameof(vertices));
+            Guard.HasSizeGreaterThan(indices.Span, 0, nameof(indices));
 
             this._vertices = vertices;
             this._indices = indices;
             return this;
+        }
+
+        public void UseGeometry(
+            int indexCount,
+            int vertexCount,
+            Action<MemoryBufferWriter<ushort>, MemoryBufferWriter<MapGeometryVertex>> writeGeometryCallback
+        )
+        {
+            Guard.IsGreaterThan(indexCount, 0, nameof(indexCount));
+            Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
+            Guard.IsNotNull(writeGeometryCallback, nameof(writeGeometryCallback));
+
+            // Create buffers
+            this._indices = MemoryOwner<ushort>.Allocate(indexCount);
+            this._vertices = MemoryOwner<MapGeometryVertex>.Allocate(vertexCount);
+
+            // Create buffer writers
+            MemoryBufferWriter<ushort> indexBufferWriter = new(this._indices.Memory);
+            MemoryBufferWriter<MapGeometryVertex> vertexBufferWriter = new(this._vertices.Memory);
+
+            // Call the user-defined writing function
+            writeGeometryCallback(indexBufferWriter, vertexBufferWriter);
+
+            // Verify that the data has been written
+            if (indexBufferWriter.WrittenCount != indexCount)
+            {
+                ThrowHelper.ThrowInvalidOperationException(
+                    $"Only {indexBufferWriter.WrittenCount} indices were written out of the allocated {indexCount}"
+                );
+            }
+            if (vertexBufferWriter.WrittenCount != vertexCount)
+            {
+                ThrowHelper.ThrowInvalidOperationException(
+                    $"Only {vertexBufferWriter.WrittenCount} vertices were written out of the allocated {vertexCount}"
+                );
+            }
         }
 
         public MapGeometryModelBuilder UseSubmesh(MapGeometryModelBuilderRange submesh)
