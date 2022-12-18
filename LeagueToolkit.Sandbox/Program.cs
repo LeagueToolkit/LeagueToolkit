@@ -25,6 +25,7 @@ using System.Numerics;
 using LeagueToolkit.Meta.Dump;
 using System.Reflection;
 using LeagueToolkit.Helpers;
+using LeagueToolkit.IO.MapGeometry.Builder;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -32,15 +33,52 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileMapgeo(@"C:\Users\Filip\Desktop\erftygerdfghdfg\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo");
+            ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
         }
 
-        static void ProfileMapgeo(string path)
+        static void ProfileMapgeo(string toRead, string rewriteTo)
         {
-            MapGeometry mgeo = new(path);
+            MapGeometry mgeo = new(toRead);
+            MapGeometryBuilder mapBuilder = new();
 
-            mgeo.Write(@"C:\Users\Filip\Desktop\worlds_trophyonly_saved.mapgeo", 13);
-            //mgeo.ToGLTF().SaveGLTF(@"C:\Users\Filip\Desktop\worlds_trophyonly_gltf.gltf");
+            mapBuilder.UseBucketGrid(mgeo.BucketGrid).UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
+            {
+                MapGeometryModelBuilder meshBuilder = new();
+
+                MapGeometryVertex[] vertices = new MapGeometryVertex[mesh.Vertices.Length];
+                ushort[] indices = new ushort[mesh.Indices.Length];
+
+                // This is technically wrong since we're storing references
+                // to the vertices allocated by the mapgeo we read earlier
+                mesh.Vertices.CopyTo(vertices);
+                
+                mesh.Indices.CopyTo(indices);
+
+                for (int i = 0; i < mesh.Submeshes.Count; i++)
+                {
+                    MapGeometrySubmesh submesh = mesh.Submeshes[i];
+
+                    meshBuilder.UseSubmesh(new(submesh.Material, submesh.StartIndex, submesh.IndexCount));
+                }
+
+                meshBuilder
+                    .UseGeometry(vertices, indices)
+                    .UseTransform(mesh.Transform)
+                    .UseFlipNormalsToggle(mesh.FlipNormals)
+                    .UseQualityMask(mesh.QualityFilter)
+                    .UseLayerMask(mesh.LayerMask)
+                    .UseRenderFlags(mesh.MeshRenderFlags)
+                    .UseStationaryLightSampler(mesh.StationaryLight)
+                    .UseBakedLightSampler(mesh.BakedLight)
+                    .UseBakedPaintSampler(mesh.BakedPaint);
+
+                mapBuilder.UseMesh(meshBuilder);
+            }
+
+            MapGeometry builtMap = mapBuilder.Build();
+            builtMap.Write(rewriteTo, 13);
         }
 
         static void TestWGEO()
@@ -63,7 +101,10 @@ namespace LeagueToolkit.Sandbox
                     {
                         int startVertex = (int)indices.Min();
                         int vertexCount = (int)indices.Max() - startVertex;
-                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(startVertex + (int)bucket.BaseVertex, vertexCount);
+                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(
+                            startVertex + (int)bucket.BaseVertex,
+                            vertexCount
+                        );
 
                         new OBJFile(vertices, indices).Write(string.Format("kek/bucket{0}_{1}.obj", i, j));
                     }
@@ -77,7 +118,6 @@ namespace LeagueToolkit.Sandbox
             sco.WriteSCO(@"C:\Users\Crauzer\Desktop\zzzz.sco");
 
             StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
-
         }
     }
 }
