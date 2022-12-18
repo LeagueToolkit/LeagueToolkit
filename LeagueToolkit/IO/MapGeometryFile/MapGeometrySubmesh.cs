@@ -11,14 +11,36 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// </summary>
         public const string MISSING_MATERIAL = "-missing@environment-";
 
+        /// <summary>
+        /// FNV1a-32 hash of <see cref="Material"/>
+        /// </summary>
+        /// <remarks>
+        /// ⚠️ This is always set to 0 because the game computes the hash by itself ⚠️
+        /// </remarks>
         public uint Hash { get; private set; }
+
+        /// <summary>
+        /// The name of the StaticMaterialDef to use
+        /// </summary>
+        /// <remarks>
+        /// The StaticMaterialDef structure can be found in the respective ".materials.bin" file
+        /// <br>It can be parsed by <see cref="PropertyBin.BinTree"/> and serialized by <see cref="Meta.MetaSerializer"/></br>
+        /// </remarks>
         public string Material { get; private set; }
 
         public int StartIndex { get; private set; }
         public int IndexCount { get; private set; }
 
         public int VertexCount => this.MaxVertex - this.MinVertex + 1;
+
+        /// <summary>
+        /// The minimum vertex that's included in this range
+        /// </summary>
         public int MinVertex { get; private set; }
+
+        /// <summary>
+        /// The maximum vertex that's included in this range
+        /// </summary>
         public int MaxVertex { get; private set; }
 
         internal MapGeometrySubmesh(string material, int startIndex, int indexCount, int minVertex, int maxVertex)
