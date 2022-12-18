@@ -73,10 +73,28 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public IReadOnlyList<Vector3> LightProbes => this._lightProbes;
         private readonly Vector3[] _lightProbes;
 
+        /// <summary>
+        /// Information for the "STATIONARY_LIGHT" sampler
+        /// </summary>
+        /// <remarks>
+        /// Usually contains a diffuse texture
+        /// </remarks>
         public MapGeometrySamplerData StationaryLight { get; private set; }
 
+        /// <summary>
+        /// Information for the "BAKED_LIGHT" sampler
+        /// </summary>
+        /// <remarks>
+        /// Usually contains a lightmap texture (baked from scene point lights)
+        /// </remarks>
         public MapGeometrySamplerData BakedLight { get; private set; }
 
+        /// <summary>
+        /// Information for the "BAKED_PAINT" sampler
+        /// </summary>
+        /// <remarks>
+        /// Usually contains a texture with baked diffuse and lightmap data
+        /// </remarks>
         public MapGeometrySamplerData BakedPaint { get; private set; }
 
         public const uint MAX_SUBMESH_COUNT = 64;
@@ -315,25 +333,25 @@ namespace LeagueToolkit.IO.MapGeometryFile
     public enum MapGeometryVisibilityFlags : byte
     {
         NoLayer = 0,
-        Layer1 = 1,
-        Layer2 = 2,
-        Layer3 = 4,
-        Layer4 = 8,
-        Layer5 = 16,
-        Layer6 = 32,
-        Layer7 = 64,
-        Layer8 = 128,
-        AllLayers = 255
+        Layer1 = 1 << 0,
+        Layer2 = 1 << 1,
+        Layer3 = 1 << 2,
+        Layer4 = 1 << 3,
+        Layer5 = 1 << 4,
+        Layer6 = 1 << 5,
+        Layer7 = 1 << 6,
+        Layer8 = 1 << 7,
+        AllLayers = Layer1 | Layer2 | Layer3 | Layer4 | Layer5 | Layer6 | Layer7 | Layer8
     }
 
     [Flags]
     public enum MapGeometryEnvironmentQualityFilter : byte
     {
-        VeryLow = 1,
-        Low = 2,
-        Medium = 4,
-        High = 8,
-        VeryHigh = 16,
+        VeryLow = 1 << 0,
+        Low = 1 << 1,
+        Medium = 1 << 2,
+        High = 1 << 3,
+        VeryHigh = 1 << 4,
 
         AllQualities = VeryLow | Low | Medium | High | VeryHigh
     }
@@ -346,17 +364,17 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// on top of certain meshes such as particles with the following properties:
         /// <code>miscRenderFlags: u8 = 1 || isGroundLayer: flag = true || useNavmeshMask: flag = true</code>
         /// </summary>
-        HighRenderPriority = 1,
-        UnknownConstructDistortionBuffer = 2,
+        HighRenderPriority = 1 << 0,
+        UnknownConstructDistortionBuffer = 1 << 1,
 
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is unchecked
         /// </summary>
-        RenderOnlyIfEyeCandyOn = 4, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
+        RenderOnlyIfEyeCandyOn = 1 << 2, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
 
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is checked
         /// </summary>
-        RenderOnlyIfEyeCandyOff = 8 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
+        RenderOnlyIfEyeCandyOff = 1 << 3 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
     }
 }
