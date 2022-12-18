@@ -130,9 +130,9 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
             return this;
         }
 
-        public MapGeometryModelBuilder UseFlippedNormals()
+        public MapGeometryModelBuilder UseFlipNormalsToggle(bool flipNormals)
         {
-            this._flipNormals = true;
+            this._flipNormals = flipNormals;
             return this;
         }
 
