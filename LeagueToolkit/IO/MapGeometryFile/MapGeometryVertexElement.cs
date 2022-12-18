@@ -5,11 +5,14 @@ using System.IO;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
+    /// <summary>
+    /// Describes a vertex element
+    /// </summary>
     [DebuggerDisplay("{Name} - {Format}")]
     public struct MapGeometryVertexElement : IEquatable<MapGeometryVertexElement>
     {
-        public MapGeometryVertexElementName Name { get; set; }
-        public MapGeometryVertexElementFormat Format { get; set; }
+        public MapGeometryVertexElementName Name { get; private set; }
+        public MapGeometryVertexElementFormat Format { get; private set; }
 
         public MapGeometryVertexElement(MapGeometryVertexElementName name, MapGeometryVertexElementFormat format)
         {
@@ -29,14 +32,19 @@ namespace LeagueToolkit.IO.MapGeometryFile
             bw.Write((uint)this.Format);
         }
 
-        public int GetElementSize()
+        public int GetElementSize() => GetFormatSize(this.Format);
+
+        public static int GetFormatSize(MapGeometryVertexElementFormat format)
         {
-            return this.Format switch
+            return format switch
             {
                 MapGeometryVertexElementFormat.XYZ_Float32 => 12,
                 MapGeometryVertexElementFormat.XY_Float32 => 8,
                 MapGeometryVertexElementFormat.BGRA_Packed8888 => 4,
-                _ => throw new NotImplementedException($"Unsupported {nameof(MapGeometryVertexElement)} format: {this.Format}")
+                _
+                    => throw new NotImplementedException(
+                        $"Unsupported {nameof(MapGeometryVertexElement)} format: {format}"
+                    )
             };
         }
 

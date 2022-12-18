@@ -6,14 +6,24 @@ using System.Linq;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
+    /// <summary>
+    /// Describes the format of a vertex buffer stride
+    /// </summary>
     [DebuggerDisplay("VertexElementGroup<{DebuggerDisplay,nq}>")]
     public struct MapGeometryVertexElementGroup : IEquatable<MapGeometryVertexElementGroup>
     {
         public MapGeometryVertexElementGroupUsage Usage { get; private set; }
+     
+        /// <summary>
+        /// Bitmask of all the <see cref="MapGeometryVertexElementName"/> present in <see cref="Elements"/>
+        /// </summary>
         public VertexElementGroupDescriptionFlags DescriptionFlags { get; private set; }
 
+        /// <summary>
+        /// The elements 
+        /// </summary>
         public IReadOnlyList<MapGeometryVertexElement> Elements => this._elements;
-        private List<MapGeometryVertexElement> _elements = new();
+        private readonly List<MapGeometryVertexElement> _elements = new();
 
         internal string DebuggerDisplay => string.Join(' ', this._elements.Select(x => x.Name));
 
@@ -24,7 +34,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             this.Usage = usage;
             this._elements = new(elements);
-            this.DescriptionFlags = GenerateDescriptionFlags(elements.Select(elem => elem.Name));
+            this.DescriptionFlags = GetDescriptionFlags(elements.Select(elem => elem.Name));
         }
 
         internal MapGeometryVertexElementGroup(BinaryReader br)
@@ -37,7 +47,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 this._elements.Add(new MapGeometryVertexElement(br));
             }
 
-            this.DescriptionFlags = GenerateDescriptionFlags(this._elements.Select(elem => elem.Name));
+            this.DescriptionFlags = GetDescriptionFlags(this._elements.Select(elem => elem.Name));
 
             br.BaseStream.Seek(8 * (15 - vertexElementCount), SeekOrigin.Current);
         }
@@ -92,10 +102,10 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 );
             }
 
-            this.DescriptionFlags = GenerateDescriptionFlags(this._elements.Select(elem => elem.Name));
+            this.DescriptionFlags = GetDescriptionFlags(this._elements.Select(elem => elem.Name));
         }
 
-        public void Write(BinaryWriter bw)
+        internal void Write(BinaryWriter bw)
         {
             bw.Write((uint)this.Usage);
             bw.Write(this._elements.Count);
@@ -114,6 +124,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
+        /// <summary>
+        /// Gets the size of the described vertex
+        /// </summary>
         public int GetVertexSize()
         {
             int size = 0;
@@ -126,7 +139,10 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return size;
         }
 
-        public static VertexElementGroupDescriptionFlags GenerateDescriptionFlags(
+        /// <summary>
+        /// Generates a <see cref="VertexElementGroupDescriptionFlags"/> bitmask for <paramref name="elements"/>
+        /// </summary>
+        public static VertexElementGroupDescriptionFlags GetDescriptionFlags(
             IEnumerable<MapGeometryVertexElementName> elements
         )
         {
