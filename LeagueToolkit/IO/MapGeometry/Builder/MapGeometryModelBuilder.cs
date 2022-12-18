@@ -64,7 +64,7 @@ namespace LeagueToolkit.IO.MapGeometry.Builder
                 MapGeometryModelBuilderRange submesh = this._submeshes[i];
 
                 // Index range must be within bounds
-                if (submesh.StartIndex + submesh.IndexCount >= this._indices.Length)
+                if (submesh.StartIndex + submesh.IndexCount > this._indices.Length)
                 {
                     ThrowHelper.ThrowInvalidOperationException(
                         $"Submesh: {submesh.Material} index range goes out of bounds (IndexCount: {this._indices.Length})."
