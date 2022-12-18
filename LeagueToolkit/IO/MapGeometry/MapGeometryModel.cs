@@ -32,12 +32,15 @@ namespace LeagueToolkit.IO.MapGeometry
         /// </summary>
         public ReadOnlySpan<ushort> Indices => this._indices.Span;
 
-        private MemoryOwner<MapGeometryVertex> _vertices;
-        private MemoryOwner<ushort> _indices;
+        private readonly MemoryOwner<MapGeometryVertex> _vertices;
+        private readonly MemoryOwner<ushort> _indices;
 
         public IReadOnlyList<MapGeometrySubmesh> Submeshes => this._submeshes;
         private readonly List<MapGeometrySubmesh> _submeshes = new();
 
+        /// <summary>
+        /// Tells the game to flip the normals of this mesh
+        /// </summary>
         public bool FlipNormals { get; private set; }
 
         public Box BoundingBox { get; private set; }
