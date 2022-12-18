@@ -32,7 +32,7 @@ namespace LeagueToolkit.IO.MapGeometry
         }
 
         internal static void ReadAndCombineElements(
-            MapGeometryVertex vertex,
+            ref MapGeometryVertex vertex,
             MapGeometryVertexElementGroup vertexDescription,
             BinaryReader br
         )

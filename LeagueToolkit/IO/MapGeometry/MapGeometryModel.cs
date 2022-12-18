@@ -102,6 +102,16 @@ namespace LeagueToolkit.IO.MapGeometry
             this.StationaryLight = stationaryLight;
             this.BakedLight = bakedLight;
             this.BakedPaint = bakedPaint;
+
+            this.BoundingBox = Box.FromVertices(TakeVertexPositions());
+
+            IEnumerable<Vector3> TakeVertexPositions()
+            {
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    yield return vertices.Span[i].Position ?? Vector3.Zero;
+                }
+            }
         }
 
         internal MapGeometryModel(
@@ -122,10 +132,6 @@ namespace LeagueToolkit.IO.MapGeometry
 
             // Pre-allocate mesh vertex buffer
             this._vertices = new MapGeometryVertex[vertexCount];
-            for (int i = 0; i < vertexCount; i++)
-            {
-                this._vertices.Span[i] = new();
-            }
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
@@ -135,7 +141,7 @@ namespace LeagueToolkit.IO.MapGeometry
                 for (int j = 0; j < vertexCount; j++)
                 {
                     MapGeometryVertex.ReadAndCombineElements(
-                        this._vertices.Span[j],
+                        ref this._vertices.Span[j],
                         vertexElementGroups[baseVertexElementGroup + i],
                         br
                     );

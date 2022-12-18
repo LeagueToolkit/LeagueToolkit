@@ -50,10 +50,7 @@ namespace LeagueToolkit.Sandbox
                 MapGeometryVertex[] vertices = new MapGeometryVertex[mesh.Vertices.Length];
                 ushort[] indices = new ushort[mesh.Indices.Length];
 
-                // This is technically wrong since we're storing references
-                // to the vertices allocated by the mapgeo we read earlier
                 mesh.Vertices.CopyTo(vertices);
-                
                 mesh.Indices.CopyTo(indices);
 
                 for (int i = 0; i < mesh.Submeshes.Count; i++)
