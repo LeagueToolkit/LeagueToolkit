@@ -2,7 +2,6 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Structures.BucketGrid;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,20 +10,45 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
+    /// <summary>
+    /// Contains the evironment asset geometry
+    /// </summary>
     public sealed class MapGeometry : IDisposable
     {
+        /// <value>
+        /// Represents the baked terrain samplers used for this environment asset
+        /// </value>
         public MapGeometryBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
 
+        /// <value>
+        /// Represents the meshes used by this environment asset
+        /// </value>
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
+        /// <value>
+        /// Represents the bucketed scene graph for this environment asset
+        /// </value>
         public BucketGrid BucketGrid { get; private set; }
 
+        /// <value>
+        /// Represents the planar reflectors used by this environment asset
+        /// </value>
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
 
+        /// <summary>
+        /// Creates a new <see cref="MapGeometry"/> instance by reading it from <paramref name="fileLocation"/>
+        /// </summary>
+        /// <param name="fileLocation">The file to read from</param>
         public MapGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
+        /// <summary>
+        /// Creates a new <see cref="MapGeometry"/> instance by reading it from <paramref name="stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        /// <exception cref="InvalidFileSignatureException">The header magic signature is invalid</exception>
+        /// <exception cref="UnsupportedFileVersionException">The version of the <see cref="MapGeometry"/> file is not supported</exception>
         public MapGeometry(Stream stream)
         {
             using BinaryReader br = new(stream);
@@ -144,11 +168,23 @@ namespace LeagueToolkit.IO.MapGeometryFile
             this.BakedTerrainSamplers = bakedTerrainSamplers;
         }
 
+        /// <summary>
+        /// Writes this <see cref="MapGeometry"/> instance into <paramref name="fileLocation"/> with the requested <paramref name="version"/>
+        /// </summary>
+        /// <param name="fileLocation">The file to write into</param>
+        /// <param name="version">The version of the written <see cref="MapGeometry"/> file</param>
         public void Write(string fileLocation, uint version)
         {
             Write(File.Create(fileLocation), version);
         }
 
+        /// <summary>
+        /// Writes this <see cref="MapGeometry"/> instance into <paramref name="stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
+        /// <param name="version">The version of the written <see cref="MapGeometry"/> file</param>
+        /// <param name="leaveOpen">Whether the internal reader should leave <paramref name="stream"/> opened</param>
+        /// <exception cref="ArgumentException"></exception>
         public void Write(Stream stream, uint version, bool leaveOpen = false)
         {
             if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
