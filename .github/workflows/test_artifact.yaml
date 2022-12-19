@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read|write
+      contents: write
 
     steps:
       - name: dir
