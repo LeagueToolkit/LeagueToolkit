@@ -1,35 +1,40 @@
 ﻿using LeagueToolkit.IO.OBJ;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     public static class MapGeometryOBJExtensions
     {
-        public static (List<ushort>, List<MapGeometryVertex>) GetMGEOData(this OBJFile obj)
+        public static (ushort[], List<MapGeometryVertex>) GetMGEOData(this OBJFile obj)
         {
-            List<ushort> indices = new List<ushort>();
-            List<MapGeometryVertex> vertices = new List<MapGeometryVertex>();
+            ushort[] indices = new ushort[obj.Groups.Sum(group => group.Faces.Count * 3)];
+            List<MapGeometryVertex> vertices = new();
 
             foreach (Vector3 vertex in obj.Vertices)
             {
-                vertices.Add(new MapGeometryVertex() { Position = vertex });
+                vertices.Add(new() { Position = vertex });
             }
 
+            int currentIndex = 0;
             foreach (OBJGroup group in obj.Groups)
             {
                 foreach (OBJFace face in group.Faces)
                 {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        indices.Add((ushort)face.VertexIndices[i]);
-                    }
+                    indices[currentIndex++] = (ushort)face.VertexIndices[0];
+                    indices[currentIndex++] = (ushort)face.VertexIndices[1];
+                    indices[currentIndex++] = (ushort)face.VertexIndices[2];
 
                     if (face.NormalIndices != null)
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            vertices[(int)face.VertexIndices[i]].Normal = obj.Normals[(int)face.NormalIndices[i]];
+                            MapGeometryVertex vertex = vertices[(int)face.VertexIndices[i]];
+
+                            vertex.Normal = obj.Normals[(int)face.NormalIndices[i]];
+
+                            vertices[(int)face.VertexIndices[i]] = vertex;
                         }
                     }
 
@@ -37,7 +42,11 @@ namespace LeagueToolkit.IO.MapGeometry
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            vertices[(int)face.VertexIndices[i]].DiffuseUV = obj.UVs[(int)face.UVIndices[i]];
+                            MapGeometryVertex vertex = vertices[(int)face.VertexIndices[i]];
+
+                            vertex.DiffuseUV = obj.UVs[(int)face.UVIndices[i]];
+
+                            vertices[(int)face.VertexIndices[i]] = vertex;
                         }
                     }
                 }

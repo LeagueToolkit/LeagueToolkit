@@ -2,7 +2,7 @@
 using LeagueToolkit.Helpers.Structures.BucketGrid;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.PropertyBin;
-using LeagueToolkit.IO.MapGeometry;
+using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.NavigationGridOverlay;
 using LeagueToolkit.IO.NVR;
 using LeagueToolkit.IO.OBJ;
@@ -25,6 +25,9 @@ using System.Numerics;
 using LeagueToolkit.Meta.Dump;
 using System.Reflection;
 using LeagueToolkit.Helpers;
+using LeagueToolkit.IO.MapGeometryFile.Builder;
+using CommunityToolkit.HighPerformance.Buffers;
+using System.Buffers;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -32,42 +35,51 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            SimpleSkin skn = new("akali.skn");
-            skn.Write("akali_rewritten.skn");
-            SimpleSkin skn1 = new("akali_rewritten.skn");
+            ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
         }
 
-        static void TestMapgeo()
+        static void ProfileMapgeo(string toRead, string rewriteTo)
         {
-            MapGeometry mgeo = new MapGeometry(@"C:/Users/Crauzer/Desktop/data/maps/mapgeometry/sr/base_srx.mapgeo");
+            using MapGeometry mgeo = new(toRead);
+            MapGeometryBuilder mapBuilder = new();
 
-            string randomMaterialName = mgeo.Models[180].Submeshes[0].Material;
+            mapBuilder.UseBucketGrid(mgeo.BucketGrid).UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
-            mgeo.Models.Clear();
-
-            OBJFile object1 = new OBJFile("room155.obj");
-            OBJFile object2 = new OBJFile("room156.obj");
-            OBJFile object3 = new OBJFile("room157.obj");
-
-            AddOBJ(object1, "MapGeo_Instance_0");
-            AddOBJ(object2, "MapGeo_Instance_1");
-            AddOBJ(object3, "MapGeo_Instance_2");
-
-            mgeo.Write("base_srx.mapgeo.edited", 7);
-
-            void AddOBJ(OBJFile obj, string name)
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                //We will add each object 2 times just for fun to see how transformation works
+                MapGeometryModelBuilder meshBuilder = new();
 
-                (List<ushort> indices, List<MapGeometryVertex> vertices) = obj.GetMGEOData();
+                for (int i = 0; i < mesh.Submeshes.Count; i++)
+                {
+                    MapGeometrySubmesh submesh = mesh.Submeshes[i];
 
-                Matrix4x4 transformation = Matrix4x4.CreateTranslation(new Vector3(0, 50, 100));
+                    meshBuilder.UseSubmesh(new(submesh.Material, submesh.StartIndex, submesh.IndexCount));
+                }
 
-                MapGeometrySubmesh submesh = new MapGeometrySubmesh("", 0, (uint)indices.Count, 0, (uint)vertices.Count);
-                MapGeometryModel model1 = new MapGeometryModel(name, vertices, indices, new List<MapGeometrySubmesh>() { submesh }, MapGeometryLayer.AllLayers);
+                meshBuilder
+                    .UseTransform(mesh.Transform)
+                    .UseFlipNormalsToggle(mesh.FlipNormals)
+                    .UseEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
+                    .UseVisibilityFlags(mesh.VisibilityFlags)
+                    .UseRenderFlags(mesh.RenderFlags)
+                    .UseStationaryLightSampler(mesh.StationaryLight)
+                    .UseBakedLightSampler(mesh.BakedLight)
+                    .UseBakedPaintSampler(mesh.BakedPaint)
+                    .UseGeometry(
+                        mesh.Indices.Length,
+                        mesh.Vertices.Length,
+                        (indexBufferWriter, vertexBufferWriter) =>
+                        {
+                            indexBufferWriter.Write(mesh.Indices);
+                            vertexBufferWriter.Write(mesh.Vertices);
+                        }
+                    );
 
-                mgeo.AddModel(model1);
+                mapBuilder.UseMesh(meshBuilder);
             }
+
+            using MapGeometry builtMap = mapBuilder.Build();
+            builtMap.Write(rewriteTo, 13);
         }
 
         static void TestWGEO()
@@ -90,7 +102,10 @@ namespace LeagueToolkit.Sandbox
                     {
                         int startVertex = (int)indices.Min();
                         int vertexCount = (int)indices.Max() - startVertex;
-                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(startVertex + (int)bucket.BaseVertex, vertexCount);
+                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(
+                            startVertex + (int)bucket.BaseVertex,
+                            vertexCount
+                        );
 
                         new OBJFile(vertices, indices).Write(string.Format("kek/bucket{0}_{1}.obj", i, j));
                     }
@@ -104,7 +119,6 @@ namespace LeagueToolkit.Sandbox
             sco.WriteSCO(@"C:\Users\Crauzer\Desktop\zzzz.sco");
 
             StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
-
         }
     }
 }

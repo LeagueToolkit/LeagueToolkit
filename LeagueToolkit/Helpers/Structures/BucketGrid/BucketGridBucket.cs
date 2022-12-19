@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace LeagueToolkit.Helpers.Structures.BucketGrid
 {
-    public class BucketGridBucket
+    public struct BucketGridBucket
     {
-        public float MaxStickOutX { get; set; }
-        public float MaxStickOutZ { get; set; }
-        public uint StartIndex { get; set; }
-        public uint BaseVertex { get; set; }
-        public ushort InsideFaceCount { get; set; }
-        public ushort StickingOutFaceCount { get; set; }
+        public float MaxStickOutX;
+        public float MaxStickOutZ;
+        public uint StartIndex;
+        public uint BaseVertex;
+        public ushort InsideFaceCount;
+        public ushort StickingOutFaceCount;
 
-        public BucketGridBucket(BinaryReader br)
+        internal BucketGridBucket(BinaryReader br)
         {
             this.MaxStickOutX = br.ReadSingle();
             this.MaxStickOutZ = br.ReadSingle();
@@ -24,7 +21,7 @@ namespace LeagueToolkit.Helpers.Structures.BucketGrid
             this.StickingOutFaceCount = br.ReadUInt16();
         }
 
-        public void Write(BinaryWriter bw)
+        internal void Write(BinaryWriter bw)
         {
             bw.Write(this.MaxStickOutX);
             bw.Write(this.MaxStickOutZ);

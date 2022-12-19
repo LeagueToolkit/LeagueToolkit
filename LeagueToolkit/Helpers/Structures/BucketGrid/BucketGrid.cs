@@ -22,9 +22,9 @@ namespace LeagueToolkit.Helpers.Structures.BucketGrid
         public List<Vector3> Vertices { get; set; } = new();
         public List<ushort> Indices { get; set; } = new();
         public BucketGridBucket[,] Buckets { get; set; }
-        public List<BucketGridVertexFlag> VertexFlags = null;
+        public List<BucketGridFaceFlag> FaceFlags = null;
 
-        public BucketGrid(BinaryReader br)
+        internal BucketGrid(BinaryReader br)
         {
             this.MinX = br.ReadSingle();
             this.MinZ = br.ReadSingle();
@@ -67,20 +67,19 @@ namespace LeagueToolkit.Helpers.Structures.BucketGrid
                 }
             }
 
-            // These are possibly not Vertex Flags - just an assumption
-            if (flags.HasFlag(BucketGridFlags.HasVertexFlags))
+            if (flags.HasFlag(BucketGridFlags.HasFaceFlags))
             {
-                uint flagsCount = indexCount / 3;
-                this.VertexFlags = new();
+                uint faceCount = indexCount / 3;
+                this.FaceFlags = new();
 
-                for (int i = 0; i < flagsCount; i++)
+                for (int i = 0; i < faceCount; i++)
                 {
-                    this.VertexFlags.Add((BucketGridVertexFlag)br.ReadByte());
+                    this.FaceFlags.Add((BucketGridFaceFlag)br.ReadByte());
                 }
             }
         }
 
-        public void Write(BinaryWriter bw)
+        internal void Write(BinaryWriter bw)
         {
             bw.Write(this.MinX);
             bw.Write(this.MinZ);
@@ -128,18 +127,18 @@ namespace LeagueToolkit.Helpers.Structures.BucketGrid
                 }
             }
 
-            if (flags.HasFlag(BucketGridFlags.HasVertexFlags) && this.VertexFlags is not null)
+            if (flags.HasFlag(BucketGridFlags.HasFaceFlags) && this.FaceFlags is not null)
             {
-                if (this.VertexFlags.Count != this.Indices.Count / 3)
+                if (this.FaceFlags.Count != this.Indices.Count / 3)
                 {
                     throw new InvalidOperationException(
-                        $"{nameof(this.VertexFlags)}.Count is invalid, must be {nameof(this.Indices)}.Count / 3"
+                        $"{nameof(this.FaceFlags)}.Count is invalid, must be {nameof(this.Indices)}.Count / 3"
                     );
                 }
 
-                foreach (BucketGridVertexFlag vertexFlag in this.VertexFlags)
+                foreach (BucketGridFaceFlag faceFlag in this.FaceFlags)
                 {
-                    bw.Write((byte)vertexFlag);
+                    bw.Write((byte)faceFlag);
                 }
             }
         }
@@ -148,9 +147,9 @@ namespace LeagueToolkit.Helpers.Structures.BucketGrid
         {
             BucketGridFlags flags = 0;
 
-            if (this.VertexFlags is not null)
+            if (this.FaceFlags is not null)
             {
-                flags |= BucketGridFlags.HasVertexFlags;
+                flags |= BucketGridFlags.HasFaceFlags;
             }
 
             return flags;
@@ -160,9 +159,9 @@ namespace LeagueToolkit.Helpers.Structures.BucketGrid
     [Flags]
     public enum BucketGridFlags : byte
     {
-        HasVertexFlags = 1
+        HasFaceFlags = 1
     }
 
     [Flags]
-    public enum BucketGridVertexFlag : byte { }
+    public enum BucketGridFaceFlag : byte { }
 }
