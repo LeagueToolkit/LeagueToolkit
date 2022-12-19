@@ -13,7 +13,7 @@
     <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Crauzer</Authors>
     <PackageIcon>fantome.png</PackageIcon>
