@@ -31,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-artifact
-          path: "src/$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG"
+          path: "src/$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/"
