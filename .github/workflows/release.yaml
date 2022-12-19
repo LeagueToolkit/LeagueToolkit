@@ -2,10 +2,8 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
     tags:
-      - [0-9]+.[0-9]+.[0-9]+
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   release:
@@ -58,14 +56,14 @@ jobs:
         with:
           tag: ${{ steps.create-tag.outputs.tag }}
           artifacts: "$LEAGUE_TOOLKIT_PROJECT-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}"
-      
+
       - name: Add GitHub package source
         run: dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/LoL-Fantome/index.json"
 
       - name: Publish to NuGet
         if: startsWith(github.ref, 'refs/heads/main')
         run: dotnet nuget push $LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.NUGET_API_KEY}}
-      
+
       - name: Publish to GitHub packages
         if: startsWith(github.ref, 'refs/heads/main')
         run: dotnet nuget push $LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg --source "github" --api-key ${{secrets.GITHUB_TOKEN}}
