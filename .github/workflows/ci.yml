@@ -16,6 +16,7 @@ jobs:
   build:
     env:
       BUILD_CONFIG: "Release"
+      LEAGUE_TOOLKIT_PROJECT: "LeagueToolkit"
 
     runs-on: ubuntu-latest
 
@@ -43,7 +44,7 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build LeagueToolkit --configuration $BUILD_CONFIG --no-restore
+        run: dotnet build $LEAGUE_TOOLKIT_PROJECT --configuration $BUILD_CONFIG --no-restore
 
       - name: Run Tests
-        run: dotnet test LeagueToolkit.Tests --configuration $BUILD_CONFIG --no-restore --verbosity normal
+        run: dotnet test $LEAGUE_TOOLKIT_PROJECT.Tests --configuration $BUILD_CONFIG --no-restore --verbosity normal
