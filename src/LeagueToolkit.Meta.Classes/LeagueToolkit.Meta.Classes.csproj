@@ -3,7 +3,6 @@
   <!-- project settings -->
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 
