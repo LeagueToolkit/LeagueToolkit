@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: create files
-        run: touch "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test1.txt" "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test2.txt"
+        run: mkdir -p "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG" && touch "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test1.txt" "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test2.txt"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
