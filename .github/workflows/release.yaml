@@ -57,6 +57,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.create-tag.outputs.tag }}
+          artifacts: "$LEAGUE_TOOLKIT_PROJECT-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}"
       
       - name: Add GitHub package source
         run: dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/LoL-Fantome/index.json"
