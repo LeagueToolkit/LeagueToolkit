@@ -47,8 +47,8 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: $LEAGUE_TOOLKIT_PROJECT-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}
-          path: src/$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG
+          name: ${{ env.LEAGUE_TOOLKIT_PROJECT }}-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}
+          path: "src/${{ env.LEAGUE_TOOLKIT_PROJECT }}/bin/${{ env.BUILD_CONFIG }}"
 
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -56,13 +56,7 @@ jobs:
           allowUpdates: true
           omitBodyDuringUpdate: true
           tag: ${{ steps.create-tag.outputs.tag }}
-          artifacts: "$LEAGUE_TOOLKIT_PROJECT-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}"
-
-      - name: Add GitHub package source
-        run: dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/LoL-Fantome/index.json"
+          artifacts: "${{ env.LEAGUE_TOOLKIT_PROJECT }}-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}"
 
       - name: Publish to NuGet
         run: dotnet nuget push "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.NUGET_API_KEY}}
-
-      - name: Publish to GitHub packages
-        run: dotnet nuget push "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg" --source "github" --api-key ${{secrets.GITHUB_TOKEN}}
