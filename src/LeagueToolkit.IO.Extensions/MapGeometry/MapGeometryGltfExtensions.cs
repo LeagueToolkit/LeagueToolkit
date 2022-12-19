@@ -7,8 +7,9 @@ using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using LeagueToolkit.Helpers.Extensions;
 
-namespace LeagueToolkit.IO.MapGeometry
+namespace LeagueToolkit.IO.MapGeometryFile
 {
     using VERTEX = VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexEmpty>;
 
@@ -22,44 +23,47 @@ namespace LeagueToolkit.IO.MapGeometry
 
             // Find all layer combinations used in the Map
             // so we can group the meshes
-            var layerModelMap = new Dictionary<MapGeometryLayer, List<MapGeometryModel>>();
-            foreach(MapGeometryModel model in mgeo.Models)
+            var layerModelMap = new Dictionary<MapGeometryVisibilityFlags, List<MapGeometryModel>>();
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                if(!layerModelMap.ContainsKey(model.Layer))
+                if (!layerModelMap.ContainsKey(mesh.VisibilityFlags))
                 {
-                    layerModelMap.Add(model.Layer, new List<MapGeometryModel>());
+                    layerModelMap.Add(mesh.VisibilityFlags, new List<MapGeometryModel>());
                 }
 
-                layerModelMap[model.Layer].Add(model);
+                layerModelMap[mesh.VisibilityFlags].Add(mesh);
             }
 
             // Create node for each layer combination
-            var layerNodeMap = new Dictionary<MapGeometryLayer, Node>();
+            var layerNodeMap = new Dictionary<MapGeometryVisibilityFlags, Node>();
             foreach (var layerModelPair in layerModelMap)
             {
-                layerNodeMap.Add(layerModelPair.Key, rootNode.CreateNode(DeriveLayerCombinationName(layerModelPair.Key)));
+                layerNodeMap.Add(
+                    layerModelPair.Key,
+                    rootNode.CreateNode(DeriveLayerCombinationName(layerModelPair.Key))
+                );
             }
 
-            foreach (MapGeometryModel model in mgeo.Models)
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(model);
+                IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(mesh);
 
-                layerNodeMap[model.Layer]
+                layerNodeMap[mesh.VisibilityFlags]
                     .CreateNode()
                     .WithMesh(root.CreateMesh(meshBuilder))
-                    .WithLocalTransform(new AffineTransform(model.Transformation));
+                    .WithLocalTransform(new AffineTransform(mesh.Transform));
             }
 
             return root;
         }
 
-        private static string DeriveLayerCombinationName(MapGeometryLayer layerCombination)
+        private static string DeriveLayerCombinationName(MapGeometryVisibilityFlags layerCombination)
         {
-            if(layerCombination == MapGeometryLayer.NoLayer)
+            if (layerCombination == MapGeometryVisibilityFlags.NoLayer)
             {
                 return "NoLayer";
             }
-            else if(layerCombination == MapGeometryLayer.AllLayers)
+            else if (layerCombination == MapGeometryVisibilityFlags.AllLayers)
             {
                 return "AllLayers";
             }
@@ -67,11 +71,13 @@ namespace LeagueToolkit.IO.MapGeometry
             {
                 string name = "Layer-";
 
-                foreach (MapGeometryLayer layerFlag in Enum.GetValues(typeof(MapGeometryLayer)))
+                foreach (MapGeometryVisibilityFlags layerFlag in Enum.GetValues(typeof(MapGeometryVisibilityFlags)))
                 {
-                    if (layerCombination.HasFlag(layerFlag) && 
-                        layerFlag != MapGeometryLayer.AllLayers && 
-                        layerFlag != MapGeometryLayer.NoLayer)
+                    if (
+                        layerCombination.HasFlag(layerFlag)
+                        && layerFlag != MapGeometryVisibilityFlags.AllLayers
+                        && layerFlag != MapGeometryVisibilityFlags.NoLayer
+                    )
                     {
                         byte layerIndex = byte.Parse(layerFlag.ToString().Replace("Layer", ""));
                         name += layerIndex + "-";
@@ -84,27 +90,26 @@ namespace LeagueToolkit.IO.MapGeometry
 
         private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel model)
         {
-            var meshBuilder = VERTEX.CreateCompatibleMesh();
+            var meshBuilder = VERTEX.CreateCompatibleMesh(model.Name);
 
             foreach (MapGeometrySubmesh submesh in model.Submeshes)
             {
-                List<MapGeometryVertex> vertices = submesh.GetVertices();
-                List<ushort> indices = submesh.GetIndices();
+                ReadOnlySpan<ushort> indices = model.Indices.Slice(submesh.StartIndex, submesh.IndexCount);
 
                 MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
                 var primitive = meshBuilder.UsePrimitive(material);
 
-                List<VERTEX> gltfVertices = new List<VERTEX>();
-                foreach (MapGeometryVertex vertex in vertices)
+                VERTEX[] gltfVertices = new VERTEX[submesh.VertexCount];
+                for (int i = 0; i < submesh.VertexCount; i++)
                 {
-                    gltfVertices.Add(CreateVertex(vertex));
+                    gltfVertices[i] = CreateVertex(model.Vertices[i + submesh.MinVertex]);
                 }
 
-                for (int i = 0; i < indices.Count; i += 3)
+                for (int i = 0; i < indices.Length; i += 3)
                 {
-                    VERTEX v1 = gltfVertices[indices[i + 0]];
-                    VERTEX v2 = gltfVertices[indices[i + 1]];
-                    VERTEX v3 = gltfVertices[indices[i + 2]];
+                    VERTEX v1 = gltfVertices[indices[i + 0] - submesh.MinVertex];
+                    VERTEX v2 = gltfVertices[indices[i + 1] - submesh.MinVertex];
+                    VERTEX v3 = gltfVertices[indices[i + 2] - submesh.MinVertex];
 
                     primitive.AddTriangle(v1, v2, v3);
                 }
@@ -112,19 +117,18 @@ namespace LeagueToolkit.IO.MapGeometry
 
             return meshBuilder;
         }
+
         private static VERTEX CreateVertex(MapGeometryVertex vertex)
         {
-            VERTEX gltfVertex = new VERTEX();
+            VERTEX gltfVertex = new();
 
             Vector3 position = vertex.Position.Value;
-            Vector3 normal = vertex.Normal.HasValue ? vertex.Normal.Value : Vector3.Zero;
-            Color color1 = vertex.SecondaryColor.HasValue ? vertex.SecondaryColor.Value : new Color(0, 0, 0, 1);
-            Vector2 uv1 = vertex.DiffuseUV.HasValue ? vertex.DiffuseUV.Value : Vector2.Zero;
-            Vector2 uv2 = vertex.LightmapUV.HasValue ? vertex.LightmapUV.Value : Vector2.Zero;
+            Vector3 normal = vertex.Normal ?? Vector3.Zero;
+            Color color1 = vertex.SecondaryColor ?? new Color(0, 0, 0, 1);
+            Vector2 uv1 = vertex.DiffuseUV ?? Vector2.Zero;
+            Vector2 uv2 = vertex.LightmapUV ?? Vector2.Zero;
 
-            return gltfVertex
-                .WithGeometry(position, normal)
-                .WithMaterial(color1, uv1, uv2);
+            return gltfVertex.WithGeometry(position, normal).WithMaterial(color1, uv1, uv2);
         }
     }
 }

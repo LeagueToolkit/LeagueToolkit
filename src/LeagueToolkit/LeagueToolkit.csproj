@@ -5,23 +5,26 @@
     <TargetFramework>netstandard2.1</TargetFramework>   
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
     <LangVersion>11</LangVersion>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <Version>2.5.1</Version>
     <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Crauzer</Authors>
     <PackageIcon>fantome.png</PackageIcon>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <!-- package references -->
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0" />
     <PackageReference Include="FlatSharp" Version="6.2.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="XXHash3.NET" Version="1.2.2" />

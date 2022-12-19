@@ -14,6 +14,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         public float[] Weights { get; set; }
         public Vector3 Normal { get; set; }
         public Vector2 UV { get; set; }
+
         // TODO: Verify whether BaseColor is in RGBA or BGRA format
         public Color? BaseColor { get; set; }
         public Vector4? Tangent { get; set; }
@@ -130,6 +131,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 SimpleSkinVertexType.Basic => 52,
                 SimpleSkinVertexType.Color => 56,
                 SimpleSkinVertexType.Tangent => 72,
+                _ => throw new NotImplementedException($"Unsupported vertex type: {vertexType}"),
             };
         }
     }

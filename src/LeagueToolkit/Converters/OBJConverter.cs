@@ -4,7 +4,7 @@ using LeagueToolkit.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LeagueToolkit.IO.MapGeometry;
+using LeagueToolkit.IO.MapGeometryFile;
 using System.Numerics;
 using LeagueToolkit.IO.NVR;
 
@@ -34,22 +34,22 @@ namespace LeagueToolkit.Converters
 
         public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MapGeometry mgeo)
         {
-            foreach (MapGeometryModel model in mgeo.Models)
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                List<Vector3> vertices = new List<Vector3>();
-                List<Vector3> normals = new List<Vector3>();
-                List<Vector2> uvs = new List<Vector2>();
+                List<Vector3> vertices = new();
+                List<Vector3> normals = new();
+                List<Vector2> uvs = new();
 
-                foreach (MapGeometryVertex vertex in model.Vertices)
+                for (int i = 0; i < mesh.Vertices.Length; i++)
                 {
+                    MapGeometryVertex vertex = mesh.Vertices[i];
+
                     if (vertex.Position is null)
                     {
-                        throw new InvalidOperationException(
-                            $"Model with index: {mgeo.Models.IndexOf(model)} contains a vertex without a Position element"
-                        );
+                        throw new InvalidOperationException("Mesh contains a vertex without a Position element");
                     }
 
-                    vertices.Add(Vector3.Transform((Vector3)vertex.Position, model.Transformation));
+                    vertices.Add(Vector3.Transform((Vector3)vertex.Position, mesh.Transform));
                     normals.Add(vertex.Normal.Value);
                     if (vertex.DiffuseUV != null)
                     {
@@ -57,7 +57,14 @@ namespace LeagueToolkit.Converters
                     }
                 }
 
-                yield return new Tuple<string, OBJFile>(model.Name, new OBJFile(vertices, model.Indices.Select(x => (uint)x).ToList(), uvs, normals));
+                // TODO: Rework OBJ API
+                List<uint> indices = new(mesh.Indices.Length);
+                for (int i = 0; i < mesh.Indices.Length; i++)
+                {
+                    indices.Add(mesh.Indices[i]);
+                }
+
+                yield return new Tuple<string, OBJFile>(mesh.Name, new OBJFile(vertices, indices, uvs, normals));
             }
         }
 
@@ -210,7 +217,7 @@ namespace LeagueToolkit.Converters
             List<Vector3> normals = new List<Vector3>();
 
             uint indexOffset = 0;
-            foreach(SimpleSkinSubmesh submesh in model.Submeshes)
+            foreach (SimpleSkinSubmesh submesh in model.Submeshes)
             {
                 indices.AddRange(submesh.Indices.Select(x => x + indexOffset));
                 foreach (SimpleSkinVertex vertex in submesh.Vertices)
@@ -222,7 +229,6 @@ namespace LeagueToolkit.Converters
 
                 indexOffset += submesh.Indices.Min();
             }
-
 
             return new OBJFile(vertices, indices, uv, normals);
         }
