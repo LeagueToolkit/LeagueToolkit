@@ -26,6 +26,6 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build LeagueToolkit --configuration Release --no-restore
+      run: dotnet build src/LeagueToolkit --configuration Release --no-restore
     - name: Test
-      run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
+      run: dotnet test src/LeagueToolkit.Tests --no-restore --verbosity normal
