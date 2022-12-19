@@ -4,6 +4,7 @@ on: workflow_dispatch
 jobs:
   test-artifact:
     env:
+      BUILD_CONFIG: "Release"
       LEAGUE_TOOLKIT_PROJECT: "LeagueToolkit"
 
     runs-on: ubuntu-latest
@@ -11,10 +12,20 @@ jobs:
     permissions:
       contents: write
 
+    defaults:
+      run:
+        working-directory: ./src
+
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: dir
-        run: ls -R ./src/
+      - name: create files
+        run: touch "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test1.txt" "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test2.txt"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-artifact
+          path: "./src/$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG"
