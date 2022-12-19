@@ -2,9 +2,15 @@ name: .NET build
 
 on:
   push:
-    branches: [ master, release ]
+    branches:
+    - main
+    - release/[0-9].[0-9].[0-9]
+    - dev
   pull_request:
-    branches: [ master, release ]
+    branches:
+    - main
+    - release/[0-9].[0-9].[0-9]
+    - dev
 
 jobs:
   build:
@@ -14,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3.0.3
       with:
         dotnet-version: 7.x
     - name: Install dependencies
@@ -23,10 +29,3 @@ jobs:
       run: dotnet build LeagueToolkit --configuration Release --no-restore
     - name: Test
       run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
-    - name: Publish NuGet
-      if: startsWith(github.ref, 'refs/heads/release')
-      id: publish_nuget
-      uses: rohith/publish-nuget@v2
-      with:
-        PROJECT_FILE_PATH: LeagueToolkit/LeagueToolkit.csproj
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
