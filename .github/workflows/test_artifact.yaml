@@ -8,25 +8,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
-    defaults:
-      run:
-        working-directory: ./src
-
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3.0.3
-        with:
-          dotnet-version: 7.x
-
-      - name: Add GitHub package source
-        run: dotnet nuget add source --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/LoL-Fantome/index.json"
-
-      - name: List package sources
-        run: dotnet nuget list source
+      - name: dir
+        run: tree
