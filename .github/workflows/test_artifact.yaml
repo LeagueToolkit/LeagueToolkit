@@ -8,6 +8,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read|write
+
     steps:
       - name: dir
         run: ls -R ./src/
