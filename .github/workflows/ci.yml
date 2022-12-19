@@ -46,4 +46,4 @@ jobs:
         run: dotnet build LeagueToolkit --configuration $BUILD_CONFIG --no-restore
 
       - name: Run Tests
-        run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
+        run: dotnet test LeagueToolkit.Tests --configuration $BUILD_CONFIG --no-restore --verbosity normal
