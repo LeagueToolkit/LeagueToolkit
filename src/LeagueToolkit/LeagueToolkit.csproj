@@ -5,6 +5,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>   
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
     <LangVersion>11</LangVersion>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
