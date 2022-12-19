@@ -10,7 +10,6 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <Version>3.0.0</Version>
     <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
