@@ -26,6 +26,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3.0.3
         with:
