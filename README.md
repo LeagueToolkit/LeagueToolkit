@@ -1,3 +1,5 @@
+[![Release](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/release.yaml/badge.svg?branch=main)](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/release.yaml) [![CI](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/ci.yml)
+
 <table>
   <tbody>
     <tr>
