@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - release/[0-9].[0-9].[0-9]
+      - dev
+  pull_request:
+    branches:
+      - main
+      - release/[0-9].[0-9].[0-9]
+      - dev
+
+jobs:
+  build:
+    env:
+      BUILD_CONFIG: "Release"
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./src
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3.0.3
+        with:
+          dotnet-version: 7.x
+
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build LeagueToolkit --configuration $BUILD_CONFIG --no-restore
+
+      - name: Run Tests
+        run: dotnet test LeagueToolkit.Tests --no-restore --verbosity normal
