@@ -54,6 +54,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
+          omitBodyDuringUpdate: true
           tag: ${{ steps.create-tag.outputs.tag }}
           artifacts: "$LEAGUE_TOOLKIT_PROJECT-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}"
 
