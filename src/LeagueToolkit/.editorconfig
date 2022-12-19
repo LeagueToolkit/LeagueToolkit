@@ -130,6 +130,9 @@ dotnet_style_qualification_for_method = true:suggestion
 #prefer properties to be prefaced with this. in C# or Me. in Visual Basic
 dotnet_style_qualification_for_property = true:suggestion
 
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
 [*.{cs,vb}]
 dotnet_style_qualification_for_event=false:suggestion
 dotnet_style_qualification_for_method=false:suggestion
