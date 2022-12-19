@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: $LEAGUE_TOOLKIT_PROJECT-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}
-          path: $LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG
+          path: src/$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG
 
       - name: Create Release
         uses: ncipollo/release-action@v1
@@ -63,8 +63,8 @@ jobs:
 
       - name: Publish to NuGet
         if: startsWith(github.ref, 'refs/heads/main')
-        run: dotnet nuget push $LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.NUGET_API_KEY}}
+        run: dotnet nuget push "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.NUGET_API_KEY}}
 
       - name: Publish to GitHub packages
         if: startsWith(github.ref, 'refs/heads/main')
-        run: dotnet nuget push $LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg --source "github" --api-key ${{secrets.GITHUB_TOKEN}}
+        run: dotnet nuget push "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg" --source "github" --api-key ${{secrets.GITHUB_TOKEN}}
