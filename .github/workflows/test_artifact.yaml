@@ -24,6 +24,9 @@ jobs:
       - name: create files
         run: mkdir -p "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG" && touch "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test1.txt" "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/test2.txt"
 
+      - name: tree
+        run: tree
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
