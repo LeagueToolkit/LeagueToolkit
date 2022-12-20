@@ -3,12 +3,15 @@ on:
   push:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+"
 
 jobs:
   release:
     env:
       BUILD_CONFIG: "Release"
       LEAGUE_TOOLKIT_PROJECT: "LeagueToolkit"
+      TARGET_FRAMEWORK: "netstandard2.1"
 
     runs-on: ubuntu-latest
 
@@ -36,27 +39,33 @@ jobs:
         uses: battila7/get-version-action@v2.2.1
 
       - name: Build
-        run: dotnet build $LEAGUE_TOOLKIT_PROJECT --configuration $BUILD_CONFIG --no-restore
+        run: dotnet build $LEAGUE_TOOLKIT_PROJECT --configuration $BUILD_CONFIG --no-restore /p:TargetFramework=${{ env.TARGET_FRAMEWORK }}
 
       - name: Run Tests
         run: dotnet test $LEAGUE_TOOLKIT_PROJECT.Tests --configuration $BUILD_CONFIG --no-restore --verbosity normal
 
       - name: Pack
-        run: dotnet pack $LEAGUE_TOOLKIT_PROJECT -c $BUILD_CONFIG /p:Version=${{ steps.get_version.outputs.version-without-v }}
+        run: dotnet pack $LEAGUE_TOOLKIT_PROJECT -c $BUILD_CONFIG /p:Version=${{ steps.get_version.outputs.version-without-v }} /p:TargetFramework=${{ env.TARGET_FRAMEWORK }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.LEAGUE_TOOLKIT_PROJECT }}-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}
-          path: "src/${{ env.LEAGUE_TOOLKIT_PROJECT }}/bin/${{ env.BUILD_CONFIG }}"
+          name: ${{ env.TARGET_FRAMEWORK }}
+          path: "src/${{ env.LEAGUE_TOOLKIT_PROJECT }}/bin/${{ env.BUILD_CONFIG }}/${{ env.TARGET_FRAMEWORK }}/"
+
+      - name: Archive Release
+        uses: vimtor/action-zip@v1
+        with:
+          files: "src/${{ env.LEAGUE_TOOLKIT_PROJECT }}/bin/${{ env.BUILD_CONFIG }}/${{ env.TARGET_FRAMEWORK }}/"
+          dest: "${{ env.TARGET_FRAMEWORK }}.zip"
 
       - name: Create Release
-        uses: ncipollo/release-action@v1
+        uses: softprops/action-gh-release@v1
         with:
-          allowUpdates: true
-          omitBodyDuringUpdate: true
-          tag: ${{ steps.create-tag.outputs.tag }}
-          artifacts: "${{ env.LEAGUE_TOOLKIT_PROJECT }}-${{ steps.get_version.outputs.version-without-v }}-${{ github.sha }}"
+          tag_name: ${{ steps.create-tag.outputs.tag }}
+          prerelease: ${{ steps.get_version.outputs.prerelease != '' }}
+          append_body: true
+          files: "${{ env.TARGET_FRAMEWORK }}.zip"
 
       - name: Publish to NuGet
         run: dotnet nuget push "$LEAGUE_TOOLKIT_PROJECT/bin/$BUILD_CONFIG/$LEAGUE_TOOLKIT_PROJECT.${{ steps.get_version.outputs.version-without-v }}.nupkg" --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.NUGET_API_KEY}}
