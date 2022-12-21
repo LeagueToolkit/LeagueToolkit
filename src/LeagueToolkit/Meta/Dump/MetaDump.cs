@@ -210,6 +210,21 @@ namespace LeagueToolkit.Meta.Dump
             // Add public modifier
             metaClassDeclaration = metaClassDeclaration.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)));
 
+            // Add base class
+            metaClassDeclaration = metaClassDeclaration.WithBaseList(
+                BaseList(
+                    SingletonSeparatedList<BaseTypeSyntax>(
+                        SimpleBaseType(
+                            IdentifierName(
+                                @class.ParentClass is not null && this.Classes.ContainsKey(@class.ParentClass)
+                                    ? GetClassNameOrDefault(@class.ParentClass, classes)
+                                    : nameof(IMetaClass)
+                            )
+                        )
+                    )
+                )
+            );
+
             return metaClassDeclaration;
         }
 
