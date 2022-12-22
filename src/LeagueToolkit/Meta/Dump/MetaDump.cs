@@ -23,9 +23,17 @@ namespace LeagueToolkit.Meta.Dump
         public string Version { get; set; }
         public Dictionary<string, MetaDumpClass> Classes { get; set; }
 
+        /// <value>
+        /// The name of the namespace declaration which contains the meta class declarations
+        /// </value>
         private const string META_CLASSES_NAMESPACE = $"{nameof(LeagueToolkit)}.{nameof(LeagueToolkit.Meta)}.Classes";
 
-        public void WriteMetaClasses(string file, IEnumerable<string> classes, IEnumerable<string> properties)
+        /* -------------------------------- PUBLIC DUMPING API -------------------------------- */
+        #region Public Dumping API
+        public void WriteMetaClasses(string file, IEnumerable<string> classes, IEnumerable<string> properties) =>
+            WriteMetaClasses(File.OpenWrite(file), classes, properties);
+
+        public void WriteMetaClasses(Stream stream, IEnumerable<string> classes, IEnumerable<string> properties)
         {
             // Create dictionaries from collections
             Dictionary<uint, string> classesMap = new();
@@ -41,13 +49,13 @@ namespace LeagueToolkit.Meta.Dump
                 propertiesMap.Add(Fnv1a.HashLower(propertyName), propertyName);
             }
 
-            WriteMetaClasses(File.OpenWrite(file), classesMap, propertiesMap);
+            WriteMetaClasses(stream, classesMap, propertiesMap);
         }
 
         public void WriteMetaClasses(
             Stream stream,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             CompilationUnitSyntax compilationUnit = CompilationUnit();
@@ -64,11 +72,13 @@ namespace LeagueToolkit.Meta.Dump
             using StreamWriter syntaxWriter = new(stream);
             compilationUnit.NormalizeWhitespace(eol: "\n", elasticTrivia: true).WriteTo(syntaxWriter);
         }
+        #endregion
+        /* -------------------------------- PUBLIC DUMPING API -------------------------------- */
 
         private void WithNamespaceDeclaration(
             ref CompilationUnitSyntax metaSyntax,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             NamespaceDeclarationSyntax namespaceDeclaration = NamespaceDeclaration(
@@ -82,16 +92,16 @@ namespace LeagueToolkit.Meta.Dump
 
         private void WithNamespaceMemberDeclarations(
             ref NamespaceDeclarationSyntax namespaceSyntax,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             namespaceSyntax = namespaceSyntax.WithMembers(new(TakeMetaClassDeclarations(classes, properties)));
         }
 
         private IEnumerable<TypeDeclarationSyntax> TakeMetaClassDeclarations(
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             foreach (var (classHash, @class) in this.Classes.Select(x => (x.Key, x.Value)))
@@ -103,8 +113,8 @@ namespace LeagueToolkit.Meta.Dump
         private TypeDeclarationSyntax CreateMetaClassDeclaration(
             string classHash,
             MetaDumpClass @class,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             // Get the name of the declaration
@@ -184,8 +194,8 @@ namespace LeagueToolkit.Meta.Dump
         private IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
             string classHash,
             MetaDumpClass @class,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             // Write properties of interfaces
@@ -234,11 +244,11 @@ namespace LeagueToolkit.Meta.Dump
             string propertyHash,
             MetaDumpProperty property,
             bool isPublic,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
-            TypeSyntax typeSyntax = CreatePropertyTypeSyntax(property, classes);
+            TypeSyntax typeSyntax = CreatePropertyTypeDeclaration(property, classes);
             string name = StylizePropertyName(GetPropertyNameOrDefault(propertyHash, properties));
 
             // Check that property name isn't the same as the class name
@@ -290,8 +300,8 @@ namespace LeagueToolkit.Meta.Dump
         private SyntaxList<AttributeListSyntax> CreatePropertyAttributesSyntax(
             string propertyHash,
             MetaDumpProperty property,
-            Dictionary<uint, string> classes,
-            Dictionary<uint, string> properties
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
         )
         {
             bool hasName = properties.TryGetValue(Convert.ToUInt32(propertyHash, 16), out string name);
@@ -372,24 +382,29 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private TypeSyntax CreatePropertyTypeSyntax(MetaDumpProperty property, Dictionary<uint, string> classes)
+        /* ------------------------- PROPERTY TYPE DECLARATION CREATORS ------------------------- */
+        #region Property Type Declaration Creators
+        private TypeSyntax CreatePropertyTypeDeclaration(
+            MetaDumpProperty property,
+            IReadOnlyDictionary<uint, string> classes
+        )
         {
             return BinUtilities.UnpackType(property.Type) switch
             {
                 BinPropertyType.Container
-                    => GetContainerTypeDeclaration(property.OtherClass, property.Container, false, classes),
+                    => CreateContainerTypeDeclaration(property.OtherClass, property.Container, false, classes),
                 BinPropertyType.UnorderedContainer
-                    => GetContainerTypeDeclaration(property.OtherClass, property.Container, true, classes),
-                BinPropertyType.Structure => GetStructureTypeDeclaration(property.OtherClass, classes),
-                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(property.OtherClass, classes),
+                    => CreateContainerTypeDeclaration(property.OtherClass, property.Container, true, classes),
+                BinPropertyType.Structure => CreateStructureTypeDeclaration(property.OtherClass, classes),
+                BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(property.OtherClass, classes),
                 BinPropertyType.Optional
-                    => GetOptionalTypeDeclaration(property.OtherClass, property.Container, classes),
-                BinPropertyType.Map => GetMapTypeDeclaration(property.OtherClass, property.Map, classes),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
+                    => CreateOptionalTypeDeclaration(property.OtherClass, property.Container, classes),
+                BinPropertyType.Map => CreateMapTypeDeclaration(property.OtherClass, property.Map, classes),
+                BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
         }
 
-        private TypeSyntax GetPrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
+        private TypeSyntax CreatePrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
         {
             TypeSyntax typeDeclaration = BinUtilities.UnpackType(type) switch
             {
@@ -424,18 +439,18 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        private GenericNameSyntax GetContainerTypeDeclaration(
+        private GenericNameSyntax CreateContainerTypeDeclaration(
             string elementClass,
             MetaDumpContainer container,
             bool isUnorderedContainer,
-            Dictionary<uint, string> classes
+            IReadOnlyDictionary<uint, string> classes
         )
         {
             TypeSyntax argumentTypeSyntax = BinUtilities.UnpackType(container.Type) switch
             {
-                BinPropertyType.Structure => GetStructureTypeDeclaration(elementClass, classes),
-                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(elementClass, classes),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
+                BinPropertyType.Structure => CreateStructureTypeDeclaration(elementClass, classes),
+                BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(elementClass, classes),
+                BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
 
             SyntaxToken identifier = isUnorderedContainer
@@ -444,10 +459,15 @@ namespace LeagueToolkit.Meta.Dump
             return GenericName(identifier, TypeArgumentList(SingletonSeparatedList(argumentTypeSyntax)));
         }
 
-        private TypeSyntax GetStructureTypeDeclaration(string classNameHash, Dictionary<uint, string> classes) =>
-            ParseTypeName(GetClassNameOrDefault(classNameHash, classes));
+        private TypeSyntax CreateStructureTypeDeclaration(
+            string classNameHash,
+            IReadOnlyDictionary<uint, string> classes
+        ) => ParseTypeName(GetClassNameOrDefault(classNameHash, classes));
 
-        private GenericNameSyntax GetEmbeddedTypeDeclaration(string classNameHash, Dictionary<uint, string> classes)
+        private GenericNameSyntax CreateEmbeddedTypeDeclaration(
+            string classNameHash,
+            IReadOnlyDictionary<uint, string> classes
+        )
         {
             string argumentTypeIdentifier = GetClassNameOrDefault(classNameHash, classes);
             return GenericName(
@@ -456,17 +476,17 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private GenericNameSyntax GetOptionalTypeDeclaration(
+        private GenericNameSyntax CreateOptionalTypeDeclaration(
             string otherClass,
             MetaDumpContainer container,
-            Dictionary<uint, string> classes
+            IReadOnlyDictionary<uint, string> classes
         )
         {
             TypeSyntax argumentTypeSyntax = container.Type switch
             {
-                BinPropertyType.Structure => GetStructureTypeDeclaration(otherClass, classes),
-                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(otherClass, classes),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
+                BinPropertyType.Structure => CreateStructureTypeDeclaration(otherClass, classes),
+                BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(otherClass, classes),
+                BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
 
             return GenericName(
@@ -475,21 +495,21 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private GenericNameSyntax GetMapTypeDeclaration(
+        private GenericNameSyntax CreateMapTypeDeclaration(
             string otherClass,
             MetaDumpMap map,
-            Dictionary<uint, string> classes
+            IReadOnlyDictionary<uint, string> classes
         )
         {
-            TypeSyntax keyDeclaration = GetPrimitivePropertyTypeDeclaration(
+            TypeSyntax keyDeclaration = CreatePrimitivePropertyTypeDeclaration(
                 BinUtilities.UnpackType(map.KeyType),
                 false
             );
             TypeSyntax valueDeclaration = BinUtilities.UnpackType(map.ValueType) switch
             {
-                BinPropertyType.Structure => GetStructureTypeDeclaration(otherClass, classes),
-                BinPropertyType.Embedded => GetEmbeddedTypeDeclaration(otherClass, classes),
-                BinPropertyType type => GetPrimitivePropertyTypeDeclaration(type, false)
+                BinPropertyType.Structure => CreateStructureTypeDeclaration(otherClass, classes),
+                BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(otherClass, classes),
+                BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
 
             return GenericName(
@@ -497,22 +517,45 @@ namespace LeagueToolkit.Meta.Dump
                 TypeArgumentList(SeparatedList(new TypeSyntax[] { keyDeclaration, valueDeclaration }))
             );
         }
+        #endregion
+        /* ------------------------- PROPERTY TYPE DECLARATION CREATORS ------------------------- */
 
-        private string GetClassNameOrDefault(string hash, Dictionary<uint, string> classNames)
+        /* ----------------------------------- NAME UTILITIES ----------------------------------- */
+        #region Name Utilities
+        private string GetClassNameOrDefault(string hash, IReadOnlyDictionary<uint, string> classNames)
         {
             return classNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "Class" + hash);
         }
 
-        private string GetPropertyNameOrDefault(string hash, Dictionary<uint, string> propertyNames)
+        private string GetPropertyNameOrDefault(string hash, IReadOnlyDictionary<uint, string> propertyNames)
         {
             return propertyNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "m" + Convert.ToUInt32(hash, 16));
         }
 
+        private string StylizePropertyName(string propertyName)
+        {
+            if (propertyName[0] == 'm' && char.IsUpper(propertyName[1]))
+            {
+                return propertyName[1..];
+            }
+            else if (char.IsLower(propertyName[0]) && !char.IsNumber(propertyName[1]))
+            {
+                return char.ToUpper(propertyName[0]) + propertyName[1..];
+            }
+            else
+            {
+                return propertyName;
+            }
+        }
+        #endregion
+        /* ----------------------------------- NAME UTILITIES ----------------------------------- */
+
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
+        #region Initializer Creators
         private EqualsValueClauseSyntax CreatePropertyInitializer(
             object defaultValue,
             MetaDumpProperty property,
-            Dictionary<uint, string> classes
+            IReadOnlyDictionary<uint, string> classes
         )
         {
             ExpressionSyntax expression = defaultValue switch
@@ -605,7 +648,7 @@ namespace LeagueToolkit.Meta.Dump
 
         private ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, object value)
         {
-            TypeSyntax argumentTypeDeclaration = GetPrimitivePropertyTypeDeclaration(property.Container.Type, false);
+            TypeSyntax argumentTypeDeclaration = CreatePrimitivePropertyTypeDeclaration(property.Container.Type, false);
 
             // new MetaOptional<T>(default(T), false) | new MetaOptional<T>(nullableValue, true)
             return ObjectCreationExpression(
@@ -663,8 +706,8 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        /* ----------------------- NUMERIC PRIMITIVE INITIALIZE CREATORS ----------------------- */
-
+        /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
+        #region Numeric Primitive Initializer Creators
         private ExpressionSyntax CreateVector2InitializerSyntax(JArray jArray)
         {
             return ObjectCreationExpression(
@@ -800,25 +843,10 @@ namespace LeagueToolkit.Meta.Dump
                 null
             );
         }
-
+        #endregion
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
+        #endregion
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
-
-        private string StylizePropertyName(string propertyName)
-        {
-            if (propertyName[0] == 'm' && char.IsUpper(propertyName[1]))
-            {
-                return propertyName[1..];
-            }
-            else if (char.IsLower(propertyName[0]) && !char.IsNumber(propertyName[1]))
-            {
-                return char.ToUpper(propertyName[0]) + propertyName[1..];
-            }
-            else
-            {
-                return propertyName;
-            }
-        }
 
         /* --------------------------- GENERIC TYPE NAME SANITIZATION --------------------------- */
         #region Generic Type Name Sanitization
