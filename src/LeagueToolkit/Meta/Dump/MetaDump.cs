@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LeagueToolkit.Meta.Dump
@@ -51,6 +52,12 @@ namespace LeagueToolkit.Meta.Dump
 
             WriteMetaClasses(stream, classesMap, propertiesMap);
         }
+
+        public void WriteMetaClasses(
+            string file,
+            IReadOnlyDictionary<uint, string> classes,
+            IReadOnlyDictionary<uint, string> properties
+        ) => WriteMetaClasses(File.OpenWrite(file), classes, properties);
 
         public void WriteMetaClasses(
             Stream stream,
@@ -297,6 +304,8 @@ namespace LeagueToolkit.Meta.Dump
             return propertyDeclaration;
         }
 
+        /* ---------------------------- PROPERTY ATTRIBUTE CREATION ----------------------------- */
+        #region Property Attribute Creation
         private SyntaxList<AttributeListSyntax> CreatePropertyAttributesSyntax(
             string propertyHash,
             MetaDumpProperty property,
@@ -304,24 +313,6 @@ namespace LeagueToolkit.Meta.Dump
             IReadOnlyDictionary<uint, string> properties
         )
         {
-            bool hasName = properties.TryGetValue(Convert.ToUInt32(propertyHash, 16), out string name);
-
-            BinPropertyType propertyType = BinUtilities.UnpackType(property.Type);
-            BinPropertyType? primaryType = null;
-            BinPropertyType? secondaryType = null;
-
-            if (property.Map is not null)
-            {
-                primaryType = property.Map.KeyType;
-                secondaryType = property.Map.ValueType;
-            }
-            else if (property.Container is not null)
-            {
-                primaryType = property.Container.Type;
-            }
-
-            string otherClass = property.OtherClass is null ? "" : GetClassNameOrDefault(property.OtherClass, classes);
-
             return SingletonList(
                 AttributeList(
                     SingletonSeparatedList(
@@ -331,48 +322,11 @@ namespace LeagueToolkit.Meta.Dump
                                 SeparatedList(
                                     new AttributeArgumentSyntax[]
                                     {
-                                        AttributeArgument(
-                                            LiteralExpression(
-                                                hasName
-                                                    ? SyntaxKind.StringLiteralExpression
-                                                    : SyntaxKind.NumericLiteralExpression,
-                                                hasName ? Literal(name) : Literal(Convert.ToUInt32(propertyHash, 16))
-                                            )
-                                        ),
-                                        AttributeArgument(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName(nameof(BinPropertyType)),
-                                                IdentifierName(Enum.GetName(typeof(BinPropertyType), propertyType))
-                                            )
-                                        ),
-                                        AttributeArgument(
-                                            LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(otherClass))
-                                        ),
-                                        AttributeArgument(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName(nameof(BinPropertyType)),
-                                                IdentifierName(
-                                                    Enum.GetName(
-                                                        typeof(BinPropertyType),
-                                                        primaryType ?? BinPropertyType.None
-                                                    )
-                                                )
-                                            )
-                                        ),
-                                        AttributeArgument(
-                                            MemberAccessExpression(
-                                                SyntaxKind.SimpleMemberAccessExpression,
-                                                IdentifierName(nameof(BinPropertyType)),
-                                                IdentifierName(
-                                                    Enum.GetName(
-                                                        typeof(BinPropertyType),
-                                                        secondaryType ?? BinPropertyType.None
-                                                    )
-                                                )
-                                            )
-                                        )
+                                        CreatePropertyNameAttributeArgument(propertyHash, properties),
+                                        CreatePropertyTypeAttributeArgument(property),
+                                        CreatePropertyOtherClassAttributeArgument(property, classes),
+                                        CreatePropertyPrimaryTypeAttributeArgument(property),
+                                        CreatePropertySecondaryTypeAttributeArgument(property)
                                     }
                                 )
                             )
@@ -381,6 +335,83 @@ namespace LeagueToolkit.Meta.Dump
                 )
             );
         }
+
+        private AttributeArgumentSyntax CreatePropertyNameAttributeArgument(
+            string propertyHash,
+            IReadOnlyDictionary<uint, string> properties
+        )
+        {
+            bool hasName = properties.TryGetValue(Convert.ToUInt32(propertyHash, 16), out string name);
+
+            return AttributeArgument(
+                LiteralExpression(
+                    hasName ? SyntaxKind.StringLiteralExpression : SyntaxKind.NumericLiteralExpression,
+                    hasName ? Literal(name) : Literal(Convert.ToUInt32(propertyHash, 16))
+                )
+            );
+        }
+
+        private AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property)
+        {
+            BinPropertyType propertyType = BinUtilities.UnpackType(property.Type);
+
+            return AttributeArgument(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(nameof(BinPropertyType)),
+                    IdentifierName(Enum.GetName(typeof(BinPropertyType), propertyType))
+                )
+            );
+        }
+
+        private AttributeArgumentSyntax CreatePropertyOtherClassAttributeArgument(
+            MetaDumpProperty property,
+            IReadOnlyDictionary<uint, string> classes
+        )
+        {
+            string otherClass = property.OtherClass is null ? "" : GetClassNameOrDefault(property.OtherClass, classes);
+
+            return AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(otherClass)));
+        }
+
+        private AttributeArgumentSyntax CreatePropertyPrimaryTypeAttributeArgument(MetaDumpProperty property)
+        {
+            BinPropertyType primaryType = property switch
+            {
+                MetaDumpProperty { Map: not null } notNullMapProperty => notNullMapProperty.Map.KeyType,
+                _ => BinPropertyType.None
+            };
+
+            return AttributeArgument(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(nameof(BinPropertyType)),
+                    IdentifierName(Enum.GetName(typeof(BinPropertyType), primaryType))
+                )
+            );
+        }
+
+        private AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
+        {
+            BinPropertyType secondaryType = property switch
+            {
+                MetaDumpProperty { Map: not null } notNullMapProperty => notNullMapProperty.Map.ValueType,
+                MetaDumpProperty { Container: not null } notNullContainerProperty
+                    => notNullContainerProperty.Container.Type,
+                _ => BinPropertyType.None
+            };
+
+            return AttributeArgument(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(nameof(BinPropertyType)),
+                    IdentifierName(Enum.GetName(typeof(BinPropertyType), secondaryType))
+                )
+            );
+        }
+
+        #endregion
+        /* ---------------------------- PROPERTY ATTRIBUTE CREATION ----------------------------- */
 
         /* ------------------------- PROPERTY TYPE DECLARATION CREATORS ------------------------- */
         #region Property Type Declaration Creators
