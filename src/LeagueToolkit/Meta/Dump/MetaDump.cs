@@ -67,11 +67,15 @@ namespace LeagueToolkit.Meta.Dump
         {
             CompilationUnitSyntax compilationUnit = CompilationUnit();
 
-            // Add required using directives
-            compilationUnit = compilationUnit.WithUsings(new(TakeRequiredUsingDirectives(GetRequiredTypes())));
-
-            // Create namespace
-            WithNamespaceDeclaration(ref compilationUnit, classes, properties);
+            // Create compilation unit
+            compilationUnit = compilationUnit
+                .WithUsings(new(TakeRequiredUsingDirectives(GetRequiredTypes())))
+                .WithMembers(
+                    SingletonList<MemberDeclarationSyntax>(
+                        NamespaceDeclaration(ParseName(META_CLASSES_NAMESPACE, consumeFullText: true))
+                            .WithMembers(new(TakeMetaClassDeclarations(classes, properties)))
+                    )
+                );
 
             //using AdhocWorkspace workspace = new();
             //SyntaxNode metaSyntax = Formatter.Format(compilationUnit, workspace);
@@ -81,30 +85,6 @@ namespace LeagueToolkit.Meta.Dump
         }
         #endregion
         /* -------------------------------- PUBLIC DUMPING API -------------------------------- */
-
-        private void WithNamespaceDeclaration(
-            ref CompilationUnitSyntax metaSyntax,
-            IReadOnlyDictionary<uint, string> classes,
-            IReadOnlyDictionary<uint, string> properties
-        )
-        {
-            NamespaceDeclarationSyntax namespaceDeclaration = NamespaceDeclaration(
-                ParseName(META_CLASSES_NAMESPACE, consumeFullText: true)
-            );
-
-            WithNamespaceMemberDeclarations(ref namespaceDeclaration, classes, properties);
-
-            metaSyntax = metaSyntax.WithMembers(SingletonList<MemberDeclarationSyntax>(namespaceDeclaration));
-        }
-
-        private void WithNamespaceMemberDeclarations(
-            ref NamespaceDeclarationSyntax namespaceSyntax,
-            IReadOnlyDictionary<uint, string> classes,
-            IReadOnlyDictionary<uint, string> properties
-        )
-        {
-            namespaceSyntax = namespaceSyntax.WithMembers(new(TakeMetaClassDeclarations(classes, properties)));
-        }
 
         private IEnumerable<TypeDeclarationSyntax> TakeMetaClassDeclarations(
             IReadOnlyDictionary<uint, string> classes,
@@ -137,33 +117,31 @@ namespace LeagueToolkit.Meta.Dump
                 Convert.ToUInt32(classHash, 16),
                 out string attributeClassName
             );
-            metaClassDeclaration = metaClassDeclaration
-                .WithAttributeLists(
-                    SingletonList(
-                        AttributeList(
-                            SingletonSeparatedList(
-                                Attribute(IdentifierName(nameof(MetaClassAttribute)))
-                                    .WithArgumentList(
-                                        AttributeArgumentList(
-                                            SingletonSeparatedList(
-                                                AttributeArgument(
-                                                    LiteralExpression(
-                                                        hasAttributeClassName
-                                                            ? SyntaxKind.StringLiteralExpression
-                                                            : SyntaxKind.NumericLiteralExpression,
-                                                        hasAttributeClassName
-                                                            ? Literal(attributeClassName)
-                                                            : Literal(Convert.ToUInt32(classHash, 16))
-                                                    )
+            metaClassDeclaration = metaClassDeclaration.WithAttributeLists(
+                SingletonList(
+                    AttributeList(
+                        SingletonSeparatedList(
+                            Attribute(IdentifierName(nameof(MetaClassAttribute)))
+                                .WithArgumentList(
+                                    AttributeArgumentList(
+                                        SingletonSeparatedList(
+                                            AttributeArgument(
+                                                LiteralExpression(
+                                                    hasAttributeClassName
+                                                        ? SyntaxKind.StringLiteralExpression
+                                                        : SyntaxKind.NumericLiteralExpression,
+                                                    hasAttributeClassName
+                                                        ? Literal(attributeClassName)
+                                                        : Literal(Convert.ToUInt32(classHash, 16))
                                                 )
                                             )
                                         )
                                     )
-                            )
+                                )
                         )
                     )
                 )
-                .WithAdditionalAnnotations(Formatter.Annotation);
+            );
 
             // Add public modifier
             metaClassDeclaration = metaClassDeclaration.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)));
