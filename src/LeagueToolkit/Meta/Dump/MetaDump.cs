@@ -1,12 +1,10 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -14,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Xml.Linq;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LeagueToolkit.Meta.Dump
@@ -112,68 +109,75 @@ namespace LeagueToolkit.Meta.Dump
                 ? InterfaceDeclaration(className)
                 : ClassDeclaration(className);
 
-            // Add MetaClass attribute
+            return metaClassDeclaration
+                // Add attribute
+                .WithAttributeLists(SingletonList(CreateMetaClassAttributeList(classHash, classes)))
+                // Add visibility modifier
+                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                // Add base types
+                .WithBaseList(CreateMetaClassBaseList(@class, classes))
+                // Add members
+                .WithMembers(
+                    List<MemberDeclarationSyntax>(
+                        TakeMetaClassPropertyDeclarations(classHash, @class, classes, properties)
+                    )
+                );
+        }
+
+        private AttributeListSyntax CreateMetaClassAttributeList(
+            string classHash,
+            IReadOnlyDictionary<uint, string> classes
+        )
+        {
             bool hasAttributeClassName = classes.TryGetValue(
                 Convert.ToUInt32(classHash, 16),
                 out string attributeClassName
             );
-            metaClassDeclaration = metaClassDeclaration.WithAttributeLists(
-                SingletonList(
-                    AttributeList(
-                        SingletonSeparatedList(
-                            Attribute(IdentifierName(nameof(MetaClassAttribute)))
-                                .WithArgumentList(
-                                    AttributeArgumentList(
-                                        SingletonSeparatedList(
-                                            AttributeArgument(
-                                                LiteralExpression(
-                                                    hasAttributeClassName
-                                                        ? SyntaxKind.StringLiteralExpression
-                                                        : SyntaxKind.NumericLiteralExpression,
-                                                    hasAttributeClassName
-                                                        ? Literal(attributeClassName)
-                                                        : Literal(Convert.ToUInt32(classHash, 16))
-                                                )
-                                            )
+
+            return AttributeList(
+                SingletonSeparatedList(
+                    Attribute(IdentifierName(nameof(MetaClassAttribute)))
+                        .WithArgumentList(
+                            AttributeArgumentList(
+                                SingletonSeparatedList(
+                                    AttributeArgument(
+                                        LiteralExpression(
+                                            hasAttributeClassName
+                                                ? SyntaxKind.StringLiteralExpression
+                                                : SyntaxKind.NumericLiteralExpression,
+                                            hasAttributeClassName
+                                                ? Literal(attributeClassName)
+                                                : Literal(Convert.ToUInt32(classHash, 16))
                                         )
                                     )
                                 )
+                            )
                         )
-                    )
                 )
             );
+        }
 
-            // Add public modifier
-            metaClassDeclaration = metaClassDeclaration.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)));
-
-            // Add base types
-            List<string> interfaceHashes = @class.GetInterfaces(this.Classes, false);
-            metaClassDeclaration = metaClassDeclaration.WithBaseList(
-                BaseList(
-                    SeparatedList<BaseTypeSyntax>(
-                        interfaceHashes
-                            .Select(
-                                interfaceHash =>
-                                    SimpleBaseType(IdentifierName(GetClassNameOrDefault(interfaceHash, classes)))
-                            )
-                            .Prepend(
-                                SimpleBaseType(
-                                    IdentifierName(
-                                        @class.ParentClass is not null && this.Classes.ContainsKey(@class.ParentClass)
-                                            ? GetClassNameOrDefault(@class.ParentClass, classes)
-                                            : nameof(IMetaClass)
-                                    )
+        private BaseListSyntax CreateMetaClassBaseList(MetaDumpClass @class, IReadOnlyDictionary<uint, string> classes)
+        {
+            return BaseList(
+                SeparatedList<BaseTypeSyntax>(
+                    @class
+                        .TakeInterfaces(this.Classes, false)
+                        .Select(
+                            interfaceHash =>
+                                SimpleBaseType(IdentifierName(GetClassNameOrDefault(interfaceHash, classes)))
+                        )
+                        .Prepend(
+                            SimpleBaseType(
+                                IdentifierName(
+                                    @class.ParentClass is not null && this.Classes.ContainsKey(@class.ParentClass)
+                                        ? GetClassNameOrDefault(@class.ParentClass, classes)
+                                        : nameof(IMetaClass)
                                 )
                             )
-                    )
+                        )
                 )
             );
-
-            metaClassDeclaration = metaClassDeclaration.WithMembers(
-                List<MemberDeclarationSyntax>(TakeMetaClassPropertyDeclarations(classHash, @class, classes, properties))
-            );
-
-            return metaClassDeclaration;
         }
 
         private IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
@@ -183,23 +187,24 @@ namespace LeagueToolkit.Meta.Dump
             IReadOnlyDictionary<uint, string> properties
         )
         {
-            // Write properties of interfaces
+            // TODO: Cleanup
+            // Create properties of inherited members
             if (@class.Is.Interface is false)
             {
-                foreach (string interfaceHash in @class.GetInterfacesRecursive(this.Classes, true))
+                foreach (string interfaceHash in @class.TakeInterfacesRecursive(this.Classes, true))
                 {
                     if (
                         this.Classes.TryGetValue(interfaceHash, out MetaDumpClass interfaceClass)
                         && interfaceClass.Is.Interface
                     )
                     {
-                        foreach (var property in interfaceClass.Properties)
+                        foreach (var (hash, property) in interfaceClass.Properties.Select(x => (x.Key, x.Value)))
                         {
                             yield return CreateMetaClassPropertyDeclaration(
                                 interfaceHash,
                                 @class,
-                                property.Key,
-                                property.Value,
+                                hash,
+                                property,
                                 true,
                                 classes,
                                 properties
@@ -209,13 +214,14 @@ namespace LeagueToolkit.Meta.Dump
                 }
             }
 
-            foreach (var property in @class.Properties)
+            // Create properties of non-inherited members
+            foreach (var (hash, property) in @class.Properties.Select(x => (x.Key, x.Value)))
             {
                 yield return CreateMetaClassPropertyDeclaration(
                     classHash,
                     @class,
-                    property.Key,
-                    property.Value,
+                    hash,
+                    property,
                     !@class.Is.Interface,
                     classes,
                     properties
@@ -243,33 +249,29 @@ namespace LeagueToolkit.Meta.Dump
                 name = $"m{name}";
             }
 
-            PropertyDeclarationSyntax propertyDeclaration = PropertyDeclaration(typeSyntax, name);
-
-            // Add attribute
-            propertyDeclaration = propertyDeclaration.WithAttributeLists(
-                CreatePropertyAttributesSyntax(propertyHash, property, classes, properties)
-            );
+            PropertyDeclarationSyntax propertyDeclaration = PropertyDeclaration(typeSyntax, name)
+                // Add attribute
+                .WithAttributeLists(CreatePropertyAttributesSyntax(propertyHash, property, classes, properties))
+                // Add accessor
+                .WithAccessorList(
+                    AccessorList(
+                        List(
+                            new AccessorDeclarationSyntax[]
+                            {
+                                AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            }
+                        )
+                    )
+                );
 
             // Add visibility
             if (isPublic)
             {
                 propertyDeclaration = propertyDeclaration.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)));
             }
-
-            // Add accessor
-            propertyDeclaration = propertyDeclaration.WithAccessorList(
-                AccessorList(
-                    List(
-                        new AccessorDeclarationSyntax[]
-                        {
-                            AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                            AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                        }
-                    )
-                )
-            );
 
             // Add initializer
             if (@class.Is.Interface is false)
@@ -902,9 +904,6 @@ namespace LeagueToolkit.Meta.Dump
                 .Select(requiredNamespace => UsingDirective(ParseName(requiredNamespace, consumeFullText: true)));
         }
 
-        public static MetaDump Deserialize(string dump)
-        {
-            return JsonConvert.DeserializeObject<MetaDump>(dump);
-        }
+        public static MetaDump Deserialize(string dump) => JsonConvert.DeserializeObject<MetaDump>(dump);
     }
 }
