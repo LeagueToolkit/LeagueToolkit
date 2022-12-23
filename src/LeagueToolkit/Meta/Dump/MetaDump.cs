@@ -356,26 +356,9 @@ namespace LeagueToolkit.Meta.Dump
 
         private AttributeArgumentSyntax CreatePropertyPrimaryTypeAttributeArgument(MetaDumpProperty property)
         {
-            BinPropertyType primaryType = property switch
-            {
-                MetaDumpProperty { Map: not null } notNullMapProperty => notNullMapProperty.Map.KeyType,
-                _ => BinPropertyType.None
-            };
-
-            return AttributeArgument(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    IdentifierName(nameof(BinPropertyType)),
-                    IdentifierName(Enum.GetName(typeof(BinPropertyType), primaryType))
-                )
-            );
-        }
-
-        private AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
-        {
             BinPropertyType secondaryType = property switch
             {
-                MetaDumpProperty { Map: not null } notNullMapProperty => notNullMapProperty.Map.ValueType,
+                MetaDumpProperty { Map: not null } notNullMapProperty => notNullMapProperty.Map.KeyType,
                 MetaDumpProperty { Container: not null } notNullContainerProperty
                     => notNullContainerProperty.Container.Type,
                 _ => BinPropertyType.None
@@ -386,6 +369,23 @@ namespace LeagueToolkit.Meta.Dump
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(nameof(BinPropertyType)),
                     IdentifierName(Enum.GetName(typeof(BinPropertyType), secondaryType))
+                )
+            );
+        }
+
+        private AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
+        {
+            BinPropertyType primaryType = property switch
+            {
+                MetaDumpProperty { Map: not null } notNullMapProperty => notNullMapProperty.Map.ValueType,
+                _ => BinPropertyType.None
+            };
+
+            return AttributeArgument(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName(nameof(BinPropertyType)),
+                    IdentifierName(Enum.GetName(typeof(BinPropertyType), primaryType))
                 )
             );
         }
