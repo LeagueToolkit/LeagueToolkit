@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LeagueToolkit.Meta.Dump
@@ -101,20 +102,18 @@ namespace LeagueToolkit.Meta.Dump
             IReadOnlyDictionary<uint, string> properties
         )
         {
-            // Get the name of the declaration
-            string className = GetClassNameOrDefault(classHash, classes);
+            List<SyntaxToken> modifiers = new() { Token(SyntaxKind.PublicKeyword) };
+            if (@class.Is.Interface)
+            {
+                modifiers.Add(Token(SyntaxKind.AbstractKeyword));
+            }
 
-            // Create the declaration syntax
-            TypeDeclarationSyntax metaClassDeclaration = @class.Is.Interface
-                ? InterfaceDeclaration(className)
-                : ClassDeclaration(className);
-
-            return metaClassDeclaration
-                // Add attribute
+            return ClassDeclaration(GetClassNameOrDefault(classHash, classes))
+                // Add attributes
                 .WithAttributeLists(SingletonList(CreateMetaClassAttributeList(classHash, classes)))
-                // Add visibility modifier
-                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                // Add base types
+                // Add modifiers
+                .WithModifiers(TokenList(modifiers))
+                // Add bases
                 .WithBaseList(CreateMetaClassBaseList(@class, classes))
                 // Add members
                 .WithMembers(
@@ -159,25 +158,30 @@ namespace LeagueToolkit.Meta.Dump
 
         private BaseListSyntax CreateMetaClassBaseList(MetaDumpClass @class, IReadOnlyDictionary<uint, string> classes)
         {
-            return BaseList(
-                SeparatedList<BaseTypeSyntax>(
-                    @class
-                        .TakeInterfaces(this.Classes, false)
-                        .Select(
-                            interfaceHash =>
-                                SimpleBaseType(IdentifierName(GetClassNameOrDefault(interfaceHash, classes)))
-                        )
-                        .Prepend(
-                            SimpleBaseType(
-                                IdentifierName(
-                                    @class.ParentClass is not null && this.Classes.ContainsKey(@class.ParentClass)
-                                        ? GetClassNameOrDefault(@class.ParentClass, classes)
-                                        : nameof(IMetaClass)
-                                )
-                            )
-                        )
+            IEnumerable<SimpleBaseTypeSyntax> bases = @class
+                .TakeSecondaryBases(this.Classes, false)
+                // Special case - Class has defined both Base and Secondary Base - write only primary base (ex: StaticMaterialDef)
+                .SkipWhile(x => @class.SecondaryBases.Count > 0 && !string.IsNullOrEmpty(@class.Base))
+                .Select(
+                    secondaryBaseHash =>
+                        SimpleBaseType(IdentifierName(GetClassNameOrDefault(secondaryBaseHash, classes)))
+                );
+
+            SimpleBaseTypeSyntax @base = SimpleBaseType(
+                IdentifierName(
+                    string.IsNullOrEmpty(@class.Base) ? nameof(IMetaClass) : GetClassNameOrDefault(@class.Base, classes)
                 )
             );
+
+            // If there is no primary base and no secondary bases, the base is IMetaClass
+            // If there are no secondary bases, we add only the primary base
+            // (there cannot be 2 base classes, see comment above)
+            if (bases.Count() == 0)
+            {
+                bases = bases.Prepend(@base);
+            }
+
+            return BaseList(SeparatedList<BaseTypeSyntax>(bases));
         }
 
         private IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
@@ -187,45 +191,10 @@ namespace LeagueToolkit.Meta.Dump
             IReadOnlyDictionary<uint, string> properties
         )
         {
-            // TODO: Cleanup
-            // Create properties of inherited members
-            if (@class.Is.Interface is false)
-            {
-                foreach (string interfaceHash in @class.TakeInterfacesRecursive(this.Classes, true))
-                {
-                    if (
-                        this.Classes.TryGetValue(interfaceHash, out MetaDumpClass interfaceClass)
-                        && interfaceClass.Is.Interface
-                    )
-                    {
-                        foreach (var (hash, property) in interfaceClass.Properties.Select(x => (x.Key, x.Value)))
-                        {
-                            yield return CreateMetaClassPropertyDeclaration(
-                                interfaceHash,
-                                @class,
-                                hash,
-                                property,
-                                true,
-                                classes,
-                                properties
-                            );
-                        }
-                    }
-                }
-            }
-
-            // Create properties of non-inherited members
+            // Create property declarations
             foreach (var (hash, property) in @class.Properties.Select(x => (x.Key, x.Value)))
             {
-                yield return CreateMetaClassPropertyDeclaration(
-                    classHash,
-                    @class,
-                    hash,
-                    property,
-                    !@class.Is.Interface,
-                    classes,
-                    properties
-                );
+                yield return CreateMetaClassPropertyDeclaration(classHash, @class, hash, property, classes, properties);
             }
         }
 
@@ -234,7 +203,6 @@ namespace LeagueToolkit.Meta.Dump
             MetaDumpClass @class,
             string propertyHash,
             MetaDumpProperty property,
-            bool isPublic,
             IReadOnlyDictionary<uint, string> classes,
             IReadOnlyDictionary<uint, string> properties
         )
@@ -252,6 +220,8 @@ namespace LeagueToolkit.Meta.Dump
             PropertyDeclarationSyntax propertyDeclaration = PropertyDeclaration(typeSyntax, name)
                 // Add attribute
                 .WithAttributeLists(CreatePropertyAttributesSyntax(propertyHash, property, classes, properties))
+                // Add visibility
+                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                 // Add accessor
                 .WithAccessorList(
                     AccessorList(
@@ -267,14 +237,7 @@ namespace LeagueToolkit.Meta.Dump
                     )
                 );
 
-            // Add visibility
-            if (isPublic)
-            {
-                propertyDeclaration = propertyDeclaration.WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)));
-            }
-
-            // Add initializer
-            if (@class.Is.Interface is false)
+            if (@class.Defaults is not null)
             {
                 propertyDeclaration = propertyDeclaration
                     .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property, classes))

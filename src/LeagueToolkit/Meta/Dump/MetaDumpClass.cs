@@ -13,7 +13,7 @@ namespace LeagueToolkit.Meta.Dump
         public uint Alignment { get; private set; }
 
         [JsonProperty(PropertyName = "base")]
-        public string ParentClass { get; private set; }
+        public string Base { get; private set; }
 
         [JsonProperty(PropertyName = "defaults")]
         public Dictionary<string, object> Defaults { get; private set; }
@@ -28,76 +28,79 @@ namespace LeagueToolkit.Meta.Dump
         public Dictionary<string, MetaDumpProperty> Properties { get; private set; }
 
         [JsonProperty(PropertyName = "secondary_bases")]
-        public Dictionary<string, uint> Implements { get; private set; }
+        public Dictionary<string, uint> SecondaryBases { get; private set; }
 
         [JsonProperty(PropertyName = "secondary_children")]
-        public Dictionary<string, uint> ImplementedBy { get; private set; }
+        public Dictionary<string, uint> SecondaryChildren { get; private set; }
 
         [JsonProperty(PropertyName = "size")]
         public uint Size { get; private set; }
 
         // TODO: Cleanup
-        internal IEnumerable<string> TakeInterfaces(
+        internal IEnumerable<string> TakeSecondaryBases(
             IReadOnlyDictionary<string, MetaDumpClass> classes,
-            bool includeMainParent
+            bool includeMainBase
         )
         {
             if (
-                includeMainParent
-                && this.ParentClass is not null
-                && classes.TryGetValue(this.ParentClass, out MetaDumpClass parentInterface)
-                && parentInterface.Is.Interface
+                includeMainBase
+                && this.Base is not null
+                && classes.TryGetValue(this.Base, out MetaDumpClass @base)
+                && @base.Is.Interface
             )
             {
-                yield return this.ParentClass;
-                foreach (string @interface in parentInterface.TakeInterfacesRecursive(classes, true))
+                yield return this.Base;
+                foreach (string secondaryBase in @base.TakeSecondaryBasesRecursive(classes, true))
                 {
-                    yield return @interface;
+                    yield return secondaryBase;
                 }
             }
 
-            for (int i = 0; i < this.Implements.Count; i++)
+            for (int i = 0; i < this.SecondaryBases.Count; i++)
             {
-                yield return this.Implements.ElementAt(i).Key;
+                yield return this.SecondaryBases.ElementAt(i).Key;
             }
         }
 
         // TODO: Cleanup
-        internal IEnumerable<string> TakeInterfacesRecursive(
+        internal IEnumerable<string> TakeSecondaryBasesRecursive(
             IReadOnlyDictionary<string, MetaDumpClass> classes,
-            bool includeMainParent
+            bool includeMainBase
         )
         {
             if (
-                includeMainParent
-                && this.ParentClass is not null
-                && classes.TryGetValue(this.ParentClass, out MetaDumpClass parentInterface)
-                && parentInterface.Is.Interface
+                includeMainBase
+                && this.Base is not null
+                && classes.TryGetValue(this.Base, out MetaDumpClass @base)
+                && @base.Is.Interface
             )
             {
-                yield return this.ParentClass;
-                foreach (string @interface in parentInterface.TakeInterfacesRecursive(classes, true))
+                yield return this.Base;
+                foreach (string secondaryBase in @base.TakeSecondaryBasesRecursive(classes, true))
                 {
-                    yield return @interface;
+                    yield return secondaryBase;
                 }
             }
 
-            for (int i = 0; i < this.Implements.Count; i++)
+            for (int i = 0; i < this.SecondaryBases.Count; i++)
             {
-                string interfaceHash = this.Implements.ElementAt(i).Key;
+                string secondaryBaseHash = this.SecondaryBases.ElementAt(i).Key;
 
-                yield return interfaceHash;
+                yield return secondaryBaseHash;
 
-                if (classes.TryGetValue(interfaceHash, out MetaDumpClass interfaceClass) && interfaceClass.Is.Interface)
+                if (
+                    classes.TryGetValue(secondaryBaseHash, out MetaDumpClass secondaryBaseClass)
+                    && secondaryBaseClass.Is.Interface
+                )
                 {
-                    foreach (string @interface in interfaceClass.TakeInterfacesRecursive(classes, true))
+                    foreach (string secondaryBase in secondaryBaseClass.TakeSecondaryBasesRecursive(classes, true))
                     {
-                        yield return @interface;
+                        yield return secondaryBase;
                     }
                 }
                 else
                 {
-                    ThrowHelper.ThrowInvalidOperationException($"Failed to find interface: {interfaceHash}");
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find interface: {secondaryBaseHash}");
                 }
             }
         }
