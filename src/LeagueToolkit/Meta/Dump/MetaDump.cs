@@ -240,7 +240,7 @@ namespace LeagueToolkit.Meta.Dump
             if (@class.Defaults is not null)
             {
                 propertyDeclaration = propertyDeclaration
-                    .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property, classes))
+                    .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property))
                     .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
             }
 
@@ -526,11 +526,7 @@ namespace LeagueToolkit.Meta.Dump
 
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
         #region Initializer Creators
-        private EqualsValueClauseSyntax CreatePropertyInitializer(
-            object defaultValue,
-            MetaDumpProperty property,
-            IReadOnlyDictionary<uint, string> classes
-        )
+        private EqualsValueClauseSyntax CreatePropertyInitializer(object defaultValue, MetaDumpProperty property)
         {
             ExpressionSyntax expression = defaultValue switch
             {
@@ -655,23 +651,21 @@ namespace LeagueToolkit.Meta.Dump
         {
             return defaultValue switch
             {
+                string stringValue => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(stringValue)),
+                long floatLongValue when valueType == BinPropertyType.Float
+                    => CreateFloatInitializerExpression(floatLongValue),
                 long longValue
                     => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{longValue}", longValue)),
-                string stringValue => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(stringValue)),
-                double doubleValue
-                    => LiteralExpression(
-                        SyntaxKind.NumericLiteralExpression,
-                        Literal($"{doubleValue}f", (float)doubleValue)
-                    ),
+                double doubleValue => CreateFloatInitializerExpression((float)doubleValue),
                 JObject _ => ImplicitObjectCreationExpression(),
                 JArray jArray
                     => valueType switch
                     {
-                        BinPropertyType.Vector2 => CreateVector2InitializerSyntax(jArray),
-                        BinPropertyType.Vector3 => CreateVector3InitializerSyntax(jArray),
-                        BinPropertyType.Vector4 => CreateVector4InitializerSyntax(jArray),
-                        BinPropertyType.Color => CreateColorInitializerSyntax(jArray),
-                        BinPropertyType.Matrix44 => CreateMatrix4x4InitializerSyntax(jArray),
+                        BinPropertyType.Vector2 => CreateVector2InitializerExpression(jArray),
+                        BinPropertyType.Vector3 => CreateVector3InitializerExpression(jArray),
+                        BinPropertyType.Vector4 => CreateVector4InitializerExpression(jArray),
+                        BinPropertyType.Color => CreateColorInitializerExpression(jArray),
+                        BinPropertyType.Matrix44 => CreateMatrix4x4InitializerExpression(jArray),
                         BinPropertyType.Container => ImplicitObjectCreationExpression(),
                         BinPropertyType.UnorderedContainer => ImplicitObjectCreationExpression(),
                         _ => throw new NotImplementedException()
@@ -682,7 +676,10 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #region Numeric Primitive Initializer Creators
-        private ExpressionSyntax CreateVector2InitializerSyntax(JArray jArray)
+        private ExpressionSyntax CreateFloatInitializerExpression(float value) =>
+            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{value}f", value));
+
+        private ExpressionSyntax CreateVector2InitializerExpression(JArray jArray)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Vector2)),
@@ -690,8 +687,8 @@ namespace LeagueToolkit.Meta.Dump
                     SeparatedList(
                         new ArgumentSyntax[]
                         {
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1])))
+                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1]))
                         }
                     )
                 ),
@@ -699,7 +696,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateVector3InitializerSyntax(JArray jArray)
+        private ExpressionSyntax CreateVector3InitializerExpression(JArray jArray)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Vector3)),
@@ -707,9 +704,9 @@ namespace LeagueToolkit.Meta.Dump
                     SeparatedList(
                         new ArgumentSyntax[]
                         {
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2])))
+                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2]))
                         }
                     )
                 ),
@@ -717,7 +714,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateVector4InitializerSyntax(JArray jArray)
+        private ExpressionSyntax CreateVector4InitializerExpression(JArray jArray)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Vector4)),
@@ -725,10 +722,10 @@ namespace LeagueToolkit.Meta.Dump
                     SeparatedList(
                         new ArgumentSyntax[]
                         {
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[3])))
+                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[3]))
                         }
                     )
                 ),
@@ -736,7 +733,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateColorInitializerSyntax(JArray jArray)
+        private ExpressionSyntax CreateColorInitializerExpression(JArray jArray)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Color)),
@@ -744,10 +741,10 @@ namespace LeagueToolkit.Meta.Dump
                     SeparatedList(
                         new ArgumentSyntax[]
                         {
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2]))),
-                            Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[3])))
+                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[3]))
                         }
                     )
                 ),
@@ -755,7 +752,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateMatrix4x4InitializerSyntax(JArray jArray)
+        private ExpressionSyntax CreateMatrix4x4InitializerExpression(JArray jArray)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Matrix4x4)),
@@ -763,54 +760,22 @@ namespace LeagueToolkit.Meta.Dump
                     SeparatedList(
                         new ArgumentSyntax[]
                         {
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0][0]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0][1]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0][2]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[0][3]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1][0]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1][1]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1][2]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[1][3]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2][0]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2][1]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2][2]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[2][3]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[3][0]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[3][1]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[3][2]))
-                            ),
-                            Argument(
-                                LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal((float)jArray[3][3]))
-                            )
+                            Argument(CreateFloatInitializerExpression((float)jArray[0][0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[0][1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[0][2])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[0][3])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1][0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1][1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1][2])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[1][3])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2][0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2][1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2][2])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[2][3])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[3][0])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[3][1])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[3][2])),
+                            Argument(CreateFloatInitializerExpression((float)jArray[3][3]))
                         }
                     )
                 ),
