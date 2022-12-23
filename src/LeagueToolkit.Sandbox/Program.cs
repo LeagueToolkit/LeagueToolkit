@@ -43,7 +43,9 @@ namespace LeagueToolkit.Sandbox
             IEnumerable<string> classes = File.ReadLines("hashes.bintypes.txt").Select(line => line.Split(' ')[1]);
             IEnumerable<string> properties = File.ReadLines("hashes.binfields.txt").Select(line => line.Split(' ')[1]);
 
-            MetaDump.Deserialize(File.ReadAllText("meta.json")).WriteMetaClasses(outputFile, classes, properties);
+            MetaDump
+                .Deserialize(File.ReadAllText("latest_meta.json"))
+                .WriteMetaClasses(outputFile, classes, properties);
         }
 
         static void ProfileMapgeo(string toRead, string rewriteTo)
