@@ -10,15 +10,15 @@ namespace LeagueToolkit.Core.Memory
 {
     public sealed class VertexBuffer
     {
-        public VertexElementGroupUsage Usage { get; private set; }
+        public VertexElementGroupUsage Usage { get; }
 
         public IReadOnlyDictionary<ElementName, (VertexElement element, int offset)> Elements => this._elements;
         private readonly Dictionary<ElementName, (VertexElement element, int offset)> _elements = new();
 
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
+        public int Stride { get; }
 
         private readonly MemoryOwner<byte> _buffer;
-        private readonly int _stride;
 
         private VertexBuffer(
             VertexElementGroupUsage usage,
@@ -42,9 +42,9 @@ namespace LeagueToolkit.Core.Memory
             }
 
             this._buffer = buffer;
-            this._stride = this._elements.Values.Sum(entry => entry.element.GetSize());
+            this.Stride = this._elements.Values.Sum(entry => entry.element.GetSize());
 
-            if (buffer.Length % this._stride != 0)
+            if (buffer.Length % this.Stride != 0)
                 ThrowHelper.ThrowArgumentException(
                     nameof(buffer),
                     "Buffer size must be a multiple of its stride size."
@@ -67,7 +67,7 @@ namespace LeagueToolkit.Core.Memory
                 );
             }
 
-            return new(foundElement.element, this._buffer.Memory, this._stride, foundElement.offset);
+            return new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
         }
 
         public static MemoryOwner<byte> AllocateForElements(IEnumerable<VertexElement> elements, int vertexCount)

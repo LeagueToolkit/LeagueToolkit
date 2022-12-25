@@ -10,6 +10,35 @@ namespace LeagueToolkit.Tests.Core.Memory
 {
     public class VertexBufferTests
     {
+        public class CreateMethod
+        {
+            [Fact]
+            public void Should_Return_A_Correctly_Initialized_VertexBuffer_Instance()
+            {
+                VertexElementGroupUsage usage = VertexElementGroupUsage.Static;
+                VertexElement[] elements = new VertexElement[]
+                {
+                    VertexElement.POSITION,
+                    VertexElement.NORMAL,
+                    VertexElement.DIFFUSE_UV
+                };
+                VertexBuffer vertexBuffer = VertexBuffer.Create(
+                    usage,
+                    elements,
+                    VertexBuffer.AllocateForElements(elements, 3)
+                );
+
+                Assert.Equal(usage, vertexBuffer.Usage);
+                Assert.Equal(96, vertexBuffer.View.Length);
+                Assert.Equal(32, vertexBuffer.Stride);
+
+                // Test element offsets
+                Assert.Equal(0, vertexBuffer.Elements[ElementName.Position].offset);
+                Assert.Equal(12, vertexBuffer.Elements[ElementName.Normal].offset);
+                Assert.Equal(24, vertexBuffer.Elements[ElementName.DiffuseUV].offset);
+            }
+        }
+
         public class GetAccessorMethod
         {
             [Fact]
