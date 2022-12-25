@@ -43,6 +43,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             }
         }
 
+        #region Writing
         public class WriteFloatMethod
         {
             [Fact]
@@ -232,5 +233,6 @@ namespace LeagueToolkit.Tests.Core.Memory
                 );
             }
         }
+        #endregion
     }
 }
