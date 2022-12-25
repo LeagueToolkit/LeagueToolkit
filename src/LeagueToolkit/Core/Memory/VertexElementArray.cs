@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Core.Renderer;
+﻿using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Renderer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,35 +11,19 @@ namespace LeagueToolkit.Core.Memory
 {
     public readonly struct VertexElementArray<TElement> : IReadOnlyList<TElement> where TElement : struct
     {
-        public ElementName Name { get; }
-        public ElementFormat Format { get; }
-
         public int Count { get; }
 
-        private readonly Memory<byte> _buffer;
-        private readonly int _stride;
-        private readonly int _elementOffset;
+        public VertexElementAccessor Accessor { get; }
 
-        public VertexElementArray(
-            ElementName name,
-            ElementFormat format,
-            Memory<byte> buffer,
-            int stride,
-            int elementOffset
-        )
+        public VertexElementArray(VertexElementAccessor accessor)
         {
-            this.Name = name;
-            this.Format = format;
-
-            this.Count = buffer.Length / stride;
-            this._buffer = buffer;
-            this._stride = stride;
-            this._elementOffset = elementOffset;
+            this.Count = accessor.Buffer.Length / accessor.Stride;
+            this.Accessor = accessor;
         }
 
-        private TElement ReadElement(int offset) => MemoryMarshal.Read<TElement>(this._buffer.Span[offset..]);
+        private TElement ReadElement(int offset) => MemoryMarshal.Read<TElement>(this.Accessor.Buffer.Span[offset..]);
 
-        public TElement this[int index] => ReadElement(this._stride * index + this._elementOffset);
+        public TElement this[int index] => ReadElement(this.Accessor.Stride * index + this.Accessor.ElementOffset);
 
         public IEnumerator<TElement> GetEnumerator()
         {

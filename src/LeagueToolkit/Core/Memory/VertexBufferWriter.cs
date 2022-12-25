@@ -11,14 +11,13 @@ namespace LeagueToolkit.Core.Memory
 {
     public class VertexBufferWriter
     {
-        private readonly VertexElementGroupUsage _usage;
-        private readonly VertexElement[] _elements;
+        public VertexElementGroupUsage Usage { get; }
 
-        private readonly Memory<byte> _buffer;
-        private readonly int _stride;
-        private readonly int _vertexCount;
+        public IReadOnlyDictionary<ElementName, (VertexElement element, int offset)> Elements => this._elements;
+        private readonly Dictionary<ElementName, (VertexElement element, int offset)> _elements = new();
 
-        private readonly Dictionary<ElementName, int> _elementOffsets;
+        public Memory<byte> Buffer { get; }
+        public int Stride { get; }
 
         public VertexBufferWriter(
             VertexElementGroupUsage usage,
@@ -30,29 +29,28 @@ namespace LeagueToolkit.Core.Memory
             if (buffer.IsEmpty)
                 ThrowHelper.ThrowArgumentException(nameof(buffer), "Buffer cannot be empty.");
 
-            this._usage = usage;
-            this._elements = VertexBuffer.SanitizeElements(elements).ToArray();
+            this.Usage = usage;
 
-            this._buffer = buffer;
-            this._stride = this._elements.Sum(element => element.GetSize());
+            // Store offset of each element for reading
+            int currentElementOffset = 0;
+            foreach (VertexElement element in VertexBuffer.SanitizeElements(elements))
+            {
+                this._elements.Add(element.Name, (element, currentElementOffset));
 
-            if (buffer.Length % this._stride != 0)
+                currentElementOffset += element.GetSize();
+            }
+
+            this.Buffer = buffer;
+            this.Stride = this._elements.Values.Sum(entry => entry.element.GetSize());
+
+            if (buffer.Length % this.Stride != 0)
                 ThrowHelper.ThrowArgumentException(
                     nameof(buffer),
                     "Buffer size must be a multiple of its stride size."
                 );
-
-            // Store offset of each element for writing
-            int currentElementOffset = 0;
-            this._elementOffsets = new(this._elements.Length);
-            foreach (VertexElement element in this._elements)
-            {
-                this._elementOffsets.Add(element.Name, currentElementOffset);
-
-                currentElementOffset += element.GetSize();
-            }
         }
 
+        #region Writing API
         public void WriteFloat(int index, ElementName element, float value) => Write(index, element, value);
 
         public void WriteVector2(int index, ElementName element, Vector2 value) => Write(index, element, value);
@@ -85,15 +83,16 @@ namespace LeagueToolkit.Core.Memory
 
         private void Write<TValue>(int index, ElementName element, TValue value) where TValue : struct
         {
-            int offset = this._stride * index + this._elementOffsets[element];
-            MemoryMarshal.Write(this._buffer[offset..].Span, ref value);
+            int offset = this.Stride * index + this.Elements[element].offset;
+            MemoryMarshal.Write(this.Buffer[offset..].Span, ref value);
         }
 
         private void Write(int index, ElementName element, ReadOnlySpan<byte> bytes)
         {
-            int offset = this._stride * index + this._elementOffsets[element];
+            int offset = this.Stride * index + this.Elements[element].offset;
 
-            bytes.CopyTo(this._buffer[offset..].Span);
+            bytes.CopyTo(this.Buffer[offset..].Span);
         }
+        #endregion
     }
 }

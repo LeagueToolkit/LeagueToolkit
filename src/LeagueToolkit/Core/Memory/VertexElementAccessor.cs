@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Core.Renderer;
+﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
@@ -12,35 +13,81 @@ namespace LeagueToolkit.Core.Memory
         public ElementName Name { get; }
         public ElementFormat Format { get; }
 
-        private readonly Memory<byte> _buffer;
-        private readonly int _stride;
-        private readonly int _elementOffset;
+        public ReadOnlyMemory<byte> Buffer { get; }
+        public readonly int Stride { get; }
+        public readonly int ElementOffset { get; }
 
-        public VertexElementAccessor(VertexElement description, Memory<byte> buffer, int stride, int elementOffset)
+        public VertexElementAccessor(
+            VertexElement description,
+            ReadOnlyMemory<byte> buffer,
+            int stride,
+            int elementOffset
+        )
         {
             this.Name = description.Name;
             this.Format = description.Format;
 
-            this._buffer = buffer;
-            this._stride = stride;
-            this._elementOffset = elementOffset;
+            this.Buffer = buffer;
+            this.Stride = stride;
+            this.ElementOffset = elementOffset;
         }
 
-        public VertexElementArray<float> AsFloatArray() => AsArray<float>();
+        public VertexElementArray<float> AsFloatArray()
+        {
+            ValidateAccessFormat(ElementFormat.X_Float32);
+            return AsArray<float>();
+        }
 
-        public VertexElementArray<Vector2> AsVector2Array() => AsArray<Vector2>();
+        public VertexElementArray<Vector2> AsVector2Array()
+        {
+            ValidateAccessFormat(ElementFormat.XY_Float32);
+            return AsArray<Vector2>();
+        }
 
-        public VertexElementArray<Vector3> AsVector3Array() => AsArray<Vector3>();
+        public VertexElementArray<Vector3> AsVector3Array()
+        {
+            ValidateAccessFormat(ElementFormat.XYZ_Float32);
+            return AsArray<Vector3>();
+        }
 
-        public VertexElementArray<Vector4> AsVector4Array() => AsArray<Vector4>();
+        public VertexElementArray<Vector4> AsVector4Array()
+        {
+            ValidateAccessFormat(ElementFormat.XYZW_Float32);
+            return AsArray<Vector4>();
+        }
 
-        public VertexElementArray<(byte r, byte g, byte b, byte a)> AsColorArray() =>
-            AsArray<(byte r, byte g, byte b, byte a)>();
+        public VertexElementArray<(byte b, byte g, byte r, byte a)> AsBgraU8Array()
+        {
+            ValidateAccessFormat(ElementFormat.BGRA_Packed8888);
+            return AsArray<(byte b, byte g, byte r, byte a)>();
+        }
 
-        public VertexElementArray<(byte x, byte y, byte z, byte w)> AsByte4Array() =>
-            AsArray<(byte x, byte y, byte z, byte w)>();
+        public VertexElementArray<(byte r, byte g, byte b, byte a)> AsRgbaU8Array()
+        {
+            ValidateAccessFormat(ElementFormat.RGBA_Packed8888);
+            return AsArray<(byte r, byte g, byte b, byte a)>();
+        }
 
-        private VertexElementArray<TElement> AsArray<TElement>() where TElement : struct =>
-            new(this.Name, this.Format, this._buffer, this._stride, this._elementOffset);
+        public VertexElementArray<(byte z, byte y, byte x, byte w)> AsZyxwU8Array()
+        {
+            ValidateAccessFormat(ElementFormat.ZYXW_Packed8888);
+            return AsArray<(byte z, byte y, byte x, byte w)>();
+        }
+
+        public VertexElementArray<(byte x, byte y, byte z, byte w)> AsXyzwU8Array()
+        {
+            ValidateAccessFormat(ElementFormat.XYZW_Packed8888);
+            return AsArray<(byte x, byte y, byte z, byte w)>();
+        }
+
+        private VertexElementArray<TElement> AsArray<TElement>() where TElement : struct => new(this);
+
+        private void ValidateAccessFormat(ElementFormat accessFormat)
+        {
+            if (accessFormat != this.Format)
+            {
+                ThrowHelper.ThrowInvalidOperationException($"Cannot use a {this.Format} accessor as {accessFormat}");
+            }
+        }
     }
 }
