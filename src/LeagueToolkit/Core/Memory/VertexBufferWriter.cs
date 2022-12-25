@@ -75,10 +75,10 @@ namespace LeagueToolkit.Core.Memory
             Write(index, element, valueBytes);
         }
 
-        public void WriteByte4Zyxw(int index, ElementName element, (byte x, byte y, byte z, byte w) value) =>
+        public void WriteZyxwU8(int index, ElementName element, (byte z, byte y, byte x, byte w) value) =>
             Write(index, element, stackalloc byte[4] { value.z, value.y, value.x, value.w });
 
-        public void WriteByte4Xyzw(int index, ElementName element, (byte x, byte y, byte z, byte w) value) =>
+        public void WriteXyzwU8(int index, ElementName element, (byte x, byte y, byte z, byte w) value) =>
             Write(index, element, stackalloc byte[4] { value.x, value.y, value.z, value.w });
 
         private void Write<TValue>(int index, ElementName element, TValue value) where TValue : struct
