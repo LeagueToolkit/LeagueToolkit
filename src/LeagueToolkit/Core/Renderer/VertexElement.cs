@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -10,12 +9,28 @@ namespace LeagueToolkit.Core.Renderer
     /// </summary>
     //https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_input_element_desc
     [DebuggerDisplay("{Name} - {Format}")]
-    public struct VertexElement : IEquatable<VertexElement>
+    public readonly struct VertexElement : IEquatable<VertexElement>
     {
-        public VertexElementName Name { get; private set; }
-        public VertexElementFormat Format { get; private set; }
+        public static readonly VertexElement POSITION = new(ElementName.Position, ElementFormat.XYZ_Float32);
+        public static readonly VertexElement BLEND_WEIGHT = new(ElementName.BlendWeight, ElementFormat.XYZW_Float32);
+        public static readonly VertexElement NORMAL = new(ElementName.Normal, ElementFormat.XYZ_Float32);
+        public static readonly VertexElement MAYBE_TANGENT = new(ElementName.MaybeTangent, ElementFormat.XYZW_Float32);
+        public static readonly VertexElement BASE_COLOR = new(ElementName.BaseColor, ElementFormat.BGRA_Packed8888);
+        public static readonly VertexElement FOG_COORDINATE = new(ElementName.FogCoordinate, ElementFormat.X_Float32);
+        public static readonly VertexElement BLEND_INDEX = new(ElementName.BlendIndex, ElementFormat.XYZW_Packed8888);
+        public static readonly VertexElement DIFFUSE_UV = new(ElementName.DiffuseUV, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_1 = new(ElementName.Texcoord1, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_2 = new(ElementName.Texcoord2, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_3 = new(ElementName.Texcoord3, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_4 = new(ElementName.Texcoord4, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_5 = new(ElementName.Texcoord5, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_6 = new(ElementName.Texcoord6, ElementFormat.XY_Float32);
+        public static readonly VertexElement LIGHTMAP_UV = new(ElementName.LightmapUV, ElementFormat.XY_Float32);
 
-        public VertexElement(VertexElementName name, VertexElementFormat format)
+        public ElementName Name { get; }
+        public ElementFormat Format { get; }
+
+        public VertexElement(ElementName name, ElementFormat format)
         {
             this.Name = name;
             this.Format = format;
@@ -23,8 +38,8 @@ namespace LeagueToolkit.Core.Renderer
 
         internal VertexElement(BinaryReader br)
         {
-            this.Name = (VertexElementName)br.ReadUInt32();
-            this.Format = (VertexElementFormat)br.ReadUInt32();
+            this.Name = (ElementName)br.ReadUInt32();
+            this.Format = (ElementFormat)br.ReadUInt32();
         }
 
         internal void Write(BinaryWriter bw)
@@ -33,20 +48,20 @@ namespace LeagueToolkit.Core.Renderer
             bw.Write((uint)this.Format);
         }
 
-        public int GetElementSize() => GetFormatSize(this.Format);
+        public int GetSize() => GetFormatSize(this.Format);
 
-        public static int GetFormatSize(VertexElementFormat format)
+        public static int GetFormatSize(ElementFormat format)
         {
             return format switch
             {
-                VertexElementFormat.X_Float32 => 4,
-                VertexElementFormat.XY_Float32 => 8,
-                VertexElementFormat.XYZ_Float32 => 12,
-                VertexElementFormat.XYZW_Float32 => 16,
-                VertexElementFormat.BGRA_Packed8888 => 4,
-                VertexElementFormat.ZYXW_Packed8888 => 4,
-                VertexElementFormat.RGBA_Packed8888 => 4,
-                VertexElementFormat.XYZW_Packed8888 => 4,
+                ElementFormat.X_Float32 => 4,
+                ElementFormat.XY_Float32 => 8,
+                ElementFormat.XYZ_Float32 => 12,
+                ElementFormat.XYZW_Float32 => 16,
+                ElementFormat.BGRA_Packed8888 => 4,
+                ElementFormat.ZYXW_Packed8888 => 4,
+                ElementFormat.RGBA_Packed8888 => 4,
+                ElementFormat.XYZW_Packed8888 => 4,
                 _ => throw new NotImplementedException($"Unsupported {nameof(VertexElement)} format: {format}")
             };
         }
@@ -56,13 +71,13 @@ namespace LeagueToolkit.Core.Renderer
 
     // The values of this enum are used as stream indices for the renderer
     // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#vertex-shader-semantics
-    public enum VertexElementName : int
+    public enum ElementName : int
     {
         Position,
         BlendWeight,
         Normal,
-        PrimaryColor,
-        SecondaryColor,
+        MaybeTangent,
+        BaseColor,
         FogCoordinate,
         BlendIndex,
         DiffuseUV,
@@ -75,7 +90,7 @@ namespace LeagueToolkit.Core.Renderer
         LightmapUV
     }
 
-    public enum VertexElementFormat : uint
+    public enum ElementFormat : uint
     {
         X_Float32,
         XY_Float32,
