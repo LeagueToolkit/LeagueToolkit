@@ -24,10 +24,19 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0" />
-    <PackageReference Include="FlatSharp" Version="6.2.1" />
+    <PackageReference Include="FlatSharp.Compiler" Version="7.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FlatSharp.Runtime" Version="7.0.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="XXHash3.NET" Version="1.2.2" />
     <PackageReference Include="ZstdSharp.Port" Version="0.6.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FlatSharpSchema Include="IO\ReleaseManifestFile\ReleaseManifest*.fbs" />
   </ItemGroup>
 
   <!-- package icon -->

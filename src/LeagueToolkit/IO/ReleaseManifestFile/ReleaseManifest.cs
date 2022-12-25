@@ -64,7 +64,7 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
                 using var decompressor = new Decompressor();
                 var uncompressedFile = decompressor.Unwrap(compressedFile).ToArray();
 
-                this._body = FlatBufferSerializer.Default.Parse<ReleaseManifestBody>(uncompressedFile);
+                this._body = ReleaseManifestBody.Serializer.Parse(uncompressedFile);
             }
         }
 
@@ -78,8 +78,8 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
             byte signatureType = 0;
             int contentOffset = 4 + 4 + 4 + 4 + 8 + 4;
 
-            byte[] uncompressedFile = new byte[FlatBufferSerializer.Default.GetMaxSize(this._body)];
-            int uncompressedContentSize = FlatBufferSerializer.Default.Serialize(this._body, uncompressedFile);
+            byte[] uncompressedFile = new byte[ReleaseManifestBody.Serializer.GetMaxSize(this._body)];
+            int uncompressedContentSize = ReleaseManifestBody.Serializer.Write(uncompressedFile, this._body);
             Array.Resize(ref uncompressedFile, uncompressedContentSize);
 
             using var compressor = new Compressor();
