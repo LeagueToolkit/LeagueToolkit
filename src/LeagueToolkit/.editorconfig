@@ -25,7 +25,7 @@ file_header_template = unset
 # this. and Me. preferences
 dotnet_style_qualification_for_event = true:suggestion
 dotnet_style_qualification_for_field = true
-dotnet_style_qualification_for_method = true:suggestion
+dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = true:suggestion
 
 # Language keywords vs BCL types preferences
@@ -86,7 +86,7 @@ csharp_style_expression_bodied_constructors = true:suggestion
 csharp_style_expression_bodied_indexers = true:suggestion
 csharp_style_expression_bodied_lambdas = true
 csharp_style_expression_bodied_local_functions = false
-csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
 csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 
@@ -190,3 +190,6 @@ csharp_preserve_single_line_statements = false
 # Symbol specifications
 
 # Naming styles
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none

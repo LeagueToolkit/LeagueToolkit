@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Meta.Classes"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.IO.Extensions", "LeagueToolkit.IO.Extensions\LeagueToolkit.IO.Extensions.csproj", "{160F2EA0-DDBB-4739-B018-B9CEAEDB7E05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueToolkit.Tests", "LeagueToolkit.Tests\LeagueToolkit.Tests.csproj", "{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Tests", "LeagueToolkit.Tests\LeagueToolkit.Tests.csproj", "{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
