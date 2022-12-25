@@ -18,7 +18,7 @@ namespace LeagueToolkit.Core.Memory
         private readonly MemoryOwner<byte> _buffer;
         private readonly int _stride;
 
-        public VertexBuffer(
+        internal VertexBuffer(
             VertexElementGroupUsage usage,
             IEnumerable<VertexElement> elements,
             MemoryOwner<byte> buffer
@@ -49,11 +49,20 @@ namespace LeagueToolkit.Core.Memory
                 );
         }
 
+        public static VertexBuffer Create(
+            VertexElementGroupUsage usage,
+            IEnumerable<VertexElement> elements,
+            MemoryOwner<byte> buffer
+        ) => new(usage, elements, buffer);
+
         public VertexElementAccessor GetAccessor(ElementName elementName)
         {
             if (this._elements.TryGetValue(elementName, out var foundElement) is false)
             {
-                ThrowHelper.ThrowInvalidOperationException($"Failed to find vertex element: {elementName}");
+                ThrowHelper.ThrowArgumentException(
+                    nameof(elementName),
+                    $"Vertex buffer does not contain vertex element: {elementName}"
+                );
             }
 
             return new(foundElement.element, this._buffer.Memory, this._stride, foundElement.offset);
