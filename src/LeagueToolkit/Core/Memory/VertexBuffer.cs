@@ -15,10 +15,12 @@ namespace LeagueToolkit.Core.Memory
         public IReadOnlyDictionary<ElementName, (VertexElement element, int offset)> Elements => this._elements;
         private readonly Dictionary<ElementName, (VertexElement element, int offset)> _elements = new();
 
+        public ReadOnlyMemory<byte> View => this._buffer.Memory;
+
         private readonly MemoryOwner<byte> _buffer;
         private readonly int _stride;
 
-        internal VertexBuffer(
+        private VertexBuffer(
             VertexElementGroupUsage usage,
             IEnumerable<VertexElement> elements,
             MemoryOwner<byte> buffer
