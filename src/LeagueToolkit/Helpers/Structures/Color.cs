@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Diagnostics;
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -88,7 +89,7 @@ namespace LeagueToolkit.Helpers.Structures
             this._a = a;
         }
 
-        public static int FormatSize(ColorFormat format)
+        public static int GetFormatSize(ColorFormat format)
         {
             switch (format)
             {
@@ -106,6 +107,78 @@ namespace LeagueToolkit.Helpers.Structures
                     return 16;
                 default:
                     throw new ArgumentException("Unsupported format", nameof(format));
+            }
+        }
+
+        public static Color Read(ReadOnlySpan<byte> source, ColorFormat format)
+        {
+            if (format == ColorFormat.RgbU8)
+            {
+                float r = source[0] / 255f;
+                float g = source[1] / 255f;
+                float b = source[2] / 255f;
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.RgbaU8)
+            {
+                float r = source[0] / 255f;
+                float g = source[1] / 255f;
+                float b = source[2] / 255f;
+                float a = source[3] / 255f;
+                return new Color(r, g, b, a);
+            }
+            else if (format == ColorFormat.RgbF32)
+            {
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float r = colorFloats[0];
+                float g = colorFloats[1];
+                float b = colorFloats[2];
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.RgbaF32)
+            {
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float r = colorFloats[0];
+                float g = colorFloats[1];
+                float b = colorFloats[2];
+                float a = colorFloats[3];
+                return new Color(r, g, b, a);
+            }
+            else if (format == ColorFormat.BgrU8)
+            {
+                float b = source[0] / 255f;
+                float g = source[1] / 255f;
+                float r = source[2] / 255f;
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.BgraU8)
+            {
+                float b = source[0] / 255f;
+                float g = source[1] / 255f;
+                float r = source[2] / 255f;
+                float a = source[3] / 255f;
+                return new Color(r, g, b, a);
+            }
+            else if (format == ColorFormat.BgrF32)
+            {
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float b = colorFloats[0];
+                float g = colorFloats[1];
+                float r = colorFloats[2];
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.BgraF32)
+            {
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float b = colorFloats[0];
+                float g = colorFloats[1];
+                float r = colorFloats[2];
+                float a = colorFloats[3];
+                return new Color(r, g, b, a);
+            }
+            else
+            {
+                throw new ArgumentException(nameof(format), $"Unsupported color format: {format}");
             }
         }
 

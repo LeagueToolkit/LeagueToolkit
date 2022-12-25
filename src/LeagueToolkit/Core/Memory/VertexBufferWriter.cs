@@ -61,7 +61,7 @@ namespace LeagueToolkit.Core.Memory
 
         public void WriteColorBgraU8(int index, ElementName element, Color value)
         {
-            Span<byte> valueBytes = stackalloc byte[Color.FormatSize(ColorFormat.BgraU8)];
+            Span<byte> valueBytes = stackalloc byte[Color.GetFormatSize(ColorFormat.BgraU8)];
             value.Write(valueBytes, ColorFormat.BgraU8);
 
             Write(index, element, valueBytes);
@@ -69,7 +69,7 @@ namespace LeagueToolkit.Core.Memory
 
         public void WriteColorRgbaU8(int index, ElementName element, Color value)
         {
-            Span<byte> valueBytes = stackalloc byte[Color.FormatSize(ColorFormat.RgbaU8)];
+            Span<byte> valueBytes = stackalloc byte[Color.GetFormatSize(ColorFormat.RgbaU8)];
             value.Write(valueBytes, ColorFormat.RgbaU8);
 
             Write(index, element, valueBytes);
