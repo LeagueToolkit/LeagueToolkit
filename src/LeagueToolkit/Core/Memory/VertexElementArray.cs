@@ -8,7 +8,7 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
-    public readonly struct VertexElementArray<TElement> : IReadOnlyList<TElement> where TElement : unmanaged
+    public readonly struct VertexElementArray<TElement> : IReadOnlyList<TElement> where TElement : struct
     {
         public ElementName Name { get; }
         public ElementFormat Format { get; }

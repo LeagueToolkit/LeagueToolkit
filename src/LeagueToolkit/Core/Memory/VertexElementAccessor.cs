@@ -40,7 +40,7 @@ namespace LeagueToolkit.Core.Memory
         public VertexElementArray<(byte x, byte y, byte z, byte w)> AsByte4Array() =>
             AsArray<(byte x, byte y, byte z, byte w)>();
 
-        private VertexElementArray<TElement> AsArray<TElement>() where TElement : unmanaged =>
+        private VertexElementArray<TElement> AsArray<TElement>() where TElement : struct =>
             new(this.Name, this.Format, this._buffer, this._stride, this._elementOffset);
     }
 }
