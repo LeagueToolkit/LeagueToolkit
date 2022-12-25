@@ -37,6 +37,21 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Equal(12, vertexBuffer.Elements[ElementName.Normal].offset);
                 Assert.Equal(24, vertexBuffer.Elements[ElementName.DiffuseUV].offset);
             }
+
+            [Fact]
+            public void Should_Throw_If_Passed_Duplicate_Vertex_Elements()
+            {
+                VertexElement[] elements = new VertexElement[] { VertexElement.POSITION, VertexElement.POSITION };
+
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    VertexBuffer vertexBuffer = VertexBuffer.Create(
+                        VertexElementGroupUsage.Static,
+                        elements,
+                        VertexBuffer.AllocateForElements(elements, 3)
+                    );
+                });
+            }
         }
 
         public class GetAccessorMethod
