@@ -12,8 +12,8 @@ namespace LeagueToolkit.Core.Memory
     {
         public VertexElementGroupUsage Usage { get; private set; }
 
-        public IReadOnlyList<VertexElement> Elements => this._elements;
-        private readonly List<VertexElement> _elements = new();
+        public IReadOnlyDictionary<ElementName, (VertexElement element, int offset)> Elements => this._elements;
+        private readonly Dictionary<ElementName, (VertexElement element, int offset)> _elements = new();
 
         private readonly MemoryOwner<byte> _buffer;
         private readonly int _stride;
@@ -29,10 +29,18 @@ namespace LeagueToolkit.Core.Memory
                 ThrowHelper.ThrowArgumentException(nameof(buffer.Span), "Buffer cannot be empty.");
 
             this.Usage = usage;
-            this._elements = new(SanitizeElements(elements));
-            this._buffer = buffer;
 
-            this._stride = this._elements.Sum(element => element.GetSize());
+            // Store offset of each element for reading
+            int currentElementOffset = 0;
+            foreach (VertexElement element in SanitizeElements(elements))
+            {
+                this._elements.Add(element.Name, (element, currentElementOffset));
+
+                currentElementOffset += element.GetSize();
+            }
+
+            this._buffer = buffer;
+            this._stride = this._elements.Values.Sum(entry => entry.element.GetSize());
 
             if (buffer.Length % this._stride != 0)
                 ThrowHelper.ThrowArgumentException(
@@ -43,28 +51,12 @@ namespace LeagueToolkit.Core.Memory
 
         public VertexElementAccessor GetAccessor(ElementName elementName)
         {
-            // Search for accessor element and calculate element offset
-            VertexElement accessorElement = new();
-            int accessorElementOffset = 0;
-            foreach (VertexElement element in this.Elements)
-            {
-                if (element.Name == elementName)
-                {
-                    accessorElement = element;
-                    break;
-                }
-
-                // If the current element isn't the requested one, increment the
-                // accessor element offset by the size of the current element
-                accessorElementOffset += element.GetSize();
-            }
-
-            if (accessorElementOffset == this._stride)
+            if (this._elements.TryGetValue(elementName, out var foundElement) is false)
             {
                 ThrowHelper.ThrowInvalidOperationException($"Failed to find vertex element: {elementName}");
             }
 
-            return new(accessorElement, this._buffer.Memory, this._stride, accessorElementOffset);
+            return new(foundElement.element, this._buffer.Memory, this._stride, foundElement.offset);
         }
 
         public static MemoryOwner<byte> AllocateForElements(IEnumerable<VertexElement> elements, int vertexCount)
