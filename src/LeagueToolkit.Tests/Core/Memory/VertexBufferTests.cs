@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Core.Memory;
+﻿using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Renderer;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,32 @@ namespace LeagueToolkit.Tests.Core.Memory
                         VertexElementGroupUsage.Static,
                         elements,
                         VertexBuffer.AllocateForElements(elements, 3)
+                    );
+                });
+            }
+        }
+
+        public class AllocateForElements
+        {
+            [Fact]
+            public void Should_Return_Buffer_Of_Correct_Size()
+            {
+                MemoryOwner<byte> buffer = VertexBuffer.AllocateForElements(
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    3
+                );
+
+                Assert.Equal(96, buffer.Length);
+            }
+
+            [Fact]
+            public void Should_Throw_If_Passed_Duplicate_Vertex_Elements()
+            {
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    VertexBuffer.AllocateForElements(
+                        new VertexElement[] { VertexElement.POSITION, VertexElement.POSITION },
+                        3
                     );
                 });
             }
