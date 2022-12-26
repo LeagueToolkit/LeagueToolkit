@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;

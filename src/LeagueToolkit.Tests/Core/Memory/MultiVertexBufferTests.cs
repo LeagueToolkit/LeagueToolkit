@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.Core.Memory;
-using LeagueToolkit.Core.Renderer;
 using NuGet.Frameworks;
 using System;
 using System.Collections.Generic;

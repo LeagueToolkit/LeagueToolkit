@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace LeagueToolkit.Core.Renderer
+namespace LeagueToolkit.Core.Memory
 {
     /// <summary>
     /// Describes a vertex element
@@ -66,7 +66,7 @@ namespace LeagueToolkit.Core.Renderer
             };
         }
 
-        public bool Equals(VertexElement other) => (this.Name == other.Name) && (this.Format == other.Format);
+        public bool Equals(VertexElement other) => this.Name == other.Name && this.Format == other.Format;
     }
 
     // The values of this enum are used as stream indices for the renderer

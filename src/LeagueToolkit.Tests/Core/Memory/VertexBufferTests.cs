@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
-using LeagueToolkit.Core.Renderer;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace LeagueToolkit.Core.Renderer
+namespace LeagueToolkit.Core.Memory
 {
     /// <summary>
     /// Describes the format of a vertex buffer stride
@@ -137,7 +137,7 @@ namespace LeagueToolkit.Core.Renderer
             if (this._elements.Count == other._elements.Count)
             {
                 // If Vertex Element count is the same, compare them
-                return Enumerable.SequenceEqual(this._elements, other._elements);
+                return this._elements.SequenceEqual(other._elements);
             }
             else
             {
