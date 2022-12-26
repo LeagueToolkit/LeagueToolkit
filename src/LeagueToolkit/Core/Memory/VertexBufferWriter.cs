@@ -26,8 +26,6 @@ namespace LeagueToolkit.Core.Memory
         )
         {
             Guard.IsNotNull(elements, nameof(elements));
-            if (buffer.IsEmpty)
-                ThrowHelper.ThrowArgumentException(nameof(buffer), "Buffer cannot be empty.");
 
             this.Usage = usage;
 
@@ -43,11 +41,7 @@ namespace LeagueToolkit.Core.Memory
             this.Buffer = buffer;
             this.VertexStride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
 
-            if (buffer.Length % this.VertexStride != 0)
-                ThrowHelper.ThrowArgumentException(
-                    nameof(buffer),
-                    "Buffer size must be a multiple of its stride size."
-                );
+            VertexBuffer.ValidateBufferDimensions(buffer.Span, this.VertexStride);
         }
 
         #region Writing API

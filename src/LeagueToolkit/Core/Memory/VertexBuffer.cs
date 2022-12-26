@@ -17,6 +17,7 @@ namespace LeagueToolkit.Core.Memory
 
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
         public int VertexStride { get; }
+        public int VertexCount { get; }
 
         private readonly MemoryOwner<byte> _buffer;
 
@@ -28,9 +29,8 @@ namespace LeagueToolkit.Core.Memory
             MemoryOwner<byte> buffer
         )
         {
+            Guard.IsNotNull(elements);
             Guard.IsNotNull(buffer, nameof(buffer));
-            if (buffer.Span.IsEmpty)
-                ThrowHelper.ThrowArgumentException(nameof(buffer.Span), "Buffer cannot be empty.");
 
             this.Usage = usage;
 
@@ -45,12 +45,9 @@ namespace LeagueToolkit.Core.Memory
 
             this._buffer = buffer;
             this.VertexStride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
+            this.VertexCount = this._buffer.Length / this.VertexStride;
 
-            if (buffer.Length % this.VertexStride != 0)
-                ThrowHelper.ThrowArgumentException(
-                    nameof(buffer),
-                    "Buffer size must be a multiple of its stride size."
-                );
+            ValidateBufferDimensions(buffer.Span, this.VertexStride);
         }
 
         public static VertexBuffer Create(
@@ -106,6 +103,18 @@ namespace LeagueToolkit.Core.Memory
 
             // Sort elements from lowest to highest Name (stream index)
             return distinctElements.OrderBy(element => element.Name);
+        }
+
+        internal static void ValidateBufferDimensions(ReadOnlySpan<byte> buffer, int vertexStride)
+        {
+            if (buffer.IsEmpty)
+                ThrowHelper.ThrowArgumentException(nameof(buffer), "Buffer cannot be empty.");
+
+            if (buffer.Length % vertexStride != 0)
+                ThrowHelper.ThrowArgumentException(
+                    nameof(buffer),
+                    "Buffer size must be a multiple of its stride size."
+                );
         }
 
         private void ThrowIfDisposed()

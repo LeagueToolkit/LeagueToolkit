@@ -1,23 +1,17 @@
-﻿using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Core.Renderer;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
     public readonly struct VertexElementArray<TElement> : IReadOnlyList<TElement> where TElement : struct
     {
-        public int Count { get; }
+        public int Count => this.Accessor.VertexCount;
 
         public VertexElementAccessor Accessor { get; }
 
         public VertexElementArray(VertexElementAccessor accessor)
         {
-            this.Count = accessor.BufferView.Length / accessor.VertexStride;
             this.Accessor = accessor;
         }
 

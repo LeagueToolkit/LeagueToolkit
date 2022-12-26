@@ -1,10 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Renderer;
-using LeagueToolkit.Helpers.Structures;
 using System;
-using System.Collections.Generic;
 using System.Numerics;
-using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
@@ -14,8 +11,9 @@ namespace LeagueToolkit.Core.Memory
         public ElementFormat Format { get; }
 
         public ReadOnlyMemory<byte> BufferView { get; }
-        public readonly int VertexStride { get; }
-        public readonly int ElementOffset { get; }
+        public int VertexStride { get; }
+        public int VertexCount { get; }
+        public int ElementOffset { get; }
 
         public VertexElementAccessor(
             VertexElement description,
@@ -24,11 +22,14 @@ namespace LeagueToolkit.Core.Memory
             int elementOffset
         )
         {
+            VertexBuffer.ValidateBufferDimensions(buffer.Span, stride);
+
             this.Name = description.Name;
             this.Format = description.Format;
 
             this.BufferView = buffer;
             this.VertexStride = stride;
+            this.VertexCount = buffer.Length / stride;
             this.ElementOffset = elementOffset;
         }
 
