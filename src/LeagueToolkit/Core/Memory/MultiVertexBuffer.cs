@@ -63,11 +63,9 @@ namespace LeagueToolkit.Core.Memory
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects)
+                    this._vertexBuffers?.ForEach(vertexBuffer => vertexBuffer?.Dispose());
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
                 this._isDisposed = true;
             }
         }
