@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
-    public sealed class MultiVertexBuffer : IDisposable
+    public sealed class InstancedVertexBuffer : IDisposable
     {
         public int VertexCount { get; }
 
@@ -15,7 +15,7 @@ namespace LeagueToolkit.Core.Memory
 
         private bool _isDisposed;
 
-        public MultiVertexBuffer(IEnumerable<VertexBuffer> vertexBuffers)
+        public InstancedVertexBuffer(IEnumerable<VertexBuffer> vertexBuffers)
         {
             ValidateVertexBuffers(vertexBuffers);
 
@@ -34,7 +34,7 @@ namespace LeagueToolkit.Core.Memory
             }
 
             throw new KeyNotFoundException(
-                $"Multi-vertex buffer does not contain a vertex buffer with element: {element}"
+                $"Instanced vertex buffer does not contain a vertex buffer with element: {element}"
             );
         }
 
@@ -67,7 +67,7 @@ namespace LeagueToolkit.Core.Memory
             if (this._isDisposed)
                 ThrowHelper.ThrowObjectDisposedException(
                     nameof(VertexBuffer),
-                    "Cannot use a disposed multi-vertex buffer"
+                    "Cannot use a disposed Instanced Vertex Buffer"
                 );
         }
 

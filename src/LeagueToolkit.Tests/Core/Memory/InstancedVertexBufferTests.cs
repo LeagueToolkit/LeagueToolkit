@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace LeagueToolkit.Tests.Core.Memory
 {
-    public class MultiVertexBufferTests
+    public class InstancedVertexBufferTests
     {
         public class ConstructorTests
         {
             [Fact]
-            public void Should_Create_A_Valid_MultiVertexBuffer_Instance()
+            public void Should_Create_A_Valid_InstancedVertexBuffer_Instance()
             {
                 VertexElement[] elements1 = new[] { VertexElement.POSITION, VertexElement.NORMAL };
                 VertexElement[] elements2 = new[] { VertexElement.DIFFUSE_UV };
@@ -29,7 +29,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                     VertexBuffer.AllocateForElements(elements2, 3)
                 );
 
-                MultiVertexBuffer multiVertexBuffer = new(new[] { vertexBuffer1, vertexBuffer2 });
+                InstancedVertexBuffer multiVertexBuffer = new(new[] { vertexBuffer1, vertexBuffer2 });
 
                 Assert.Equal(vertexBuffer1.VertexCount, multiVertexBuffer.VertexCount);
                 Assert.Equal(vertexBuffer2.VertexCount, multiVertexBuffer.VertexCount);
@@ -68,7 +68,7 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 Assert.Throws<ArgumentException>(() =>
                 {
-                    _ = new MultiVertexBuffer(new[] { vertexBuffer1, vertexBuffer2 });
+                    _ = new InstancedVertexBuffer(new[] { vertexBuffer1, vertexBuffer2 });
                 });
             }
         }
@@ -78,7 +78,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Return_A_Valid_Accessor_If_Element_Is_In_Vertex_Buffers()
             {
-                MultiVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                InstancedVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
                     new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
                     new VertexElement[] { VertexElement.BASE_COLOR }
                 );
@@ -96,7 +96,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Throw_If_Element_Doesnt_Exist_In_Vertex_Buffers()
             {
-                MultiVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                InstancedVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
                     new VertexElement[] { VertexElement.POSITION },
                     new VertexElement[] { VertexElement.BASE_COLOR }
                 );
@@ -113,7 +113,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Dispose()
             {
-                MultiVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                InstancedVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
                     new VertexElement[] { VertexElement.POSITION },
                     new VertexElement[] { VertexElement.NORMAL }
                 );
@@ -127,7 +127,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             }
         }
 
-        private static MultiVertexBuffer CreateMultiVertexBuffer(
+        private static InstancedVertexBuffer CreateMultiVertexBuffer(
             IEnumerable<VertexElement> buffer1Elements,
             IEnumerable<VertexElement> buffer2Elements
         )
