@@ -6,6 +6,7 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
+    // https://www.braynzarsoft.net/viewtutorial/q16390-33-instancing-with-indexed-primitives
     public sealed class InstancedVertexBuffer : IDisposable
     {
         public int VertexCount { get; }
