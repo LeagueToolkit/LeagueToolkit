@@ -13,33 +13,62 @@ namespace LeagueToolkit.Tests.Core.Memory
         public class ConstructorTests
         {
             [Fact]
-            public void Should_Throw_If_Provided_Vertex_Buffers_Have_Overlapping_Elements()
+            public void Should_Create_A_Valid_MultiVertexBuffer_Instance()
             {
-                VertexElement[] vertexBufferElements1 = new VertexElement[]
-                {
-                    VertexElement.POSITION,
-                    VertexElement.NORMAL
-                };
+                VertexElement[] elements1 = new[] { VertexElement.POSITION, VertexElement.NORMAL };
+                VertexElement[] elements2 = new[] { VertexElement.DIFFUSE_UV };
+
                 VertexBuffer vertexBuffer1 = VertexBuffer.Create(
                     VertexElementGroupUsage.Static,
-                    vertexBufferElements1,
-                    VertexBuffer.AllocateForElements(vertexBufferElements1, 3)
+                    elements1,
+                    VertexBuffer.AllocateForElements(elements1, 3)
                 );
-
-                VertexElement[] vertexBufferElements2 = new VertexElement[]
-                {
-                    VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
-                };
                 VertexBuffer vertexBuffer2 = VertexBuffer.Create(
                     VertexElementGroupUsage.Static,
-                    vertexBufferElements2,
-                    VertexBuffer.AllocateForElements(vertexBufferElements2, 3)
+                    elements2,
+                    VertexBuffer.AllocateForElements(elements2, 3)
+                );
+
+                MultiVertexBuffer multiVertexBuffer = new(new[] { vertexBuffer1, vertexBuffer2 });
+
+                Assert.Equal(vertexBuffer1.VertexCount, multiVertexBuffer.VertexCount);
+                Assert.Equal(vertexBuffer2.VertexCount, multiVertexBuffer.VertexCount);
+
+                Assert.True(multiVertexBuffer.VertexBuffers.SequenceEqual(new[] { vertexBuffer1, vertexBuffer2 }));
+            }
+
+            [Fact]
+            public void Should_Throw_If_Vertex_Buffers_Have_Overlapping_Elements()
+            {
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    CreateMultiVertexBuffer(
+                        new[] { VertexElement.POSITION, VertexElement.NORMAL },
+                        new[] { VertexElement.NORMAL, VertexElement.DIFFUSE_UV }
+                    );
+                });
+            }
+
+            [Fact]
+            public void Should_Throw_If_Vertex_Buffers_Have_Different_Vertex_Counts()
+            {
+                VertexElement[] elements1 = new[] { VertexElement.POSITION };
+                VertexElement[] elements2 = new[] { VertexElement.NORMAL };
+
+                VertexBuffer vertexBuffer1 = VertexBuffer.Create(
+                    VertexElementGroupUsage.Static,
+                    elements1,
+                    VertexBuffer.AllocateForElements(elements1, 6)
+                );
+                VertexBuffer vertexBuffer2 = VertexBuffer.Create(
+                    VertexElementGroupUsage.Static,
+                    elements2,
+                    VertexBuffer.AllocateForElements(elements2, 3)
                 );
 
                 Assert.Throws<ArgumentException>(() =>
                 {
-                    new MultiVertexBuffer(new VertexBuffer[] { vertexBuffer1, vertexBuffer2 });
+                    _ = new MultiVertexBuffer(new[] { vertexBuffer1, vertexBuffer2 });
                 });
             }
         }

@@ -8,6 +8,8 @@ namespace LeagueToolkit.Core.Memory
 {
     public sealed class MultiVertexBuffer : IDisposable
     {
+        public int VertexCount { get; }
+
         public IReadOnlyList<VertexBuffer> VertexBuffers => this._vertexBuffers;
         private readonly List<VertexBuffer> _vertexBuffers;
 
@@ -15,8 +17,9 @@ namespace LeagueToolkit.Core.Memory
 
         public MultiVertexBuffer(IEnumerable<VertexBuffer> vertexBuffers)
         {
-            CheckVertexBuffersForOverlappingElements(vertexBuffers);
+            ValidateVertexBuffers(vertexBuffers);
 
+            this.VertexCount = vertexBuffers.First().VertexCount;
             this._vertexBuffers = new(vertexBuffers);
         }
 
@@ -35,15 +38,27 @@ namespace LeagueToolkit.Core.Memory
             );
         }
 
-        private void CheckVertexBuffersForOverlappingElements(IEnumerable<VertexBuffer> vertexBuffers)
+        private void ValidateVertexBuffers(IEnumerable<VertexBuffer> vertexBuffers)
         {
+            Guard.IsNotNull(vertexBuffers);
+            Guard.IsGreaterThan(vertexBuffers.Count(), 0, nameof(vertexBuffers));
+
             IEnumerable<ElementName> elements = vertexBuffers.SelectMany(x => x.Elements.Keys);
             IEnumerable<ElementName> distinctElements = elements.Distinct();
 
+            // Check that vertex buffers do not have overlapping elements
             if (elements.Count() != distinctElements.Count())
                 ThrowHelper.ThrowArgumentException(
                     nameof(vertexBuffers),
-                    $"The provided vertex buffers contain overlapping elements"
+                    $"Vertex buffers contain overlapping elements"
+                );
+
+            // Check that all vertex buffers have the same vertex count
+            int vertexCount = vertexBuffers.First().VertexCount;
+            if (!vertexBuffers.All(vertexBuffer => vertexBuffer.VertexCount == vertexCount))
+                ThrowHelper.ThrowArgumentException(
+                    nameof(vertexBuffers),
+                    $"Vertex buffers do not have equal vertex counts"
                 );
         }
 
