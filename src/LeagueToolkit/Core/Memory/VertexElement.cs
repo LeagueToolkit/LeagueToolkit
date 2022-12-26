@@ -70,7 +70,8 @@ namespace LeagueToolkit.Core.Memory
         public bool Equals(VertexElement other) => this.Name == other.Name && this.Format == other.Format;
     }
 
-    // The values of this enum are used as stream indices for the renderer
+    // The values of this enum are used as stream indices for the renderer.
+    // Elements should always be sorted by ascending order
     // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#vertex-shader-semantics
     // Riot::Renderer::Mesh::Elem
     public enum ElementName : int
