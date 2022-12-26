@@ -12,8 +12,8 @@ namespace LeagueToolkit.Core.Memory
     {
         public VertexElementGroupUsage Usage { get; }
 
-        public IReadOnlyDictionary<ElementName, (VertexElement element, int offset)> Elements => this._elements;
-        private readonly Dictionary<ElementName, (VertexElement element, int offset)> _elements = new();
+        public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
+        private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
         public int Stride { get; }
@@ -38,13 +38,13 @@ namespace LeagueToolkit.Core.Memory
             int currentElementOffset = 0;
             foreach (VertexElement element in SanitizeElements(elements))
             {
-                this._elements.Add(element.Name, (element, currentElementOffset));
+                this._elements.Add(element.Name, new(element, currentElementOffset));
 
                 currentElementOffset += element.GetSize();
             }
 
             this._buffer = buffer;
-            this.Stride = this._elements.Values.Sum(entry => entry.element.GetSize());
+            this.Stride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
 
             if (buffer.Length % this.Stride != 0)
                 ThrowHelper.ThrowArgumentException(
@@ -63,8 +63,8 @@ namespace LeagueToolkit.Core.Memory
         {
             ThrowIfDisposed();
 
-            if (this._elements.TryGetValue(elementName, out var foundElement))
-                return new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
+            if (this._elements.TryGetValue(elementName, out VertexBufferElementDescriptor foundDescriptor))
+                return new(foundDescriptor.Element, this._buffer.Memory, this.Stride, foundDescriptor.Offset);
 
             throw new KeyNotFoundException($"Vertex buffer does not contain vertex element: {elementName}");
         }
@@ -73,9 +73,9 @@ namespace LeagueToolkit.Core.Memory
         {
             ThrowIfDisposed();
 
-            if (this.Elements.TryGetValue(elementName, out var foundElement))
+            if (this.Elements.TryGetValue(elementName, out VertexBufferElementDescriptor foundDescriptor))
             {
-                accessor = new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
+                accessor = new(foundDescriptor.Element, this._buffer.Memory, this.Stride, foundDescriptor.Offset);
                 return true;
             }
             else
@@ -131,6 +131,18 @@ namespace LeagueToolkit.Core.Memory
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+    }
+
+    public readonly struct VertexBufferElementDescriptor
+    {
+        public VertexElement Element { get; }
+        public int Offset { get; }
+
+        public VertexBufferElementDescriptor(VertexElement element, int offset)
+        {
+            this.Element = element;
+            this.Offset = offset;
         }
     }
 }

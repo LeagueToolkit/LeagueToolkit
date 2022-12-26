@@ -34,9 +34,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Equal(32, vertexBuffer.Stride);
 
                 // Test element offsets
-                Assert.Equal(0, vertexBuffer.Elements[ElementName.Position].offset);
-                Assert.Equal(12, vertexBuffer.Elements[ElementName.Normal].offset);
-                Assert.Equal(24, vertexBuffer.Elements[ElementName.DiffuseUV].offset);
+                Assert.Equal(0, vertexBuffer.Elements[ElementName.Position].Offset);
+                Assert.Equal(12, vertexBuffer.Elements[ElementName.Normal].Offset);
+                Assert.Equal(24, vertexBuffer.Elements[ElementName.DiffuseUV].Offset);
             }
 
             [Fact]

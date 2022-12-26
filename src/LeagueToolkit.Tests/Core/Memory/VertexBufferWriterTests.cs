@@ -31,13 +31,13 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 Assert.Equal(usage, vertexBufferWriter.Usage);
 
-                Assert.Equal(VertexElement.POSITION, vertexBufferWriter.Elements[ElementName.Position].element);
-                Assert.Equal(VertexElement.NORMAL, vertexBufferWriter.Elements[ElementName.Normal].element);
-                Assert.Equal(VertexElement.DIFFUSE_UV, vertexBufferWriter.Elements[ElementName.DiffuseUV].element);
+                Assert.Equal(VertexElement.POSITION, vertexBufferWriter.Elements[ElementName.Position].Element);
+                Assert.Equal(VertexElement.NORMAL, vertexBufferWriter.Elements[ElementName.Normal].Element);
+                Assert.Equal(VertexElement.DIFFUSE_UV, vertexBufferWriter.Elements[ElementName.DiffuseUV].Element);
 
-                Assert.Equal(0, vertexBufferWriter.Elements[ElementName.Position].offset);
-                Assert.Equal(12, vertexBufferWriter.Elements[ElementName.Normal].offset);
-                Assert.Equal(24, vertexBufferWriter.Elements[ElementName.DiffuseUV].offset);
+                Assert.Equal(0, vertexBufferWriter.Elements[ElementName.Position].Offset);
+                Assert.Equal(12, vertexBufferWriter.Elements[ElementName.Normal].Offset);
+                Assert.Equal(24, vertexBufferWriter.Elements[ElementName.DiffuseUV].Offset);
 
                 Assert.Equal(32, vertexBufferWriter.Stride);
             }

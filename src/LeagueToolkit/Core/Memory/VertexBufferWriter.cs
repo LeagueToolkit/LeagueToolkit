@@ -13,8 +13,8 @@ namespace LeagueToolkit.Core.Memory
     {
         public VertexElementGroupUsage Usage { get; }
 
-        public IReadOnlyDictionary<ElementName, (VertexElement element, int offset)> Elements => this._elements;
-        private readonly Dictionary<ElementName, (VertexElement element, int offset)> _elements = new();
+        public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
+        private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
         public Memory<byte> Buffer { get; }
         public int Stride { get; }
@@ -35,13 +35,13 @@ namespace LeagueToolkit.Core.Memory
             int currentElementOffset = 0;
             foreach (VertexElement element in VertexBuffer.SanitizeElements(elements))
             {
-                this._elements.Add(element.Name, (element, currentElementOffset));
+                this._elements.Add(element.Name, new(element, currentElementOffset));
 
                 currentElementOffset += element.GetSize();
             }
 
             this.Buffer = buffer;
-            this.Stride = this._elements.Values.Sum(entry => entry.element.GetSize());
+            this.Stride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
 
             if (buffer.Length % this.Stride != 0)
                 ThrowHelper.ThrowArgumentException(
@@ -53,31 +53,31 @@ namespace LeagueToolkit.Core.Memory
         #region Writing API
         public void WriteFloat(int index, ElementName element, float value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.X_Float32);
+            ValidateAccessFormat(element, ElementFormat.X_Float32);
             Write(index, element, value);
         }
 
         public void WriteVector2(int index, ElementName element, Vector2 value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.XY_Float32);
+            ValidateAccessFormat(element, ElementFormat.XY_Float32);
             Write(index, element, value);
         }
 
         public void WriteVector3(int index, ElementName element, Vector3 value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.XYZ_Float32);
+            ValidateAccessFormat(element, ElementFormat.XYZ_Float32);
             Write(index, element, value);
         }
 
         public void WriteVector4(int index, ElementName element, Vector4 value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.XYZW_Float32);
+            ValidateAccessFormat(element, ElementFormat.XYZW_Float32);
             Write(index, element, value);
         }
 
         public void WriteColorBgraU8(int index, ElementName element, Color value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.BGRA_Packed8888);
+            ValidateAccessFormat(element, ElementFormat.BGRA_Packed8888);
 
             Span<byte> valueBytes = stackalloc byte[Color.GetFormatSize(ColorFormat.BgraU8)];
             value.Write(valueBytes, ColorFormat.BgraU8);
@@ -87,7 +87,7 @@ namespace LeagueToolkit.Core.Memory
 
         public void WriteColorRgbaU8(int index, ElementName element, Color value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.RGBA_Packed8888);
+            ValidateAccessFormat(element, ElementFormat.RGBA_Packed8888);
 
             Span<byte> valueBytes = stackalloc byte[Color.GetFormatSize(ColorFormat.RgbaU8)];
             value.Write(valueBytes, ColorFormat.RgbaU8);
@@ -97,31 +97,31 @@ namespace LeagueToolkit.Core.Memory
 
         public void WriteZyxwU8(int index, ElementName element, (byte z, byte y, byte x, byte w) value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.ZYXW_Packed8888);
+            ValidateAccessFormat(element, ElementFormat.ZYXW_Packed8888);
             Write(index, element, stackalloc byte[4] { value.z, value.y, value.x, value.w });
         }
 
         public void WriteXyzwU8(int index, ElementName element, (byte x, byte y, byte z, byte w) value)
         {
-            ValidateAccessFormat(this._elements[element].element.Format, ElementFormat.XYZW_Packed8888);
+            ValidateAccessFormat(element, ElementFormat.XYZW_Packed8888);
             Write(index, element, stackalloc byte[4] { value.x, value.y, value.z, value.w });
         }
 
         private void Write<TValue>(int index, ElementName element, TValue value) where TValue : struct
         {
-            int offset = this.Stride * index + this.Elements[element].offset;
+            int offset = this.Stride * index + this.Elements[element].Offset;
             MemoryMarshal.Write(this.Buffer[offset..].Span, ref value);
         }
 
         private void Write(int index, ElementName element, ReadOnlySpan<byte> bytes)
         {
-            int offset = this.Stride * index + this.Elements[element].offset;
-
+            int offset = this.Stride * index + this.Elements[element].Offset;
             bytes.CopyTo(this.Buffer[offset..].Span);
         }
 
-        private void ValidateAccessFormat(ElementFormat format, ElementFormat writingFormat)
+        private void ValidateAccessFormat(ElementName element, ElementFormat writingFormat)
         {
+            ElementFormat format = this._elements[element].Element.Format;
             if (writingFormat != format)
             {
                 ThrowHelper.ThrowInvalidOperationException(
