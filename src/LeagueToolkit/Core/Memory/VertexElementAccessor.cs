@@ -14,7 +14,7 @@ namespace LeagueToolkit.Core.Memory
         public ElementFormat Format { get; }
 
         public ReadOnlyMemory<byte> BufferView { get; }
-        public readonly int Stride { get; }
+        public readonly int VertexStride { get; }
         public readonly int ElementOffset { get; }
 
         public VertexElementAccessor(
@@ -28,7 +28,7 @@ namespace LeagueToolkit.Core.Memory
             this.Format = description.Format;
 
             this.BufferView = buffer;
-            this.Stride = stride;
+            this.VertexStride = stride;
             this.ElementOffset = elementOffset;
         }
 

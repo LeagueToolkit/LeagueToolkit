@@ -39,7 +39,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Equal(12, vertexBufferWriter.Elements[ElementName.Normal].Offset);
                 Assert.Equal(24, vertexBufferWriter.Elements[ElementName.DiffuseUV].Offset);
 
-                Assert.Equal(32, vertexBufferWriter.Stride);
+                Assert.Equal(32, vertexBufferWriter.VertexStride);
             }
         }
 

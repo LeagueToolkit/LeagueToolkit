@@ -16,7 +16,7 @@ namespace LeagueToolkit.Core.Memory
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
-        public int Stride { get; }
+        public int VertexStride { get; }
 
         private readonly MemoryOwner<byte> _buffer;
 
@@ -44,9 +44,9 @@ namespace LeagueToolkit.Core.Memory
             }
 
             this._buffer = buffer;
-            this.Stride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
+            this.VertexStride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
 
-            if (buffer.Length % this.Stride != 0)
+            if (buffer.Length % this.VertexStride != 0)
                 ThrowHelper.ThrowArgumentException(
                     nameof(buffer),
                     "Buffer size must be a multiple of its stride size."
@@ -64,7 +64,7 @@ namespace LeagueToolkit.Core.Memory
             ThrowIfDisposed();
 
             if (this._elements.TryGetValue(elementName, out VertexBufferElementDescriptor foundDescriptor))
-                return new(foundDescriptor.Element, this._buffer.Memory, this.Stride, foundDescriptor.Offset);
+                return new(foundDescriptor.Element, this._buffer.Memory, this.VertexStride, foundDescriptor.Offset);
 
             throw new KeyNotFoundException($"Vertex buffer does not contain vertex element: {elementName}");
         }
@@ -75,7 +75,7 @@ namespace LeagueToolkit.Core.Memory
 
             if (this.Elements.TryGetValue(elementName, out VertexBufferElementDescriptor foundDescriptor))
             {
-                accessor = new(foundDescriptor.Element, this._buffer.Memory, this.Stride, foundDescriptor.Offset);
+                accessor = new(foundDescriptor.Element, this._buffer.Memory, this.VertexStride, foundDescriptor.Offset);
                 return true;
             }
             else

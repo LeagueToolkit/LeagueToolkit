@@ -17,7 +17,7 @@ namespace LeagueToolkit.Core.Memory
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
         public Memory<byte> Buffer { get; }
-        public int Stride { get; }
+        public int VertexStride { get; }
 
         public VertexBufferWriter(
             VertexElementGroupUsage usage,
@@ -41,9 +41,9 @@ namespace LeagueToolkit.Core.Memory
             }
 
             this.Buffer = buffer;
-            this.Stride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
+            this.VertexStride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
 
-            if (buffer.Length % this.Stride != 0)
+            if (buffer.Length % this.VertexStride != 0)
                 ThrowHelper.ThrowArgumentException(
                     nameof(buffer),
                     "Buffer size must be a multiple of its stride size."
@@ -109,13 +109,13 @@ namespace LeagueToolkit.Core.Memory
 
         private void Write<TValue>(int index, ElementName element, TValue value) where TValue : struct
         {
-            int offset = this.Stride * index + this.Elements[element].Offset;
+            int offset = this.VertexStride * index + this.Elements[element].Offset;
             MemoryMarshal.Write(this.Buffer[offset..].Span, ref value);
         }
 
         private void Write(int index, ElementName element, ReadOnlySpan<byte> bytes)
         {
-            int offset = this.Stride * index + this.Elements[element].Offset;
+            int offset = this.VertexStride * index + this.Elements[element].Offset;
             bytes.CopyTo(this.Buffer[offset..].Span);
         }
 

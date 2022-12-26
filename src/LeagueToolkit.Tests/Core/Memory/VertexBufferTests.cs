@@ -31,7 +31,7 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 Assert.Equal(usage, vertexBuffer.Usage);
                 Assert.Equal(96, vertexBuffer.View.Length);
-                Assert.Equal(32, vertexBuffer.Stride);
+                Assert.Equal(32, vertexBuffer.VertexStride);
 
                 // Test element offsets
                 Assert.Equal(0, vertexBuffer.Elements[ElementName.Position].Offset);
