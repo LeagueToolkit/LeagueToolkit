@@ -1,5 +1,4 @@
-﻿using LeagueToolkit.IO.MapGeometryFile;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -49,34 +48,6 @@ namespace LeagueToolkit.Core.Memory
             this.DescriptionFlags = GetDescriptionFlags(this._elements.Select(elem => elem.Name));
 
             br.BaseStream.Seek(8 * (15 - vertexElementCount), SeekOrigin.Current);
-        }
-
-        public VertexElementGroup(MapGeometryVertex vertex)
-        {
-            this.Usage = VertexElementGroupUsage.Static;
-
-            if (vertex.Position is not null)
-            {
-                this._elements.Add(new VertexElement(ElementName.Position, ElementFormat.XYZ_Float32));
-            }
-            if (vertex.Normal is not null)
-            {
-                this._elements.Add(new VertexElement(ElementName.Normal, ElementFormat.XYZ_Float32));
-            }
-            if (vertex.DiffuseUV is not null)
-            {
-                this._elements.Add(new VertexElement(ElementName.DiffuseUV, ElementFormat.XY_Float32));
-            }
-            if (vertex.LightmapUV is not null)
-            {
-                this._elements.Add(new VertexElement(ElementName.LightmapUV, ElementFormat.XY_Float32));
-            }
-            if (vertex.SecondaryColor is not null)
-            {
-                this._elements.Add(new VertexElement(ElementName.BaseColor, ElementFormat.BGRA_Packed8888));
-            }
-
-            this.DescriptionFlags = GetDescriptionFlags(this._elements.Select(elem => elem.Name));
         }
 
         internal void Write(BinaryWriter bw)
