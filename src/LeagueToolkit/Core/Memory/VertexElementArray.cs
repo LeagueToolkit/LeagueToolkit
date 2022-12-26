@@ -17,11 +17,12 @@ namespace LeagueToolkit.Core.Memory
 
         public VertexElementArray(VertexElementAccessor accessor)
         {
-            this.Count = accessor.Buffer.Length / accessor.Stride;
+            this.Count = accessor.BufferView.Length / accessor.Stride;
             this.Accessor = accessor;
         }
 
-        private TElement ReadElement(int offset) => MemoryMarshal.Read<TElement>(this.Accessor.Buffer.Span[offset..]);
+        private TElement ReadElement(int offset) =>
+            MemoryMarshal.Read<TElement>(this.Accessor.BufferView.Span[offset..]);
 
         public TElement this[int index] => ReadElement(this.Accessor.Stride * index + this.Accessor.ElementOffset);
 

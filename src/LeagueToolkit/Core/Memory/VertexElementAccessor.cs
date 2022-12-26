@@ -13,7 +13,7 @@ namespace LeagueToolkit.Core.Memory
         public ElementName Name { get; }
         public ElementFormat Format { get; }
 
-        public ReadOnlyMemory<byte> Buffer { get; }
+        public ReadOnlyMemory<byte> BufferView { get; }
         public readonly int Stride { get; }
         public readonly int ElementOffset { get; }
 
@@ -27,7 +27,7 @@ namespace LeagueToolkit.Core.Memory
             this.Name = description.Name;
             this.Format = description.Format;
 
-            this.Buffer = buffer;
+            this.BufferView = buffer;
             this.Stride = stride;
             this.ElementOffset = elementOffset;
         }

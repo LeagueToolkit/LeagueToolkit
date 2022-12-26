@@ -115,7 +115,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                     VertexBuffer.AllocateForElements(vertexBufferElements, 3)
                 );
 
-                Assert.Throws<ArgumentException>(() =>
+                Assert.Throws<KeyNotFoundException>(() =>
                 {
                     _ = vertexBuffer.GetAccessor(ElementName.Normal);
                 });

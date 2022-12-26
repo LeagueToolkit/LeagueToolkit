@@ -61,16 +61,28 @@ namespace LeagueToolkit.Core.Memory
 
         public VertexElementAccessor GetAccessor(ElementName elementName)
         {
-            if (this._isDisposed)
-                ThrowHelper.ThrowObjectDisposedException(nameof(VertexBuffer), "Cannot use a disposed vertex buffer");
+            ThrowIfDisposed();
 
-            if (this._elements.TryGetValue(elementName, out var foundElement) is false)
-                ThrowHelper.ThrowArgumentException(
-                    nameof(elementName),
-                    $"Vertex buffer does not contain vertex element: {elementName}"
-                );
+            if (this._elements.TryGetValue(elementName, out var foundElement))
+                return new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
 
-            return new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
+            throw new KeyNotFoundException($"Vertex buffer does not contain vertex element: {elementName}");
+        }
+
+        public bool TryGetAccessor(ElementName elementName, out VertexElementAccessor accessor)
+        {
+            ThrowIfDisposed();
+
+            if (this.Elements.TryGetValue(elementName, out var foundElement))
+            {
+                accessor = new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
+                return true;
+            }
+            else
+            {
+                accessor = new();
+                return false;
+            }
         }
 
         public static MemoryOwner<byte> AllocateForElements(IEnumerable<VertexElement> elements, int vertexCount)
@@ -94,6 +106,12 @@ namespace LeagueToolkit.Core.Memory
 
             // Sort elements from lowest to highest Name (stream index)
             return distinctElements.OrderBy(element => element.Name);
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (this._isDisposed)
+                ThrowHelper.ThrowObjectDisposedException(nameof(VertexBuffer), "Cannot use a disposed vertex buffer");
         }
 
         private void Dispose(bool disposing)
