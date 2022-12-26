@@ -35,7 +35,7 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            TestMetaRoslynCodegen("metaroslyn.cs");
+            ProfileMapgeo("ioniabase.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
