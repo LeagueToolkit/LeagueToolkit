@@ -23,11 +23,7 @@ namespace LeagueToolkit.Core.Memory
 
         public VertexElementAccessor GetAccessor(ElementName element)
         {
-            if (this._isDisposed)
-                ThrowHelper.ThrowObjectDisposedException(
-                    nameof(VertexBuffer),
-                    "Cannot use a disposed multi-vertex buffer"
-                );
+            ThrowIfDisposed();
 
             foreach (VertexBuffer vertexBuffer in this.VertexBuffers)
             {
@@ -49,6 +45,15 @@ namespace LeagueToolkit.Core.Memory
                 ThrowHelper.ThrowArgumentException(
                     nameof(vertexBuffers),
                     $"The provided vertex buffers contain overlapping elements"
+                );
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (this._isDisposed)
+                ThrowHelper.ThrowObjectDisposedException(
+                    nameof(VertexBuffer),
+                    "Cannot use a disposed multi-vertex buffer"
                 );
         }
 
