@@ -65,12 +65,10 @@ namespace LeagueToolkit.Core.Memory
                 ThrowHelper.ThrowObjectDisposedException(nameof(VertexBuffer), "Cannot use a disposed vertex buffer");
 
             if (this._elements.TryGetValue(elementName, out var foundElement) is false)
-            {
                 ThrowHelper.ThrowArgumentException(
                     nameof(elementName),
                     $"Vertex buffer does not contain vertex element: {elementName}"
                 );
-            }
 
             return new(foundElement.element, this._buffer.Memory, this.Stride, foundElement.offset);
         }
