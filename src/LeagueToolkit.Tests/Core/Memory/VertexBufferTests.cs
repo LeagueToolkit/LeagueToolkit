@@ -31,6 +31,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Equal(usage, vertexBuffer.Usage);
                 Assert.Equal(96, vertexBuffer.View.Length);
                 Assert.Equal(32, vertexBuffer.VertexStride);
+                Assert.Equal(3, vertexBuffer.VertexCount);
 
                 // Test element offsets
                 Assert.Equal(0, vertexBuffer.Elements[ElementName.Position].Offset);
@@ -49,6 +50,36 @@ namespace LeagueToolkit.Tests.Core.Memory
                         VertexElementGroupUsage.Static,
                         elements,
                         VertexBuffer.AllocateForElements(elements, 3)
+                    );
+                });
+            }
+
+            [Fact]
+            public void Should_Throw_If_Buffer_Is_Empty()
+            {
+                VertexElement[] elements = new VertexElement[] { VertexElement.POSITION };
+
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    VertexBuffer vertexBuffer = VertexBuffer.Create(
+                        VertexElementGroupUsage.Static,
+                        elements,
+                        VertexBuffer.AllocateForElements(elements, 3)[0..0]
+                    );
+                });
+            }
+
+            [Fact]
+            public void Should_Throw_If_Buffer_Size_Is_Not_Multiple_Of_Stride()
+            {
+                VertexElement[] elements = new VertexElement[] { VertexElement.POSITION };
+
+                Assert.Throws<ArgumentException>(() =>
+                {
+                    VertexBuffer vertexBuffer = VertexBuffer.Create(
+                        VertexElementGroupUsage.Static,
+                        elements,
+                        VertexBuffer.AllocateForElements(elements, 3)[0..5]
                     );
                 });
             }
@@ -117,6 +148,27 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Throws<KeyNotFoundException>(() =>
                 {
                     _ = vertexBuffer.GetAccessor(ElementName.Normal);
+                });
+            }
+        }
+
+        public class DisposeMethod
+        {
+            [Fact]
+            public void Should_Dispose()
+            {
+                VertexElement[] elements = new VertexElement[] { VertexElement.POSITION };
+                VertexBuffer vertexBuffer = VertexBuffer.Create(
+                    VertexElementGroupUsage.Static,
+                    elements,
+                    VertexBuffer.AllocateForElements(elements, 3)
+                );
+
+                vertexBuffer.Dispose();
+
+                Assert.Throws<ObjectDisposedException>(() =>
+                {
+                    _ = vertexBuffer.GetAccessor(ElementName.Position);
                 });
             }
         }
