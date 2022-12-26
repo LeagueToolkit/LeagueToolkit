@@ -8,7 +8,7 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
-    public sealed class VertexBuffer
+    public sealed class VertexBuffer : IDisposable
     {
         public VertexElementGroupUsage Usage { get; }
 
@@ -19,6 +19,8 @@ namespace LeagueToolkit.Core.Memory
         public int Stride { get; }
 
         private readonly MemoryOwner<byte> _buffer;
+
+        private bool _isDisposed;
 
         private VertexBuffer(
             VertexElementGroupUsage usage,
@@ -59,6 +61,9 @@ namespace LeagueToolkit.Core.Memory
 
         public VertexElementAccessor GetAccessor(ElementName elementName)
         {
+            if (this._isDisposed)
+                ThrowHelper.ThrowObjectDisposedException(nameof(VertexBuffer), "Cannot use a disposed vertex buffer");
+
             if (this._elements.TryGetValue(elementName, out var foundElement) is false)
             {
                 ThrowHelper.ThrowArgumentException(
@@ -93,6 +98,25 @@ namespace LeagueToolkit.Core.Memory
 
             // Sort elements from lowest to highest Name (stream index)
             return distinctElements.OrderBy(element => element.Name);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!this._isDisposed)
+            {
+                if (disposing)
+                {
+                    this._buffer.Dispose();
+                }
+
+                this._isDisposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
