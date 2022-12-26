@@ -102,7 +102,7 @@ namespace LeagueToolkit.Core.Memory
             {
                 if (disposing)
                 {
-                    this._buffer.Dispose();
+                    this._buffer?.Dispose();
                 }
 
                 this._isDisposed = true;
