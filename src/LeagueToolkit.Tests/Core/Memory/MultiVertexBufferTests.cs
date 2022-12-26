@@ -49,26 +49,10 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Return_A_Valid_Accessor_If_Element_Is_In_Vertex_Buffers()
             {
-                VertexElement[] vertexBufferElements1 = new VertexElement[]
-                {
-                    VertexElement.POSITION,
-                    VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
-                };
-                VertexBuffer vertexBuffer1 = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
-                    vertexBufferElements1,
-                    VertexBuffer.AllocateForElements(vertexBufferElements1, 3)
+                MultiVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    new VertexElement[] { VertexElement.BASE_COLOR }
                 );
-
-                VertexElement[] vertexBufferElements2 = new VertexElement[] { VertexElement.BASE_COLOR };
-                VertexBuffer vertexBuffer2 = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
-                    vertexBufferElements2,
-                    VertexBuffer.AllocateForElements(vertexBufferElements2, 3)
-                );
-
-                MultiVertexBuffer multiVertexBuffer = new(new VertexBuffer[] { vertexBuffer1, vertexBuffer2 });
 
                 VertexElementAccessor positionAccessor = multiVertexBuffer.GetAccessor(ElementName.Position);
                 VertexElementAccessor baseColorAccessor = multiVertexBuffer.GetAccessor(ElementName.BaseColor);
@@ -76,9 +60,61 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Equal(ElementName.Position, positionAccessor.Name);
                 Assert.Equal(ElementName.BaseColor, baseColorAccessor.Name);
 
-                Assert.Equal(vertexBuffer1.View, positionAccessor.BufferView);
-                Assert.Equal(vertexBuffer2.View, baseColorAccessor.BufferView);
+                Assert.Equal(32, positionAccessor.VertexStride);
+                Assert.Equal(4, baseColorAccessor.VertexStride);
             }
+
+            [Fact]
+            public void Should_Throw_If_Element_Doesnt_Exist_In_Vertex_Buffers()
+            {
+                MultiVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                    new VertexElement[] { VertexElement.POSITION },
+                    new VertexElement[] { VertexElement.BASE_COLOR }
+                );
+
+                Assert.Throws<KeyNotFoundException>(() =>
+                {
+                    _ = multiVertexBuffer.GetAccessor(ElementName.Normal);
+                });
+            }
+        }
+
+        public class DisposeMethod
+        {
+            [Fact]
+            public void Should_Dispose()
+            {
+                MultiVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                    new VertexElement[] { VertexElement.POSITION },
+                    new VertexElement[] { VertexElement.NORMAL }
+                );
+
+                multiVertexBuffer.Dispose();
+
+                Assert.Throws<ObjectDisposedException>(() =>
+                {
+                    _ = multiVertexBuffer.GetAccessor(ElementName.Position);
+                });
+            }
+        }
+
+        private static MultiVertexBuffer CreateMultiVertexBuffer(
+            IEnumerable<VertexElement> buffer1Elements,
+            IEnumerable<VertexElement> buffer2Elements
+        )
+        {
+            VertexBuffer vertexBuffer1 = VertexBuffer.Create(
+                VertexElementGroupUsage.Static,
+                buffer1Elements,
+                VertexBuffer.AllocateForElements(buffer1Elements, 3)
+            );
+            VertexBuffer vertexBuffer2 = VertexBuffer.Create(
+                VertexElementGroupUsage.Static,
+                buffer2Elements,
+                VertexBuffer.AllocateForElements(buffer2Elements, 3)
+            );
+
+            return new(new VertexBuffer[] { vertexBuffer1, vertexBuffer2 });
         }
     }
 }
