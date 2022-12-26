@@ -7,7 +7,8 @@ namespace LeagueToolkit.Core.Memory
     /// <summary>
     /// Describes a vertex element
     /// </summary>
-    //https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_input_element_desc
+    // https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_input_element_desc
+    // Riot::X3D::VERTEXELEMENT
     [DebuggerDisplay("{Name} - {Format}")]
     public readonly struct VertexElement : IEquatable<VertexElement>
     {
@@ -71,6 +72,7 @@ namespace LeagueToolkit.Core.Memory
 
     // The values of this enum are used as stream indices for the renderer
     // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#vertex-shader-semantics
+    // Riot::Renderer::Mesh::Elem
     public enum ElementName : int
     {
         Position,
@@ -90,6 +92,7 @@ namespace LeagueToolkit.Core.Memory
         LightmapUV
     }
 
+    // Riot::Renderer::Mesh::ElemFormat
     public enum ElementFormat : uint
     {
         X_Float32,
