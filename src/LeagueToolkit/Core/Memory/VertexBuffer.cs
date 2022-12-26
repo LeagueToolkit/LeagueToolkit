@@ -90,9 +90,7 @@ namespace LeagueToolkit.Core.Memory
             // Check that all elements are unique
             IEnumerable<VertexElement> distinctElements = elements.Distinct();
             if (distinctElements.Count() != elements.Count())
-            {
                 ThrowHelper.ThrowArgumentException(nameof(distinctElements), "Contains duplicate vertex elements.");
-            }
 
             // Sort elements from lowest to highest Name (stream index)
             return distinctElements.OrderBy(element => element.Name);
