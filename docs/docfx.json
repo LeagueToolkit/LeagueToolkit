@@ -3,7 +3,8 @@
     {
       "src": [
         {
-          "files": ["../src/**.csproj"]
+          "files": ["src/**.csproj"],
+          "src": ".."
         }
       ],
       "dest": "api",
