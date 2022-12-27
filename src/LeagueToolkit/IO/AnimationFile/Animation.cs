@@ -33,12 +33,12 @@ namespace LeagueToolkit.IO.AnimationFile
 
                 if (magic == "r3d2canm")
                 {
-                    QuantizedTracks = new();
+                    this.QuantizedTracks = new();
                     ReadCompressed(br);
                 }
                 else if (magic == "r3d2anmd")
                 {
-                    Tracks = new();
+                    this.Tracks = new();
                     if (version == 5)
                     {
                         ReadV5(br);
@@ -348,7 +348,7 @@ namespace LeagueToolkit.IO.AnimationFile
 
                 AnimationTrack track = new AnimationTrack(trackName) { V3Flag = flags };
 
-                for(int frame = 0; frame < FramesPerTrack; frame++)
+                for(int frame = 0; frame < this.FramesPerTrack; frame++)
                 {
                     track.Rotations.Add(br.ReadQuaternion());
                     track.Translations.Add(br.ReadVector3());

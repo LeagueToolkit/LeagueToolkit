@@ -35,7 +35,7 @@ namespace LeagueToolkit.IO.AnimationFile
         {
             const uint nameSize = 32;
 
-            bw.Write(Encoding.ASCII.GetBytes("r3d2anmd")); // v3-5 magic
+            bw.Write("r3d2anmd"u8); // v3-5 magic
             bw.Write(3); // version 3
 
             bw.Write(0x84211248); // format token
@@ -64,7 +64,7 @@ namespace LeagueToolkit.IO.AnimationFile
 
         private void WriteV4(BinaryWriter bw)
         {
-            bw.Write(Encoding.ASCII.GetBytes("r3d2anmd")); // v3-5 magic
+            bw.Write("r3d2anmd"u8); // v3-5 magic
             bw.Write(4); // version 4
 
             bw.Seek(4, SeekOrigin.Current); // File Size, will Seek to start and write it at the end
@@ -130,7 +130,7 @@ namespace LeagueToolkit.IO.AnimationFile
 
         private void WriteV5(BinaryWriter bw)
         {
-            bw.Write(Encoding.ASCII.GetBytes("r3d2anmd")); // v3-5 magic
+            bw.Write("r3d2anmd"u8); // v3-5 magic
             bw.Write(5); // version 5
 
             bw.Seek(4, SeekOrigin.Current); // File Size, will Seek to start and write it at the end
