@@ -306,25 +306,22 @@ namespace LeagueToolkit.IO.MapGeometryFile
         )
         {
             // Write count of buffers
-            bw.Write(this.Meshes.Count);
+            bw.Write(this.Meshes.Sum(mesh => mesh.VertexData.Buffers.Count));
 
             int currentBaseVertexBufferId = 0;
             foreach (MapGeometryModel mesh in this.Meshes)
             {
                 InstancedVertexBuffer vertexData = mesh.VertexData;
 
-                // Write buffer layer mask
-                if (version >= 13)
-                {
-                    bw.Write((byte)mesh.VisibilityFlags);
-                }
-
-                // Write buffer size
-                bw.Write(vertexData.Buffers.Sum(vertexBuffer => vertexBuffer.View.Length));
-
                 // Write buffer data
                 foreach (VertexBuffer vertexBuffer in vertexData.Buffers)
                 {
+                    // Write buffer layer mask
+                    if (version >= 13)
+                    {
+                        bw.Write((byte)mesh.VisibilityFlags);
+                    }
+                    bw.Write(vertexBuffer.View.Length);
                     bw.Write(vertexBuffer.View.Span);
                 }
 
