@@ -86,8 +86,8 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElementAccessor positionAccessor = multiVertexBuffer.GetAccessor(ElementName.Position);
                 VertexElementAccessor baseColorAccessor = multiVertexBuffer.GetAccessor(ElementName.BaseColor);
 
-                Assert.Equal(ElementName.Position, positionAccessor.Name);
-                Assert.Equal(ElementName.BaseColor, baseColorAccessor.Name);
+                Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
+                Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
 
                 Assert.Equal(32, positionAccessor.VertexStride);
                 Assert.Equal(4, baseColorAccessor.VertexStride);
