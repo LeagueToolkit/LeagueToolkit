@@ -1,10 +1,13 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures.BucketGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -73,11 +76,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             ReadBakedTerrainSamplers(br, version);
 
-            List<MapGeometryVertexElementGroup> vertexElementGroups = new();
+            List<VertexBufferDescription> vertexElementGroups = new();
             uint vertexElementGroupCount = br.ReadUInt32();
             for (int i = 0; i < vertexElementGroupCount; i++)
             {
-                vertexElementGroups.Add(new MapGeometryVertexElementGroup(br));
+                vertexElementGroups.Add(VertexBufferDescription.ReadFromMapGeometry(br));
             }
 
             uint vertexBufferCount = br.ReadUInt32();
@@ -173,10 +176,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// </summary>
         /// <param name="fileLocation">The file to write into</param>
         /// <param name="version">The version of the written <see cref="MapGeometry"/> file</param>
-        public void Write(string fileLocation, uint version)
-        {
-            Write(File.Create(fileLocation), version);
-        }
+        public void Write(string fileLocation, uint version) => Write(File.Create(fileLocation), version);
 
         /// <summary>
         /// Writes this <see cref="MapGeometry"/> instance into <paramref name="stream"/>
@@ -206,11 +206,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             WriteBakedTerrainSamplers(bw, version);
 
-            List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
+            List<VertexBufferDescription> vertexElementGroups = GenerateVertexBufferDescriptions();
             bw.Write(vertexElementGroups.Count);
-            foreach (MapGeometryVertexElementGroup vertexElementGroup in vertexElementGroups)
+            foreach (VertexBufferDescription vertexElementGroup in vertexElementGroups)
             {
-                vertexElementGroup.Write(bw);
+                vertexElementGroup.WriteToMapGeometry(bw);
             }
 
             WriteVertexBuffers(bw, vertexElementGroups, version);
@@ -247,25 +247,29 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return false;
         }
 
-        private List<MapGeometryVertexElementGroup> GenerateVertexElementGroups()
+        // TODO: Instanced Vertex Buffers
+        private List<VertexBufferDescription> GenerateVertexBufferDescriptions()
         {
-            List<MapGeometryVertexElementGroup> vertexElementGroups = new();
+            List<VertexBufferDescription> descriptions = new();
 
             foreach (MapGeometryModel mesh in this.Meshes)
             {
-                // TODO: Create method which verifies that each vertex is of the same format
-                //       and throws if it detects an inconsistency
-                MapGeometryVertexElementGroup vertexElementGroup = new(mesh.Vertices[0]);
-
-                if (!vertexElementGroups.Contains(vertexElementGroup))
+                // Find base descriptor index, if it doesn't exist, create it
+                IEnumerable<VertexBufferDescription> meshDescriptions = mesh.VertexData.Buffers.Select(
+                    buffer => buffer.Description
+                );
+                int baseDescriptionId = descriptions.IndexOf(meshDescriptions);
+                if (baseDescriptionId == -1)
                 {
-                    vertexElementGroups.Add(vertexElementGroup);
+                    baseDescriptionId = descriptions.Count;
+
+                    descriptions.AddRange(meshDescriptions);
                 }
 
-                mesh._vertexElementGroupId = vertexElementGroups.IndexOf(vertexElementGroup);
+                mesh._baseDescriptionId = baseDescriptionId;
             }
 
-            return vertexElementGroups;
+            return descriptions;
         }
 
         private void WriteBakedTerrainSamplers(BinaryWriter bw, uint version)
@@ -294,39 +298,36 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
+        // TODO: Vertex Buffer instancing
         private void WriteVertexBuffers(
             BinaryWriter bw,
-            List<MapGeometryVertexElementGroup> vertexElementGroups,
+            List<VertexBufferDescription> vertexElementGroups,
             uint version
         )
         {
             // Write count of buffers
-            bw.Write(this.Meshes.Count);
+            bw.Write(this.Meshes.Sum(mesh => mesh.VertexData.Buffers.Count));
 
-            int currentVertexBufferId = 0;
+            int currentBaseVertexBufferId = 0;
             foreach (MapGeometryModel mesh in this.Meshes)
             {
-                int vertexSize = vertexElementGroups[mesh._vertexElementGroupId].GetVertexSize();
-                int vertexBufferSize = mesh.Vertices.Length * vertexSize;
-
-                // Write buffer layer mask
-                if (version >= 13)
-                {
-                    bw.Write((byte)mesh.VisibilityFlags);
-                }
-
-                // Write buffer size
-                bw.Write(vertexBufferSize);
+                InstancedVertexBuffer vertexData = mesh.VertexData;
 
                 // Write buffer data
-                for (int currentVertex = 0; currentVertex < mesh.Vertices.Length; currentVertex++)
+                foreach (VertexBuffer vertexBuffer in vertexData.Buffers)
                 {
-                    mesh.Vertices[currentVertex].Write(bw);
+                    // Write buffer layer mask
+                    if (version >= 13)
+                    {
+                        bw.Write((byte)mesh.VisibilityFlags);
+                    }
+                    bw.Write(vertexBuffer.View.Length);
+                    bw.Write(vertexBuffer.View.Span);
                 }
 
-                mesh._vertexBufferId = currentVertexBufferId;
+                mesh._vertexBufferIds = Enumerable.Range(currentBaseVertexBufferId, vertexData.Buffers.Count).ToArray();
 
-                currentVertexBufferId++;
+                currentBaseVertexBufferId += vertexData.Buffers.Count;
             }
         }
 

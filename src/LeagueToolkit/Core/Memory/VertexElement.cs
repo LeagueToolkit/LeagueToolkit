@@ -67,7 +67,20 @@ namespace LeagueToolkit.Core.Memory
             };
         }
 
+        public static bool operator ==(VertexElement left, VertexElement right) => left.Equals(right);
+
+        public static bool operator !=(VertexElement left, VertexElement right) => !left.Equals(right);
+
         public bool Equals(VertexElement other) => this.Name == other.Name && this.Format == other.Format;
+
+        public override bool Equals(object obj) =>
+            obj switch
+            {
+                VertexElement other => Equals(other),
+                _ => false
+            };
+
+        public override int GetHashCode() => HashCode.Combine(this.Name, this.Format);
     }
 
     // The values of this enum are used as stream indices for the renderer.

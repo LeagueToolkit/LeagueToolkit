@@ -11,56 +11,61 @@ namespace LeagueToolkit.Core.Memory
     /// </summary>
     //https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createinputlayout
     [DebuggerDisplay("VertexElementGroup<{DebuggerDisplay,nq}>")]
-    public readonly struct VertexElementGroup : IEquatable<VertexElementGroup>
+    public readonly struct VertexBufferDescription : IEquatable<VertexBufferDescription>
     {
-        public VertexElementGroupUsage Usage { get; }
+        public VertexBufferUsage Usage { get; }
 
         /// <summary>
         /// Bitmask of all the <see cref="ElementName"/> present in <see cref="Elements"/>
         /// </summary>
-        public VertexElementGroupDescriptionFlags DescriptionFlags { get; }
+        public VertexBufferElementFlags DescriptionFlags { get; }
 
         /// <summary>
         /// The elements
         /// </summary>
         public IReadOnlyList<VertexElement> Elements => this._elements;
-        private readonly List<VertexElement> _elements = new();
+        private readonly VertexElement[] _elements;
 
         internal string DebuggerDisplay => string.Join(' ', this._elements.Select(x => x.Name));
 
-        public VertexElementGroup(VertexElementGroupUsage usage, IEnumerable<VertexElement> elements)
+        public VertexBufferDescription(VertexBufferUsage usage, IEnumerable<VertexElement> elements)
         {
             this.Usage = usage;
-            this._elements = new(elements);
-            this.DescriptionFlags = GetDescriptionFlags(elements.Select(elem => elem.Name));
+            this._elements = elements.ToArray();
+            this.DescriptionFlags = GetElementFlags(this._elements.Select(elem => elem.Name));
         }
 
-        internal VertexElementGroup(BinaryReader br)
+        internal static VertexBufferDescription ReadFromMapGeometry(BinaryReader br)
         {
-            this.Usage = (VertexElementGroupUsage)br.ReadUInt32();
-
+            VertexBufferUsage usage = (VertexBufferUsage)br.ReadUInt32();
             uint vertexElementCount = br.ReadUInt32();
-            for (int i = 0; i < vertexElementCount; i++)
+
+            return new(usage, ReadElements().ToArray());
+
+            IEnumerable<VertexElement> ReadElements()
             {
-                this._elements.Add(new VertexElement(br));
+                for (int i = 0; i < vertexElementCount; i++)
+                {
+                    yield return new(br);
+                }
+
+                // Skip past unused default elements
+                br.BaseStream.Seek(8 * (15 - vertexElementCount), SeekOrigin.Current);
             }
-
-            this.DescriptionFlags = GetDescriptionFlags(this._elements.Select(elem => elem.Name));
-
-            br.BaseStream.Seek(8 * (15 - vertexElementCount), SeekOrigin.Current);
         }
 
-        internal void Write(BinaryWriter bw)
+        internal void WriteToMapGeometry(BinaryWriter bw)
         {
             bw.Write((uint)this.Usage);
-            bw.Write(this._elements.Count);
+            bw.Write(this._elements.Length);
 
             foreach (VertexElement vertexElement in this._elements)
             {
                 vertexElement.Write(bw);
             }
 
-            for (int i = 0; i < 15 - this._elements.Count; i++)
+            // Write default unused elements
+            for (int i = 0; i < 15 - this._elements.Length; i++)
             {
                 new VertexElement(ElementName.Position, ElementFormat.XYZW_Float32).Write(bw);
             }
@@ -82,21 +87,27 @@ namespace LeagueToolkit.Core.Memory
         }
 
         /// <summary>
-        /// Generates a <see cref="VertexElementGroupDescriptionFlags"/> bitmask for <paramref name="elements"/>
+        /// Generates a <see cref="VertexBufferElementFlags"/> bitmask for <paramref name="elements"/>
         /// </summary>
-        public static VertexElementGroupDescriptionFlags GetDescriptionFlags(IEnumerable<ElementName> elements)
+        public static VertexBufferElementFlags GetElementFlags(IEnumerable<ElementName> elements)
         {
-            VertexElementGroupDescriptionFlags descriptionFlags = 0;
+            VertexBufferElementFlags descriptionFlags = 0;
 
             foreach (ElementName element in elements)
             {
-                descriptionFlags |= (VertexElementGroupDescriptionFlags)(1 << (int)element);
+                descriptionFlags |= (VertexBufferElementFlags)(1 << (int)element);
             }
 
             return descriptionFlags;
         }
 
-        public bool Equals(VertexElementGroup other)
+        public static bool operator ==(VertexBufferDescription left, VertexBufferDescription right) =>
+            left.Equals(right);
+
+        public static bool operator !=(VertexBufferDescription left, VertexBufferDescription right) =>
+            !left.Equals(right);
+
+        public bool Equals(VertexBufferDescription other)
         {
             // If usage is not the same
             if (this.Usage != other.Usage)
@@ -105,7 +116,7 @@ namespace LeagueToolkit.Core.Memory
             }
 
             // Check if Vertex Element count is the same
-            if (this._elements.Count == other._elements.Count)
+            if (this._elements.Length == other._elements.Length)
             {
                 // If Vertex Element count is the same, compare them
                 return this._elements.SequenceEqual(other._elements);
@@ -115,9 +126,18 @@ namespace LeagueToolkit.Core.Memory
                 return false;
             }
         }
+
+        public override bool Equals(object obj) =>
+            obj switch
+            {
+                VertexBufferDescription other => Equals(other),
+                _ => false
+            };
+
+        public override int GetHashCode() => HashCode.Combine(this.Usage, this._elements);
     }
 
-    public enum VertexElementGroupUsage : uint
+    public enum VertexBufferUsage : uint
     {
         /// <summary>
         /// Static Vertex Data
@@ -142,7 +162,7 @@ namespace LeagueToolkit.Core.Memory
     }
 
     [Flags]
-    public enum VertexElementGroupDescriptionFlags : ushort
+    public enum VertexBufferElementFlags : ushort
     {
         Position = 1 << ElementName.Position,
         BlendWeight = 1 << ElementName.BlendWeight,

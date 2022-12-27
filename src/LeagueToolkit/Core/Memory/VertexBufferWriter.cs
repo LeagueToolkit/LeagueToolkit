@@ -10,7 +10,7 @@ namespace LeagueToolkit.Core.Memory
 {
     public class VertexBufferWriter
     {
-        public VertexElementGroupUsage Usage { get; }
+        public VertexBufferUsage Usage { get; }
 
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
@@ -18,11 +18,7 @@ namespace LeagueToolkit.Core.Memory
         public Memory<byte> Buffer { get; }
         public int VertexStride { get; }
 
-        public VertexBufferWriter(
-            VertexElementGroupUsage usage,
-            IEnumerable<VertexElement> elements,
-            Memory<byte> buffer
-        )
+        public VertexBufferWriter(VertexBufferUsage usage, IEnumerable<VertexElement> elements, Memory<byte> buffer)
         {
             Guard.IsNotNull(elements, nameof(elements));
 

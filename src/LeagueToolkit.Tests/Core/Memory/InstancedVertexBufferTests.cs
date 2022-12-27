@@ -19,12 +19,12 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElement[] elements2 = new[] { VertexElement.DIFFUSE_UV };
 
                 VertexBuffer vertexBuffer1 = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     elements1,
                     VertexBuffer.AllocateForElements(elements1, 3)
                 );
                 VertexBuffer vertexBuffer2 = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     elements2,
                     VertexBuffer.AllocateForElements(elements2, 3)
                 );
@@ -34,7 +34,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Equal(vertexBuffer1.VertexCount, multiVertexBuffer.VertexCount);
                 Assert.Equal(vertexBuffer2.VertexCount, multiVertexBuffer.VertexCount);
 
-                Assert.True(multiVertexBuffer.VertexBuffers.SequenceEqual(new[] { vertexBuffer1, vertexBuffer2 }));
+                Assert.True(multiVertexBuffer.Buffers.SequenceEqual(new[] { vertexBuffer1, vertexBuffer2 }));
             }
 
             [Fact]
@@ -56,12 +56,12 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElement[] elements2 = new[] { VertexElement.NORMAL };
 
                 VertexBuffer vertexBuffer1 = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     elements1,
                     VertexBuffer.AllocateForElements(elements1, 6)
                 );
                 VertexBuffer vertexBuffer2 = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     elements2,
                     VertexBuffer.AllocateForElements(elements2, 3)
                 );
@@ -133,12 +133,12 @@ namespace LeagueToolkit.Tests.Core.Memory
         )
         {
             VertexBuffer vertexBuffer1 = VertexBuffer.Create(
-                VertexElementGroupUsage.Static,
+                VertexBufferUsage.Static,
                 buffer1Elements,
                 VertexBuffer.AllocateForElements(buffer1Elements, 3)
             );
             VertexBuffer vertexBuffer2 = VertexBuffer.Create(
-                VertexElementGroupUsage.Static,
+                VertexBufferUsage.Static,
                 buffer2Elements,
                 VertexBuffer.AllocateForElements(buffer2Elements, 3)
             );
