@@ -8,21 +8,20 @@ using System.Runtime.InteropServices;
 
 namespace LeagueToolkit.Core.Memory
 {
+    /// <summary>
+    /// Wraps a memory region for writing vertex data
+    /// </summary>
     public class VertexBufferWriter
     {
-        public VertexBufferUsage Usage { get; }
-
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
         public Memory<byte> Buffer { get; }
         public int VertexStride { get; }
 
-        public VertexBufferWriter(VertexBufferUsage usage, IEnumerable<VertexElement> elements, Memory<byte> buffer)
+        public VertexBufferWriter(IEnumerable<VertexElement> elements, Memory<byte> buffer)
         {
             Guard.IsNotNull(elements, nameof(elements));
-
-            this.Usage = usage;
 
             // Store offset of each element for reading
             int currentElementOffset = 0;

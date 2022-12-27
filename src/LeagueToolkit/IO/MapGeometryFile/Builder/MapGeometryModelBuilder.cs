@@ -111,14 +111,13 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
             // Create buffer writers
             MemoryBufferWriter<ushort> indexBufferWriter = new(this._indices.Memory);
-            VertexBufferWriter vertexBufferWriter =
-                new(VertexBufferUsage.Static, vertexElements, vertexBufferOwner.Memory);
+            VertexBufferWriter vertexBufferWriter = new(vertexElements, vertexBufferOwner.Memory);
 
             // Call the user-defined writing function
             writeGeometryCallback.Invoke(indexBufferWriter, vertexBufferWriter);
 
             this._vertexBuffer = VertexBuffer.Create(
-                vertexBufferWriter.Usage,
+                VertexBufferUsage.Static,
                 vertexBufferWriter.Elements.Values.Select(descriptor => descriptor.Element),
                 vertexBufferOwner
             );

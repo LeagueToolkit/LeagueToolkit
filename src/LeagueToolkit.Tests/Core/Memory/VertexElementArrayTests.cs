@@ -49,8 +49,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 };
 
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
-                VertexBufferWriter vertexBufferWriter =
-                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
+                VertexBufferWriter vertexBufferWriter = new(elements, vertexBufferOwner.Memory);
 
                 for (int i = 0; i < 3; i++)
                 {
