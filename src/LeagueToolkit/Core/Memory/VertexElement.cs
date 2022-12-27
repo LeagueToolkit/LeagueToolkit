@@ -30,10 +30,10 @@ namespace LeagueToolkit.Core.Memory
         public static readonly VertexElement TEXCOORD_6 = new(ElementName.Texcoord6, ElementFormat.XY_Float32);
         public static readonly VertexElement LIGHTMAP_UV = new(ElementName.LightmapUV, ElementFormat.XY_Float32);
 
-        /// <value>
+        /// <summary>
         /// The <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics">
         /// semantic name</seealso> of this element
-        /// </value>
+        /// </summary>
         public ElementName Name { get; }
 
         /// <summary>

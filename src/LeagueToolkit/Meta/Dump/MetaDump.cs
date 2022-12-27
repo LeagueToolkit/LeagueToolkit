@@ -22,9 +22,9 @@ namespace LeagueToolkit.Meta.Dump
         public string Version { get; set; }
         public Dictionary<string, MetaDumpClass> Classes { get; set; }
 
-        /// <value>
+        /// <summary>
         /// The name of the namespace declaration which contains the meta class declarations
-        /// </value>
+        /// </summary>
         private const string META_CLASSES_NAMESPACE = $"{nameof(LeagueToolkit)}.{nameof(LeagueToolkit.Meta)}.Classes";
 
         /* -------------------------------- PUBLIC DUMPING API -------------------------------- */

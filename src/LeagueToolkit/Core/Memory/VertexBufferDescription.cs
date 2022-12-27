@@ -15,14 +15,14 @@ namespace LeagueToolkit.Core.Memory
     [DebuggerDisplay("VertexBufferDescription<{DebuggerDisplay,nq}>")]
     public readonly struct VertexBufferDescription : IEquatable<VertexBufferDescription>
     {
-        /// <value>
+        /// <summary>
         /// The usage of a vertex buffer during rendering
-        /// </value>
+        /// </summary>
         public VertexBufferUsage Usage { get; }
 
-        /// <value>
+        /// <summary>
         /// Bitmask of all the <see cref="ElementName"/> present in <see cref="Elements"/>
-        /// </value>
+        /// </summary>
         public VertexBufferElementFlags DescriptionFlags { get; }
 
         /// <summary>

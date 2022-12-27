@@ -18,25 +18,25 @@ namespace LeagueToolkit.IO.MapGeometryFile
     /// </summary>
     public sealed class MapGeometry : IDisposable
     {
-        /// <value>
+        /// <summary>
         /// Represents the baked terrain samplers used for this environment asset
-        /// </value>
+        /// </summary>
         public MapGeometryBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
 
-        /// <value>
+        /// <summary>
         /// Represents the meshes used by this environment asset
-        /// </value>
+        /// </summary>
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
-        /// <value>
+        /// <summary>
         /// Represents the bucketed scene graph for this environment asset
-        /// </value>
+        /// </summary>
         public BucketGrid BucketGrid { get; private set; }
 
-        /// <value>
+        /// <summary>
         /// Represents the planar reflectors used by this environment asset
-        /// </value>
+        /// </summary>
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
 
