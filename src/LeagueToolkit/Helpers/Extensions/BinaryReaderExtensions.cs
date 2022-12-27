@@ -11,70 +11,9 @@ namespace LeagueToolkit.Helpers.Extensions
     {
         public static Color ReadColor(this BinaryReader reader, ColorFormat format)
         {
-            if (format == ColorFormat.RgbU8)
-            {
-                float r = reader.ReadByte() / 255f;
-                float g = reader.ReadByte() / 255f;
-                float b = reader.ReadByte() / 255f;
-                return new Color(r, g, b);
-            }
-            else if (format == ColorFormat.RgbaU8)
-            {
-                float r = reader.ReadByte() / 255f;
-                float g = reader.ReadByte() / 255f;
-                float b = reader.ReadByte() / 255f;
-                float a = reader.ReadByte() / 255f;
-                return new Color(r, g, b, a);
-            }
-            else if (format == ColorFormat.RgbF32)
-            {
-                float r = reader.ReadSingle();
-                float g = reader.ReadSingle();
-                float b = reader.ReadSingle();
-                return new Color(r, g, b);
-            }
-            else if (format == ColorFormat.RgbaF32)
-            {
-                float r = reader.ReadSingle();
-                float g = reader.ReadSingle();
-                float b = reader.ReadSingle();
-                float a = reader.ReadSingle();
-                return new Color(r, g, b, a);
-            }
-            else if (format == ColorFormat.BgrU8)
-            {
-                float b = reader.ReadByte() / 255f;
-                float g = reader.ReadByte() / 255f;
-                float r = reader.ReadByte() / 255f;
-                return new Color(r, g, b);
-            }
-            else if (format == ColorFormat.BgraU8)
-            {
-                float b = reader.ReadByte() / 255f;
-                float g = reader.ReadByte() / 255f;
-                float r = reader.ReadByte() / 255f;
-                float a = reader.ReadByte() / 255f;
-                return new Color(r, g, b, a);
-            }
-            else if (format == ColorFormat.BgrF32)
-            {
-                float b = reader.ReadSingle();
-                float g = reader.ReadSingle();
-                float r = reader.ReadSingle();
-                return new Color(r, g, b);
-            }
-            else if (format == ColorFormat.BgraF32)
-            {
-                float b = reader.ReadSingle();
-                float g = reader.ReadSingle();
-                float r = reader.ReadSingle();
-                float a = reader.ReadSingle();
-                return new Color(r, g, b, a);
-            }
-            else
-            {
-                throw new ArgumentException("Unsupported format", nameof(format));
-            }
+            Span<byte> buffer = stackalloc byte[Color.GetFormatSize(format)];
+            reader.Read(buffer);
+            return Color.Read(buffer, format);
         }
 
         public static Vector2 ReadVector2(this BinaryReader reader)

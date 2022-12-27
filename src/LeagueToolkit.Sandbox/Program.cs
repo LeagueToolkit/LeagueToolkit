@@ -28,6 +28,9 @@ using LeagueToolkit.Helpers;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Buffers;
+using LeagueToolkit.Core.Memory;
+using CommunityToolkit.Diagnostics;
+using System.Threading;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -35,7 +38,8 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            TestMetaRoslynCodegen("metaroslyn.cs");
+            using MapGeometry mgeo = new("worlds_trophyonly_rewritten.mapgeo");
+            //ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
@@ -51,9 +55,11 @@ namespace LeagueToolkit.Sandbox
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
             using MapGeometry mgeo = new(toRead);
-            MapGeometryBuilder mapBuilder = new();
+            mgeo.Write(Path.ChangeExtension(rewriteTo, ".og_buffers.mapgeo"), 13);
 
-            mapBuilder.UseBucketGrid(mgeo.BucketGrid).UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+            MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
+                .UseBucketGrid(mgeo.BucketGrid)
+                .UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
@@ -77,11 +83,13 @@ namespace LeagueToolkit.Sandbox
                     .UseBakedPaintSampler(mesh.BakedPaint)
                     .UseGeometry(
                         mesh.Indices.Length,
-                        mesh.Vertices.Length,
+                        mesh.VertexData.VertexCount,
+                        mesh.VertexData.Description.Elements,
                         (indexBufferWriter, vertexBufferWriter) =>
                         {
                             indexBufferWriter.Write(mesh.Indices);
-                            vertexBufferWriter.Write(mesh.Vertices);
+
+                            RewriteVertexBuffer(mesh, vertexBufferWriter);
                         }
                     );
 
@@ -90,6 +98,47 @@ namespace LeagueToolkit.Sandbox
 
             using MapGeometry builtMap = mapBuilder.Build();
             builtMap.Write(rewriteTo, 13);
+
+            static void RewriteVertexBuffer(MapGeometryModel mesh, VertexBufferWriter writer)
+            {
+                bool hasPositions = mesh.VertexData.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                bool hasNormals = mesh.VertexData.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+                bool hasBaseColor = mesh.VertexData.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+                bool hasDiffuseUvs = mesh.VertexData.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+                bool hasLightmapUvs = mesh.VertexData.TryGetAccessor(
+                    ElementName.LightmapUV,
+                    out var lightmapUvAccessor
+                );
+
+                if (hasPositions is false)
+                    ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
+
+                VertexElementArray<Vector3> positionsArray = positionAccessor.AsVector3Array();
+                VertexElementArray<Vector3> normalsArray = hasNormals ? normalAccessor.AsVector3Array() : new();
+                var baseColorArray = hasBaseColor ? baseColorAccessor.AsBgraU8Array() : new();
+                VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs
+                    ? diffuseUvAccessor.AsVector2Array()
+                    : new();
+                VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs
+                    ? lightmapUvAccessor.AsVector2Array()
+                    : new();
+
+                for (int i = 0; i < mesh.VertexData.VertexCount; i++)
+                {
+                    writer.WriteVector3(i, ElementName.Position, positionsArray[i]);
+                    if (hasNormals)
+                        writer.WriteVector3(i, ElementName.Normal, normalsArray[i]);
+                    if (hasBaseColor)
+                    {
+                        var (b, g, r, a) = baseColorArray[i];
+                        writer.WriteColorBgraU8(i, ElementName.BaseColor, new(r, g, b, a));
+                    }
+                    if (hasDiffuseUvs)
+                        writer.WriteVector2(i, ElementName.DiffuseUV, diffuseUvsArray[i]);
+                    if (hasLightmapUvs)
+                        writer.WriteVector2(i, ElementName.LightmapUV, lightmapUvsArray[i]);
+                }
+            }
         }
 
         static void TestWGEO()

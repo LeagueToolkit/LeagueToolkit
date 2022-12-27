@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Extensions;
 using System;
 using System.Buffers;
@@ -26,7 +27,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         private readonly List<MapGeometryModelBuilderRange> _submeshes = new();
 
         // TODO: Make a buffer wrapper for these
-        private MemoryOwner<MapGeometryVertex> _vertices;
+        private VertexBuffer _vertexBuffer;
         private MemoryOwner<ushort> _indices;
 
         public MapGeometryModelBuilder() { }
@@ -34,12 +35,11 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         internal MapGeometryModel Build(int meshId)
         {
             SanitizeMeshRanges();
-            ValidateVertexElements();
 
             // TODO: This should be simplified
             return new(
                 meshId,
-                this._vertices,
+                this._vertexBuffer,
                 this._indices,
                 this._submeshes.Select(submesh => submesh.Build()),
                 this._transform,
@@ -79,7 +79,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
                 ushort maxVertex = submeshIndices.Max();
 
                 // Vertex interval must be within range
-                if (minVertex + 1 > this._vertices.Length || maxVertex - 1 > this._vertices.Length)
+                if (minVertex + 1 > this._vertexBuffer.VertexCount || maxVertex - 1 > this._vertexBuffer.VertexCount)
                 {
                     ThrowHelper.ThrowInvalidOperationException(
                         $"Submesh: {submesh.Material} vertex interval: [{minVertex}, {maxVertex}] goes out of bounds"
@@ -94,28 +94,11 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
             }
         }
 
-        private void ValidateVertexElements()
-        {
-            ReadOnlySpan<MapGeometryVertex> vertices = this._vertices.Span;
-
-            // All vertices need to have the same elements because we do not support multi-buffer meshes
-            VertexElementGroupDescriptionFlags descriptionFlags = vertices[0].GetDescriptionFlags();
-            for (int i = 1; i < vertices.Length; i++)
-            {
-                if (vertices[i].GetDescriptionFlags() != descriptionFlags)
-                {
-                    ThrowHelper.ThrowInvalidOperationException(
-                        "Vertex element description inconsistency."
-                            + " Meshes with multiple vertex buffers are not supported."
-                    );
-                }
-            }
-        }
-
         public void UseGeometry(
             int indexCount,
             int vertexCount,
-            Action<MemoryBufferWriter<ushort>, MemoryBufferWriter<MapGeometryVertex>> writeGeometryCallback
+            IEnumerable<VertexElement> vertexElements,
+            Action<MemoryBufferWriter<ushort>, VertexBufferWriter> writeGeometryCallback
         )
         {
             Guard.IsGreaterThan(indexCount, 0, nameof(indexCount));
@@ -124,28 +107,26 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
             // Create buffers
             this._indices = MemoryOwner<ushort>.Allocate(indexCount);
-            this._vertices = MemoryOwner<MapGeometryVertex>.Allocate(vertexCount);
+            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(vertexElements, vertexCount);
 
             // Create buffer writers
             MemoryBufferWriter<ushort> indexBufferWriter = new(this._indices.Memory);
-            MemoryBufferWriter<MapGeometryVertex> vertexBufferWriter = new(this._vertices.Memory);
+            VertexBufferWriter vertexBufferWriter = new(vertexElements, vertexBufferOwner.Memory);
 
             // Call the user-defined writing function
-            writeGeometryCallback(indexBufferWriter, vertexBufferWriter);
+            writeGeometryCallback.Invoke(indexBufferWriter, vertexBufferWriter);
+
+            this._vertexBuffer = VertexBuffer.Create(
+                VertexBufferUsage.Static,
+                vertexBufferWriter.Elements.Values.Select(descriptor => descriptor.Element),
+                vertexBufferOwner
+            );
 
             // Verify that the data has been written
             if (indexBufferWriter.WrittenCount != indexCount)
-            {
                 ThrowHelper.ThrowInvalidOperationException(
                     $"Only {indexBufferWriter.WrittenCount} indices were written out of the allocated {indexCount}"
                 );
-            }
-            if (vertexBufferWriter.WrittenCount != vertexCount)
-            {
-                ThrowHelper.ThrowInvalidOperationException(
-                    $"Only {vertexBufferWriter.WrittenCount} vertices were written out of the allocated {vertexCount}"
-                );
-            }
         }
 
         public MapGeometryModelBuilder UseSubmesh(MapGeometryModelBuilderRange submesh)
