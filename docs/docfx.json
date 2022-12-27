@@ -33,9 +33,23 @@
       }
     ],
     "dest": "_site",
-    "globalMetadataFiles": [],
+    "globalMetadata": {
+      "_appTitle": "LeagueToolkit",
+      "_appName": "League Toolkit",
+      "_enableSearch": true,
+      "_disableSideFilter": false,
+      "_enableNewTab": true,
+      "_disableContribution": false,
+      "_disableBreadcrumb": false
+    },
     "fileMetadataFiles": [],
-    "template": ["default", "templates/singulinkfx"],
+    "template": [
+      "default",
+      "templates/singulinkfx",
+      "plugins/memberpage.2.59.2/content",
+      "plugins/memberpage-extras"
+    ],
+    "xrefService": ["https://xref.docs.microsoft.com/query?uid={uid}"],
     "postProcessors": [],
     "markdownEngineName": "markdig",
     "noLangKeyword": false,
