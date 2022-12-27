@@ -3,19 +3,42 @@ using CommunityToolkit.HighPerformance.Buffers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
+    /// <summary>
+    /// Represents a wrapped memory region which contains vertex data<br></br>
+    /// <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-resources-buffers-vertex-how-to">
+    /// D3D11 - How to: Create a Vertex Buffer
+    /// </seealso>
+    /// </summary>
+    /// <remarks>If you are the owner of a <see cref="VertexBuffer"/> instance, make sure to dispose it after you're done using it</remarks>
     public sealed class VertexBuffer : IDisposable
     {
+        /// <value>
+        /// The description of this <see cref="VertexBuffer"/>
+        /// </value>
         public VertexBufferDescription Description { get; }
 
+        /// <summary>
+        /// The elements of this <see cref="VertexBuffer"/>
+        /// </summary>
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
+        /// <summary>
+        /// Provides a read-only view into the buffer
+        /// </summary>
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
+
+        /// <value>
+        /// The size of a vertex inside the buffer
+        /// </value>
         public int VertexStride { get; }
+
+        /// <value>
+        /// The vertex count of the buffer
+        /// </value>
         public int VertexCount { get; }
 
         private readonly MemoryOwner<byte> _buffer;
@@ -45,12 +68,23 @@ namespace LeagueToolkit.Core.Memory
             ValidateBufferDimensions(buffer.Span, this.VertexStride);
         }
 
+        /// <summary>
+        /// Creates a new <see cref="VertexBuffer"/> instance
+        /// </summary>
+        /// <param name="usage">The usage of the buffer</param>
+        /// <param name="elements">The elements of a vertex in the buffer</param>
+        /// <param name="buffer">The owned memory instance of the raw buffer</param>
+        /// <remarks>This function takes ownership of <paramref name="buffer"/>, you must not store a reference of it</remarks>
         public static VertexBuffer Create(
             VertexBufferUsage usage,
             IEnumerable<VertexElement> elements,
             MemoryOwner<byte> buffer
         ) => new(usage, elements, buffer);
 
+        /// <summary>
+        /// Creates a new <see cref="VertexElementAccessor"/> for the specified element
+        /// </summary>
+        /// <param name="elementName">The element to access</param>
         public VertexElementAccessor GetAccessor(ElementName elementName)
         {
             ThrowIfDisposed();
@@ -61,6 +95,16 @@ namespace LeagueToolkit.Core.Memory
             throw new KeyNotFoundException($"Vertex buffer does not contain vertex element: {elementName}");
         }
 
+        /// <summary>
+        /// Creates a <see cref="VertexElementAccessor"/> for the specified element
+        /// </summary>
+        /// <param name="elementName">The name of the element to create an accessor over</param>
+        /// <param name="accessor">If the element is found, contains the <see cref="VertexElementAccessor"/> for it,
+        /// otherwise, the accessor is set to default</param>
+        /// <returns>
+        /// <see langword="true"/> if the <see cref="VertexBuffer"/> contains a <see cref="VertexElement"/>
+        /// with the specified name; otherwise, <see langword="false"/>
+        /// </returns>
         public bool TryGetAccessor(ElementName elementName, out VertexElementAccessor accessor)
         {
             ThrowIfDisposed();
@@ -72,17 +116,21 @@ namespace LeagueToolkit.Core.Memory
             }
             else
             {
-                accessor = new();
+                accessor = default;
                 return false;
             }
         }
 
+        /// <summary>
+        /// Allocates an owned buffer for the specified vertex elements and count
+        /// </summary>
+        /// <param name="elements">The elements of the buffer's vertex</param>
+        /// <param name="vertexCount">The vertex count of the buffer</param>
         public static MemoryOwner<byte> AllocateForElements(IEnumerable<VertexElement> elements, int vertexCount)
         {
             Guard.IsNotNull(elements, nameof(elements));
 
-            IEnumerable<VertexElement> sanitizedElements = SanitizeElements(elements);
-            int stride = elements.Sum(element => element.GetSize());
+            int stride = SanitizeElements(elements).Sum(element => element.GetSize());
 
             return MemoryOwner<byte>.Allocate(vertexCount * stride, AllocationMode.Clear);
         }
