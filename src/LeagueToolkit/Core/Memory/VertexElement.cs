@@ -5,10 +5,10 @@ using System.IO;
 namespace LeagueToolkit.Core.Memory
 {
     /// <summary>
-    /// Describes an element of a vertex stored in <see cref="VertexBuffer"/>
-    /// <br></br>
-    /// Please refer to <seealso href="https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_input_element_desc">
-    /// the D3D11 description of an element</seealso> for more info
+    /// Describes an element of a vertex stored in a vertex buffer<br></br>
+    /// <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-resources-buffers-vertex-how-to">
+    /// D3D11 - How to: Create a Vertex Buffer
+    /// </seealso>
     /// </summary>
     // Riot::X3D::VERTEXELEMENT
     [DebuggerDisplay("{Name} - {Format}")]
@@ -82,6 +82,7 @@ namespace LeagueToolkit.Core.Memory
             };
         }
 
+        #region Equals implementation
         public static bool operator ==(VertexElement left, VertexElement right) => left.Equals(right);
 
         public static bool operator !=(VertexElement left, VertexElement right) => !left.Equals(right);
@@ -96,6 +97,7 @@ namespace LeagueToolkit.Core.Memory
             };
 
         public override int GetHashCode() => HashCode.Combine(this.Name, this.Format);
+        #endregion
     }
 
     /// <summary>

@@ -7,27 +7,37 @@ using System.Linq;
 namespace LeagueToolkit.Core.Memory
 {
     /// <summary>
-    /// Describes the format of a vertex buffer stride
+    /// Describes the format of a <see cref="VertexBuffer"/> stride <br></br>
+    /// <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-resources-buffers-vertex-how-to">
+    /// D3D11 - How to: Create a Vertex Buffer
+    /// </seealso>
     /// </summary>
-    //https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createinputlayout
-    [DebuggerDisplay("VertexElementGroup<{DebuggerDisplay,nq}>")]
+    [DebuggerDisplay("VertexBufferDescription<{DebuggerDisplay,nq}>")]
     public readonly struct VertexBufferDescription : IEquatable<VertexBufferDescription>
     {
+        /// <value>
+        /// The usage of a vertex buffer during rendering
+        /// </value>
         public VertexBufferUsage Usage { get; }
 
-        /// <summary>
+        /// <value>
         /// Bitmask of all the <see cref="ElementName"/> present in <see cref="Elements"/>
-        /// </summary>
+        /// </value>
         public VertexBufferElementFlags DescriptionFlags { get; }
 
         /// <summary>
-        /// The elements
+        /// The elements of a vertex inside a vertex buffer
         /// </summary>
+        /// <remarks>The elements are stored in-memory in the same order</remarks>
         public IReadOnlyList<VertexElement> Elements => this._elements;
         private readonly VertexElement[] _elements;
 
         internal string DebuggerDisplay => string.Join(' ', this._elements.Select(x => x.Name));
 
+        /// <summary>
+        /// Creates a new <see cref="VertexBufferDescription"/> with the specified
+        /// <paramref name="usage"/> and <paramref name="elements"/>
+        /// </summary>
         public VertexBufferDescription(VertexBufferUsage usage, IEnumerable<VertexElement> elements)
         {
             this.Usage = usage;
@@ -72,19 +82,9 @@ namespace LeagueToolkit.Core.Memory
         }
 
         /// <summary>
-        /// Gets the size of the described vertex
+        /// Gets the size of the vertex described by <see cref="Elements"/>
         /// </summary>
-        public int GetVertexSize()
-        {
-            int size = 0;
-
-            foreach (VertexElement vertexElement in this._elements)
-            {
-                size += vertexElement.GetSize();
-            }
-
-            return size;
-        }
+        public int GetVertexSize() => this._elements.Sum(element => element.GetSize());
 
         /// <summary>
         /// Generates a <see cref="VertexBufferElementFlags"/> bitmask for <paramref name="elements"/>
@@ -101,6 +101,7 @@ namespace LeagueToolkit.Core.Memory
             return descriptionFlags;
         }
 
+        #region Equals implementation
         public static bool operator ==(VertexBufferDescription left, VertexBufferDescription right) =>
             left.Equals(right);
 
@@ -135,8 +136,12 @@ namespace LeagueToolkit.Core.Memory
             };
 
         public override int GetHashCode() => HashCode.Combine(this.Usage, this._elements);
+        #endregion
     }
 
+    /// <summary>
+    /// Identifies the usage of a <see cref="VertexBuffer"/> during rendering
+    /// </summary>
     public enum VertexBufferUsage : uint
     {
         /// <summary>
