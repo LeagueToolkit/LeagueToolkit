@@ -16,12 +16,12 @@ namespace LeagueToolkit.Core.Memory
     public sealed class VertexBuffer : IDisposable
     {
         /// <value>
-        /// The description of this <see cref="VertexBuffer"/>
+        /// The description of the <see cref="VertexBuffer"/>
         /// </value>
         public VertexBufferDescription Description { get; }
 
         /// <summary>
-        /// The elements of this <see cref="VertexBuffer"/>
+        /// The elements of a vertex in the <see cref="VertexBuffer"/>
         /// </summary>
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
