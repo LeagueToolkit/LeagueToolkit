@@ -18,7 +18,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Return_A_Correctly_Initialized_VertexBufferWriter_Instance()
             {
-                VertexElementGroupUsage usage = VertexElementGroupUsage.Static;
+                VertexBufferUsage usage = VertexBufferUsage.Static;
                 VertexElement[] elements = new VertexElement[]
                 {
                     VertexElement.POSITION,
@@ -51,7 +51,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElement[] elements = new VertexElement[] { VertexElement.FOG_COORDINATE };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteFloat(0, ElementName.FogCoordinate, 0f);
                 vertexBufferWriter.WriteFloat(1, ElementName.FogCoordinate, 1f);
@@ -71,7 +71,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElement[] elements = new VertexElement[] { VertexElement.DIFFUSE_UV };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteVector2(0, ElementName.DiffuseUV, new(0f, 0f));
                 vertexBufferWriter.WriteVector2(1, ElementName.DiffuseUV, new(1f, 1f));
@@ -91,7 +91,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElement[] elements = new VertexElement[] { VertexElement.POSITION };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteVector3(0, ElementName.Position, new(0f, 0f, 0f));
                 vertexBufferWriter.WriteVector3(1, ElementName.Position, new(1f, 1f, 1f));
@@ -111,7 +111,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 VertexElement[] elements = new VertexElement[] { VertexElement.BLEND_WEIGHT };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteVector4(0, ElementName.BlendWeight, new(0f, 0f, 0f, 0f));
                 vertexBufferWriter.WriteVector4(1, ElementName.BlendWeight, new(1f, 1f, 1f, 1f));
@@ -134,7 +134,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteColorBgraU8(0, ElementName.BaseColor, new(0, 1, 2, 3));
                 vertexBufferWriter.WriteColorBgraU8(1, ElementName.BaseColor, new(4, 5, 6, 7));
@@ -157,7 +157,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteColorRgbaU8(0, ElementName.BaseColor, new(0, 1, 2, 3));
                 vertexBufferWriter.WriteColorRgbaU8(1, ElementName.BaseColor, new(4, 5, 6, 7));
@@ -180,7 +180,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteZyxwU8(0, ElementName.BlendIndex, new(0, 1, 2, 3));
                 vertexBufferWriter.WriteZyxwU8(1, ElementName.BlendIndex, new(4, 5, 6, 7));
@@ -212,7 +212,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 vertexBufferWriter.WriteXyzwU8(0, ElementName.BlendIndex, new(0, 1, 2, 3));
                 vertexBufferWriter.WriteXyzwU8(1, ElementName.BlendIndex, new(4, 5, 6, 7));

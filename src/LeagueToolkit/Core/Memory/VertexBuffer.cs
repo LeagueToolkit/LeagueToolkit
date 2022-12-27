@@ -9,7 +9,7 @@ namespace LeagueToolkit.Core.Memory
 {
     public sealed class VertexBuffer : IDisposable
     {
-        public VertexElementGroupUsage Usage { get; }
+        public VertexBufferDescription Description { get; }
 
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
@@ -22,16 +22,12 @@ namespace LeagueToolkit.Core.Memory
 
         private bool _isDisposed;
 
-        private VertexBuffer(
-            VertexElementGroupUsage usage,
-            IEnumerable<VertexElement> elements,
-            MemoryOwner<byte> buffer
-        )
+        private VertexBuffer(VertexBufferUsage usage, IEnumerable<VertexElement> elements, MemoryOwner<byte> buffer)
         {
             Guard.IsNotNull(elements);
             Guard.IsNotNull(buffer, nameof(buffer));
 
-            this.Usage = usage;
+            this.Description = new(usage, elements);
 
             // Store offset of each element for reading
             int currentElementOffset = 0;
@@ -50,7 +46,7 @@ namespace LeagueToolkit.Core.Memory
         }
 
         public static VertexBuffer Create(
-            VertexElementGroupUsage usage,
+            VertexBufferUsage usage,
             IEnumerable<VertexElement> elements,
             MemoryOwner<byte> buffer
         ) => new(usage, elements, buffer);

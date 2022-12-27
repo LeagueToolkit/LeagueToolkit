@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Core.Memory;
+using CommunityToolkit.Diagnostics;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -88,47 +90,69 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
-        private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel model)
+        private static VERTEX[] BuildMeshVertices(MapGeometryModel mesh)
         {
-            var meshBuilder = VERTEX.CreateCompatibleMesh(model.Name);
+            bool hasPositions = mesh.VertexData.TryGetAccessor(ElementName.Position, out var positionAccessor);
+            bool hasNormals = mesh.VertexData.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+            bool hasBaseColor = mesh.VertexData.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+            bool hasDiffuseUvs = mesh.VertexData.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+            bool hasLightmapUvs = mesh.VertexData.TryGetAccessor(ElementName.LightmapUV, out var lightmapUvAccessor);
 
-            foreach (MapGeometrySubmesh submesh in model.Submeshes)
+            if (hasPositions is false)
+                ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
+
+            VertexElementArray<Vector3> positionsArray = positionAccessor.AsVector3Array();
+            VertexElementArray<Vector3> normalsArray = hasNormals ? normalAccessor.AsVector3Array() : new();
+            var baseColorArray = hasBaseColor ? baseColorAccessor.AsBgraU8Array() : new();
+            VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : new();
+            VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs ? lightmapUvAccessor.AsVector2Array() : new();
+
+            VERTEX[] gltfVertices = new VERTEX[mesh.VertexData.VertexCount];
+            for (int i = 0; i < mesh.VertexData.VertexCount; i++)
             {
-                ReadOnlySpan<ushort> indices = model.Indices.Slice(submesh.StartIndex, submesh.IndexCount);
+                VERTEX gltfVertex = new();
+
+                gltfVertex.WithGeometry(positionsArray[i], hasNormals ? normalsArray[i] : Vector3.Zero);
+                gltfVertex.WithMaterial(
+                    hasBaseColor
+                        ? new(
+                            baseColorArray[i].r * 255,
+                            baseColorArray[i].g * 255,
+                            baseColorArray[i].b * 255,
+                            baseColorArray[i].a * 255
+                        )
+                        : Vector4.UnitW,
+                    hasDiffuseUvs ? diffuseUvsArray[i] : Vector2.Zero,
+                    hasLightmapUvs ? lightmapUvsArray[i] : Vector2.Zero
+                );
+            }
+
+            return gltfVertices;
+        }
+
+        private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel mesh)
+        {
+            VERTEX[] vertices = BuildMeshVertices(mesh);
+            var meshBuilder = VERTEX.CreateCompatibleMesh(mesh.Name);
+
+            foreach (MapGeometrySubmesh submesh in mesh.Submeshes)
+            {
+                ReadOnlySpan<ushort> indices = mesh.Indices.Slice(submesh.StartIndex, submesh.IndexCount);
 
                 MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
                 var primitive = meshBuilder.UsePrimitive(material);
 
-                VERTEX[] gltfVertices = new VERTEX[submesh.VertexCount];
-                for (int i = 0; i < submesh.VertexCount; i++)
-                {
-                    gltfVertices[i] = CreateVertex(model.Vertices[i + submesh.MinVertex]);
-                }
-
                 for (int i = 0; i < indices.Length; i += 3)
                 {
-                    VERTEX v1 = gltfVertices[indices[i + 0] - submesh.MinVertex];
-                    VERTEX v2 = gltfVertices[indices[i + 1] - submesh.MinVertex];
-                    VERTEX v3 = gltfVertices[indices[i + 2] - submesh.MinVertex];
+                    VERTEX v1 = vertices[indices[i + 0] - submesh.MinVertex];
+                    VERTEX v2 = vertices[indices[i + 1] - submesh.MinVertex];
+                    VERTEX v3 = vertices[indices[i + 2] - submesh.MinVertex];
 
                     primitive.AddTriangle(v1, v2, v3);
                 }
             }
 
             return meshBuilder;
-        }
-
-        private static VERTEX CreateVertex(MapGeometryVertex vertex)
-        {
-            VERTEX gltfVertex = new();
-
-            Vector3 position = vertex.Position.Value;
-            Vector3 normal = vertex.Normal ?? Vector3.Zero;
-            Color color1 = vertex.SecondaryColor ?? new Color(0, 0, 0, 1);
-            Vector2 uv1 = vertex.DiffuseUV ?? Vector2.Zero;
-            Vector2 uv2 = vertex.LightmapUV ?? Vector2.Zero;
-
-            return gltfVertex.WithGeometry(position, normal).WithMaterial(color1, uv1, uv2);
         }
     }
 }

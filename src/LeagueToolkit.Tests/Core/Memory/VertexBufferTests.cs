@@ -15,7 +15,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Return_A_Correctly_Initialized_VertexBuffer_Instance()
             {
-                VertexElementGroupUsage usage = VertexElementGroupUsage.Static;
+                VertexBufferUsage usage = VertexBufferUsage.Static;
                 VertexElement[] elements = new VertexElement[]
                 {
                     VertexElement.POSITION,
@@ -28,7 +28,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                     VertexBuffer.AllocateForElements(elements, 3)
                 );
 
-                Assert.Equal(usage, vertexBuffer.Usage);
+                Assert.Equal(new(usage, elements), vertexBuffer.Description);
                 Assert.Equal(96, vertexBuffer.View.Length);
                 Assert.Equal(32, vertexBuffer.VertexStride);
                 Assert.Equal(3, vertexBuffer.VertexCount);
@@ -47,7 +47,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Throws<ArgumentException>(() =>
                 {
                     VertexBuffer vertexBuffer = VertexBuffer.Create(
-                        VertexElementGroupUsage.Static,
+                        VertexBufferUsage.Static,
                         elements,
                         VertexBuffer.AllocateForElements(elements, 3)
                     );
@@ -62,7 +62,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Throws<ArgumentException>(() =>
                 {
                     VertexBuffer vertexBuffer = VertexBuffer.Create(
-                        VertexElementGroupUsage.Static,
+                        VertexBufferUsage.Static,
                         elements,
                         VertexBuffer.AllocateForElements(elements, 3)[0..0]
                     );
@@ -77,7 +77,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 Assert.Throws<ArgumentException>(() =>
                 {
                     VertexBuffer vertexBuffer = VertexBuffer.Create(
-                        VertexElementGroupUsage.Static,
+                        VertexBufferUsage.Static,
                         elements,
                         VertexBuffer.AllocateForElements(elements, 3)[0..5]
                     );
@@ -123,7 +123,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                     VertexElement.DIFFUSE_UV
                 };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     vertexBufferElements,
                     VertexBuffer.AllocateForElements(vertexBufferElements, 3)
                 );
@@ -140,7 +140,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 VertexElement[] vertexBufferElements = new VertexElement[] { VertexElement.POSITION };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     vertexBufferElements,
                     VertexBuffer.AllocateForElements(vertexBufferElements, 3)
                 );
@@ -159,7 +159,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 VertexElement[] elements = new VertexElement[] { VertexElement.POSITION };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     elements,
                     VertexBuffer.AllocateForElements(elements, 3)
                 );

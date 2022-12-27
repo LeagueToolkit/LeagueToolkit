@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System;
@@ -19,17 +20,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// </remarks>
         public string Name { get; private set; }
 
-        /// <summary>
-        /// A read-only view into the serialized vertex buffer
-        /// </summary>
-        public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices.Span;
+        public InstancedVertexBuffer VertexData => this._vertices;
 
         /// <summary>
         /// A read-only view into the index buffer
         /// </summary>
         public ReadOnlySpan<ushort> Indices => this._indices.Span;
 
-        private readonly MemoryOwner<MapGeometryVertex> _vertices;
+        private readonly InstancedVertexBuffer _vertices;
         private readonly MemoryOwner<ushort> _indices;
 
         public IReadOnlyList<MapGeometrySubmesh> Submeshes => this._submeshes;
@@ -99,13 +97,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         public const uint MAX_SUBMESH_COUNT = 64;
 
-        internal int _vertexElementGroupId;
-        internal int _vertexBufferId;
+        internal int _baseDescriptionId;
+        internal int[] _vertexBufferIds;
         internal int _indexBufferId;
+
+        private bool _isDisposed;
 
         internal MapGeometryModel(
             int id,
-            MemoryOwner<MapGeometryVertex> vertices,
+            VertexBuffer vertices,
             MemoryOwner<ushort> indices,
             IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transform,
@@ -119,33 +119,29 @@ namespace LeagueToolkit.IO.MapGeometryFile
         )
         {
             this.Name = CreateName(id);
-            this._vertices = vertices;
+
+            this._vertices = new(new[] { vertices });
             this._indices = indices;
             this._submeshes = new(submeshes);
+
             this.Transform = transform;
+
             this.FlipNormals = flipNormals;
             this.EnvironmentQualityFilter = environmentQualityFilter;
             this.VisibilityFlags = visibilityFlags;
             this.RenderFlags = renderFlags;
+
             this.StationaryLight = stationaryLight;
             this.BakedLight = bakedLight;
             this.BakedPaint = bakedPaint;
 
-            this.BoundingBox = Box.FromVertices(TakeVertexPositions());
-
-            IEnumerable<Vector3> TakeVertexPositions()
-            {
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    yield return vertices.Span[i].Position ?? Vector3.Zero;
-                }
-            }
+            this.BoundingBox = Box.FromVertices(vertices.GetAccessor(ElementName.Position).AsVector3Array());
         }
 
         internal MapGeometryModel(
             BinaryReader br,
             int id,
-            List<MapGeometryVertexElementGroup> vertexElementGroups,
+            List<VertexBufferDescription> vertexElementGroups,
             List<long> vertexBufferOffsets,
             List<MemoryOwner<ushort>> indexBuffers,
             bool useSeparatePointLights,
@@ -156,26 +152,37 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             int vertexCount = br.ReadInt32();
             uint vertexBufferCount = br.ReadUInt32();
+
+            // This ID is always that of the "instanced" vertex buffer which
+            // means that the data of the first vertex buffer is instanced (unique to this mesh instance).
+            // (Assuming that this mesh uses at least 2 vertex buffers)
             int baseVertexElementGroup = br.ReadInt32();
 
-            this._vertices = MemoryOwner<MapGeometryVertex>.Allocate(vertexCount, AllocationMode.Clear);
+            VertexBuffer[] vertexBuffers = new VertexBuffer[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
                 long returnPosition = br.BaseStream.Position;
-                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferId], SeekOrigin.Begin);
 
-                for (int j = 0; j < vertexCount; j++)
-                {
-                    MapGeometryVertex.ReadAndCombineElements(
-                        ref this._vertices.Span[j],
-                        vertexElementGroups[baseVertexElementGroup + i],
-                        br
-                    );
-                }
+                VertexBufferDescription vertexElementGroup = vertexElementGroups[baseVertexElementGroup + i];
+                MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
+                    vertexElementGroup.Elements,
+                    vertexCount
+                );
+
+                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferId], SeekOrigin.Begin);
+                br.Read(vertexBufferOwner.Span);
+
+                vertexBuffers[i] = VertexBuffer.Create(
+                    vertexElementGroup.Usage,
+                    vertexElementGroup.Elements,
+                    vertexBufferOwner
+                );
 
                 br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
             }
+
+            this._vertices = new(vertexBuffers);
 
             uint indexCount = br.ReadUInt32();
             int indexBufferId = br.ReadInt32();
@@ -246,10 +253,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 bw.Write(Encoding.ASCII.GetBytes(this.Name));
             }
 
-            bw.Write(this._vertices.Length);
-            bw.Write((uint)1);
-            bw.Write(this._vertexElementGroupId);
-            bw.Write(this._vertexBufferId); //we only have one vertex buffer
+            bw.Write(this._vertices.VertexCount);
+            bw.Write(this._vertexBufferIds.Length);
+            bw.Write(this._baseDescriptionId);
+
+            foreach (int vertexBufferId in this._vertexBufferIds)
+            {
+                bw.Write(vertexBufferId);
+            }
 
             bw.Write(this._indices.Length);
             bw.Write(this._indexBufferId);
@@ -320,11 +331,24 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return $"MapGeo_Instance_{id}";
         }
 
+        private void Dispose(bool disposing)
+        {
+            if (!this._isDisposed)
+            {
+                if (disposing)
+                {
+                    this._indices?.Dispose();
+                    this._vertices?.Dispose();
+                    this._vertices?.Dispose();
+                }
+
+                this._isDisposed = true;
+            }
+        }
+
         public void Dispose()
         {
-            this._indices?.Dispose();
-            this._vertices?.Dispose();
-
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }
@@ -365,16 +389,28 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// <code>miscRenderFlags: u8 = 1 || isGroundLayer: flag = true || useNavmeshMask: flag = true</code>
         /// </summary>
         HighRenderPriority = 1 << 0,
-        UnknownConstructDistortionBuffer = 1 << 1,
+
+        /// <summary>
+        /// <br>⚠️ SPECULATIVE ⚠️</br>
+        /// Tells the renderer to render distortion effects of a mesh's material into a separate buffer
+        /// <br>⚠️ SPECULATIVE ⚠️</br>
+        /// </summary>
+        UseEnvironmentDistortionEffectBuffer = 1 << 1,
 
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is unchecked
         /// </summary>
+        /// <remarks>
+        /// If no eye candy flag is set, the mesh will always be rendered
+        /// </remarks>
         RenderOnlyIfEyeCandyOn = 1 << 2, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
 
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is checked
         /// </summary>
+        /// <remarks>
+        /// If no eye candy flag is set, the mesh will always be rendered
+        /// </remarks>
         RenderOnlyIfEyeCandyOff = 1 << 3 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
     }
 }

@@ -23,7 +23,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                     VertexElement.DIFFUSE_UV
                 };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
+                    VertexBufferUsage.Static,
                     elements,
                     VertexBuffer.AllocateForElements(elements, 3)
                 );
@@ -50,7 +50,7 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter =
-                    new(VertexElementGroupUsage.Static, elements, vertexBufferOwner.Memory);
+                    new(VertexBufferUsage.Static, elements, vertexBufferOwner.Memory);
 
                 for (int i = 0; i < 3; i++)
                 {
@@ -59,11 +59,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                     vertexBufferWriter.WriteVector2(i, ElementName.DiffuseUV, new(i + 200, i + 200));
                 }
 
-                VertexBuffer vertexBuffer = VertexBuffer.Create(
-                    VertexElementGroupUsage.Static,
-                    elements,
-                    vertexBufferOwner
-                );
+                VertexBuffer vertexBuffer = VertexBuffer.Create(VertexBufferUsage.Static, elements, vertexBufferOwner);
 
                 VertexElementArray<Vector3> normalArray = vertexBuffer.GetAccessor(ElementName.Normal).AsVector3Array();
                 VertexElementArray<Vector2> diffuseUvArray = vertexBuffer

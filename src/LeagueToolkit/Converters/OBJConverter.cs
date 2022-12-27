@@ -7,6 +7,8 @@ using System.Linq;
 using LeagueToolkit.IO.MapGeometryFile;
 using System.Numerics;
 using LeagueToolkit.IO.NVR;
+using LeagueToolkit.Core.Memory;
+using CommunityToolkit.Diagnostics;
 
 namespace LeagueToolkit.Converters
 {
@@ -40,21 +42,27 @@ namespace LeagueToolkit.Converters
                 List<Vector3> normals = new();
                 List<Vector2> uvs = new();
 
-                for (int i = 0; i < mesh.Vertices.Length; i++)
+                bool hasPositions = mesh.VertexData.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                bool hasNormals = mesh.VertexData.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+                bool hasDiffuseUvs = mesh.VertexData.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+
+                if (hasPositions is false)
+                    ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
+
+                VertexElementArray<Vector3> positionsArray = positionAccessor.AsVector3Array();
+                VertexElementArray<Vector3> normalsArray = hasNormals ? normalAccessor.AsVector3Array() : default;
+                VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs
+                    ? diffuseUvAccessor.AsVector2Array()
+                    : default;
+
+                for (int i = 0; i < mesh.VertexData.VertexCount; i++)
                 {
-                    MapGeometryVertex vertex = mesh.Vertices[i];
+                    vertices.Add(Vector3.Transform(positionsArray[i], mesh.Transform));
 
-                    if (vertex.Position is null)
-                    {
-                        throw new InvalidOperationException("Mesh contains a vertex without a Position element");
-                    }
-
-                    vertices.Add(Vector3.Transform((Vector3)vertex.Position, mesh.Transform));
-                    normals.Add(vertex.Normal.Value);
-                    if (vertex.DiffuseUV != null)
-                    {
-                        uvs.Add(vertex.DiffuseUV.Value);
-                    }
+                    if (hasNormals)
+                        normals.Add(normalsArray[i]);
+                    if (hasDiffuseUvs)
+                        uvs.Add(diffuseUvsArray[i]);
                 }
 
                 // TODO: Rework OBJ API
