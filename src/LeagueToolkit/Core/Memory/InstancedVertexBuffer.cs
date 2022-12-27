@@ -2,22 +2,51 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace LeagueToolkit.Core.Memory
 {
-    // https://www.braynzarsoft.net/viewtutorial/q16390-33-instancing-with-indexed-primitives
+    /// <summary>
+    /// Represents an instanced/sharded vertex buffer<br></br>
+    /// Refer to this <seealso href="https://www.braynzarsoft.net/viewtutorial/q16390-33-instancing-with-indexed-primitives">
+    /// blogpost on how instancing works in D3D11</seealso> for a deeper explanation
+    /// </summary>
+    /// <remarks>
+    /// If you are the owner of an <see cref="InstancedVertexBuffer"/> instance,
+    /// make sure to dispose it after you're done using it;
+    /// doing so will also dispose all contained instances of <see cref="VertexBuffer"/>
+    /// </remarks>
     public sealed class InstancedVertexBuffer : IDisposable
     {
+        /// <summary>
+        /// The merged/full description of the <see cref="InstancedVertexBuffer"/>
+        /// </summary>
         public VertexBufferDescription Description { get; }
 
+        /// <value>
+        /// The vertex count of all buffers
+        /// </value>
         public int VertexCount { get; }
 
+        /// <summary>
+        /// The sharded vertex buffers which form the <see cref="InstancedVertexBuffer"/>
+        /// </summary>
+        /// <remarks>
+        /// Each buffer is guaranteed to contain unique/non-overlapping elements relative to the other buffers.<br></br>
+        /// The first buffer is assumed to be the "instanced" buffer.
+        /// </remarks>
         public IReadOnlyList<VertexBuffer> Buffers => this._buffers;
         private readonly List<VertexBuffer> _buffers;
 
         private bool _isDisposed;
 
+        /// <summary>
+        /// Creates a new <see cref="InstancedVertexBuffer"/> from the specified buffers
+        /// </summary>
+        /// <param name="buffers">The sharded vertex buffers</param>
+        /// <remarks>
+        /// Each buffer should contain unique/non-overlapping elements relative to the other buffers.<br></br>
+        /// The first buffer is assumed to be the "instanced" buffer.
+        /// </remarks>
         public InstancedVertexBuffer(IEnumerable<VertexBuffer> buffers)
         {
             ValidateVertexBuffers(buffers);
@@ -38,28 +67,42 @@ namespace LeagueToolkit.Core.Memory
             );
         }
 
-        public VertexElementAccessor GetAccessor(ElementName element)
+        /// <summary>
+        /// Creates a new <see cref="VertexElementAccessor"/> for the specified element
+        /// </summary>
+        /// <param name="elementName">The element to access</param>
+        public VertexElementAccessor GetAccessor(ElementName elementName)
         {
             ThrowIfDisposed();
 
             foreach (VertexBuffer vertexBuffer in this.Buffers)
             {
-                if (vertexBuffer.TryGetAccessor(element, out VertexElementAccessor accessor))
+                if (vertexBuffer.TryGetAccessor(elementName, out VertexElementAccessor accessor))
                     return accessor;
             }
 
             throw new KeyNotFoundException(
-                $"Instanced vertex buffer does not contain a vertex buffer with element: {element}"
+                $"Instanced vertex buffer does not contain a vertex buffer with element: {elementName}"
             );
         }
 
-        public bool TryGetAccessor(ElementName element, out VertexElementAccessor accessor)
+        /// <summary>
+        /// Creates a <see cref="VertexElementAccessor"/> for the specified element
+        /// </summary>
+        /// <param name="elementName">The name of the element to create an accessor for</param>
+        /// <param name="accessor">If the element is found, contains the <see cref="VertexElementAccessor"/> for it,
+        /// otherwise, the accessor is set to <see langword="default"/></param>
+        /// <returns>
+        /// <see langword="true"/> if the <see cref="InstancedVertexBuffer"/> has a <see cref="VertexBuffer"/>
+        /// which contains a <see cref="VertexElement"/> with the specified name; otherwise, <see langword="false"/>
+        /// </returns>
+        public bool TryGetAccessor(ElementName elementName, out VertexElementAccessor accessor)
         {
             ThrowIfDisposed();
 
             foreach (VertexBuffer vertexBuffer in this.Buffers)
             {
-                if (vertexBuffer.TryGetAccessor(element, out accessor))
+                if (vertexBuffer.TryGetAccessor(elementName, out accessor))
                     return true;
             }
 

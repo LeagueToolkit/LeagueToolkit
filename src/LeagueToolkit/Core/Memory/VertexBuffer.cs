@@ -98,9 +98,9 @@ namespace LeagueToolkit.Core.Memory
         /// <summary>
         /// Creates a <see cref="VertexElementAccessor"/> for the specified element
         /// </summary>
-        /// <param name="elementName">The name of the element to create an accessor over</param>
+        /// <param name="elementName">The name of the element to create an accessor for</param>
         /// <param name="accessor">If the element is found, contains the <see cref="VertexElementAccessor"/> for it,
-        /// otherwise, the accessor is set to default</param>
+        /// otherwise, the accessor is set to <see langword="default"/></param>
         /// <returns>
         /// <see langword="true"/> if the <see cref="VertexBuffer"/> contains a <see cref="VertexElement"/>
         /// with the specified name; otherwise, <see langword="false"/>
