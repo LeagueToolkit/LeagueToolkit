@@ -35,7 +35,7 @@
     "dest": "_site",
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
-    "template": ["default", "templates/discordfx"],
+    "template": ["default", "templates/singulinkfx"],
     "postProcessors": [],
     "markdownEngineName": "markdig",
     "noLangKeyword": false,
