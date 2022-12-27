@@ -2,7 +2,7 @@
 
 table ReleaseManifestFile
 {
-    ID: long;
+    ID: ulong;
     ParentID: ulong;
     Size: uint;
     Name: string;

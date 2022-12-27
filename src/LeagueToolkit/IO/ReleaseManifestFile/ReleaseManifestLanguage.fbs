@@ -3,5 +3,5 @@
 table ReleaseManifestLanguage
 {
     ID: byte;
-    name: string;
+    Name: string;
 }
