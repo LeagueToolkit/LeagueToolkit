@@ -30,6 +30,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 using System.Buffers;
 using LeagueToolkit.Core.Memory;
 using CommunityToolkit.Diagnostics;
+using System.Threading;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -37,7 +38,8 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileMapgeo("ioniabase.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
+            using MapGeometry mgeo = new("worlds_trophyonly_rewritten.mapgeo");
+            //ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
@@ -53,9 +55,11 @@ namespace LeagueToolkit.Sandbox
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
             using MapGeometry mgeo = new(toRead);
-            MapGeometryBuilder mapBuilder = new();
+            mgeo.Write(Path.ChangeExtension(rewriteTo, ".og_buffers.mapgeo"), 13);
 
-            mapBuilder.UseBucketGrid(mgeo.BucketGrid).UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+            MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
+                .UseBucketGrid(mgeo.BucketGrid)
+                .UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
