@@ -214,6 +214,38 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                         }
                     }
                 }
+
+                foreach (QuantizedAnimationTrack quantizedTrack in leagueAnimation.QuantizedTracks)
+                {
+                    NodeBuilder joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == quantizedTrack.JointHash);
+
+                    if (joint is not null)
+                    {
+                        if (quantizedTrack.Translations.Count == 0) quantizedTrack.Translations.Add(0.0f, new Vector3(0, 0, 0));
+                        if (quantizedTrack.Translations.Count == 1) quantizedTrack.Translations.Add(1.0f, new Vector3(0, 0, 0));
+                        CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(animationName);
+                        foreach (var translation in quantizedTrack.Translations)
+                        {
+                            translationBuilder.SetPoint(translation.Key, translation.Value);
+                        }
+
+                        if (quantizedTrack.Rotations.Count == 0) quantizedTrack.Rotations.Add(0.0f, Quaternion.Identity);
+                        if (quantizedTrack.Rotations.Count == 1) quantizedTrack.Rotations.Add(1.0f, Quaternion.Identity);
+                        CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
+                        foreach (var rotation in quantizedTrack.Rotations)
+                        {
+                            rotationBuilder.SetPoint(rotation.Key, rotation.Value);
+                        }
+
+                        if (quantizedTrack.Scales.Count == 0) quantizedTrack.Scales.Add(0.0f, new Vector3(1, 1, 1));
+                        if (quantizedTrack.Scales.Count == 1) quantizedTrack.Scales.Add(1.0f, new Vector3(1, 1, 1));
+                        CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
+                        foreach (var scale in quantizedTrack.Scales)
+                        {
+                            scaleBuilder.SetPoint(scale.Key, scale.Value);
+                        }
+                    }
+                }
             }
         }
 
