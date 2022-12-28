@@ -24,9 +24,9 @@ namespace LeagueToolkit.Core.Memory
         /// </summary>
         public Memory<byte> Buffer { get; }
 
-        /// <value>
+        /// <summary>
         /// The size of a vertex inside <see cref="Buffer"/>
-        /// </value>
+        /// </summary>
         public int VertexStride { get; }
 
         /// <summary>

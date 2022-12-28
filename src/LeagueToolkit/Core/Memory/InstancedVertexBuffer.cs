@@ -22,9 +22,9 @@ namespace LeagueToolkit.Core.Memory
         /// </summary>
         public VertexBufferDescription Description { get; }
 
-        /// <value>
+        /// <summary>
         /// The vertex count of all buffers
-        /// </value>
+        /// </summary>
         public int VertexCount { get; }
 
         /// <summary>

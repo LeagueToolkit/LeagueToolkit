@@ -15,9 +15,9 @@ namespace LeagueToolkit.Core.Memory
     /// <remarks>If you are the owner of a <see cref="VertexBuffer"/> instance, make sure to dispose it after you're done using it</remarks>
     public sealed class VertexBuffer : IDisposable
     {
-        /// <value>
+        /// <summary>
         /// The description of the <see cref="VertexBuffer"/>
-        /// </value>
+        /// </summary>
         public VertexBufferDescription Description { get; }
 
         /// <summary>
@@ -31,14 +31,14 @@ namespace LeagueToolkit.Core.Memory
         /// </summary>
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
 
-        /// <value>
+        /// <summary>
         /// The size of a vertex inside the buffer
-        /// </value>
+        /// </summary>
         public int VertexStride { get; }
 
-        /// <value>
+        /// <summary>
         /// The vertex count of the buffer
-        /// </value>
+        /// </summary>
         public int VertexCount { get; }
 
         private readonly MemoryOwner<byte> _buffer;

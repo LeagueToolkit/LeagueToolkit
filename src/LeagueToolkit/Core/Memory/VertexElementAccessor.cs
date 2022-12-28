@@ -19,14 +19,14 @@ namespace LeagueToolkit.Core.Memory
         /// </summary>
         public ReadOnlyMemory<byte> BufferView { get; }
 
-        /// <value>
+        /// <summary>
         /// The size of a vertex inside the buffer
-        /// </value>
+        /// </summary>
         public int VertexStride { get; }
 
-        /// <value>
+        /// <summary>
         /// The vertex count of the buffer
-        /// </value>
+        /// </summary>
         public int VertexCount { get; }
 
         /// <summary>
