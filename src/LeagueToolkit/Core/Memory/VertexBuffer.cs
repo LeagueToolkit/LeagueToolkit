@@ -15,30 +15,20 @@ namespace LeagueToolkit.Core.Memory
     /// <remarks>If you are the owner of a <see cref="VertexBuffer"/> instance, make sure to dispose it after you're done using it</remarks>
     public sealed class VertexBuffer : IDisposable
     {
-        /// <summary>
-        /// The description of the <see cref="VertexBuffer"/>
-        /// </summary>
+        /// <summary> The description of the <see cref="VertexBuffer"/></summary>
         public VertexBufferDescription Description { get; }
 
-        /// <summary>
-        /// The elements of a vertex in the <see cref="VertexBuffer"/>
-        /// </summary>
+        /// <summary>The elements of a vertex in the <see cref="VertexBuffer"/></summary>
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
-        /// <summary>
-        /// Provides a read-only view into the buffer
-        /// </summary>
+        /// <summary>Provides a read-only view into the buffer</summary>
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
 
-        /// <summary>
-        /// The size of a vertex inside the buffer
-        /// </summary>
+        /// <summary>The size of a vertex inside the buffer</summary>
         public int VertexStride { get; }
 
-        /// <summary>
-        /// The vertex count of the buffer
-        /// </summary>
+        /// <summary>The vertex count of the buffer</summary>
         public int VertexCount { get; }
 
         private readonly MemoryOwner<byte> _buffer;
@@ -130,6 +120,7 @@ namespace LeagueToolkit.Core.Memory
         {
             Guard.IsNotNull(elements, nameof(elements));
 
+            // We don't need to order the elements here because vertex size will be the same regardless of order
             int stride = SanitizeElements(elements).Sum(element => element.GetSize());
 
             return MemoryOwner<byte>.Allocate(vertexCount * stride, AllocationMode.Clear);
@@ -139,13 +130,29 @@ namespace LeagueToolkit.Core.Memory
         {
             Guard.IsNotNull(elements, nameof(elements));
 
+            return SanitizeElementsForDuplication(elements);
+        }
+
+        // TODO: Expose element ordering API
+        internal static IEnumerable<VertexElement> SanitizeElements<TElementKey>(
+            IEnumerable<VertexElement> elements,
+            Func<VertexElement, TElementKey> keySelector
+        )
+        {
+            Guard.IsNotNull(elements, nameof(elements));
+            Guard.IsNotNull(keySelector, nameof(keySelector));
+
+            return SanitizeElementsForDuplication(elements).OrderBy(keySelector);
+        }
+
+        internal static IEnumerable<VertexElement> SanitizeElementsForDuplication(IEnumerable<VertexElement> elements)
+        {
             // Check that all elements are unique
             IEnumerable<VertexElement> distinctElements = elements.Distinct();
             if (distinctElements.Count() != elements.Count())
                 ThrowHelper.ThrowArgumentException(nameof(distinctElements), "Contains duplicate vertex elements.");
 
-            // Sort elements from lowest to highest Name (stream index)
-            return distinctElements.OrderBy(element => element.Name);
+            return distinctElements;
         }
 
         internal static void ValidateBufferDimensions(ReadOnlySpan<byte> buffer, int vertexStride)

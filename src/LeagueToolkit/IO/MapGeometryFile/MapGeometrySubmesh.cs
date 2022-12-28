@@ -1,26 +1,28 @@
-﻿using System.IO;
+﻿using LeagueToolkit.Helpers.Hashing;
+using System.IO;
 using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
+    /// <summary>
+    /// Represents an environment mesh primitive
+    /// </summary>
     public struct MapGeometrySubmesh
     {
-        /// <summary>
-        /// This is the default material name for a <see cref="MapGeometrySubmesh"/>
-        /// unless a specific one is provided
-        /// </summary>
+        /// <summary>Represents the default material name for a <see cref="MapGeometrySubmesh"/></summary>
         public const string MISSING_MATERIAL = "-missing@environment-";
 
         /// <summary>
-        /// FNV1a-32 hash of <see cref="Material"/>
+        /// Represents the maximum primitive count for a <see cref="MapGeometryModel"/>
         /// </summary>
-        /// <remarks>
-        /// ⚠️ This is always set to 0 because the game computes the hash by itself ⚠️
-        /// </remarks>
+        public const uint MAX_COUNT = 64;
+
+        /// <summary>Gets a <see cref="Fnv1a"/> hash of <see cref="Material"/></summary>
+        /// <remarks>⚠️ This is always set to 0 because the game computes the hash by itself</remarks>
         public uint Hash { get; private set; }
 
         /// <summary>
-        /// The name of the StaticMaterialDef to use
+        /// Gets the name of the StaticMaterialDef to use
         /// </summary>
         /// <remarks>
         /// The StaticMaterialDef structure can be found in the respective ".materials.bin" file
@@ -28,19 +30,19 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// </remarks>
         public string Material { get; private set; }
 
+        /// <summary>Gets the start index</summary>
         public int StartIndex { get; private set; }
+
+        /// <summary>Gets the index count</summary>
         public int IndexCount { get; private set; }
 
+        /// <summary>Gets the vertex count</summary>
         public int VertexCount => this.MaxVertex - this.MinVertex + 1;
 
-        /// <summary>
-        /// The minimum vertex that's included in this range
-        /// </summary>
+        /// <summary>Gets the min vertex</summary>
         public int MinVertex { get; private set; }
 
-        /// <summary>
-        /// The maximum vertex that's included in this range
-        /// </summary>
+        /// <summary>Gets the max vertex</summary>
         public int MaxVertex { get; private set; }
 
         internal MapGeometrySubmesh(string material, int startIndex, int indexCount, int minVertex, int maxVertex)

@@ -58,12 +58,10 @@ namespace LeagueToolkit.Core.Memory
             // assuming that all elements are unique
             this.Description = new(
                 VertexBufferUsage.Static,
-                buffers
-                    .SelectMany(
-                        vertexBuffer =>
-                            vertexBuffer.Elements.Values.Select(elementDescriptor => elementDescriptor.Element)
-                    )
-                    .OrderBy(element => element.Name)
+                buffers.SelectMany(
+                    vertexBuffer => vertexBuffer.Elements.Values.Select(elementDescriptor => elementDescriptor.Element)
+                )
+            //.OrderBy(element => element.Name)
             );
         }
 

@@ -9,25 +9,22 @@ using System.Runtime.InteropServices;
 namespace LeagueToolkit.Core.Memory
 {
     /// <summary>
-    /// Wraps a memory region and exposes an interface for writing vertex data
+    /// Wraps a memory region and exposes an interface for writing vertex data into it
     /// </summary>
-    public class VertexBufferWriter
+    public sealed class VertexBufferWriter
     {
         /// <summary>
-        /// The elements of a vertex inside <see cref="Buffer"/>
+        /// The elements of a vertex inside <see cref="_buffer"/>
         /// </summary>
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
         /// <summary>
-        /// The memory region containing the written vertex data
-        /// </summary>
-        public Memory<byte> Buffer { get; }
-
-        /// <summary>
-        /// The size of a vertex inside <see cref="Buffer"/>
+        /// The size of a vertex inside <see cref="_buffer"/>
         /// </summary>
         public int VertexStride { get; }
+
+        private readonly Memory<byte> _buffer;
 
         /// <summary>
         /// Creates a new <see cref="VertexBufferWriter"/> over a specified memory region
@@ -47,7 +44,7 @@ namespace LeagueToolkit.Core.Memory
                 currentElementOffset += element.GetSize();
             }
 
-            this.Buffer = buffer;
+            this._buffer = buffer;
             this.VertexStride = this._elements.Values.Sum(descriptor => descriptor.Element.GetSize());
 
             VertexBuffer.ValidateBufferDimensions(buffer.Span, this.VertexStride);
@@ -161,13 +158,13 @@ namespace LeagueToolkit.Core.Memory
         private void Write<TValue>(int index, ElementName element, TValue value) where TValue : struct
         {
             int offset = this.VertexStride * index + this.Elements[element].Offset;
-            MemoryMarshal.Write(this.Buffer[offset..].Span, ref value);
+            MemoryMarshal.Write(this._buffer[offset..].Span, ref value);
         }
 
         private void Write(int index, ElementName element, ReadOnlySpan<byte> bytes)
         {
             int offset = this.VertexStride * index + this.Elements[element].Offset;
-            bytes.CopyTo(this.Buffer[offset..].Span);
+            bytes.CopyTo(this._buffer[offset..].Span);
         }
 
         private void ValidateAccessFormat(ElementName element, ElementFormat writingFormat)

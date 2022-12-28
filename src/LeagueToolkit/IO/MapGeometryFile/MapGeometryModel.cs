@@ -10,35 +10,51 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
+    /// <summary>
+    /// Represents a mesh inside of a <see cref="MapGeometry"/> environment asset
+    /// </summary>
     public sealed class MapGeometryModel : IDisposable
     {
         /// <summary>
-        /// The name of this mesh
+        /// Gets the mesh instance name
         /// </summary>
         /// <remarks>
         /// This feature is supported only if <c>version &lt; 12</c>
         /// </remarks>
         public string Name { get; private set; }
 
+        /// <summary>
+        /// Gets the mesh's <see cref="InstancedVertexBuffer"/>
+        /// </summary>
         public InstancedVertexBuffer VertexData => this._vertices;
 
         /// <summary>
-        /// A read-only view into the index buffer
+        /// Gets a read-only view into the index buffer
         /// </summary>
         public ReadOnlySpan<ushort> Indices => this._indices.Span;
 
         private readonly InstancedVertexBuffer _vertices;
         private readonly MemoryOwner<ushort> _indices;
 
+        /// <summary>
+        /// Gets a read-only collection of the mesh's primitives
+        /// </summary>
         public IReadOnlyList<MapGeometrySubmesh> Submeshes => this._submeshes;
         private readonly List<MapGeometrySubmesh> _submeshes = new();
 
         /// <summary>
-        /// Tells the game to flip the normals of this mesh
+        /// Gets whether to disable backface culling for the mesh
         /// </summary>
-        public bool FlipNormals { get; private set; }
+        public bool DisableBackfaceCulling { get; private set; }
 
+        /// <summary>
+        /// Gets a <see cref="Box"/> which represents the mesh AABB
+        /// </summary>
         public Box BoundingBox { get; private set; }
+
+        /// <summary>
+        /// Gets the mesh transform
+        /// </summary>
         public Matrix4x4 Transform { get; private set; }
 
         /// <summary>
@@ -51,10 +67,10 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// Tells the game on which Visibility Flags this mesh should be rendered
         /// </summary>
         public MapGeometryVisibilityFlags VisibilityFlags { get; private set; } = MapGeometryVisibilityFlags.AllLayers;
+
+        /// <summary>Gets the render flags of the mesh</summary>
         public MapGeometryMeshRenderFlags RenderFlags { get; private set; }
 
-        /// <summary>
-        /// </summary>
         /// <remarks>
         /// This feature is supported only if <c>version &lt; 7</c>
         /// </remarks>
@@ -65,37 +81,23 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// see <see href="https://docs.unity3d.com/Manual/LightProbes-TechnicalInformation.html">Unity - Light Probes</see>
         /// </summary>
         /// <remarks>
-        /// This feature is supported only if <c>version &lt; 9</c>
-        /// <br>Since version 9, terrain meshes use baked light instead</br>
+        /// This feature is supported only if <c>version &lt; 9</c><br></br>
+        /// Since version 9, terrain meshes use baked light instead
         /// </remarks>
         public IReadOnlyList<Vector3> LightProbes => this._lightProbes;
         private readonly Vector3[] _lightProbes;
 
-        /// <summary>
-        /// Information for the "STATIONARY_LIGHT" sampler
-        /// </summary>
-        /// <remarks>
-        /// Usually contains a diffuse texture
-        /// </remarks>
+        /// <summary>Gets the <c>"STATIONARY_LIGHT"</c> sampler data</summary>
+        /// <remarks>Usually contains a diffuse texture</remarks>
         public MapGeometrySamplerData StationaryLight { get; private set; }
 
-        /// <summary>
-        /// Information for the "BAKED_LIGHT" sampler
-        /// </summary>
-        /// <remarks>
-        /// Usually contains a lightmap texture (baked from scene point lights)
-        /// </remarks>
+        /// <summary>Gets the <c>"BAKED_LIGHT"</c> sampler data</summary>
+        /// <remarks>Usually contains a lightmap texture (baked from scene point lights)</remarks>
         public MapGeometrySamplerData BakedLight { get; private set; }
 
-        /// <summary>
-        /// Information for the "BAKED_PAINT" sampler
-        /// </summary>
-        /// <remarks>
-        /// Usually contains a texture with baked diffuse and lightmap data
-        /// </remarks>
+        /// <summary>Gets the <c>"BAKED_PAINT"</c> sampler data</summary>
+        /// <remarks>Usually contains a texture with baked diffuse and lightmap data</remarks>
         public MapGeometrySamplerData BakedPaint { get; private set; }
-
-        public const uint MAX_SUBMESH_COUNT = 64;
 
         internal int _baseDescriptionId;
         internal int[] _vertexBufferIds;
@@ -109,7 +111,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MemoryOwner<ushort> indices,
             IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transform,
-            bool flipNormals,
+            bool disableBackfaceCulling,
             MapGeometryEnvironmentQualityFilter environmentQualityFilter,
             MapGeometryVisibilityFlags visibilityFlags,
             MapGeometryMeshRenderFlags renderFlags,
@@ -126,7 +128,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             this.Transform = transform;
 
-            this.FlipNormals = flipNormals;
+            this.DisableBackfaceCulling = disableBackfaceCulling;
             this.EnvironmentQualityFilter = environmentQualityFilter;
             this.VisibilityFlags = visibilityFlags;
             this.RenderFlags = renderFlags;
@@ -141,7 +143,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         internal MapGeometryModel(
             BinaryReader br,
             int id,
-            List<VertexBufferDescription> vertexElementGroups,
+            List<VertexBufferDescription> vertexBufferDescriptions,
             List<long> vertexBufferOffsets,
             List<MemoryOwner<ushort>> indexBuffers,
             bool useSeparatePointLights,
@@ -156,7 +158,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // This ID is always that of the "instanced" vertex buffer which
             // means that the data of the first vertex buffer is instanced (unique to this mesh instance).
             // (Assuming that this mesh uses at least 2 vertex buffers)
-            int baseVertexElementGroup = br.ReadInt32();
+            int baseVertexBufferDescriptionId = br.ReadInt32();
 
             VertexBuffer[] vertexBuffers = new VertexBuffer[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
@@ -164,9 +166,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 int vertexBufferId = br.ReadInt32();
                 long returnPosition = br.BaseStream.Position;
 
-                VertexBufferDescription vertexElementGroup = vertexElementGroups[baseVertexElementGroup + i];
+                VertexBufferDescription vertexBufferDescription = vertexBufferDescriptions[
+                    baseVertexBufferDescriptionId + i
+                ];
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
-                    vertexElementGroup.Elements,
+                    vertexBufferDescription.Elements,
                     vertexCount
                 );
 
@@ -174,8 +178,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 br.Read(vertexBufferOwner.Span);
 
                 vertexBuffers[i] = VertexBuffer.Create(
-                    vertexElementGroup.Usage,
-                    vertexElementGroup.Elements,
+                    vertexBufferDescription.Usage,
+                    vertexBufferDescription.Elements,
                     vertexBufferOwner
                 );
 
@@ -201,7 +205,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             if (version != 5)
             {
-                this.FlipNormals = br.ReadBoolean();
+                this.DisableBackfaceCulling = br.ReadBoolean();
             }
 
             this.BoundingBox = br.ReadBox();
@@ -278,7 +282,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             if (version != 5)
             {
-                bw.Write(this.FlipNormals);
+                bw.Write(this.DisableBackfaceCulling);
             }
 
             bw.WriteBox(this.BoundingBox);
@@ -325,6 +329,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
+        /// <summary>
+        /// Creates a name for a <see cref="MapGeometryModel"/> with the specified <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">The ID of the <see cref="MapGeometryModel"/></param>
+        /// <returns>The created name</returns>
         public static string CreateName(int id)
         {
             // League assigns this name to the meshes automatically during reading
@@ -353,10 +362,17 @@ namespace LeagueToolkit.IO.MapGeometryFile
         }
     }
 
+    /// <summary>
+    /// Used for limiting the visibility of environment meshes based on layer changes
+    /// </summary>
     [Flags]
     public enum MapGeometryVisibilityFlags : byte
     {
+        /// <summary>
+        /// Toggles visibility on no layers
+        /// </summary>
         NoLayer = 0,
+
         Layer1 = 1 << 0,
         Layer2 = 1 << 1,
         Layer3 = 1 << 2,
@@ -365,9 +381,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
         Layer6 = 1 << 5,
         Layer7 = 1 << 6,
         Layer8 = 1 << 7,
+
+        /// <summary>
+        /// Toggles visibility on all layers
+        /// </summary>
         AllLayers = Layer1 | Layer2 | Layer3 | Layer4 | Layer5 | Layer6 | Layer7 | Layer8
     }
 
+    /// <summary>
+    /// Used for limiting the visibility of an environment mesh for specific environment quality settings
+    /// </summary>
     [Flags]
     public enum MapGeometryEnvironmentQualityFilter : byte
     {
@@ -377,9 +400,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
         High = 1 << 3,
         VeryHigh = 1 << 4,
 
+        /// <summary>
+        /// Toggles visibility for all qualities
+        /// </summary>
         AllQualities = VeryLow | Low | Medium | High | VeryHigh
     }
 
+    /// <summary>
+    /// General render flags
+    /// </summary>
     [Flags]
     public enum MapGeometryMeshRenderFlags : byte
     {

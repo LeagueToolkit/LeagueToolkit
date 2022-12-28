@@ -53,9 +53,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 vertexBufferWriter.WriteFloat(1, ElementName.FogCoordinate, 1f);
                 vertexBufferWriter.WriteFloat(2, ElementName.FogCoordinate, 2f);
 
-                Assert.Equal(0f, MemoryMarshal.Read<float>(vertexBufferWriter.Buffer[0..].Span));
-                Assert.Equal(1f, MemoryMarshal.Read<float>(vertexBufferWriter.Buffer[4..].Span));
-                Assert.Equal(2f, MemoryMarshal.Read<float>(vertexBufferWriter.Buffer[8..].Span));
+                Assert.Equal(0f, MemoryMarshal.Read<float>(vertexBufferOwner.Span[0..]));
+                Assert.Equal(1f, MemoryMarshal.Read<float>(vertexBufferOwner.Span[4..]));
+                Assert.Equal(2f, MemoryMarshal.Read<float>(vertexBufferOwner.Span[8..]));
             }
         }
 
@@ -72,9 +72,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 vertexBufferWriter.WriteVector2(1, ElementName.DiffuseUV, new(1f, 1f));
                 vertexBufferWriter.WriteVector2(2, ElementName.DiffuseUV, new(2f, 2f));
 
-                Assert.Equal(new(0f, 0f), MemoryMarshal.Read<Vector2>(vertexBufferWriter.Buffer[0..].Span));
-                Assert.Equal(new(1f, 1f), MemoryMarshal.Read<Vector2>(vertexBufferWriter.Buffer[8..].Span));
-                Assert.Equal(new(2f, 2f), MemoryMarshal.Read<Vector2>(vertexBufferWriter.Buffer[16..].Span));
+                Assert.Equal(new(0f, 0f), MemoryMarshal.Read<Vector2>(vertexBufferOwner.Span[0..]));
+                Assert.Equal(new(1f, 1f), MemoryMarshal.Read<Vector2>(vertexBufferOwner.Span[8..]));
+                Assert.Equal(new(2f, 2f), MemoryMarshal.Read<Vector2>(vertexBufferOwner.Span[16..]));
             }
         }
 
@@ -91,9 +91,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 vertexBufferWriter.WriteVector3(1, ElementName.Position, new(1f, 1f, 1f));
                 vertexBufferWriter.WriteVector3(2, ElementName.Position, new(2f, 2f, 2f));
 
-                Assert.Equal(new(0f, 0f, 0f), MemoryMarshal.Read<Vector3>(vertexBufferWriter.Buffer[0..].Span));
-                Assert.Equal(new(1f, 1f, 1f), MemoryMarshal.Read<Vector3>(vertexBufferWriter.Buffer[12..].Span));
-                Assert.Equal(new(2f, 2f, 2f), MemoryMarshal.Read<Vector3>(vertexBufferWriter.Buffer[24..].Span));
+                Assert.Equal(new(0f, 0f, 0f), MemoryMarshal.Read<Vector3>(vertexBufferOwner.Span[0..]));
+                Assert.Equal(new(1f, 1f, 1f), MemoryMarshal.Read<Vector3>(vertexBufferOwner.Span[12..]));
+                Assert.Equal(new(2f, 2f, 2f), MemoryMarshal.Read<Vector3>(vertexBufferOwner.Span[24..]));
             }
         }
 
@@ -110,9 +110,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 vertexBufferWriter.WriteVector4(1, ElementName.BlendWeight, new(1f, 1f, 1f, 1f));
                 vertexBufferWriter.WriteVector4(2, ElementName.BlendWeight, new(2f, 2f, 2f, 2f));
 
-                Assert.Equal(new(0f, 0f, 0f, 0f), MemoryMarshal.Read<Vector4>(vertexBufferWriter.Buffer[0..].Span));
-                Assert.Equal(new(1f, 1f, 1f, 1f), MemoryMarshal.Read<Vector4>(vertexBufferWriter.Buffer[16..].Span));
-                Assert.Equal(new(2f, 2f, 2f, 2f), MemoryMarshal.Read<Vector4>(vertexBufferWriter.Buffer[32..].Span));
+                Assert.Equal(new(0f, 0f, 0f, 0f), MemoryMarshal.Read<Vector4>(vertexBufferOwner.Span[0..]));
+                Assert.Equal(new(1f, 1f, 1f, 1f), MemoryMarshal.Read<Vector4>(vertexBufferOwner.Span[16..]));
+                Assert.Equal(new(2f, 2f, 2f, 2f), MemoryMarshal.Read<Vector4>(vertexBufferOwner.Span[32..]));
             }
         }
 
@@ -132,9 +132,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 vertexBufferWriter.WriteColorBgraU8(1, ElementName.BaseColor, new(4, 5, 6, 7));
                 vertexBufferWriter.WriteColorBgraU8(2, ElementName.BaseColor, new(8, 9, 10, 11));
 
-                Assert.Equal(new(0, 1, 2, 3), Color.Read(vertexBufferWriter.Buffer[0..].Span, ColorFormat.BgraU8));
-                Assert.Equal(new(4, 5, 6, 7), Color.Read(vertexBufferWriter.Buffer[4..].Span, ColorFormat.BgraU8));
-                Assert.Equal(new(8, 9, 10, 11), Color.Read(vertexBufferWriter.Buffer[8..].Span, ColorFormat.BgraU8));
+                Assert.Equal(new(0, 1, 2, 3), Color.Read(vertexBufferOwner.Span[0..], ColorFormat.BgraU8));
+                Assert.Equal(new(4, 5, 6, 7), Color.Read(vertexBufferOwner.Span[4..], ColorFormat.BgraU8));
+                Assert.Equal(new(8, 9, 10, 11), Color.Read(vertexBufferOwner.Span[8..], ColorFormat.BgraU8));
             }
         }
 
@@ -154,9 +154,9 @@ namespace LeagueToolkit.Tests.Core.Memory
                 vertexBufferWriter.WriteColorRgbaU8(1, ElementName.BaseColor, new(4, 5, 6, 7));
                 vertexBufferWriter.WriteColorRgbaU8(2, ElementName.BaseColor, new(8, 9, 10, 11));
 
-                Assert.Equal(new(0, 1, 2, 3), Color.Read(vertexBufferWriter.Buffer[0..].Span, ColorFormat.RgbaU8));
-                Assert.Equal(new(4, 5, 6, 7), Color.Read(vertexBufferWriter.Buffer[4..].Span, ColorFormat.RgbaU8));
-                Assert.Equal(new(8, 9, 10, 11), Color.Read(vertexBufferWriter.Buffer[8..].Span, ColorFormat.RgbaU8));
+                Assert.Equal(new(0, 1, 2, 3), Color.Read(vertexBufferOwner.Span[0..], ColorFormat.RgbaU8));
+                Assert.Equal(new(4, 5, 6, 7), Color.Read(vertexBufferOwner.Span[4..], ColorFormat.RgbaU8));
+                Assert.Equal(new(8, 9, 10, 11), Color.Read(vertexBufferOwner.Span[8..], ColorFormat.RgbaU8));
             }
         }
 
@@ -178,15 +178,15 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 Assert.Equal(
                     new(0, 1, 2, 3),
-                    MemoryMarshal.Read<(byte z, byte y, byte x, byte w)>(vertexBufferWriter.Buffer[0..].Span)
+                    MemoryMarshal.Read<(byte z, byte y, byte x, byte w)>(vertexBufferOwner.Span[0..])
                 );
                 Assert.Equal(
                     new(4, 5, 6, 7),
-                    MemoryMarshal.Read<(byte z, byte y, byte x, byte w)>(vertexBufferWriter.Buffer[4..].Span)
+                    MemoryMarshal.Read<(byte z, byte y, byte x, byte w)>(vertexBufferOwner.Span[4..])
                 );
                 Assert.Equal(
                     new(8, 9, 10, 11),
-                    MemoryMarshal.Read<(byte z, byte y, byte x, byte w)>(vertexBufferWriter.Buffer[8..].Span)
+                    MemoryMarshal.Read<(byte z, byte y, byte x, byte w)>(vertexBufferOwner.Span[8..])
                 );
             }
         }
@@ -209,15 +209,15 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 Assert.Equal(
                     new(0, 1, 2, 3),
-                    MemoryMarshal.Read<(byte x, byte y, byte z, byte w)>(vertexBufferWriter.Buffer[0..].Span)
+                    MemoryMarshal.Read<(byte x, byte y, byte z, byte w)>(vertexBufferOwner.Span[0..])
                 );
                 Assert.Equal(
                     new(4, 5, 6, 7),
-                    MemoryMarshal.Read<(byte x, byte y, byte z, byte w)>(vertexBufferWriter.Buffer[4..].Span)
+                    MemoryMarshal.Read<(byte x, byte y, byte z, byte w)>(vertexBufferOwner.Span[4..])
                 );
                 Assert.Equal(
                     new(8, 9, 10, 11),
-                    MemoryMarshal.Read<(byte x, byte y, byte z, byte w)>(vertexBufferWriter.Buffer[8..].Span)
+                    MemoryMarshal.Read<(byte x, byte y, byte z, byte w)>(vertexBufferOwner.Span[8..])
                 );
             }
         }
