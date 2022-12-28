@@ -24,23 +24,23 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         private MapGeometrySamplerData _bakedLight;
         private MapGeometrySamplerData _bakedPaint;
 
-        private readonly List<MapGeometryModelBuilderRange> _submeshes = new();
+        private MapGeometryModelBuilderRange[] _submeshes;
 
-        // TODO: Make a buffer wrapper for these
+        // TODO:
+        // Figure out a way to expose a writing interface to the user
+        // without leaking writable references to Memory<T>
         private VertexBuffer _vertexBuffer;
-        private MemoryOwner<ushort> _indices;
+        private MemoryOwner<ushort> _indexBuffer;
 
         public MapGeometryModelBuilder() { }
 
         internal MapGeometryModel Build(int meshId)
         {
-            SanitizeMeshRanges();
-
             // TODO: This should be simplified
             return new(
                 meshId,
                 this._vertexBuffer,
-                this._indices,
+                this._indexBuffer,
                 this._submeshes.Select(submesh => submesh.Build()),
                 this._transform,
                 this._flipNormals,
@@ -53,89 +53,60 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
             );
         }
 
-        private void SanitizeMeshRanges()
+        private IEnumerable<MapGeometryModelBuilderRange> SanitizeMeshRanges(
+            IEnumerable<MapGeometryModelBuilderRange> ranges,
+            MemoryOwner<ushort> indexBuffer,
+            VertexBuffer vertexBuffer
+        )
         {
-            if (this._submeshes.Count == 0)
-            {
-                ThrowHelper.ThrowInvalidOperationException("Mesh must contain at least 1 submesh.");
-            }
-
             // Get the index min/max for each submesh
-            for (int i = 0; i < this._submeshes.Count; i++)
+            foreach (MapGeometryModelBuilderRange range in ranges)
             {
-                MapGeometryModelBuilderRange submesh = this._submeshes[i];
-
                 // Index range must be within bounds
-                if (submesh.StartIndex + submesh.IndexCount > this._indices.Length)
-                {
+                if (range.StartIndex + range.IndexCount > indexBuffer.Length)
                     ThrowHelper.ThrowInvalidOperationException(
-                        $"Submesh: {submesh.Material} index range goes out of bounds (IndexCount: {this._indices.Length})."
+                        $"Submesh: {range.Material} index range goes out of bounds ({nameof(indexBuffer.Length)}: {indexBuffer.Length})."
                     );
-                }
 
-                ReadOnlySpan<ushort> submeshIndices = this._indices.Span.Slice(submesh.StartIndex, submesh.IndexCount);
+                ReadOnlySpan<ushort> rangeIndices = indexBuffer.Span.Slice(range.StartIndex, range.IndexCount);
 
-                ushort minVertex = submeshIndices.Min();
-                ushort maxVertex = submeshIndices.Max();
+                ushort minVertex = rangeIndices.Min();
+                ushort maxVertex = rangeIndices.Max();
 
                 // Vertex interval must be within range
-                if (minVertex + 1 > this._vertexBuffer.VertexCount || maxVertex - 1 > this._vertexBuffer.VertexCount)
-                {
+                if (minVertex + 1 > vertexBuffer.VertexCount || maxVertex - 1 > vertexBuffer.VertexCount)
                     ThrowHelper.ThrowInvalidOperationException(
-                        $"Submesh: {submesh.Material} vertex interval: [{minVertex}, {maxVertex}] goes out of bounds"
-                            + $" (VertexCount: {this._indices.Length})."
+                        $"Submesh: {range.Material} vertex interval: [{minVertex}, {maxVertex}] goes out of bounds"
+                            + $" ({nameof(vertexBuffer.VertexCount)}: {vertexBuffer.VertexCount})."
                     );
-                }
 
-                // Ranges are valid, assign them
-                submesh.MinVertex = minVertex;
-                submesh.MaxVertex = maxVertex;
-                this._submeshes[i] = submesh;
+                yield return new(range.Material, range.StartIndex, range.IndexCount, minVertex, maxVertex);
             }
         }
 
-        public void UseGeometry(
-            int indexCount,
-            int vertexCount,
+        public MapGeometryModelBuilder UseGeometry(
+            IEnumerable<MapGeometryModelBuilderRange> ranges,
             IEnumerable<VertexElement> vertexElements,
+            int vertexCount,
             Action<MemoryBufferWriter<ushort>, VertexBufferWriter> writeGeometryCallback
         )
         {
-            Guard.IsGreaterThan(indexCount, 0, nameof(indexCount));
-            Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
-            Guard.IsNotNull(writeGeometryCallback, nameof(writeGeometryCallback));
+            Guard.IsNotNull(ranges, nameof(ranges));
 
-            // Create buffers
-            this._indices = MemoryOwner<ushort>.Allocate(indexCount);
+            // Create index buffer
+            int indexCount = ranges.Sum(submesh => submesh.IndexCount);
+            this._indexBuffer = MemoryOwner<ushort>.Allocate(indexCount);
+
+            // Create vertex buffer
             MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(vertexElements, vertexCount);
+            this._vertexBuffer = VertexBuffer.Create(VertexBufferUsage.Static, vertexElements, vertexBufferOwner);
 
-            // Create buffer writers
-            MemoryBufferWriter<ushort> indexBufferWriter = new(this._indices.Memory);
-            VertexBufferWriter vertexBufferWriter = new(vertexElements, vertexBufferOwner.Memory);
+            writeGeometryCallback.Invoke(new(this._indexBuffer.Memory), new(vertexElements, vertexBufferOwner.Memory));
 
-            // Call the user-defined writing function
-            writeGeometryCallback.Invoke(indexBufferWriter, vertexBufferWriter);
-
-            this._vertexBuffer = VertexBuffer.Create(
-                VertexBufferUsage.Static,
-                vertexBufferWriter.Elements.Values.Select(descriptor => descriptor.Element),
-                vertexBufferOwner
-            );
-
-            // Verify that the data has been written
-            if (indexBufferWriter.WrittenCount != indexCount)
-                ThrowHelper.ThrowInvalidOperationException(
-                    $"Only {indexBufferWriter.WrittenCount} indices were written out of the allocated {indexCount}"
-                );
-        }
-
-        public MapGeometryModelBuilder UseSubmesh(MapGeometryModelBuilderRange submesh)
-        {
-            Guard.IsNotNullOrEmpty(submesh.Material, nameof(submesh.Material));
-            Guard.IsGreaterThanOrEqualTo(submesh.StartIndex, 0, nameof(submesh.StartIndex));
-            Guard.IsGreaterThan(submesh.IndexCount, 0, nameof(submesh.IndexCount));
-
-            this._submeshes.Add(submesh);
+            // TODO:
+            // If we had a separate callback for writing indices, we would be able to
+            // figure out vertexCount from max index of said indices
+            this._submeshes = SanitizeMeshRanges(ranges, this._indexBuffer, this._vertexBuffer).ToArray();
             return this;
         }
 
@@ -190,22 +161,33 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         }
     }
 
-    public struct MapGeometryModelBuilderRange
+    public readonly struct MapGeometryModelBuilderRange
     {
-        public string Material;
+        public string Material { get; }
 
-        public int StartIndex;
-        public int IndexCount;
+        public int StartIndex { get; }
+        public int IndexCount { get; }
 
-        // This is temporary hack, will be set by builder
-        internal int MinVertex;
-        internal int MaxVertex;
+        public int MinVertex { get; }
+        public int MaxVertex { get; }
 
         public MapGeometryModelBuilderRange(string material, int startIndex, int indexCount)
         {
             this.Material = string.IsNullOrEmpty(material) ? MapGeometrySubmesh.MISSING_MATERIAL : material;
             this.StartIndex = startIndex;
             this.IndexCount = indexCount;
+        }
+
+        internal MapGeometryModelBuilderRange(
+            string material,
+            int startIndex,
+            int indexCount,
+            int minVertex,
+            int maxVertex
+        ) : this(material, startIndex, indexCount)
+        {
+            this.MinVertex = minVertex;
+            this.MaxVertex = maxVertex;
         }
 
         internal MapGeometrySubmesh Build()

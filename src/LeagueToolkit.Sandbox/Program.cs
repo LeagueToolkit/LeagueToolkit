@@ -31,6 +31,7 @@ using System.Buffers;
 using LeagueToolkit.Core.Memory;
 using CommunityToolkit.Diagnostics;
 using System.Threading;
+using CommunityToolkit.HighPerformance;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -38,8 +39,8 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            using MapGeometry mgeo = new("worlds_trophyonly_rewritten.mapgeo");
-            //ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
+            //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
+            ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
@@ -55,24 +56,18 @@ namespace LeagueToolkit.Sandbox
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
             using MapGeometry mgeo = new(toRead);
-            mgeo.Write(Path.ChangeExtension(rewriteTo, ".og_buffers.mapgeo"), 13);
+            //mgeo.Write(Path.ChangeExtension(rewriteTo, "og_buffers.mapgeo"), 13);
 
             MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
                 .UseBucketGrid(mgeo.BucketGrid)
                 .UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
+            Dictionary<ElementName, int> elementOrder =
+                new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
+
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                MapGeometryModelBuilder meshBuilder = new();
-
-                for (int i = 0; i < mesh.Submeshes.Count; i++)
-                {
-                    MapGeometrySubmesh submesh = mesh.Submeshes[i];
-
-                    meshBuilder.UseSubmesh(new(submesh.Material, submesh.StartIndex, submesh.IndexCount));
-                }
-
-                meshBuilder
+                MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()
                     .UseTransform(mesh.Transform)
                     .UseFlipNormalsToggle(mesh.FlipNormals)
                     .UseEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
@@ -82,9 +77,16 @@ namespace LeagueToolkit.Sandbox
                     .UseBakedLightSampler(mesh.BakedLight)
                     .UseBakedPaintSampler(mesh.BakedPaint)
                     .UseGeometry(
-                        mesh.Indices.Length,
-                        mesh.VertexData.VertexCount,
+                        mesh.Submeshes.Select(
+                            submesh =>
+                                new MapGeometryModelBuilderRange(
+                                    MapGeometrySubmesh.MISSING_MATERIAL,
+                                    submesh.StartIndex,
+                                    submesh.IndexCount
+                                )
+                        ),
                         mesh.VertexData.Description.Elements,
+                        mesh.VertexData.VertexCount,
                         (indexBufferWriter, vertexBufferWriter) =>
                         {
                             indexBufferWriter.Write(mesh.Indices);
