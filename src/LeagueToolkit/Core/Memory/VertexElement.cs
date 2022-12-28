@@ -30,15 +30,10 @@ namespace LeagueToolkit.Core.Memory
         public static readonly VertexElement TEXCOORD_6 = new(ElementName.Texcoord6, ElementFormat.XY_Float32);
         public static readonly VertexElement LIGHTMAP_UV = new(ElementName.LightmapUV, ElementFormat.XY_Float32);
 
-        /// <summary>
-        /// The <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics">
-        /// semantic name</seealso> of this element
-        /// </summary>
+        /// <summary> The semantic name of the <see cref="VertexElement"/> </summary>
         public ElementName Name { get; }
 
-        /// <summary>
-        /// The format of this element's value
-        /// </summary>
+        /// <summary> The format of the <see cref="VertexElement"/> </summary>
         public ElementFormat Format { get; }
 
         /// <summary>
@@ -62,9 +57,11 @@ namespace LeagueToolkit.Core.Memory
             bw.Write((uint)this.Format);
         }
 
-        /// <returns>The size of an element's value</returns>
+        /// <summary>Gets the size of the <see cref="VertexElement"/> value</summary>
+        /// <returns>The size of the <see cref="VertexElement"/> value</returns>
         public int GetSize() => GetFormatSize(this.Format);
 
+        /// <summary>Gets the size of the specified <see cref="ElementFormat"/></summary>
         /// <returns>The size of <paramref name="format"/></returns>
         public static int GetFormatSize(ElementFormat format)
         {
@@ -102,9 +99,11 @@ namespace LeagueToolkit.Core.Memory
 
     /// <summary>
     /// The values of <see cref="ElementName"/> are used as Stream ID's for the renderer. <br></br>
-    /// <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#vertex-shader-semantics">
-    /// D3D HLSL Vertex Shader Semantics
-    /// </seealso>
+    /// Refer to the <seealso href="https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-semantics#vertex-shader-semantics">
+    /// DirectX/HLSL </seealso>
+    /// or <seealso href="https://www.khronos.org/opengl/wiki/Vertex_Specification">
+    /// OpenGL </seealso>
+    /// documentation
     /// </summary>
     // Riot::Renderer::Mesh::Elem
     public enum ElementName : int
