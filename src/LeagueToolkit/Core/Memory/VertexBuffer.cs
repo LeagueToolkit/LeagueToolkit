@@ -133,6 +133,7 @@ namespace LeagueToolkit.Core.Memory
             return SanitizeElementsForDuplication(elements);
         }
 
+        // TODO: Expose element ordering API
         internal static IEnumerable<VertexElement> SanitizeElements<TElementKey>(
             IEnumerable<VertexElement> elements,
             Func<VertexElement, TElementKey> keySelector
