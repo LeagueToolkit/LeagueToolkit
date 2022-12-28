@@ -69,7 +69,8 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         /// <param name="writeGeometryCallback">This function is invoked after creating the respective buffers</param>
         /// <remarks>
         /// ⚠️ The caller of this function is responsible for not storing a reference
-        /// to the buffers passed into <paramref name="writeGeometryCallback"/>, doing so is undefined behavior
+        /// to the buffers passed into <paramref name="writeGeometryCallback"/>, doing so is undefined behavior. <br></br>
+        /// ⚠️ It is recommended to order <paramref name="vertexElements"/> by their <see cref="ElementName"/> in descending order
         /// </remarks>
         public MapGeometryModelBuilder UseGeometry(
             IEnumerable<MeshPrimitiveBuilder> primitives,
