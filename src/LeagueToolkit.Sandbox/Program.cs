@@ -69,7 +69,7 @@ namespace LeagueToolkit.Sandbox
             {
                 MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()
                     .UseTransform(mesh.Transform)
-                    .UseFlipNormalsToggle(mesh.FlipNormals)
+                    .UseDisableBackfaceCulling(mesh.FlipNormals)
                     .UseEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
                     .UseVisibilityFlags(mesh.VisibilityFlags)
                     .UseRenderFlags(mesh.RenderFlags)

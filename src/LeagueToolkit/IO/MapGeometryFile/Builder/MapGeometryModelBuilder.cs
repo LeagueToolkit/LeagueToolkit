@@ -11,11 +11,14 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile.Builder
 {
+    /// <summary>
+    /// Provides an interface for building a <see cref="MapGeometryModel"/>
+    /// </summary>
     public sealed class MapGeometryModelBuilder
     {
         private Matrix4x4 _transform;
 
-        private bool _flipNormals;
+        private bool _disableBackfaceCulling;
         private MapGeometryEnvironmentQualityFilter _environmentQualityMask;
         private MapGeometryVisibilityFlags _visibilityFlags;
         private MapGeometryMeshRenderFlags _renderFlags;
@@ -37,6 +40,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         private VertexBuffer _vertexBuffer;
         private MemoryOwner<ushort> _indexBuffer;
 
+        /// <summary>Creates a new <see cref="MapGeometryBuilder"/> instance</summary>
         public MapGeometryModelBuilder() { }
 
         internal MapGeometryModel Build(int meshId)
@@ -48,7 +52,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
                 this._indexBuffer,
                 this._ranges,
                 this._transform,
-                this._flipNormals,
+                this._disableBackfaceCulling,
                 this._environmentQualityMask,
                 this._visibilityFlags,
                 this._renderFlags,
@@ -56,6 +60,102 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
                 this._bakedLight,
                 this._bakedPaint
             );
+        }
+
+        /// <summary>Sets the specified geometry data for the <see cref="MapGeometryModel"/></summary>
+        /// <param name="primitives">The primitives of the <see cref="MapGeometryModel"/></param>
+        /// <param name="vertexElements">The vertex elements of the <see cref="MapGeometryModel"/></param>
+        /// <param name="vertexCount">The vertex count of the <see cref="MapGeometryModel"/></param>
+        /// <param name="writeGeometryCallback">This function is invoked after creating the respective buffers</param>
+        /// <remarks>
+        /// ⚠️ The caller of this function is responsible for not storing a reference
+        /// to the buffers passed into <paramref name="writeGeometryCallback"/>, doing so is undefined behavior
+        /// </remarks>
+        public MapGeometryModelBuilder UseGeometry(
+            IEnumerable<MeshPrimitiveBuilder> primitives,
+            IEnumerable<VertexElement> vertexElements,
+            int vertexCount,
+            Action<MemoryBufferWriter<ushort>, VertexBufferWriter> writeGeometryCallback
+        )
+        {
+            Guard.IsNotNull(primitives, nameof(primitives));
+            Guard.IsNotNull(vertexElements, nameof(vertexElements));
+            Guard.IsNotNull(writeGeometryCallback, nameof(writeGeometryCallback));
+            Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
+
+            // Create index buffer
+            int indexCount = primitives.Sum(primitive => primitive.IndexCount);
+            this._indexBuffer = MemoryOwner<ushort>.Allocate(indexCount);
+
+            // Create vertex buffer
+            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(vertexElements, vertexCount);
+            this._vertexBuffer = VertexBuffer.Create(VertexBufferUsage.Static, vertexElements, vertexBufferOwner);
+
+            writeGeometryCallback.Invoke(new(this._indexBuffer.Memory), new(vertexElements, vertexBufferOwner.Memory));
+
+            // TODO:
+            // If we had a separate callback for writing indices, we would be able to
+            // figure out vertexCount from max index of said indices
+            this._ranges = CreateRanges(primitives, this._indexBuffer, this._vertexBuffer).ToArray();
+            return this;
+        }
+
+        /// <summary>Sets the backface culling toggle for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseDisableBackfaceCulling(bool disableBackfaceCulling)
+        {
+            this._disableBackfaceCulling = disableBackfaceCulling;
+            return this;
+        }
+
+        /// <summary>Sets the specified transform for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseTransform(Matrix4x4 transform)
+        {
+            this._transform = transform;
+            return this;
+        }
+
+        /// <summary>Sets the specified environment quality filter for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseEnvironmentQualityFilter(
+            MapGeometryEnvironmentQualityFilter environmentQualityFilter
+        )
+        {
+            this._environmentQualityMask = environmentQualityFilter;
+            return this;
+        }
+
+        /// <summary>Sets the specified visibility flags for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseVisibilityFlags(MapGeometryVisibilityFlags visibilityFlags)
+        {
+            this._visibilityFlags = visibilityFlags;
+            return this;
+        }
+
+        /// <summary>Sets the specified render flags for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseRenderFlags(MapGeometryMeshRenderFlags renderFlags)
+        {
+            this._renderFlags = renderFlags;
+            return this;
+        }
+
+        /// <summary>Sets the specified Stationary Light sampler for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseStationaryLightSampler(MapGeometrySamplerData stationaryLight)
+        {
+            this._stationaryLight = stationaryLight;
+            return this;
+        }
+
+        /// <summary>Sets the specified Baked Light sampler for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseBakedLightSampler(MapGeometrySamplerData bakedLight)
+        {
+            this._bakedLight = bakedLight;
+            return this;
+        }
+
+        /// <summary>Sets the specified Baked Paint sampler for the <see cref="MapGeometryModel"/></summary>
+        public MapGeometryModelBuilder UseBakedPaintSampler(MapGeometrySamplerData bakedPaint)
+        {
+            this._bakedPaint = bakedPaint;
+            return this;
         }
 
         private IEnumerable<MapGeometrySubmesh> CreateRanges(
@@ -87,85 +187,6 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
                 yield return new(primitive.Material, primitive.StartIndex, primitive.IndexCount, minVertex, maxVertex);
             }
-        }
-
-        public MapGeometryModelBuilder UseGeometry(
-            IEnumerable<MeshPrimitiveBuilder> primitives,
-            IEnumerable<VertexElement> vertexElements,
-            int vertexCount,
-            Action<MemoryBufferWriter<ushort>, VertexBufferWriter> writeGeometryCallback
-        )
-        {
-            Guard.IsNotNull(primitives, nameof(primitives));
-            Guard.IsNotNull(vertexElements, nameof(vertexElements));
-            Guard.IsNotNull(writeGeometryCallback, nameof(writeGeometryCallback));
-            Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
-
-            // Create index buffer
-            int indexCount = primitives.Sum(primitive => primitive.IndexCount);
-            this._indexBuffer = MemoryOwner<ushort>.Allocate(indexCount);
-
-            // Create vertex buffer
-            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(vertexElements, vertexCount);
-            this._vertexBuffer = VertexBuffer.Create(VertexBufferUsage.Static, vertexElements, vertexBufferOwner);
-
-            writeGeometryCallback.Invoke(new(this._indexBuffer.Memory), new(vertexElements, vertexBufferOwner.Memory));
-
-            // TODO:
-            // If we had a separate callback for writing indices, we would be able to
-            // figure out vertexCount from max index of said indices
-            this._ranges = CreateRanges(primitives, this._indexBuffer, this._vertexBuffer).ToArray();
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseFlipNormalsToggle(bool flipNormals)
-        {
-            this._flipNormals = flipNormals;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseTransform(Matrix4x4 transform)
-        {
-            this._transform = transform;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseEnvironmentQualityFilter(
-            MapGeometryEnvironmentQualityFilter environmentQualityFilter
-        )
-        {
-            this._environmentQualityMask = environmentQualityFilter;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseVisibilityFlags(MapGeometryVisibilityFlags visibilityFlags)
-        {
-            this._visibilityFlags = visibilityFlags;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseRenderFlags(MapGeometryMeshRenderFlags renderFlags)
-        {
-            this._renderFlags = renderFlags;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseStationaryLightSampler(MapGeometrySamplerData stationaryLight)
-        {
-            this._stationaryLight = stationaryLight;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseBakedLightSampler(MapGeometrySamplerData bakedLight)
-        {
-            this._bakedLight = bakedLight;
-            return this;
-        }
-
-        public MapGeometryModelBuilder UseBakedPaintSampler(MapGeometrySamplerData bakedPaint)
-        {
-            this._bakedPaint = bakedPaint;
-            return this;
         }
     }
 
