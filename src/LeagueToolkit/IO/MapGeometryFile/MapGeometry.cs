@@ -205,7 +205,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 vertexElementGroup.WriteToMapGeometry(bw);
             }
 
-            WriteVertexBuffers(bw, vertexElementGroups, version);
+            WriteVertexBuffers(bw, version);
             WriteIndexBuffers(bw, version);
 
             bw.Write(this._meshes.Count);
@@ -291,11 +291,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         }
 
         // TODO: Vertex Buffer instancing
-        private void WriteVertexBuffers(
-            BinaryWriter bw,
-            List<VertexBufferDescription> vertexElementGroups,
-            uint version
-        )
+        private void WriteVertexBuffers(BinaryWriter bw, uint version)
         {
             // Write count of buffers
             bw.Write(this.Meshes.Sum(mesh => mesh.VertexData.Buffers.Count));
