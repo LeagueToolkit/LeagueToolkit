@@ -14,29 +14,21 @@ using System.Text;
 namespace LeagueToolkit.IO.MapGeometryFile
 {
     /// <summary>
-    /// Contains the evironment asset geometry
+    /// Represents an environment asset
     /// </summary>
     public sealed class MapGeometry : IDisposable
     {
-        /// <summary>
-        /// Represents the baked terrain samplers used for this environment asset
-        /// </summary>
+        /// <summary>Gets the baked terrain samplers used for this environment asset</summary>
         public MapGeometryBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
 
-        /// <summary>
-        /// Represents the meshes used by this environment asset
-        /// </summary>
+        /// <summary>Gets a read-only list of the meshes used by this environment asset</summary>
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
-        /// <summary>
-        /// Represents the bucketed scene graph for this environment asset
-        /// </summary>
+        /// <summary>Gets the bucketed scene graph for the environment asset</summary>
         public BucketGrid BucketGrid { get; private set; }
 
-        /// <summary>
-        /// Represents the planar reflectors used by this environment asset
-        /// </summary>
+        /// <summary>Gets a read-only list of the planar reflectors used by the environment asset</summary>
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
 
