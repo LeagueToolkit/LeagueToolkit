@@ -79,7 +79,7 @@ namespace LeagueToolkit.Sandbox
                     .UseGeometry(
                         mesh.Submeshes.Select(
                             submesh =>
-                                new MapGeometryModelBuilderRange(
+                                new MeshPrimitiveBuilder(
                                     MapGeometrySubmesh.MISSING_MATERIAL,
                                     submesh.StartIndex,
                                     submesh.IndexCount

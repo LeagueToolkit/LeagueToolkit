@@ -141,7 +141,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         internal MapGeometryModel(
             BinaryReader br,
             int id,
-            List<VertexBufferDescription> vertexElementGroups,
+            List<VertexBufferDescription> vertexBufferDescriptions,
             List<long> vertexBufferOffsets,
             List<MemoryOwner<ushort>> indexBuffers,
             bool useSeparatePointLights,
@@ -156,7 +156,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // This ID is always that of the "instanced" vertex buffer which
             // means that the data of the first vertex buffer is instanced (unique to this mesh instance).
             // (Assuming that this mesh uses at least 2 vertex buffers)
-            int baseVertexElementGroup = br.ReadInt32();
+            int baseVertexBufferDescriptionId = br.ReadInt32();
 
             VertexBuffer[] vertexBuffers = new VertexBuffer[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
@@ -164,9 +164,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 int vertexBufferId = br.ReadInt32();
                 long returnPosition = br.BaseStream.Position;
 
-                VertexBufferDescription vertexElementGroup = vertexElementGroups[baseVertexElementGroup + i];
+                VertexBufferDescription vertexBufferDescription = vertexBufferDescriptions[
+                    baseVertexBufferDescriptionId + i
+                ];
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
-                    vertexElementGroup.Elements,
+                    vertexBufferDescription.Elements,
                     vertexCount
                 );
 
@@ -174,8 +176,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 br.Read(vertexBufferOwner.Span);
 
                 vertexBuffers[i] = VertexBuffer.Create(
-                    vertexElementGroup.Usage,
-                    vertexElementGroup.Elements,
+                    vertexBufferDescription.Usage,
+                    vertexBufferDescription.Elements,
                     vertexBufferOwner
                 );
 
