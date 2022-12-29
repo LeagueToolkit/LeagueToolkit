@@ -348,7 +348,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 {
                     this._indices?.Dispose();
                     this._vertices?.Dispose();
-                    this._vertices?.Dispose();
                 }
 
                 this._isDisposed = true;
