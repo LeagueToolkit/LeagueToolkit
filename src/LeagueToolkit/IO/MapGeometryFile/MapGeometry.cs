@@ -192,7 +192,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             bool usesSeparatePointLights = false;
             if (version < 7)
             {
-                usesSeparatePointLights = UsesSeparatePointLights();
+                usesSeparatePointLights = this._meshes.Any(mesh => mesh.PointLight is not null);
                 bw.Write(usesSeparatePointLights);
             }
 
@@ -224,19 +224,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     planarReflector.Write(bw);
                 }
             }
-        }
-
-        private bool UsesSeparatePointLights()
-        {
-            foreach (MapGeometryModel mesh in this.Meshes)
-            {
-                if (mesh.PointLight is not null)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         // TODO: Instanced Vertex Buffers
