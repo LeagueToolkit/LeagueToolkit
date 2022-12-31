@@ -12,13 +12,13 @@ namespace LeagueToolkit.Core.Memory
         public InstancedVertexBufferView(int vertexCount, IReadOnlyList<IVertexBufferView> buffers)
         {
             Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
-            ValidateBuffers(buffers);
+            ValidateBuffers(vertexCount, buffers);
 
             this.VertexCount = vertexCount;
             this.Buffers = buffers;
         }
 
-        private void ValidateBuffers(IReadOnlyList<IVertexBufferView> vertexBuffers)
+        private void ValidateBuffers(int vertexCount, IReadOnlyList<IVertexBufferView> vertexBuffers)
         {
             Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
             Guard.HasSizeGreaterThanOrEqualTo(vertexBuffers, 1, nameof(vertexBuffers));
@@ -34,7 +34,6 @@ namespace LeagueToolkit.Core.Memory
                 );
 
             // Check that all vertex buffers have the same vertex count
-            int vertexCount = vertexBuffers.First().VertexCount;
             if (!vertexBuffers.All(vertexBuffer => vertexBuffer.VertexCount == vertexCount))
                 ThrowHelper.ThrowArgumentException(
                     nameof(vertexBuffers),
