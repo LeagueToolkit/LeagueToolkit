@@ -111,12 +111,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
             uint vertexBufferCount = br.ReadUInt32();
             this._vertexBuffers = new VertexBuffer[vertexBufferCount];
             long[] vertexBufferOffsets = new long[vertexBufferCount];
-            MapGeometryVisibilityFlags[] flags = new MapGeometryVisibilityFlags[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 if (version >= 13)
                 {
-                    flags[i] = (MapGeometryVisibilityFlags)br.ReadByte();
+                    MapGeometryVisibilityFlags _ = (MapGeometryVisibilityFlags)br.ReadByte();
                 }
 
                 uint bufferSize = br.ReadUInt32();
@@ -145,7 +144,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
                 this._indexBuffers[i] = indexBuffer;
             }
-            Array.AsReadOnly(vertexBufferDescriptions);
+
             uint modelCount = br.ReadUInt32();
             for (int i = 0; i < modelCount; i++)
             {
@@ -213,7 +212,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return vertexBuffer;
         }
 
-        // Index buffers are read
         internal ReadOnlyMemory<ushort> ReflectIndexBuffer(int id) => this._indexBuffers[id].Memory;
 
         /// <summary>
