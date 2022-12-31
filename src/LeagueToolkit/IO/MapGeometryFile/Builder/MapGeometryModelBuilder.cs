@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Extensions;
 using System;
@@ -7,7 +6,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile.Builder
 {
@@ -37,8 +35,8 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         // Solution 2:
         // Leave as is but warn the caller that it's their responsibility to not store a reference
         // Not complying can cause undefined behavior
-        private VertexBuffer _vertexBuffer;
-        private MemoryOwner<ushort> _indexBuffer;
+        private IVertexBufferView _vertexBuffer;
+        private ReadOnlyMemory<ushort> _indexBuffer;
 
         /// <summary>Creates a new <see cref="MapGeometryBuilder"/> instance</summary>
         public MapGeometryModelBuilder() { }
@@ -64,59 +62,42 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
         /// <summary>Sets the specified geometry data for the <see cref="MapGeometryModel"/></summary>
         /// <param name="primitives">The primitives of the <see cref="MapGeometryModel"/></param>
-        /// <param name="vertexElements">The vertex elements of the <see cref="MapGeometryModel"/></param>
-        /// <param name="vertexCount">The vertex count of the <see cref="MapGeometryModel"/></param>
-        /// <param name="writeGeometryCallback">This function is invoked after creating the respective buffers</param>
-        /// <remarks>
-        /// ⚠️ The caller of this function is responsible for not storing a reference
-        /// to the buffers passed into <paramref name="writeGeometryCallback"/>, doing so is undefined behavior. <br></br>
-        /// ⚠️ It is recommended to order <paramref name="vertexElements"/> by their <see cref="ElementName"/> in ascending order
-        /// </remarks>
-        public MapGeometryModelBuilder UseGeometry(
+        /// <param name="vertexBuffer">The vertex buffer to use for the <see cref="MapGeometryModel"/></param>
+        /// <param name="indexBuffer">The index buffer to use for the <see cref="MapGeometryModel"/></param>
+        public MapGeometryModelBuilder WithGeometry(
             IEnumerable<MeshPrimitiveBuilder> primitives,
-            IEnumerable<VertexElement> vertexElements,
-            int vertexCount,
-            Action<MemoryBufferWriter<ushort>, VertexBufferWriter> writeGeometryCallback
+            IVertexBufferView vertexBuffer,
+            ReadOnlyMemory<ushort> indexBuffer
         )
         {
             Guard.IsNotNull(primitives, nameof(primitives));
-            Guard.IsNotNull(vertexElements, nameof(vertexElements));
-            Guard.IsNotNull(writeGeometryCallback, nameof(writeGeometryCallback));
-            Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
+            Guard.IsNotNull(vertexBuffer, nameof(vertexBuffer));
+            Guard.HasSizeGreaterThan(vertexBuffer.View.Span, 0, nameof(vertexBuffer));
+            Guard.HasSizeGreaterThan(indexBuffer.Span, 0, nameof(indexBuffer));
 
-            // Create index buffer
-            int indexCount = primitives.Sum(primitive => primitive.IndexCount);
-            this._indexBuffer = MemoryOwner<ushort>.Allocate(indexCount);
+            this._vertexBuffer = vertexBuffer;
+            this._indexBuffer = indexBuffer;
+            this._ranges = CreateRanges(primitives, this._indexBuffer, this._vertexBuffer.VertexCount).ToArray();
 
-            // Create vertex buffer
-            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(vertexElements, vertexCount);
-            this._vertexBuffer = VertexBuffer.Create(VertexBufferUsage.Static, vertexElements, vertexBufferOwner);
-
-            writeGeometryCallback.Invoke(new(this._indexBuffer.Memory), new(vertexElements, vertexBufferOwner.Memory));
-
-            // TODO:
-            // If we had a separate callback for writing indices, we would be able to
-            // figure out vertexCount from max index of said indices
-            this._ranges = CreateRanges(primitives, this._indexBuffer, this._vertexBuffer).ToArray();
             return this;
         }
 
         /// <summary>Sets the backface culling toggle for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseDisableBackfaceCulling(bool disableBackfaceCulling)
+        public MapGeometryModelBuilder WithDisableBackfaceCulling(bool disableBackfaceCulling)
         {
             this._disableBackfaceCulling = disableBackfaceCulling;
             return this;
         }
 
         /// <summary>Sets the specified transform for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseTransform(Matrix4x4 transform)
+        public MapGeometryModelBuilder WithTransform(Matrix4x4 transform)
         {
             this._transform = transform;
             return this;
         }
 
         /// <summary>Sets the specified environment quality filter for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseEnvironmentQualityFilter(
+        public MapGeometryModelBuilder WithEnvironmentQualityFilter(
             MapGeometryEnvironmentQualityFilter environmentQualityFilter
         )
         {
@@ -125,44 +106,44 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         }
 
         /// <summary>Sets the specified visibility flags for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseVisibilityFlags(MapGeometryVisibilityFlags visibilityFlags)
+        public MapGeometryModelBuilder WithVisibilityFlags(MapGeometryVisibilityFlags visibilityFlags)
         {
             this._visibilityFlags = visibilityFlags;
             return this;
         }
 
         /// <summary>Sets the specified render flags for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseRenderFlags(MapGeometryMeshRenderFlags renderFlags)
+        public MapGeometryModelBuilder WithRenderFlags(MapGeometryMeshRenderFlags renderFlags)
         {
             this._renderFlags = renderFlags;
             return this;
         }
 
         /// <summary>Sets the specified Stationary Light sampler for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseStationaryLightSampler(MapGeometrySamplerData stationaryLight)
+        public MapGeometryModelBuilder WithStationaryLightSampler(MapGeometrySamplerData stationaryLight)
         {
             this._stationaryLight = stationaryLight;
             return this;
         }
 
         /// <summary>Sets the specified Baked Light sampler for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseBakedLightSampler(MapGeometrySamplerData bakedLight)
+        public MapGeometryModelBuilder WithBakedLightSampler(MapGeometrySamplerData bakedLight)
         {
             this._bakedLight = bakedLight;
             return this;
         }
 
         /// <summary>Sets the specified Baked Paint sampler for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder UseBakedPaintSampler(MapGeometrySamplerData bakedPaint)
+        public MapGeometryModelBuilder WithBakedPaintSampler(MapGeometrySamplerData bakedPaint)
         {
             this._bakedPaint = bakedPaint;
             return this;
         }
 
-        private IEnumerable<MapGeometrySubmesh> CreateRanges(
+        private static IEnumerable<MapGeometrySubmesh> CreateRanges(
             IEnumerable<MeshPrimitiveBuilder> primitives,
-            MemoryOwner<ushort> indexBuffer,
-            VertexBuffer vertexBuffer
+            ReadOnlyMemory<ushort> indexBuffer,
+            int vertexCount
         )
         {
             // Get the index min/max for each range
@@ -180,10 +161,10 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
                 ushort maxVertex = rangeIndices.Max();
 
                 // Vertex interval must be within range
-                if (minVertex + 1 > vertexBuffer.VertexCount || maxVertex - 1 > vertexBuffer.VertexCount)
+                if (minVertex + 1 > vertexCount || maxVertex - 1 > vertexCount)
                     ThrowHelper.ThrowInvalidOperationException(
                         $"Primitive vertex range interval: [{minVertex}, {maxVertex}] goes out of bounds"
-                            + $" ({nameof(vertexBuffer.VertexCount)}: {vertexBuffer.VertexCount})."
+                            + $" ({nameof(vertexCount)}: {vertexCount})."
                     );
 
                 yield return new(primitive.Material, primitive.StartIndex, primitive.IndexCount, minVertex, maxVertex);

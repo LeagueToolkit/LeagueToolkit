@@ -136,7 +136,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             foreach (MapGeometrySubmesh submesh in mesh.Submeshes)
             {
-                ReadOnlySpan<ushort> indices = mesh.Indices.Slice(submesh.StartIndex, submesh.IndexCount);
+                ReadOnlySpan<ushort> indices = mesh.Indices.Span.Slice(submesh.StartIndex, submesh.IndexCount);
 
                 MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
                 var primitive = meshBuilder.UsePrimitive(material);

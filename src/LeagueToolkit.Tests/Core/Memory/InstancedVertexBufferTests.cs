@@ -42,7 +42,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 Assert.Throws<ArgumentException>(() =>
                 {
-                    CreateMultiVertexBuffer(
+                    CreateInstancedVertexBuffer(
                         new[] { VertexElement.POSITION, VertexElement.NORMAL },
                         new[] { VertexElement.NORMAL, VertexElement.DIFFUSE_UV }
                     );
@@ -78,13 +78,13 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Return_A_Valid_Accessor_If_Element_Is_In_Vertex_Buffers()
             {
-                InstancedVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                InstancedVertexBuffer buffer = CreateInstancedVertexBuffer(
                     new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
                     new VertexElement[] { VertexElement.BASE_COLOR }
                 );
 
-                VertexElementAccessor positionAccessor = multiVertexBuffer.GetAccessor(ElementName.Position);
-                VertexElementAccessor baseColorAccessor = multiVertexBuffer.GetAccessor(ElementName.BaseColor);
+                VertexElementAccessor positionAccessor = buffer.GetAccessor(ElementName.Position);
+                VertexElementAccessor baseColorAccessor = buffer.GetAccessor(ElementName.BaseColor);
 
                 Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
                 Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
@@ -96,14 +96,14 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Throw_If_Element_Doesnt_Exist_In_Vertex_Buffers()
             {
-                InstancedVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                InstancedVertexBuffer buffer = CreateInstancedVertexBuffer(
                     new VertexElement[] { VertexElement.POSITION },
                     new VertexElement[] { VertexElement.BASE_COLOR }
                 );
 
                 Assert.Throws<KeyNotFoundException>(() =>
                 {
-                    _ = multiVertexBuffer.GetAccessor(ElementName.Normal);
+                    _ = buffer.GetAccessor(ElementName.Normal);
                 });
             }
         }
@@ -113,21 +113,21 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Dispose()
             {
-                InstancedVertexBuffer multiVertexBuffer = CreateMultiVertexBuffer(
+                InstancedVertexBuffer buffer = CreateInstancedVertexBuffer(
                     new VertexElement[] { VertexElement.POSITION },
                     new VertexElement[] { VertexElement.NORMAL }
                 );
 
-                multiVertexBuffer.Dispose();
+                buffer.Dispose();
 
                 Assert.Throws<ObjectDisposedException>(() =>
                 {
-                    _ = multiVertexBuffer.GetAccessor(ElementName.Position);
+                    _ = buffer.GetAccessor(ElementName.Position);
                 });
             }
         }
 
-        private static InstancedVertexBuffer CreateMultiVertexBuffer(
+        private static InstancedVertexBuffer CreateInstancedVertexBuffer(
             IEnumerable<VertexElement> buffer1Elements,
             IEnumerable<VertexElement> buffer2Elements
         )

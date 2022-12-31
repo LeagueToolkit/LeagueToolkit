@@ -13,27 +13,21 @@ namespace LeagueToolkit.Core.Memory
     /// </seealso>
     /// </summary>
     /// <remarks>If you are the owner of a <see cref="VertexBuffer"/> instance, make sure to dispose it after you're done using it</remarks>
-    public sealed class VertexBuffer : IDisposable
+    public sealed class VertexBuffer : IVertexBufferView, IDisposable
     {
-        /// <summary> The description of the <see cref="VertexBuffer"/></summary>
         public VertexBufferDescription Description { get; }
 
-        /// <summary>The elements of a vertex in the <see cref="VertexBuffer"/></summary>
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
         private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
 
-        /// <summary>Provides a read-only view into the buffer</summary>
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
 
-        /// <summary>The size of a vertex inside the buffer</summary>
         public int VertexStride { get; }
-
-        /// <summary>The vertex count of the buffer</summary>
         public int VertexCount { get; }
 
-        private readonly MemoryOwner<byte> _buffer;
+        public bool IsDisposed { get; private set; }
 
-        private bool _isDisposed;
+        private readonly MemoryOwner<byte> _buffer;
 
         private VertexBuffer(VertexBufferUsage usage, IEnumerable<VertexElement> elements, MemoryOwner<byte> buffer)
         {
@@ -71,10 +65,6 @@ namespace LeagueToolkit.Core.Memory
             MemoryOwner<byte> buffer
         ) => new(usage, elements, buffer);
 
-        /// <summary>
-        /// Creates a new <see cref="VertexElementAccessor"/> for the specified element
-        /// </summary>
-        /// <param name="elementName">The element to access</param>
         public VertexElementAccessor GetAccessor(ElementName elementName)
         {
             ThrowIfDisposed();
@@ -85,16 +75,6 @@ namespace LeagueToolkit.Core.Memory
             throw new KeyNotFoundException($"Vertex buffer does not contain vertex element: {elementName}");
         }
 
-        /// <summary>
-        /// Creates a <see cref="VertexElementAccessor"/> for the specified element
-        /// </summary>
-        /// <param name="elementName">The name of the element to create an accessor for</param>
-        /// <param name="accessor">If the element is found, contains the <see cref="VertexElementAccessor"/> for it,
-        /// otherwise, the accessor is set to <see langword="default"/></param>
-        /// <returns>
-        /// <see langword="true"/> if the <see cref="VertexBuffer"/> contains a <see cref="VertexElement"/>
-        /// with the specified name; otherwise, <see langword="false"/>
-        /// </returns>
         public bool TryGetAccessor(ElementName elementName, out VertexElementAccessor accessor)
         {
             ThrowIfDisposed();
@@ -169,27 +149,27 @@ namespace LeagueToolkit.Core.Memory
 
         private void ThrowIfDisposed()
         {
-            if (this._isDisposed)
+            if (this.IsDisposed)
                 ThrowHelper.ThrowObjectDisposedException(nameof(VertexBuffer), "Cannot use a disposed vertex buffer");
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!this._isDisposed)
-            {
-                if (disposing)
-                {
-                    this._buffer?.Dispose();
-                }
-
-                this._isDisposed = true;
-            }
         }
 
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!this.IsDisposed)
+            {
+                if (disposing)
+                {
+                    this._buffer?.Dispose();
+                }
+
+                this.IsDisposed = true;
+            }
         }
     }
 

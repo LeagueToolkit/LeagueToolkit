@@ -15,29 +15,17 @@ namespace LeagueToolkit.Core.Memory
     /// make sure to dispose it after you're done using it;
     /// doing so will also dispose all contained instances of <see cref="VertexBuffer"/>
     /// </remarks>
-    public sealed class InstancedVertexBuffer : IDisposable
+    public sealed class InstancedVertexBuffer : IInstancedVertexBufferView, IDisposable
     {
-        /// <summary>
-        /// The merged/full description of the <see cref="InstancedVertexBuffer"/>
-        /// </summary>
-        public VertexBufferDescription Description { get; }
+        public IInstancedVertexBufferView View => this;
 
-        /// <summary>
-        /// The vertex count of all buffers
-        /// </summary>
         public int VertexCount { get; }
 
-        /// <summary>
-        /// The sharded vertex buffers which form the <see cref="InstancedVertexBuffer"/>
-        /// </summary>
-        /// <remarks>
-        /// Each buffer is guaranteed to contain unique/non-overlapping elements relative to the other buffers.<br></br>
-        /// The first buffer is assumed to be the "instanced" buffer.
-        /// </remarks>
-        public IReadOnlyList<VertexBuffer> Buffers => this._buffers;
+        public IReadOnlyList<IVertexBufferView> Buffers => this._buffers;
         private readonly List<VertexBuffer> _buffers;
 
-        private bool _isDisposed;
+        /// <summary>Gets a value indicating whether the instanced vertex buffer has been disposed of</summary>
+        public bool IsDisposed { get; private set; }
 
         /// <summary>
         /// Creates a new <see cref="InstancedVertexBuffer"/> from the specified buffers
@@ -53,60 +41,13 @@ namespace LeagueToolkit.Core.Memory
 
             this.VertexCount = buffers.First().VertexCount;
             this._buffers = new(buffers);
-
-            // Create a merged description from the sharded buffers
-            // assuming that all elements are unique
-            this.Description = new(
-                VertexBufferUsage.Static,
-                buffers.SelectMany(
-                    vertexBuffer => vertexBuffer.Elements.Values.Select(elementDescriptor => elementDescriptor.Element)
-                )
-            //.OrderBy(element => element.Name)
-            );
         }
 
-        /// <summary>
-        /// Creates a new <see cref="VertexElementAccessor"/> for the specified element
-        /// </summary>
-        /// <param name="elementName">The element to access</param>
-        public VertexElementAccessor GetAccessor(ElementName elementName)
-        {
-            ThrowIfDisposed();
+        public VertexElementAccessor GetAccessor(ElementName elementName) =>
+            IInstancedVertexBufferView.GetAccessorInternal(this.Buffers, elementName);
 
-            foreach (VertexBuffer vertexBuffer in this.Buffers)
-            {
-                if (vertexBuffer.TryGetAccessor(elementName, out VertexElementAccessor accessor))
-                    return accessor;
-            }
-
-            throw new KeyNotFoundException(
-                $"Instanced vertex buffer does not contain a vertex buffer with element: {elementName}"
-            );
-        }
-
-        /// <summary>
-        /// Creates a <see cref="VertexElementAccessor"/> for the specified element
-        /// </summary>
-        /// <param name="elementName">The name of the element to create an accessor for</param>
-        /// <param name="accessor">If the element is found, contains the <see cref="VertexElementAccessor"/> for it,
-        /// otherwise, the accessor is set to <see langword="default"/></param>
-        /// <returns>
-        /// <see langword="true"/> if the <see cref="InstancedVertexBuffer"/> has a <see cref="VertexBuffer"/>
-        /// which contains a <see cref="VertexElement"/> with the specified name; otherwise, <see langword="false"/>
-        /// </returns>
-        public bool TryGetAccessor(ElementName elementName, out VertexElementAccessor accessor)
-        {
-            ThrowIfDisposed();
-
-            foreach (VertexBuffer vertexBuffer in this.Buffers)
-            {
-                if (vertexBuffer.TryGetAccessor(elementName, out accessor))
-                    return true;
-            }
-
-            accessor = default;
-            return false;
-        }
+        public bool TryGetAccessor(ElementName elementName, out VertexElementAccessor accessor) =>
+            IInstancedVertexBufferView.TryGetAccessorInternal(this.Buffers, elementName, out accessor);
 
         private static void ValidateVertexBuffers(IEnumerable<VertexBuffer> vertexBuffers)
         {
@@ -132,25 +73,16 @@ namespace LeagueToolkit.Core.Memory
                 );
         }
 
-        private void ThrowIfDisposed()
-        {
-            if (this._isDisposed)
-                ThrowHelper.ThrowObjectDisposedException(
-                    nameof(VertexBuffer),
-                    $"Cannot use a disposed {nameof(InstancedVertexBuffer)}"
-                );
-        }
-
         private void Dispose(bool disposing)
         {
-            if (this._isDisposed is false)
+            if (this.IsDisposed is false)
             {
                 if (disposing)
                 {
                     this._buffers?.ForEach(vertexBuffer => vertexBuffer?.Dispose());
                 }
 
-                this._isDisposed = true;
+                this.IsDisposed = true;
             }
         }
 
