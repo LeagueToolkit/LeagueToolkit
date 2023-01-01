@@ -66,6 +66,9 @@ namespace LeagueToolkit.Sandbox
             Dictionary<ElementName, int> elementOrder =
                 new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
+            Dictionary<ElementName, int> elementOrder =
+                new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
+
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
                 var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
