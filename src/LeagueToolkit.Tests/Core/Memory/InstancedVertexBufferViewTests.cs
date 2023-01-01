@@ -67,6 +67,89 @@ namespace LeagueToolkit.Tests.Core.Memory
             }
         }
 
+        public class IInstancedVertexBufferViewTests
+        {
+            public class GetAccessorTests
+            {
+                [Fact]
+                public void Should_Return_Accessor_If_Element_Is_In_Vertex_Buffers()
+                {
+                    var (buffer1, buffer2) = CreateVertexBuffers(
+                        new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                        new VertexElement[] { VertexElement.BASE_COLOR },
+                        3
+                    );
+                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+
+                    VertexElementAccessor positionAccessor = instanced.GetAccessor(ElementName.Position);
+                    VertexElementAccessor baseColorAccessor = instanced.GetAccessor(ElementName.BaseColor);
+
+                    Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
+                    Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
+
+                    Assert.Equal(32, positionAccessor.VertexStride);
+                    Assert.Equal(4, baseColorAccessor.VertexStride);
+                }
+
+                [Fact]
+                public void Should_Throw_If_Element_Doesnt_Exist_In_Vertex_Buffers()
+                {
+                    var (buffer1, buffer2) = CreateVertexBuffers(
+                        new VertexElement[] { VertexElement.POSITION },
+                        new VertexElement[] { VertexElement.BASE_COLOR },
+                        3
+                    );
+                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+
+                    Assert.Throws<KeyNotFoundException>(() =>
+                    {
+                        _ = instanced.GetAccessor(ElementName.Normal);
+                    });
+                }
+            }
+
+            public class TryGetAccessorTests
+            {
+                [Fact]
+                public void Should_Return_True_And_Accessor_If_Element_Is_In_Vertex_Buffers()
+                {
+                    var (buffer1, buffer2) = CreateVertexBuffers(
+                        new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                        new VertexElement[] { VertexElement.BASE_COLOR },
+                        3
+                    );
+                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+
+                    bool hasPosition = instanced.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                    bool hasBaseColor = instanced.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+
+                    Assert.True(hasPosition && hasBaseColor);
+
+                    Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
+                    Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
+
+                    Assert.Equal(32, positionAccessor.VertexStride);
+                    Assert.Equal(4, baseColorAccessor.VertexStride);
+                }
+
+                [Fact]
+                public void Should_Return_False_If_Element_Doesnt_Exist_In_Vertex_Buffers()
+                {
+                    var (buffer1, buffer2) = CreateVertexBuffers(
+                        new VertexElement[] { VertexElement.POSITION },
+                        new VertexElement[] { VertexElement.BASE_COLOR },
+                        3
+                    );
+                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+
+                    bool result = instanced.TryGetAccessor(ElementName.Normal, out var accessor);
+
+                    Assert.False(result);
+                    Assert.Equal(default, accessor);
+                }
+            }
+        }
+
         private static (VertexBuffer buffer1, VertexBuffer buffer2) CreateVertexBuffers(
             IEnumerable<VertexElement> buffer1Elements,
             IEnumerable<VertexElement> buffer2Elements,
