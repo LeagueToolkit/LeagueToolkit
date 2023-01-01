@@ -405,26 +405,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
             return indices;
         }
 
-        public Box GetBoundingBox()
-        {
-            Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-            Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-
-            foreach (StaticObjectSubmesh submesh in this.Submeshes)
-            {
-                foreach (StaticObjectVertex vertex in submesh.Vertices)
-                {
-                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
-                }
-            }
-
-            return new Box(min, max);
-        }
+        public Box GetBoundingBox() => Box.FromVertices(this.Submeshes.SelectMany(submesh => submesh.Vertices).Select(vertex => vertex.Position));
         public Vector3 GetCentralPoint() => GetBoundingBox().GetCentralPoint();
     }
 

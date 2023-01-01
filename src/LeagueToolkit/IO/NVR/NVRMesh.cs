@@ -45,24 +45,9 @@ namespace LeagueToolkit.IO.NVR
             this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(this, vertices, indices, true);
             this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(this, vertices, indices, false);
 
-            float[] min = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
-            float[] max = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
-            for (int i = 1; i < vertices.Count; i++)
-            {
-                Vector3 position = vertices[i].Position;
-                if (position.X < min[0]) { min[0] = position.X; }
-                if (position.Y < min[1]) { min[1] = position.Y; }
-                if (position.Z < min[2]) { min[2] = position.Z; }
-                if (position.X > max[0]) { max[0] = position.X; }
-                if (position.Y > max[1]) { max[1] = position.Y; }
-                if (position.Z > max[2]) { max[2] = position.Z; }
-            }
-            this.BoundingBox = new Box(new Vector3(min[0], min[1], min[2]), new Vector3(max[0], max[1], max[2]));
-
-            float radius = max[0] - min[0];
-            if (max[1] - min[1] > radius) { radius = max[1] - min[1]; }
-            if (max[2] - min[2] > radius) { radius = max[2] - min[2]; }
-            this.BoundingSphere = new R3DSphere(new Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2), radius / 2);
+            Vector3[] allVertexPositions = vertices.Select(vertex => vertex.Position).ToArray();
+            this.BoundingBox = Box.FromVertices(allVertexPositions);
+            this.BoundingSphere = R3DSphere.CalculateBoundingSphere(allVertexPositions);
         }
 
         public void Write(BinaryWriter bw)

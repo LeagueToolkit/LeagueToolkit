@@ -5,6 +5,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using LeagueToolkit.Helpers.Extensions;
+using System.Linq;
 
 namespace LeagueToolkit.IO.WorldGeometry
 {
@@ -57,7 +58,7 @@ namespace LeagueToolkit.IO.WorldGeometry
             this.Vertices = vertices;
             this.Indices = indices;
             this.BoundingBox = CalculateBoundingBox();
-            this.Sphere = CalculateSphere();
+            this.Sphere = CalculateBoundingSphere();
         }
 
         /// <summary>
@@ -133,62 +134,18 @@ namespace LeagueToolkit.IO.WorldGeometry
         public Tuple<R3DSphere, Box> CalculateBoundingGeometry()
         {
             Box box = CalculateBoundingBox();
-            R3DSphere sphere = CalculateSphere(box);
+            R3DSphere sphere = CalculateBoundingSphere();
             return new Tuple<R3DSphere, Box>(sphere, box);
         }
 
         /// <summary>
         /// Calculates the Axis Aligned Bounding Box of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public Box CalculateBoundingBox()
-        {
-            if(this.Vertices == null || this.Vertices.Count == 0)
-            {
-                return new Box(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
-            }
-            else
-            {
-                Vector3 min = this.Vertices[0].Position;
-                Vector3 max = this.Vertices[0].Position;
-
-                foreach (WorldGeometryVertex vertex in this.Vertices)
-                {
-                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
-                }
-
-                return new Box(min, max);
-            }
-        }
+        public Box CalculateBoundingBox() => Box.FromVertices(this.Vertices.Select(vertex => vertex.Position));
 
         /// <summary>
         /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public R3DSphere CalculateSphere()
-        {
-            Box box = CalculateBoundingBox();
-            Vector3 centralPoint = new Vector3(0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
-                0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
-                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z));
-
-            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
-        }
-
-        /// <summary>
-        /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/> from the specified <see cref="Box"/>
-        /// </summary>
-        /// <param name="box"><see cref="Box"/> to use for calculation</param>
-        public R3DSphere CalculateSphere(Box box)
-        {
-            Vector3 centralPoint = new Vector3(0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
-                0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
-                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z));
-
-            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
-        }
+        public R3DSphere CalculateBoundingSphere() => R3DSphere.CalculateBoundingSphere(this.Vertices.Select(vertex => vertex.Position));
     }
 }
