@@ -13,7 +13,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
     /// <summary>
     /// Represents a mesh inside of a <see cref="MapGeometry"/> environment asset
     /// </summary>
-    public sealed class MapGeometryModel : IDisposable
+    public sealed class MapGeometryModel
     {
         /// <summary>
         /// Gets the mesh instance name
@@ -24,17 +24,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public string Name { get; private set; }
 
         /// <summary>
-        /// Gets the mesh's <see cref="InstancedVertexBuffer"/>
+        /// Gets the mesh's <see cref="InstancedVertexBufferView"/>
         /// </summary>
-        public InstancedVertexBuffer VertexData => this._vertices;
+        public IInstancedVertexBufferView VertexData => this._verticesView;
 
         /// <summary>
         /// Gets a read-only view into the index buffer
         /// </summary>
-        public ReadOnlySpan<ushort> Indices => this._indices.Span;
+        public ReadOnlyMemory<ushort> Indices { get; private set; }
 
-        private readonly InstancedVertexBuffer _vertices;
-        private readonly MemoryOwner<ushort> _indices;
+        private readonly InstancedVertexBufferView _verticesView;
 
         /// <summary>
         /// Gets a read-only collection of the mesh's primitives
@@ -99,16 +98,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// <remarks>Usually contains a texture with baked diffuse and lightmap data</remarks>
         public MapGeometrySamplerData BakedPaint { get; private set; }
 
-        internal int _baseDescriptionId;
+        internal int _baseVertexBufferDescriptionId;
         internal int[] _vertexBufferIds;
         internal int _indexBufferId;
 
-        private bool _isDisposed;
-
         internal MapGeometryModel(
             int id,
-            VertexBuffer vertices,
-            MemoryOwner<ushort> indices,
+            IVertexBufferView vertexBufferView,
+            ReadOnlyMemory<ushort> indexBufferView,
             IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transform,
             bool disableBackfaceCulling,
@@ -122,8 +119,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             this.Name = CreateName(id);
 
-            this._vertices = new(new[] { vertices });
-            this._indices = indices;
+            this._verticesView = new(vertexBufferView.VertexCount, new[] { vertexBufferView });
+            this.Indices = indexBufferView;
             this._submeshes = new(submeshes);
 
             this.Transform = transform;
@@ -137,15 +134,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
             this.BakedLight = bakedLight;
             this.BakedPaint = bakedPaint;
 
-            this.BoundingBox = Box.FromVertices(vertices.GetAccessor(ElementName.Position).AsVector3Array());
+            this.BoundingBox = Box.FromVertices(vertexBufferView.GetAccessor(ElementName.Position).AsVector3Array());
         }
 
         internal MapGeometryModel(
-            BinaryReader br,
             int id,
-            List<VertexBufferDescription> vertexBufferDescriptions,
-            List<long> vertexBufferOffsets,
-            List<MemoryOwner<ushort>> indexBuffers,
+            MapGeometry environmentAsset,
+            BinaryReader br,
+            IReadOnlyList<VertexBufferDescription> vertexBufferDescriptions,
+            IReadOnlyList<long> vertexBufferOffsets,
             bool useSeparatePointLights,
             uint version
         )
@@ -160,37 +157,24 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // (Assuming that this mesh uses at least 2 vertex buffers)
             int baseVertexBufferDescriptionId = br.ReadInt32();
 
-            VertexBuffer[] vertexBuffers = new VertexBuffer[vertexBufferCount];
+            IVertexBufferView[] vertexBufferViews = new IVertexBufferView[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
-                long returnPosition = br.BaseStream.Position;
-
-                VertexBufferDescription vertexBufferDescription = vertexBufferDescriptions[
-                    baseVertexBufferDescriptionId + i
-                ];
-                MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
-                    vertexBufferDescription.Elements,
-                    vertexCount
+                vertexBufferViews[i] = environmentAsset.ReflectVertexBuffer(
+                    vertexBufferId,
+                    vertexBufferDescriptions[baseVertexBufferDescriptionId + i],
+                    vertexCount,
+                    br,
+                    vertexBufferOffsets[vertexBufferId]
                 );
-
-                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferId], SeekOrigin.Begin);
-                br.Read(vertexBufferOwner.Span);
-
-                vertexBuffers[i] = VertexBuffer.Create(
-                    vertexBufferDescription.Usage,
-                    vertexBufferDescription.Elements,
-                    vertexBufferOwner
-                );
-
-                br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
             }
 
-            this._vertices = new(vertexBuffers);
+            this._verticesView = new(vertexCount, vertexBufferViews);
 
             uint indexCount = br.ReadUInt32();
             int indexBufferId = br.ReadInt32();
-            this._indices = indexBuffers[indexBufferId];
+            this.Indices = environmentAsset.ReflectIndexBuffer(indexBufferId);
 
             if (version >= 13)
             {
@@ -257,16 +241,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 bw.Write(Encoding.ASCII.GetBytes(this.Name));
             }
 
-            bw.Write(this._vertices.VertexCount);
+            bw.Write(this._verticesView.VertexCount);
             bw.Write(this._vertexBufferIds.Length);
-            bw.Write(this._baseDescriptionId);
+            bw.Write(this._baseVertexBufferDescriptionId);
 
             foreach (int vertexBufferId in this._vertexBufferIds)
             {
                 bw.Write(vertexBufferId);
             }
 
-            bw.Write(this._indices.Length);
+            bw.Write(this.Indices.Length);
             bw.Write(this._indexBufferId);
 
             if (version >= 13)
@@ -338,27 +322,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             // League assigns this name to the meshes automatically during reading
             return $"MapGeo_Instance_{id}";
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!this._isDisposed)
-            {
-                if (disposing)
-                {
-                    this._indices?.Dispose();
-                    this._vertices?.Dispose();
-                    this._vertices?.Dispose();
-                }
-
-                this._isDisposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 

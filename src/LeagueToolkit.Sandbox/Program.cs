@@ -56,46 +56,52 @@ namespace LeagueToolkit.Sandbox
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
             using MapGeometry mgeo = new(toRead);
-            //mgeo.Write(Path.ChangeExtension(rewriteTo, "og_buffers.mapgeo"), 13);
+            mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
+            //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
             MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
-                .UseBucketGrid(mgeo.BucketGrid)
-                .UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+                .WithBucketGrid(mgeo.BucketGrid)
+                .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+
+            Dictionary<ElementName, int> elementOrder =
+                new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
             Dictionary<ElementName, int> elementOrder =
                 new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
+                var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
+                    VertexBufferUsage.Static,
+                    mesh.VertexData.Buffers
+                        .SelectMany(vertexBuffer => vertexBuffer.Description.Elements)
+                        .OrderBy(element => element.Name),
+                    mesh.VertexData.VertexCount
+                );
+                var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Length);
+
+                indexBufferWriter.Write(mesh.Indices.Span);
+                RewriteVertexBuffer(mesh, vertexBufferWriter);
+
                 MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()
-                    .UseTransform(mesh.Transform)
-                    .UseDisableBackfaceCulling(mesh.DisableBackfaceCulling)
-                    .UseEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
-                    .UseVisibilityFlags(mesh.VisibilityFlags)
-                    .UseRenderFlags(mesh.RenderFlags)
-                    .UseStationaryLightSampler(mesh.StationaryLight)
-                    .UseBakedLightSampler(mesh.BakedLight)
-                    .UseBakedPaintSampler(mesh.BakedPaint)
-                    .UseGeometry(
+                    .WithTransform(mesh.Transform)
+                    .WithDisableBackfaceCulling(mesh.DisableBackfaceCulling)
+                    .WithEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
+                    .WithVisibilityFlags(mesh.VisibilityFlags)
+                    .WithRenderFlags(mesh.RenderFlags)
+                    .WithStationaryLightSampler(mesh.StationaryLight)
+                    .WithBakedLightSampler(mesh.BakedLight)
+                    .WithBakedPaintSampler(mesh.BakedPaint)
+                    .WithGeometry(
                         mesh.Submeshes.Select(
                             submesh =>
-                                new MeshPrimitiveBuilder(
-                                    MapGeometrySubmesh.MISSING_MATERIAL,
-                                    submesh.StartIndex,
-                                    submesh.IndexCount
-                                )
+                                new MeshPrimitiveBuilder(submesh.Material, submesh.StartIndex, submesh.IndexCount)
                         ),
-                        mesh.VertexData.Description.Elements,
-                        mesh.VertexData.VertexCount,
-                        (indexBufferWriter, vertexBufferWriter) =>
-                        {
-                            indexBufferWriter.Write(mesh.Indices);
-
-                            RewriteVertexBuffer(mesh, vertexBufferWriter);
-                        }
+                        vertexBuffer,
+                        indexBuffer
                     );
 
-                mapBuilder.UseMesh(meshBuilder);
+                mapBuilder.WithMesh(meshBuilder);
             }
 
             using MapGeometry builtMap = mapBuilder.Build();

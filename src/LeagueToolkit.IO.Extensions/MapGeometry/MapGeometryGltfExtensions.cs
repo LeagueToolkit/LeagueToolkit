@@ -110,21 +110,20 @@ namespace LeagueToolkit.IO.MapGeometryFile
             VERTEX[] gltfVertices = new VERTEX[mesh.VertexData.VertexCount];
             for (int i = 0; i < mesh.VertexData.VertexCount; i++)
             {
-                VERTEX gltfVertex = new();
-
-                gltfVertex.WithGeometry(positionsArray[i], hasNormals ? normalsArray[i] : Vector3.Zero);
-                gltfVertex.WithMaterial(
-                    hasBaseColor
-                        ? new(
-                            baseColorArray[i].r * 255,
-                            baseColorArray[i].g * 255,
-                            baseColorArray[i].b * 255,
-                            baseColorArray[i].a * 255
-                        )
-                        : Vector4.UnitW,
-                    hasDiffuseUvs ? diffuseUvsArray[i] : Vector2.Zero,
-                    hasLightmapUvs ? lightmapUvsArray[i] : Vector2.Zero
-                );
+                gltfVertices[i] = new VERTEX()
+                    .WithGeometry(positionsArray[i], hasNormals ? normalsArray[i] : Vector3.Zero)
+                    .WithMaterial(
+                        hasBaseColor
+                            ? new(
+                                baseColorArray[i].r * 255,
+                                baseColorArray[i].g * 255,
+                                baseColorArray[i].b * 255,
+                                baseColorArray[i].a * 255
+                            )
+                            : Vector4.UnitW,
+                        hasDiffuseUvs ? diffuseUvsArray[i] : Vector2.Zero,
+                        hasLightmapUvs ? lightmapUvsArray[i] : Vector2.Zero
+                    );
             }
 
             return gltfVertices;
@@ -137,16 +136,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             foreach (MapGeometrySubmesh submesh in mesh.Submeshes)
             {
-                ReadOnlySpan<ushort> indices = mesh.Indices.Slice(submesh.StartIndex, submesh.IndexCount);
+                ReadOnlySpan<ushort> indices = mesh.Indices.Span.Slice(submesh.StartIndex, submesh.IndexCount);
 
                 MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
                 var primitive = meshBuilder.UsePrimitive(material);
 
                 for (int i = 0; i < indices.Length; i += 3)
                 {
-                    VERTEX v1 = vertices[indices[i + 0] - submesh.MinVertex];
-                    VERTEX v2 = vertices[indices[i + 1] - submesh.MinVertex];
-                    VERTEX v3 = vertices[indices[i + 2] - submesh.MinVertex];
+                    VERTEX v1 = vertices[indices[i + 0]];
+                    VERTEX v2 = vertices[indices[i + 1]];
+                    VERTEX v3 = vertices[indices[i + 2]];
 
                     primitive.AddTriangle(v1, v2, v3);
                 }
