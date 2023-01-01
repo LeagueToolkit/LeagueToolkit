@@ -42,9 +42,9 @@ namespace LeagueToolkit.Converters
                 List<Vector3> normals = new();
                 List<Vector2> uvs = new();
 
-                bool hasPositions = mesh.VertexData.TryGetAccessor(ElementName.Position, out var positionAccessor);
-                bool hasNormals = mesh.VertexData.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-                bool hasDiffuseUvs = mesh.VertexData.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+                bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+                bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
 
                 if (hasPositions is false)
                     ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
@@ -55,7 +55,7 @@ namespace LeagueToolkit.Converters
                     ? diffuseUvAccessor.AsVector2Array()
                     : default;
 
-                for (int i = 0; i < mesh.VertexData.VertexCount; i++)
+                for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
                 {
                     vertices.Add(Vector3.Transform(positionsArray[i], mesh.Transform));
 

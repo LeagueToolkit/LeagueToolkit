@@ -26,14 +26,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// <summary>
         /// Gets the mesh's <see cref="InstancedVertexBufferView"/>
         /// </summary>
-        public IInstancedVertexBufferView VertexData => this._verticesView;
+        public InstancedVertexBufferView VerticesView { get; private set; }
 
         /// <summary>
         /// Gets a read-only view into the index buffer
         /// </summary>
         public ReadOnlyMemory<ushort> Indices { get; private set; }
-
-        private readonly InstancedVertexBufferView _verticesView;
 
         /// <summary>
         /// Gets a read-only collection of the mesh's primitives
@@ -119,7 +117,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             this.Name = CreateName(id);
 
-            this._verticesView = new(vertexBufferView.VertexCount, new[] { vertexBufferView });
+            this.VerticesView = new(vertexBufferView.VertexCount, new[] { vertexBufferView });
             this.Indices = indexBufferView;
             this._submeshes = new(submeshes);
 
@@ -170,7 +168,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 );
             }
 
-            this._verticesView = new(vertexCount, vertexBufferViews);
+            this.VerticesView = new(vertexCount, vertexBufferViews);
 
             uint indexCount = br.ReadUInt32();
             int indexBufferId = br.ReadInt32();
@@ -241,7 +239,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 bw.Write(Encoding.ASCII.GetBytes(this.Name));
             }
 
-            bw.Write(this._verticesView.VertexCount);
+            bw.Write(this.VerticesView.VertexCount);
             bw.Write(this._vertexBufferIds.Length);
             bw.Write(this._baseVertexBufferDescriptionId);
 

@@ -56,7 +56,7 @@ namespace LeagueToolkit.Sandbox
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
             using MapGeometry mgeo = new(toRead);
-            mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
+            //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
             //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
             MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
@@ -66,17 +66,14 @@ namespace LeagueToolkit.Sandbox
             Dictionary<ElementName, int> elementOrder =
                 new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
-            Dictionary<ElementName, int> elementOrder =
-                new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
-
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
                 var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
                     VertexBufferUsage.Static,
-                    mesh.VertexData.Buffers
+                    mesh.VerticesView.Buffers
                         .SelectMany(vertexBuffer => vertexBuffer.Description.Elements)
                         .OrderBy(element => element.Name),
-                    mesh.VertexData.VertexCount
+                    mesh.VerticesView.VertexCount
                 );
                 var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Length);
 
@@ -109,11 +106,11 @@ namespace LeagueToolkit.Sandbox
 
             static void RewriteVertexBuffer(MapGeometryModel mesh, VertexBufferWriter writer)
             {
-                bool hasPositions = mesh.VertexData.TryGetAccessor(ElementName.Position, out var positionAccessor);
-                bool hasNormals = mesh.VertexData.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-                bool hasBaseColor = mesh.VertexData.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
-                bool hasDiffuseUvs = mesh.VertexData.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
-                bool hasLightmapUvs = mesh.VertexData.TryGetAccessor(
+                bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+                bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+                bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+                bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(
                     ElementName.LightmapUV,
                     out var lightmapUvAccessor
                 );
@@ -131,7 +128,7 @@ namespace LeagueToolkit.Sandbox
                     ? lightmapUvAccessor.AsVector2Array()
                     : new();
 
-                for (int i = 0; i < mesh.VertexData.VertexCount; i++)
+                for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
                 {
                     writer.WriteVector3(i, ElementName.Position, positionsArray[i]);
                     if (hasNormals)

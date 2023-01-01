@@ -67,86 +67,83 @@ namespace LeagueToolkit.Tests.Core.Memory
             }
         }
 
-        public class IInstancedVertexBufferViewTests
+        public class GetAccessorTests
         {
-            public class GetAccessorTests
+            [Fact]
+            public void Should_Return_Accessor_If_Element_Is_In_Vertex_Buffers()
             {
-                [Fact]
-                public void Should_Return_Accessor_If_Element_Is_In_Vertex_Buffers()
-                {
-                    var (buffer1, buffer2) = CreateVertexBuffers(
-                        new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
-                        new VertexElement[] { VertexElement.BASE_COLOR },
-                        3
-                    );
-                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+                var (buffer1, buffer2) = CreateVertexBuffers(
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    3
+                );
+                InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
 
-                    VertexElementAccessor positionAccessor = instanced.GetAccessor(ElementName.Position);
-                    VertexElementAccessor baseColorAccessor = instanced.GetAccessor(ElementName.BaseColor);
+                VertexElementAccessor positionAccessor = instanced.GetAccessor(ElementName.Position);
+                VertexElementAccessor baseColorAccessor = instanced.GetAccessor(ElementName.BaseColor);
 
-                    Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
-                    Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
+                Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
+                Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
 
-                    Assert.Equal(32, positionAccessor.VertexStride);
-                    Assert.Equal(4, baseColorAccessor.VertexStride);
-                }
-
-                [Fact]
-                public void Should_Throw_If_Element_Doesnt_Exist_In_Vertex_Buffers()
-                {
-                    var (buffer1, buffer2) = CreateVertexBuffers(
-                        new VertexElement[] { VertexElement.POSITION },
-                        new VertexElement[] { VertexElement.BASE_COLOR },
-                        3
-                    );
-                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
-
-                    Assert.Throws<KeyNotFoundException>(() =>
-                    {
-                        _ = instanced.GetAccessor(ElementName.Normal);
-                    });
-                }
+                Assert.Equal(32, positionAccessor.VertexStride);
+                Assert.Equal(4, baseColorAccessor.VertexStride);
             }
 
-            public class TryGetAccessorTests
+            [Fact]
+            public void Should_Throw_If_Element_Doesnt_Exist_In_Vertex_Buffers()
             {
-                [Fact]
-                public void Should_Return_True_And_Accessor_If_Element_Is_In_Vertex_Buffers()
+                var (buffer1, buffer2) = CreateVertexBuffers(
+                    new VertexElement[] { VertexElement.POSITION },
+                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    3
+                );
+                InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
+
+                Assert.Throws<KeyNotFoundException>(() =>
                 {
-                    var (buffer1, buffer2) = CreateVertexBuffers(
-                        new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
-                        new VertexElement[] { VertexElement.BASE_COLOR },
-                        3
-                    );
-                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+                    _ = instanced.GetAccessor(ElementName.Normal);
+                });
+            }
+        }
 
-                    bool hasPosition = instanced.TryGetAccessor(ElementName.Position, out var positionAccessor);
-                    bool hasBaseColor = instanced.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+        public class TryGetAccessorTests
+        {
+            [Fact]
+            public void Should_Return_True_And_Accessor_If_Element_Is_In_Vertex_Buffers()
+            {
+                var (buffer1, buffer2) = CreateVertexBuffers(
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    3
+                );
+                InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
 
-                    Assert.True(hasPosition && hasBaseColor);
+                bool hasPosition = instanced.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                bool hasBaseColor = instanced.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
 
-                    Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
-                    Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
+                Assert.True(hasPosition && hasBaseColor);
 
-                    Assert.Equal(32, positionAccessor.VertexStride);
-                    Assert.Equal(4, baseColorAccessor.VertexStride);
-                }
+                Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
+                Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
 
-                [Fact]
-                public void Should_Return_False_If_Element_Doesnt_Exist_In_Vertex_Buffers()
-                {
-                    var (buffer1, buffer2) = CreateVertexBuffers(
-                        new VertexElement[] { VertexElement.POSITION },
-                        new VertexElement[] { VertexElement.BASE_COLOR },
-                        3
-                    );
-                    IInstancedVertexBufferView instanced = new InstancedVertexBufferView(3, new[] { buffer1, buffer2 });
+                Assert.Equal(32, positionAccessor.VertexStride);
+                Assert.Equal(4, baseColorAccessor.VertexStride);
+            }
 
-                    bool result = instanced.TryGetAccessor(ElementName.Normal, out var accessor);
+            [Fact]
+            public void Should_Return_False_If_Element_Doesnt_Exist_In_Vertex_Buffers()
+            {
+                var (buffer1, buffer2) = CreateVertexBuffers(
+                    new VertexElement[] { VertexElement.POSITION },
+                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    3
+                );
+                InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
 
-                    Assert.False(result);
-                    Assert.Equal(default, accessor);
-                }
+                bool result = instanced.TryGetAccessor(ElementName.Normal, out var accessor);
+
+                Assert.False(result);
+                Assert.Equal(default, accessor);
             }
         }
 

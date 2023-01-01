@@ -285,7 +285,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             foreach (MapGeometryModel mesh in this.Meshes)
             {
                 // Find base descriptor index, if it doesn't exist, create it
-                IEnumerable<VertexBufferDescription> meshDescriptions = mesh.VertexData.Buffers.Select(
+                IEnumerable<VertexBufferDescription> meshDescriptions = mesh.VerticesView.Buffers.Select(
                     buffer => buffer.Description
                 );
                 int baseDescriptionId = descriptions.IndexOf(meshDescriptions);
@@ -403,12 +403,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private int[] GetMeshVertexBufferIds(MapGeometryModel mesh)
         {
-            int[] bufferIds = new int[mesh.VertexData.Buffers.Count];
+            int[] bufferIds = new int[mesh.VerticesView.Buffers.Count];
             for (int i = 0; i < bufferIds.Length; i++)
             {
                 int bufferId = Array.FindIndex(
                     this._vertexBuffers,
-                    buffer => buffer.View.Equals(mesh.VertexData.Buffers[i].View)
+                    buffer => buffer.View.Equals(mesh.VerticesView.Buffers[i].View)
                 );
                 if (bufferId == -1)
                     ThrowHelper.ThrowInvalidOperationException(

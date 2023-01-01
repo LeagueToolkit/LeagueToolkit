@@ -92,11 +92,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static VERTEX[] BuildMeshVertices(MapGeometryModel mesh)
         {
-            bool hasPositions = mesh.VertexData.TryGetAccessor(ElementName.Position, out var positionAccessor);
-            bool hasNormals = mesh.VertexData.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-            bool hasBaseColor = mesh.VertexData.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
-            bool hasDiffuseUvs = mesh.VertexData.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
-            bool hasLightmapUvs = mesh.VertexData.TryGetAccessor(ElementName.LightmapUV, out var lightmapUvAccessor);
+            bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
+            bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+            bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+            bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(ElementName.LightmapUV, out var lightmapUvAccessor);
 
             if (hasPositions is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
@@ -107,8 +107,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
             VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : new();
             VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs ? lightmapUvAccessor.AsVector2Array() : new();
 
-            VERTEX[] gltfVertices = new VERTEX[mesh.VertexData.VertexCount];
-            for (int i = 0; i < mesh.VertexData.VertexCount; i++)
+            VERTEX[] gltfVertices = new VERTEX[mesh.VerticesView.VertexCount];
+            for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
             {
                 gltfVertices[i] = new VERTEX()
                     .WithGeometry(positionsArray[i], hasNormals ? normalsArray[i] : Vector3.Zero)
