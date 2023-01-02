@@ -123,14 +123,14 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 VertexElement[] elements = new VertexElement[]
                 {
-                    new(ElementName.BaseColor, ElementFormat.BGRA_Packed8888)
+                    new(ElementName.PrimaryColor, ElementFormat.BGRA_Packed8888)
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter = new(elements, vertexBufferOwner.Memory);
 
-                vertexBufferWriter.WriteColorBgraU8(0, ElementName.BaseColor, new(0, 1, 2, 3));
-                vertexBufferWriter.WriteColorBgraU8(1, ElementName.BaseColor, new(4, 5, 6, 7));
-                vertexBufferWriter.WriteColorBgraU8(2, ElementName.BaseColor, new(8, 9, 10, 11));
+                vertexBufferWriter.WriteColorBgraU8(0, ElementName.PrimaryColor, new(0, 1, 2, 3));
+                vertexBufferWriter.WriteColorBgraU8(1, ElementName.PrimaryColor, new(4, 5, 6, 7));
+                vertexBufferWriter.WriteColorBgraU8(2, ElementName.PrimaryColor, new(8, 9, 10, 11));
 
                 Assert.Equal(new(0, 1, 2, 3), Color.Read(vertexBufferOwner.Span[0..], ColorFormat.BgraU8));
                 Assert.Equal(new(4, 5, 6, 7), Color.Read(vertexBufferOwner.Span[4..], ColorFormat.BgraU8));
@@ -145,14 +145,14 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 VertexElement[] elements = new VertexElement[]
                 {
-                    new(ElementName.BaseColor, ElementFormat.RGBA_Packed8888)
+                    new(ElementName.PrimaryColor, ElementFormat.RGBA_Packed8888)
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter = new(elements, vertexBufferOwner.Memory);
 
-                vertexBufferWriter.WriteColorRgbaU8(0, ElementName.BaseColor, new(0, 1, 2, 3));
-                vertexBufferWriter.WriteColorRgbaU8(1, ElementName.BaseColor, new(4, 5, 6, 7));
-                vertexBufferWriter.WriteColorRgbaU8(2, ElementName.BaseColor, new(8, 9, 10, 11));
+                vertexBufferWriter.WriteColorRgbaU8(0, ElementName.PrimaryColor, new(0, 1, 2, 3));
+                vertexBufferWriter.WriteColorRgbaU8(1, ElementName.PrimaryColor, new(4, 5, 6, 7));
+                vertexBufferWriter.WriteColorRgbaU8(2, ElementName.PrimaryColor, new(8, 9, 10, 11));
 
                 Assert.Equal(new(0, 1, 2, 3), Color.Read(vertexBufferOwner.Span[0..], ColorFormat.RgbaU8));
                 Assert.Equal(new(4, 5, 6, 7), Color.Read(vertexBufferOwner.Span[4..], ColorFormat.RgbaU8));

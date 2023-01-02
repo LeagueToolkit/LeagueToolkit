@@ -94,7 +94,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
             bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-            bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+            bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.PrimaryColor, out var baseColorAccessor);
             bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
             bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(ElementName.LightmapUV, out var lightmapUvAccessor);
 

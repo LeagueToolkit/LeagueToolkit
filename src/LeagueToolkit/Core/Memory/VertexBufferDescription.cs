@@ -167,14 +167,14 @@ namespace LeagueToolkit.Core.Memory
     }
 
     [Flags]
-    public enum VertexBufferElementFlags : ushort
+    public enum VertexBufferElementFlags
     {
         Position = 1 << ElementName.Position,
         BlendWeight = 1 << ElementName.BlendWeight,
         Normal = 1 << ElementName.Normal,
-        MaybeTangent = 1 << ElementName.MaybeTangent,
-        BaseColor = 1 << ElementName.BaseColor,
         FogCoordinate = 1 << ElementName.FogCoordinate,
+        PrimaryColor = 1 << ElementName.PrimaryColor,
+        SecondaryColor = 1 << ElementName.SecondaryColor,
         BlendIndex = 1 << ElementName.BlendIndex,
         DiffuseUV = 1 << ElementName.DiffuseUV,
         Texcoord1 = 1 << ElementName.Texcoord1,
@@ -183,6 +183,8 @@ namespace LeagueToolkit.Core.Memory
         Texcoord4 = 1 << ElementName.Texcoord4,
         Texcoord5 = 1 << ElementName.Texcoord5,
         Texcoord6 = 1 << ElementName.Texcoord6,
-        LightmapUV = 1 << ElementName.LightmapUV
+        LightmapUV = 1 << ElementName.LightmapUV,
+
+        Tangent = 1 << ElementName.Tangent,
     }
 }

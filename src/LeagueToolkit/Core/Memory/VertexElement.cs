@@ -17,9 +17,11 @@ namespace LeagueToolkit.Core.Memory
         public static readonly VertexElement POSITION = new(ElementName.Position, ElementFormat.XYZ_Float32);
         public static readonly VertexElement BLEND_WEIGHT = new(ElementName.BlendWeight, ElementFormat.XYZW_Float32);
         public static readonly VertexElement NORMAL = new(ElementName.Normal, ElementFormat.XYZ_Float32);
-        public static readonly VertexElement MAYBE_TANGENT = new(ElementName.MaybeTangent, ElementFormat.XYZW_Float32);
-        public static readonly VertexElement BASE_COLOR = new(ElementName.BaseColor, ElementFormat.BGRA_Packed8888);
         public static readonly VertexElement FOG_COORDINATE = new(ElementName.FogCoordinate, ElementFormat.X_Float32);
+        public static readonly VertexElement PRIMARY_COLOR =
+            new(ElementName.PrimaryColor, ElementFormat.BGRA_Packed8888);
+        public static readonly VertexElement SECONDARY_COLOR =
+            new(ElementName.SecondaryColor, ElementFormat.BGRA_Packed8888);
         public static readonly VertexElement BLEND_INDEX = new(ElementName.BlendIndex, ElementFormat.XYZW_Packed8888);
         public static readonly VertexElement DIFFUSE_UV = new(ElementName.DiffuseUV, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_1 = new(ElementName.Texcoord1, ElementFormat.XY_Float32);
@@ -108,21 +110,23 @@ namespace LeagueToolkit.Core.Memory
     // Riot::Renderer::Mesh::Elem
     public enum ElementName : int
     {
-        Position,
-        BlendWeight,
-        Normal,
-        MaybeTangent,
-        BaseColor,
-        FogCoordinate,
-        BlendIndex,
-        DiffuseUV,
-        Texcoord1,
-        Texcoord2,
-        Texcoord3,
-        Texcoord4,
-        Texcoord5,
-        Texcoord6,
-        LightmapUV
+        Position, // StreamIndex -> 0
+        BlendWeight, // StreamIndex -> 1
+        Normal, // StreamIndex -> 2
+        FogCoordinate, // StreamIndex -> 5
+        PrimaryColor, // StreamIndex -> 3
+        SecondaryColor, // StreamIndex -> 4
+        BlendIndex, // StreamIndex -> 7
+        DiffuseUV, // StreamIndex -> 8
+        Texcoord1, // StreamIndex -> 9
+        Texcoord2, // StreamIndex -> 10
+        Texcoord3, // StreamIndex -> 11
+        Texcoord4, // StreamIndex -> 12
+        Texcoord5, // StreamIndex -> 13
+        Texcoord6, // StreamIndex -> 14
+        LightmapUV, // StreamIndex -> 15
+
+        Tangent // Riot's enum doesn't have this so not sure how they map it
     }
 
     // Riot::Renderer::Mesh::ElemFormat

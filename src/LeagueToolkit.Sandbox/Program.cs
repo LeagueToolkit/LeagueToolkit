@@ -40,7 +40,7 @@ namespace LeagueToolkit.Sandbox
         static void Main(string[] args)
         {
             //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
-            ProfileMapgeo("worlds_trophyonly.mapgeo", "worlds_trophyonly_rewritten.mapgeo");
+            ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
@@ -108,7 +108,10 @@ namespace LeagueToolkit.Sandbox
             {
                 bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
                 bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-                bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+                bool hasBaseColor = mesh.VerticesView.TryGetAccessor(
+                    ElementName.PrimaryColor,
+                    out var baseColorAccessor
+                );
                 bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
                 bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(
                     ElementName.LightmapUV,
@@ -136,7 +139,7 @@ namespace LeagueToolkit.Sandbox
                     if (hasBaseColor)
                     {
                         var (b, g, r, a) = baseColorArray[i];
-                        writer.WriteColorBgraU8(i, ElementName.BaseColor, new(r, g, b, a));
+                        writer.WriteColorBgraU8(i, ElementName.PrimaryColor, new(r, g, b, a));
                     }
                     if (hasDiffuseUvs)
                         writer.WriteVector2(i, ElementName.DiffuseUV, diffuseUvsArray[i]);

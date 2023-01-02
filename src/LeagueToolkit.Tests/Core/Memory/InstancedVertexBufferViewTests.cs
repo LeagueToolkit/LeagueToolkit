@@ -74,16 +74,16 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 var (buffer1, buffer2) = CreateVertexBuffers(
                     new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
-                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    new VertexElement[] { VertexElement.PRIMARY_COLOR },
                     3
                 );
                 InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
 
                 VertexElementAccessor positionAccessor = instanced.GetAccessor(ElementName.Position);
-                VertexElementAccessor baseColorAccessor = instanced.GetAccessor(ElementName.BaseColor);
+                VertexElementAccessor baseColorAccessor = instanced.GetAccessor(ElementName.PrimaryColor);
 
                 Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
-                Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
+                Assert.Equal(VertexElement.PRIMARY_COLOR, baseColorAccessor.Element);
 
                 Assert.Equal(32, positionAccessor.VertexStride);
                 Assert.Equal(4, baseColorAccessor.VertexStride);
@@ -94,7 +94,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 var (buffer1, buffer2) = CreateVertexBuffers(
                     new VertexElement[] { VertexElement.POSITION },
-                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    new VertexElement[] { VertexElement.PRIMARY_COLOR },
                     3
                 );
                 InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
@@ -113,18 +113,18 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 var (buffer1, buffer2) = CreateVertexBuffers(
                     new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
-                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    new VertexElement[] { VertexElement.PRIMARY_COLOR },
                     3
                 );
                 InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
 
                 bool hasPosition = instanced.TryGetAccessor(ElementName.Position, out var positionAccessor);
-                bool hasBaseColor = instanced.TryGetAccessor(ElementName.BaseColor, out var baseColorAccessor);
+                bool hasBaseColor = instanced.TryGetAccessor(ElementName.PrimaryColor, out var baseColorAccessor);
 
                 Assert.True(hasPosition && hasBaseColor);
 
                 Assert.Equal(VertexElement.POSITION, positionAccessor.Element);
-                Assert.Equal(VertexElement.BASE_COLOR, baseColorAccessor.Element);
+                Assert.Equal(VertexElement.PRIMARY_COLOR, baseColorAccessor.Element);
 
                 Assert.Equal(32, positionAccessor.VertexStride);
                 Assert.Equal(4, baseColorAccessor.VertexStride);
@@ -135,7 +135,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             {
                 var (buffer1, buffer2) = CreateVertexBuffers(
                     new VertexElement[] { VertexElement.POSITION },
-                    new VertexElement[] { VertexElement.BASE_COLOR },
+                    new VertexElement[] { VertexElement.PRIMARY_COLOR },
                     3
                 );
                 InstancedVertexBufferView instanced = new(3, new[] { buffer1, buffer2 });
