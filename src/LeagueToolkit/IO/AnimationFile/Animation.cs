@@ -12,12 +12,14 @@ using System.Text;
 
 namespace LeagueToolkit.IO.AnimationFile
 {
-    public class Animation
+    public partial class Animation
     {
         public float FrameDuration { get; private set; }
         public float FPS => 1 / this.FrameDuration;
+        public int FramesPerTrack { get; private set; }
 
-        public List<AnimationTrack> Tracks { get; private set; } = new();
+        public List<AnimationTrack> Tracks { get; private set; }
+        public List<QuantizedAnimationTrack> QuantizedTracks { get; private set; }
 
         private List<List<ushort>> _jumpCaches = new();
 
@@ -31,10 +33,12 @@ namespace LeagueToolkit.IO.AnimationFile
 
                 if (magic == "r3d2canm")
                 {
+                    this.QuantizedTracks = new();
                     ReadCompressed(br);
                 }
                 else if (magic == "r3d2anmd")
                 {
+                    this.Tracks = new();
                     if (version == 5)
                     {
                         ReadV5(br);
@@ -108,7 +112,7 @@ namespace LeagueToolkit.IO.AnimationFile
                 scales.Add(jointHash, new Dictionary<float, Vector3>());
                 rotations.Add(jointHash, new Dictionary<float, Quaternion>());
 
-                this.Tracks.Add(new AnimationTrack(jointHash));
+                this.QuantizedTracks.Add(new QuantizedAnimationTrack(jointHash));
             }
             
             for(int i = 0; i < frameCount; i++)
@@ -161,7 +165,7 @@ namespace LeagueToolkit.IO.AnimationFile
             for(int i = 0; i < jointCount; i++)
             {
                 uint jointHash = jointHashes[i];
-                AnimationTrack track = this.Tracks.First(x => x.JointHash == jointHash);
+                QuantizedAnimationTrack track = this.QuantizedTracks.First(x => x.JointHash == jointHash);
 
                 track.Translations = translations[jointHash];
                 track.Scales = scales[jointHash];
@@ -192,7 +196,7 @@ namespace LeagueToolkit.IO.AnimationFile
             uint flags = br.ReadUInt32();
 
             int trackCount = br.ReadInt32();
-            int frameCount = br.ReadInt32();
+            this.FramesPerTrack =  br.ReadInt32();
             this.FrameDuration = br.ReadSingle();
 
             int tracksOffset = br.ReadInt32();
@@ -224,8 +228,8 @@ namespace LeagueToolkit.IO.AnimationFile
             }
 
             br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-            List<(uint, ushort, ushort, ushort)> frames = new(frameCount * trackCount);
-            for(int i = 0; i < frameCount * trackCount; i++)
+            List<(uint, ushort, ushort, ushort)> frames = new(FramesPerTrack * trackCount);
+            for(int i = 0; i < this.FramesPerTrack * trackCount; i++)
             {
                 frames.Add((br.ReadUInt32(), br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
                 br.ReadUInt16(); // padding
@@ -240,17 +244,9 @@ namespace LeagueToolkit.IO.AnimationFile
 
                 AnimationTrack track = this.Tracks.First(x => x.JointHash == jointHash);
 
-                int trackFrameTranslationIndex = track.Translations.Count;
-                int trackFrameScaleIndex = track.Scales.Count;
-                int trackFrameRotationIndex = track.Rotations.Count;
-
-                Vector3 translation = vectors[translationIndex];
-                Vector3 scale = vectors[scaleIndex];
-                Quaternion rotation = rotations[rotationIndex];
-
-                track.Translations.Add(this.FrameDuration * trackFrameTranslationIndex, translation);
-                track.Scales.Add(this.FrameDuration * trackFrameScaleIndex, scale);
-                track.Rotations.Add(this.FrameDuration * trackFrameRotationIndex, rotation);
+                track.Translations.Add(vectors[translationIndex]);
+                track.Scales.Add(vectors[scaleIndex]);
+                track.Rotations.Add(rotations[rotationIndex]);
             }
         }
 
@@ -262,7 +258,7 @@ namespace LeagueToolkit.IO.AnimationFile
             uint flags = br.ReadUInt32();
 
             int trackCount = br.ReadInt32();
-            int framesPerTrack = br.ReadInt32();
+            this.FramesPerTrack = br.ReadInt32();
             this.FrameDuration = br.ReadSingle();
 
             int jointHashesOffset = br.ReadInt32();
@@ -284,7 +280,7 @@ namespace LeagueToolkit.IO.AnimationFile
             List<uint> jointHashes = new(jointHashesCount);
             List<Vector3> vectors = new(vectorsCount);
             List<Quaternion> rotations = new(rotationsCount);
-            var frames = new List<(ushort, ushort, ushort)>(framesPerTrack * trackCount);
+            var frames = new List<(ushort, ushort, ushort)>(this.FramesPerTrack * trackCount);
 
             // Read Joint Hashes
             br.BaseStream.Seek(jointHashesOffset + 12, SeekOrigin.Begin);
@@ -311,7 +307,7 @@ namespace LeagueToolkit.IO.AnimationFile
 
             // Read Frames
             br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-            for (int i = 0; i < framesPerTrack * trackCount; i++)
+            for (int i = 0; i < this.FramesPerTrack * trackCount; i++)
             {
                 frames.Add((br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
             }
@@ -325,16 +321,13 @@ namespace LeagueToolkit.IO.AnimationFile
             for(int t = 0; t < trackCount; t++)
             {
                 AnimationTrack track = this.Tracks[t];
-                float currentTime = 0;
-                for (int f = 0; f < framesPerTrack; f++)
+                for (int f = 0; f < this.FramesPerTrack; f++)
                 {
                     (int translationIndex, int scaleIndex, int rotationIndex) = frames[f * trackCount + t];
 
-                    track.Translations.Add(currentTime, vectors[translationIndex]);
-                    track.Scales.Add(currentTime, vectors[scaleIndex]);
-                    track.Rotations.Add(currentTime, rotations[rotationIndex]);
-
-                    currentTime += this.FrameDuration;
+                    track.Translations.Add(vectors[translationIndex]);
+                    track.Scales.Add(vectors[scaleIndex]);
+                    track.Rotations.Add(rotations[rotationIndex]);
                 }
             }
         }
@@ -344,7 +337,7 @@ namespace LeagueToolkit.IO.AnimationFile
             uint skeletonId = br.ReadUInt32();
             
             int trackCount = br.ReadInt32();
-            int frameCount = br.ReadInt32();
+            this.FramesPerTrack = br.ReadInt32();
             
             this.FrameDuration = 1.0f / br.ReadInt32(); // FPS
 
@@ -353,16 +346,13 @@ namespace LeagueToolkit.IO.AnimationFile
                 string trackName = br.ReadPaddedString(32);
                 uint flags = br.ReadUInt32();
 
-                AnimationTrack track = new AnimationTrack(Cryptography.ElfHash(trackName));
+                AnimationTrack track = new AnimationTrack(trackName) { V3Flag = flags };
 
-                float frameTime = 0f;
-                for(int j = 0; j < frameCount; j++)
+                for(int frame = 0; frame < this.FramesPerTrack; frame++)
                 {
-                    track.Rotations.Add(frameTime, br.ReadQuaternion());
-                    track.Translations.Add(frameTime, br.ReadVector3());
-                    track.Scales.Add(frameTime, new Vector3(1, 1, 1));
-
-                    frameTime += this.FrameDuration;
+                    track.Rotations.Add(br.ReadQuaternion());
+                    track.Translations.Add(br.ReadVector3());
+                    track.Scales.Add(new Vector3(1, 1, 1));
                 }
 
                 this.Tracks.Add(track);
@@ -401,7 +391,7 @@ namespace LeagueToolkit.IO.AnimationFile
         }
         private void TranslationDequantizationRound(TransformQuantizationProperties quantizationProperties)
         {
-            foreach (AnimationTrack track in this.Tracks)
+            foreach (QuantizedAnimationTrack track in this.QuantizedTracks)
             {
                 List<(float, Vector3)> interpolatedFrames = new();
                 for (int i = 0; i < track.Translations.Count; i++)
