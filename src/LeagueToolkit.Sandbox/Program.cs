@@ -32,6 +32,7 @@ using LeagueToolkit.Core.Memory;
 using CommunityToolkit.Diagnostics;
 using System.Threading;
 using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Core.Mesh;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -40,7 +41,13 @@ namespace LeagueToolkit.Sandbox
         static void Main(string[] args)
         {
             //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
-            ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
+            //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
+            ProfileSkinnedMesh();
+        }
+
+        static void ProfileSkinnedMesh()
+        {
+            using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
