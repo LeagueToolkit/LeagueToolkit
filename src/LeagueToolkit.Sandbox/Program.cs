@@ -48,6 +48,8 @@ namespace LeagueToolkit.Sandbox
         static void ProfileSkinnedMesh()
         {
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
+
+            skinnedMesh.WriteSimpleSkin("akali_rewritten.skn");
         }
 
         static void TestMetaRoslynCodegen(string outputFile)

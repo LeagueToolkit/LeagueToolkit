@@ -30,5 +30,14 @@ namespace LeagueToolkit.Core.Mesh
 
             return new(material, startVertex, vertexCount, startIndex, indexCount);
         }
+
+        internal void WriteToSimpleSkin(BinaryWriter bw)
+        {
+            bw.WritePaddedString(this.Material, 64);
+            bw.Write(this.StartVertex);
+            bw.Write(this.VertexCount);
+            bw.Write(this.StartIndex);
+            bw.Write(this.IndexCount);
+        }
     }
 }

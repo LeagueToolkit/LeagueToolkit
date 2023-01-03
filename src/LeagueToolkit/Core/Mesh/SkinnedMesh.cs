@@ -4,6 +4,7 @@ using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.IO.SimpleSkinFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -140,6 +141,37 @@ namespace LeagueToolkit.Core.Mesh
             return new(ranges, vertexBuffer, indexBufferOwner);
         }
 
+        public void WriteSimpleSkin(string fileLocation) => WriteSimpleSkin(File.Create(fileLocation));
+
+        public void WriteSimpleSkin(Stream stream, bool leaveOpen = false)
+        {
+            using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
+
+            bw.Write(0x00112233);
+            bw.Write((ushort)4);
+            bw.Write((ushort)1);
+            bw.Write(this.Ranges.Count);
+
+            foreach (SkinnedMeshRange range in this.Ranges)
+                range.WriteToSimpleSkin(bw);
+
+            bw.Write((uint)0); // Flags
+            bw.Write(this._indexBuffer.Length);
+            bw.Write(this._vertexBuffer.VertexCount);
+            bw.Write(this._vertexBuffer.VertexStride);
+            bw.Write((int)GetVertexTypeForDescription(this._vertexBuffer.Description));
+
+            bw.WriteBox(this.AABB);
+            this.BoundingSphere.Write(bw);
+
+            bw.Write(this._indexBuffer.Span.Cast<ushort, byte>());
+            bw.Write(this._vertexBuffer.View.Span);
+
+            Span<byte> endTab = stackalloc byte[12];
+            endTab.Clear();
+            bw.Write(endTab);
+        }
+
         private static VertexBufferDescription GetDescriptionForVertexType(SkinnedMeshVertexType vertexType) =>
             vertexType switch
             {
@@ -148,6 +180,20 @@ namespace LeagueToolkit.Core.Mesh
                 SkinnedMeshVertexType.Tangent => SkinnedMeshVertex.TANGENT,
                 _ => throw new NotImplementedException($"{vertexType} is not a valid {nameof(SkinnedMeshVertexType)}")
             };
+
+        private static SkinnedMeshVertexType GetVertexTypeForDescription(VertexBufferDescription description)
+        {
+            return description switch
+            {
+                _ when description == SkinnedMeshVertex.BASIC => SkinnedMeshVertexType.Basic,
+                _ when description == SkinnedMeshVertex.COLOR => SkinnedMeshVertexType.Color,
+                _ when description == SkinnedMeshVertex.TANGENT => SkinnedMeshVertexType.Tangent,
+                _
+                    => throw new NotImplementedException(
+                        $"The specified {nameof(VertexBufferDescription)} is not a valid skinned mesh vertex description"
+                    )
+            };
+        }
 
         private void Dispose(bool disposing)
         {
