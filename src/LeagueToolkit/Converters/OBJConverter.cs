@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.IO.OBJ;
-using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,9 @@ using System.Numerics;
 using LeagueToolkit.IO.NVR;
 using LeagueToolkit.Core.Memory;
 using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Mesh;
+using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.Converters
 {
@@ -211,58 +213,5 @@ namespace LeagueToolkit.Converters
         //    }
         //    return new OBJFile(Vertices, Indices);
         //}
-
-        /// <summary>
-        /// Converts <paramref name="model"/> to an <see cref="OBJFile"/>
-        /// </summary>
-        /// <param name="model">The <see cref="SimpleSkin"/> to convert to a <see cref="OBJFile"/></param>
-        /// <returns>An <see cref="OBJFile"/> converted from <paramref name="model"/></returns>
-        public static OBJFile ConvertSKN(SimpleSkin model)
-        {
-            List<uint> indices = new List<uint>();
-            List<Vector3> vertices = new List<Vector3>();
-            List<Vector2> uv = new List<Vector2>();
-            List<Vector3> normals = new List<Vector3>();
-
-            uint indexOffset = 0;
-            foreach (SimpleSkinSubmesh submesh in model.Submeshes)
-            {
-                indices.AddRange(submesh.Indices.Select(x => x + indexOffset));
-                foreach (SimpleSkinVertex vertex in submesh.Vertices)
-                {
-                    vertices.Add(vertex.Position);
-                    uv.Add(vertex.UV);
-                    normals.Add(vertex.Normal);
-                }
-
-                indexOffset += submesh.Indices.Min();
-            }
-
-            return new OBJFile(vertices, indices, uv, normals);
-        }
-
-        /// <summary>
-        /// Converts the Submeshes of the specified <see cref="SimpleSkin"/> into a List of <see cref="OBJFile"/>
-        /// </summary>
-        /// <param name="model"><see cref="SimpleSkin"/> to convert</param>
-        public static IEnumerable<Tuple<string, OBJFile>> ConvertSKNModels(SimpleSkin model)
-        {
-            foreach (SimpleSkinSubmesh submesh in model.Submeshes)
-            {
-                List<uint> indices = new List<uint>();
-                List<Vector3> vertices = new List<Vector3>();
-                List<Vector2> uv = new List<Vector2>();
-                List<Vector3> normals = new List<Vector3>();
-                indices.AddRange(submesh.Indices.Select(i => (uint)i));
-                foreach (SimpleSkinVertex vertex in submesh.Vertices)
-                {
-                    vertices.Add(vertex.Position);
-                    uv.Add(vertex.UV);
-                    normals.Add(vertex.Normal);
-                }
-
-                yield return new Tuple<string, OBJFile>(submesh.Name, new OBJFile(vertices, indices, uv, normals));
-            }
-        }
     }
 }

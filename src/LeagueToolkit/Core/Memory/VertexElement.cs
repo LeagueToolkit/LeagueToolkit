@@ -31,6 +31,7 @@ namespace LeagueToolkit.Core.Memory
         public static readonly VertexElement TEXCOORD_5 = new(ElementName.Texcoord5, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_6 = new(ElementName.Texcoord6, ElementFormat.XY_Float32);
         public static readonly VertexElement LIGHTMAP_UV = new(ElementName.LightmapUV, ElementFormat.XY_Float32);
+        public static readonly VertexElement TANGENT = new(ElementName.Tangent, ElementFormat.XYZW_Float32);
 
         /// <summary> The semantic name of the <see cref="VertexElement"/> </summary>
         public ElementName Name { get; }
