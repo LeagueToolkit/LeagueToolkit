@@ -67,6 +67,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             MeshBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4> meshBuilder =
                 VERTEX_SKINNED.CreateCompatibleMesh();
 
+            IVertexBuilder[] vertices = CreateVertices(skinnedMesh, skeleton);
+
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
                 MaterialBuilder material = new MaterialBuilder(range.Material).WithUnlitShader();
@@ -77,74 +79,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 {
                     var submeshImage = materialTextues[range.Material];
                     AssignMaterialTexture(material, submeshImage);
-                }
-
-                bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
-                    ElementName.PrimaryColor,
-                    out var primaryColorAccessor
-                );
-                bool hasTangents = skinnedMesh.VerticesView.TryGetAccessor(
-                    ElementName.Tangent,
-                    out var tangentAccessor
-                );
-
-                VERTEX_SKINNED[] vertices = new VERTEX_SKINNED[range.VertexCount];
-                VertexElementArray<Vector3> positions = skinnedMesh.VerticesView
-                    .GetAccessor(ElementName.Position)
-                    .AsVector3Array();
-                VertexElementArray<Vector4> boneWeights = skinnedMesh.VerticesView
-                    .GetAccessor(ElementName.BlendWeight)
-                    .AsVector4Array();
-                VertexElementArray<(byte x, byte y, byte z, byte w)> boneIndices = skinnedMesh.VerticesView
-                    .GetAccessor(ElementName.BlendIndex)
-                    .AsXyzwU8Array();
-                VertexElementArray<Vector3> normals = skinnedMesh.VerticesView
-                    .GetAccessor(ElementName.Normal)
-                    .AsVector3Array();
-                VertexElementArray<Vector2> diffuseUvs = skinnedMesh.VerticesView
-                    .GetAccessor(ElementName.DiffuseUV)
-                    .AsVector2Array();
-                VertexElementArray<(byte b, byte g, byte r, byte a)> primaryColors = hasPrimaryColor
-                    ? primaryColorAccessor.AsBgraU8Array()
-                    : default;
-                VertexElementArray<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : default;
-
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    var joints = boneIndices[i];
-                    Vector4 jointWeights = boneWeights[i];
-
-                    VERTEX_SKINNED vertex = new();
-                    vertex = hasTangents switch
-                    {
-                        true => vertex.WithGeometry(positions[i], normals[i], tangents[i]),
-                        false => vertex.WithGeometry(positions[i], normals[i]),
-                    };
-                    vertex = hasPrimaryColor switch
-                    {
-                        true
-                            => vertex.WithMaterial(
-                                new Vector4(
-                                    primaryColors[i].r / 255,
-                                    primaryColors[i].g / 255,
-                                    primaryColors[i].b / 255,
-                                    primaryColors[i].a / 255
-                                ),
-                                diffuseUvs[i]
-                            ),
-                        false => vertex.WithMaterial(diffuseUvs[i])
-                    };
-                    vertex = vertex.WithSkinning(
-                        new (int, float)[]
-                        {
-                            (skeleton.Influences[joints.x], jointWeights.X),
-                            (skeleton.Influences[joints.y], jointWeights.Y),
-                            (skeleton.Influences[joints.z], jointWeights.Z),
-                            (skeleton.Influences[joints.w], jointWeights.W)
-                        }
-                    );
-
-                    vertices[i] = vertex;
                 }
 
                 // Add vertices to primitive
@@ -163,28 +97,87 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return meshBuilder;
         }
 
-        private static void WithVertexSkinning(
-            int index,
-            Skeleton skeleton,
-            ref IVertexBuilder vertex,
-            VertexElementArray<Vector4> boneWeights,
-            VertexElementArray<(byte x, byte y, byte z, byte w)> boneIndices
-        )
+        private static IVertexBuilder[] CreateVertices(SkinnedMesh skinnedMesh, Skeleton skeleton)
         {
-            var joints = boneIndices[index];
-            Vector4 jointWeights = boneWeights[index];
-            VertexJoints4 vertexSkinning =
-                new(
-                    new (int, float)[]
+            bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
+                ElementName.PrimaryColor,
+                out var primaryColorAccessor
+            );
+            bool hasTangents = skinnedMesh.VerticesView.TryGetAccessor(ElementName.Tangent, out var tangentAccessor);
+
+            IVertexBuilder[] vertices = new IVertexBuilder[skinnedMesh.VerticesView.VertexCount];
+            VertexElementArray<Vector3> positions = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.Position)
+                .AsVector3Array();
+            VertexElementArray<Vector4> boneWeights = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.BlendWeight)
+                .AsVector4Array();
+            VertexElementArray<(byte x, byte y, byte z, byte w)> boneIndices = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.BlendIndex)
+                .AsXyzwU8Array();
+            VertexElementArray<Vector3> normals = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.Normal)
+                .AsVector3Array();
+            VertexElementArray<Vector2> diffuseUvs = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.DiffuseUV)
+                .AsVector2Array();
+            VertexElementArray<(byte b, byte g, byte r, byte a)> primaryColors = hasPrimaryColor
+                ? primaryColorAccessor.AsBgraU8Array()
+                : default;
+            VertexElementArray<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : default;
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                var joints = boneIndices[i];
+                Vector4 jointWeights = boneWeights[i];
+
+                IVertexBuilder vertex = (hasPrimaryColor, hasTangents) switch
+                {
+                    (false, false) => new VERTEX_SKINNED(),
+                    (true, false) => new VERTEX_SKINNED_COLOR(),
+                    (true, true) => new VERTEX_SKINNED_TANGENT(),
+                    (false, true) => throw new InvalidOperationException("Mesh must have colors if it has tangents"),
+                };
+
+                vertex.SetGeometry(
+                    hasTangents switch
                     {
-                        (skeleton.Influences[joints.x], jointWeights.X),
-                        (skeleton.Influences[joints.y], jointWeights.Y),
-                        (skeleton.Influences[joints.z], jointWeights.Z),
-                        (skeleton.Influences[joints.w], jointWeights.W)
+                        true => new VertexPositionNormalTangent(positions[i], normals[i], tangents[i]),
+                        false => new VertexPositionNormal(positions[i], normals[i]),
                     }
                 );
+                vertex.SetMaterial(
+                    hasPrimaryColor switch
+                    {
+                        true
+                            => new VertexColor1Texture1(
+                                new Vector4(
+                                    primaryColors[i].r / 255,
+                                    primaryColors[i].g / 255,
+                                    primaryColors[i].b / 255,
+                                    primaryColors[i].a / 255
+                                ),
+                                diffuseUvs[i]
+                            ),
+                        false => new VertexTexture1(diffuseUvs[i])
+                    }
+                );
+                vertex.SetSkinning(
+                    new VertexJoints4(
+                        new (int, float)[]
+                        {
+                            (skeleton.Influences[joints.x], jointWeights.X),
+                            (skeleton.Influences[joints.y], jointWeights.Y),
+                            (skeleton.Influences[joints.z], jointWeights.Z),
+                            (skeleton.Influences[joints.w], jointWeights.W)
+                        }
+                    )
+                );
 
-            vertex.SetSkinning(vertexSkinning);
+                vertices[i] = vertex;
+            }
+
+            return vertices;
         }
 
         private static void AssignMaterialTexture(MaterialBuilder materialBuilder, SixLabors.ImageSharp.Image texture)
