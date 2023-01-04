@@ -12,22 +12,38 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Mesh
 {
+    /// <summary>Represents a skinned mesh</summary>
+    /// <remarks>
+    /// The <see cref="SkinnedMesh"/> class can instantiated by reading a Simple Skin (.skn) file
+    /// </remarks>
     public sealed class SkinnedMesh : IDisposable
     {
+        /// <summary>Gets the mesh's AABB</summary>
         public Box AABB { get; private set; }
+
+        /// <summary>Gets the mesh's Bounding Sphere</summary>
         public R3DSphere BoundingSphere { get; private set; }
 
+        /// <summary>Gets a read-only list of the mesh's primitive ranges</summary>
         public IReadOnlyList<SkinnedMeshRange> Ranges => this._ranges;
         private readonly SkinnedMeshRange[] _ranges;
 
+        /// <summary>Gets a view into the mesh's vertex buffer</summary>
         public IVertexBufferView VerticesView => this._vertexBuffer;
+
+        /// <summary>Gets a read-only view into the mesh's index buffer</summary>
         public ReadOnlyMemory<ushort> IndicesView => this._indexBuffer.Memory;
 
         private readonly VertexBuffer _vertexBuffer;
         private readonly MemoryOwner<ushort> _indexBuffer;
 
+        /// <summary>Gets a value indicating whether the <see cref="SkinnedMesh"/> has been disposed of</summary>
         public bool IsDisposed { get; private set; }
 
+        /// <summary>Creates a new <see cref="SkinnedMesh"/> object with the specified parameters</summary>
+        /// <param name="ranges">The ranges of the <see cref="SkinnedMesh"/></param>
+        /// <param name="vertexBuffer">The vertex buffer of the <see cref="SkinnedMesh"/></param>
+        /// <param name="indexBuffer">The index buffer of the <see cref="SkinnedMesh"/></param>
         public SkinnedMesh(
             IEnumerable<SkinnedMeshRange> ranges,
             VertexBuffer vertexBuffer,
@@ -42,9 +58,19 @@ namespace LeagueToolkit.Core.Mesh
             this.BoundingSphere = this.AABB.GetBoundingSphere();
         }
 
-        public static SkinnedMesh ReadFromSimpleSkin(string fileLocation) =>
-            ReadFromSimpleSkin(File.OpenRead(fileLocation));
+        /// <summary>
+        /// Reads a <see cref="SkinnedMesh"/> object from the specified <paramref name="file"/>
+        /// </summary>
+        /// <param name="file">The file to read from</param>
+        /// <returns>The read <see cref="SkinnedMesh"/> object</returns>
+        public static SkinnedMesh ReadFromSimpleSkin(string file) => ReadFromSimpleSkin(File.OpenRead(file));
 
+        /// <summary>
+        /// Reads a <see cref="SkinnedMesh"/> object from the specified <paramref name="stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        /// <param name="leaveOpen">Whether to leave <paramref name="stream"/> opened</param>
+        /// <returns>The read <see cref="SkinnedMesh"/> object</returns>
         public static SkinnedMesh ReadFromSimpleSkin(Stream stream, bool leaveOpen = false)
         {
             using BinaryReader br = new(stream, Encoding.UTF8, leaveOpen);
@@ -140,8 +166,17 @@ namespace LeagueToolkit.Core.Mesh
             return new(ranges, vertexBuffer, indexBufferOwner);
         }
 
-        public void WriteSimpleSkin(string fileLocation) => WriteSimpleSkin(File.Create(fileLocation));
+        /// <summary>
+        /// Writes the <see cref="SkinnedMesh"/> into the specified <paramref name="file"/>
+        /// </summary>
+        /// <param name="file">The file to write into</param>
+        public void WriteSimpleSkin(string file) => WriteSimpleSkin(File.Create(file));
 
+        /// <summary>
+        /// Writes the <see cref="SkinnedMesh"/> into the specified <paramref name="stream"/>
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write into</param>
+        /// <param name="leaveOpen">Whether to leave <paramref name="stream"/> opened</param>
         public void WriteSimpleSkin(Stream stream, bool leaveOpen = false)
         {
             using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
@@ -208,6 +243,9 @@ namespace LeagueToolkit.Core.Mesh
             }
         }
 
+        /// <summary>
+        /// Disposes the <see cref="SkinnedMesh"/> object and its buffers
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -215,8 +253,14 @@ namespace LeagueToolkit.Core.Mesh
         }
     }
 
+    /// <summary>
+    /// Contains <see cref="SkinnedMesh"/> vertex descriptions
+    /// </summary>
     public static class SkinnedMeshVertex
     {
+        /// <summary>
+        /// Represents a basic vertex
+        /// </summary>
         public static readonly VertexBufferDescription BASIC =
             new(
                 VertexBufferUsage.Static,
@@ -230,6 +274,9 @@ namespace LeagueToolkit.Core.Mesh
                 }
             );
 
+        /// <summary>
+        /// Represents a vertex with a <see cref="ElementName.PrimaryColor"/>
+        /// </summary>
         public static readonly VertexBufferDescription COLOR =
             new(
                 VertexBufferUsage.Static,
@@ -244,6 +291,9 @@ namespace LeagueToolkit.Core.Mesh
                 }
             );
 
+        /// <summary>
+        /// Represents a vertex with a <see cref="ElementName.PrimaryColor"/> and a <see cref="ElementName.Tangent"/>
+        /// </summary>
         public static readonly VertexBufferDescription TANGENT =
             new(
                 VertexBufferUsage.Static,
