@@ -26,6 +26,14 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
     public static class SimpleSkinGltfExtensions
     {
+        /// <summary>
+        /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified textures and animations
+        /// </summary>
+        /// <param name="skinnedMesh">The <see cref="SkinnedMesh"/> to covert</param>
+        /// <param name="skeleton">The <see cref="Skeleton"/> of the <see cref="SkinnedMesh"/></param>
+        /// <param name="materialTextues">The texture data for the specified materials</param>
+        /// <param name="animations">The animations</param>
+        /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
             Skeleton skeleton,
@@ -53,6 +61,124 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
 
             return sceneBuilder.ToGltf2();
+        }
+
+        /// <summary>
+        /// Coverts the <see cref="ModelRoot"/> into a rigged mesh
+        /// </summary>
+        /// <param name="root">The <see cref="ModelRoot"/> to convert</param>
+        /// <returns>The created <see cref="SkinnedMesh"/> and <see cref="Skeleton"/></returns>
+        public static (SkinnedMesh, Skeleton) ToRiggedMesh(this ModelRoot root)
+        {
+            Guard.HasSizeEqualTo(root.LogicalMeshes, 1, nameof(root.LogicalMeshes));
+            Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
+
+            Mesh mesh = root.LogicalMeshes[0];
+            List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
+                .Select(primitive => (primitive, primitive.GetIndices()))
+                .ToList();
+
+            // Create ranges and index buffer
+            int indexOffset = 0;
+            int indexCount = primitiveIndices.Sum(x => x.indices.Count);
+            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
+            SkinnedMeshRange[] ranges = new SkinnedMeshRange[mesh.Primitives.Count];
+            for (int primitiveId = 0; primitiveId < primitiveIndices.Count; primitiveId++)
+            {
+                var (primitive, indices) = primitiveIndices[primitiveId];
+
+                uint minIndex = indices.Min();
+                uint maxIndex = indices.Max();
+                for (int i = 0; i < indices.Count; i++)
+                {
+                    indexBufferOwner.Span[indexOffset + i] = (ushort)(indices[i] - minIndex);
+                }
+
+                ranges[primitiveId] = new(
+                    primitive.Material.Name,
+                    (int)minIndex,
+                    (int)(maxIndex - minIndex + 1),
+                    indexOffset,
+                    indices.Count
+                );
+                indexOffset += indices.Count;
+            }
+
+            // Create vertex buffer
+            int vertexCount = ranges.Sum(range => range.VertexCount);
+            VertexBufferDescription vertexBufferDescription = CreateRiggedMeshVertexBufferDescription(root);
+            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
+                vertexCount * vertexBufferDescription.GetVertexSize()
+            );
+            VertexBufferWriter vertexBufferWriter = new(vertexBufferDescription.Elements, vertexBufferOwner.Memory);
+
+            List<byte> influences = new();
+            for (int primitiveId = 0; primitiveId < mesh.Primitives.Count; primitiveId++)
+            {
+                MeshPrimitive primitive = mesh.Primitives[primitiveId];
+                SkinnedMeshRange range = ranges[primitiveId];
+
+                bool hasPositions = primitive.VertexAccessors.TryGetValue("POSITION", out var positionAccessor);
+                bool hasJoints = primitive.VertexAccessors.TryGetValue("JOINTS_0", out var jointsAccessor);
+                bool hasWeights = primitive.VertexAccessors.TryGetValue("WEIGHTS_0", out var weightsAccessor);
+                bool hasNormals = primitive.VertexAccessors.TryGetValue("NORMAL", out var normalAccessor);
+                bool hasDiffuseUvs = primitive.VertexAccessors.TryGetValue("TEXCOORD_0", out var diffuseUvAccessor);
+                bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out var colorAccessor);
+                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT_0", out var tangentAccessor);
+
+                IList<Vector3> positions = hasPositions ? positionAccessor.AsVector3Array() : null;
+                IList<Vector4> joints = hasJoints ? jointsAccessor.AsVector4Array() : null;
+                IList<Vector4> weights = hasWeights ? weightsAccessor.AsVector4Array() : null;
+                IList<Vector3> normals = hasNormals ? positionAccessor.AsVector3Array() : null;
+                IList<Vector2> diffuseUvs = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : null;
+                IList<Vector4> colors = hasJoints ? colorAccessor.AsColorArray() : null;
+                IList<Vector4> tangents = hasJoints ? tangentAccessor.AsVector4Array() : null;
+
+                for (int i = 0; i < positions.Count; i++)
+                {
+                    Vector4 vertexJoints = joints[i];
+                    byte[] vertexJointsArray = new[]
+                    {
+                        (byte)vertexJoints.X,
+                        (byte)vertexJoints.Y,
+                        (byte)vertexJoints.Z,
+                        (byte)vertexJoints.W
+                    };
+                    for (int joint = 0; joint < vertexJointsArray.Length; joint++)
+                    {
+                        if (!influences.Any(x => x == vertexJointsArray[joint]))
+                        {
+                            influences.Add(vertexJointsArray[joint]);
+                        }
+                    }
+
+                    vertexBufferWriter.WriteVector3(i, ElementName.Position, positions[i]);
+                    vertexBufferWriter.WriteXyzwU8(
+                        i,
+                        ElementName.BlendIndex,
+                        (vertexJointsArray[0], vertexJointsArray[1], vertexJointsArray[2], vertexJointsArray[3])
+                    );
+                    vertexBufferWriter.WriteVector4(i, ElementName.BlendWeight, weights[i]);
+                    vertexBufferWriter.WriteVector3(i, ElementName.Normal, normals[i]);
+                    vertexBufferWriter.WriteVector2(i, ElementName.DiffuseUV, diffuseUvs[i]);
+
+                    if (hasColors || hasTangents)
+                        vertexBufferWriter.WriteColorBgraU8(i, ElementName.PrimaryColor, colors[i]);
+                    if (hasTangents)
+                        vertexBufferWriter.WriteVector4(i, ElementName.Tangent, tangents[i]);
+                }
+            }
+
+            VertexBuffer vertexBuffer = VertexBuffer.Create(
+                vertexBufferDescription.Usage,
+                vertexBufferDescription.Elements,
+                vertexBufferOwner
+            );
+
+            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
+            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
+
+            return (skinnedMesh, skeleton);
         }
 
         private static MeshBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4> CreateVertexSkinnedMesh(
@@ -269,119 +395,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     }
                 }
             }
-        }
-
-        public static (SkinnedMesh, Skeleton) ToRiggedMesh(this ModelRoot root)
-        {
-            Guard.HasSizeEqualTo(root.LogicalMeshes, 1, nameof(root.LogicalMeshes));
-            Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
-
-            Mesh mesh = root.LogicalMeshes[0];
-            List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
-                .Select(primitive => (primitive, primitive.GetIndices()))
-                .ToList();
-
-            // Create ranges and index buffer
-            int indexOffset = 0;
-            int indexCount = primitiveIndices.Sum(x => x.indices.Count);
-            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
-            SkinnedMeshRange[] ranges = new SkinnedMeshRange[mesh.Primitives.Count];
-            for (int primitiveId = 0; primitiveId < primitiveIndices.Count; primitiveId++)
-            {
-                var (primitive, indices) = primitiveIndices[primitiveId];
-
-                uint minIndex = indices.Min();
-                uint maxIndex = indices.Max();
-                for (int i = 0; i < indices.Count; i++)
-                {
-                    indexBufferOwner.Span[indexOffset + i] = (ushort)(indices[i] - minIndex);
-                }
-
-                ranges[primitiveId] = new(
-                    primitive.Material.Name,
-                    (int)minIndex,
-                    (int)(maxIndex - minIndex + 1),
-                    indexOffset,
-                    indices.Count
-                );
-                indexOffset += indices.Count;
-            }
-
-            // Create vertex buffer
-            int vertexCount = ranges.Sum(range => range.VertexCount);
-            VertexBufferDescription vertexBufferDescription = CreateRiggedMeshVertexBufferDescription(root);
-            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
-                vertexCount * vertexBufferDescription.GetVertexSize()
-            );
-            VertexBufferWriter vertexBufferWriter = new(vertexBufferDescription.Elements, vertexBufferOwner.Memory);
-
-            List<byte> influences = new();
-            for (int primitiveId = 0; primitiveId < mesh.Primitives.Count; primitiveId++)
-            {
-                MeshPrimitive primitive = mesh.Primitives[primitiveId];
-                SkinnedMeshRange range = ranges[primitiveId];
-
-                bool hasPositions = primitive.VertexAccessors.TryGetValue("POSITION", out var positionAccessor);
-                bool hasJoints = primitive.VertexAccessors.TryGetValue("JOINTS_0", out var jointsAccessor);
-                bool hasWeights = primitive.VertexAccessors.TryGetValue("WEIGHTS_0", out var weightsAccessor);
-                bool hasNormals = primitive.VertexAccessors.TryGetValue("NORMAL", out var normalAccessor);
-                bool hasDiffuseUvs = primitive.VertexAccessors.TryGetValue("TEXCOORD_0", out var diffuseUvAccessor);
-                bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out var colorAccessor);
-                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT_0", out var tangentAccessor);
-
-                IList<Vector3> positions = hasPositions ? positionAccessor.AsVector3Array() : null;
-                IList<Vector4> joints = hasJoints ? jointsAccessor.AsVector4Array() : null;
-                IList<Vector4> weights = hasWeights ? weightsAccessor.AsVector4Array() : null;
-                IList<Vector3> normals = hasNormals ? positionAccessor.AsVector3Array() : null;
-                IList<Vector2> diffuseUvs = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : null;
-                IList<Vector4> colors = hasJoints ? colorAccessor.AsColorArray() : null;
-                IList<Vector4> tangents = hasJoints ? tangentAccessor.AsVector4Array() : null;
-
-                for (int i = 0; i < positions.Count; i++)
-                {
-                    Vector4 vertexJoints = joints[i];
-                    byte[] vertexJointsArray = new[]
-                    {
-                        (byte)vertexJoints.X,
-                        (byte)vertexJoints.Y,
-                        (byte)vertexJoints.Z,
-                        (byte)vertexJoints.W
-                    };
-                    for (int joint = 0; joint < vertexJointsArray.Length; joint++)
-                    {
-                        if (!influences.Any(x => x == vertexJointsArray[joint]))
-                        {
-                            influences.Add(vertexJointsArray[joint]);
-                        }
-                    }
-
-                    vertexBufferWriter.WriteVector3(i, ElementName.Position, positions[i]);
-                    vertexBufferWriter.WriteXyzwU8(
-                        i,
-                        ElementName.BlendIndex,
-                        (vertexJointsArray[0], vertexJointsArray[1], vertexJointsArray[2], vertexJointsArray[3])
-                    );
-                    vertexBufferWriter.WriteVector4(i, ElementName.BlendWeight, weights[i]);
-                    vertexBufferWriter.WriteVector3(i, ElementName.Normal, normals[i]);
-                    vertexBufferWriter.WriteVector2(i, ElementName.DiffuseUV, diffuseUvs[i]);
-
-                    if (hasColors || hasTangents)
-                        vertexBufferWriter.WriteColorBgraU8(i, ElementName.PrimaryColor, colors[i]);
-                    if (hasTangents)
-                        vertexBufferWriter.WriteVector4(i, ElementName.Tangent, tangents[i]);
-                }
-            }
-
-            VertexBuffer vertexBuffer = VertexBuffer.Create(
-                vertexBufferDescription.Usage,
-                vertexBufferDescription.Elements,
-                vertexBufferOwner
-            );
-
-            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
-            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
-
-            return (skinnedMesh, skeleton);
         }
 
         private static VertexBufferDescription CreateRiggedMeshVertexBufferDescription(this ModelRoot root)
