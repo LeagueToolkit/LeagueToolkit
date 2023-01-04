@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System;
@@ -18,17 +19,21 @@ namespace LeagueToolkit.IO.StaticObjectFile
         public List<StaticObjectSubmesh> Submeshes { get; private set; }
 
         public StaticObject(List<StaticObjectSubmesh> submeshes) : this(string.Empty, submeshes) { }
+
         public StaticObject(string name, List<StaticObjectSubmesh> submeshes)
         {
             this.Name = name;
             this.Submeshes = submeshes;
         }
-        public StaticObject(string name, List<StaticObjectSubmesh> submeshes, Vector3 pivotPoint) : this(name, submeshes)
+
+        public StaticObject(string name, List<StaticObjectSubmesh> submeshes, Vector3 pivotPoint)
+            : this(name, submeshes)
         {
             this.PivotPoint = pivotPoint;
         }
 
         public static StaticObject ReadSCB(string fileLocation) => ReadSCB(File.OpenRead(fileLocation));
+
         public static StaticObject ReadSCB(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
@@ -86,6 +91,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
         }
 
         public static StaticObject ReadSCO(string fileLocation) => ReadSCO(File.OpenRead(fileLocation));
+
         public static StaticObject ReadSCO(Stream stream)
         {
             using (StreamReader sr = new StreamReader(stream))
@@ -105,7 +111,8 @@ namespace LeagueToolkit.IO.StaticObjectFile
                 Vector3 centralPoint = new Vector3(
                     float.Parse(input[1], CultureInfo.InvariantCulture),
                     float.Parse(input[2], CultureInfo.InvariantCulture),
-                    float.Parse(input[3], CultureInfo.InvariantCulture));
+                    float.Parse(input[3], CultureInfo.InvariantCulture)
+                );
                 Vector3 pivotPoint = centralPoint;
 
                 bool hasVertexColors = false;
@@ -116,7 +123,8 @@ namespace LeagueToolkit.IO.StaticObjectFile
                     pivotPoint = new Vector3(
                         float.Parse(input[1], CultureInfo.InvariantCulture),
                         float.Parse(input[2], CultureInfo.InvariantCulture),
-                        float.Parse(input[3], CultureInfo.InvariantCulture));
+                        float.Parse(input[3], CultureInfo.InvariantCulture)
+                    );
                 }
                 else if (input[0] == "VertexColors=")
                 {
@@ -124,13 +132,15 @@ namespace LeagueToolkit.IO.StaticObjectFile
                 }
 
                 int vertexCount = 0;
-                if(input[0] == "Verts=")
+                if (input[0] == "Verts=")
                 {
                     vertexCount = int.Parse(input[1]);
                 }
                 else
                 {
-                    vertexCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                    vertexCount = int.Parse(
+                        sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]
+                    );
                 }
 
                 List<Vector3> vertices = new List<Vector3>(vertexCount);
@@ -139,17 +149,21 @@ namespace LeagueToolkit.IO.StaticObjectFile
                 {
                     input = sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries);
 
-                    vertices.Add(new Vector3(
-                        float.Parse(input[0], CultureInfo.InvariantCulture),
-                        float.Parse(input[1], CultureInfo.InvariantCulture),
-                        float.Parse(input[2], CultureInfo.InvariantCulture)));
+                    vertices.Add(
+                        new Vector3(
+                            float.Parse(input[0], CultureInfo.InvariantCulture),
+                            float.Parse(input[1], CultureInfo.InvariantCulture),
+                            float.Parse(input[2], CultureInfo.InvariantCulture)
+                        )
+                    );
                 }
 
                 if (hasVertexColors)
                 {
                     for (int i = 0; i < vertexCount; i++)
                     {
-                        string[] colorComponents = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] colorComponents = sr.ReadLine()
+                            .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                         if (colorComponents.Length != 4)
                         {
                             throw new Exception("Invalid number of vertex color components: " + colorComponents.Length);
@@ -164,7 +178,9 @@ namespace LeagueToolkit.IO.StaticObjectFile
                     }
                 }
 
-                int faceCount = int.Parse(sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]);
+                int faceCount = int.Parse(
+                    sr.ReadLine().Split(splittingArray, StringSplitOptions.RemoveEmptyEntries)[1]
+                );
                 List<StaticObjectFace> faces = new List<StaticObjectFace>(faceCount);
                 for (int i = 0; i < faceCount; i++)
                 {
@@ -175,7 +191,11 @@ namespace LeagueToolkit.IO.StaticObjectFile
             }
         }
 
-        private static List<StaticObjectSubmesh> CreateSubmeshes(List<Vector3> vertices, List<Color> vertexColors, List<StaticObjectFace> faces)
+        private static List<StaticObjectSubmesh> CreateSubmeshes(
+            List<Vector3> vertices,
+            List<Color> vertexColors,
+            List<StaticObjectFace> faces
+        )
         {
             bool hasVertexColors = vertexColors.Count != 0;
             Dictionary<string, List<StaticObjectFace>> submeshMap = CreateSubmeshMap(faces);
@@ -233,6 +253,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
 
             return submeshes;
         }
+
         private static Dictionary<string, List<StaticObjectFace>> CreateSubmeshMap(List<StaticObjectFace> faces)
         {
             Dictionary<string, List<StaticObjectFace>> submeshMap = new Dictionary<string, List<StaticObjectFace>>();
@@ -251,6 +272,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
         }
 
         public void WriteSCB(string fileLocation) => WriteSCB(File.Create(fileLocation));
+
         public void WriteSCB(Stream stream, bool leaveOpen = false)
         {
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
@@ -306,13 +328,13 @@ namespace LeagueToolkit.IO.StaticObjectFile
                     }
                 }
 
-
                 bw.WriteVector3(GetCentralPoint());
                 faces.ForEach(face => face.Write(bw));
             }
         }
 
         public void WriteSCO(string fileLocation) => WriteSCO(File.Create(fileLocation));
+
         public void WriteSCO(Stream stream, bool leaveOpen = false)
         {
             using (StreamWriter sw = new StreamWriter(stream, Encoding.UTF8, 1024, leaveOpen))
@@ -371,7 +393,6 @@ namespace LeagueToolkit.IO.StaticObjectFile
                     }
                 }
 
-
                 sw.WriteLine("Faces= " + faces.Count);
                 faces.ForEach(face => face.Write(sw));
 
@@ -390,6 +411,7 @@ namespace LeagueToolkit.IO.StaticObjectFile
 
             return vertices;
         }
+
         public List<uint> GetIndices()
         {
             List<uint> indices = new List<uint>();
@@ -414,17 +436,24 @@ namespace LeagueToolkit.IO.StaticObjectFile
             {
                 foreach (StaticObjectVertex vertex in submesh.Vertices)
                 {
-                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+                    if (min.X > vertex.Position.X)
+                        min.X = vertex.Position.X;
+                    if (min.Y > vertex.Position.Y)
+                        min.Y = vertex.Position.Y;
+                    if (min.Z > vertex.Position.Z)
+                        min.Z = vertex.Position.Z;
+                    if (max.X < vertex.Position.X)
+                        max.X = vertex.Position.X;
+                    if (max.Y < vertex.Position.Y)
+                        max.Y = vertex.Position.Y;
+                    if (max.Z < vertex.Position.Z)
+                        max.Z = vertex.Position.Z;
                 }
             }
 
             return new Box(min, max);
         }
+
         public Vector3 GetCentralPoint() => GetBoundingBox().GetCentralPoint();
     }
 

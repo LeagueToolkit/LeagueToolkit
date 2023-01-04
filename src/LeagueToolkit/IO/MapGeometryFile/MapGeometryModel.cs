@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
 using System;
 using System.Collections.Generic;
 using System.IO;

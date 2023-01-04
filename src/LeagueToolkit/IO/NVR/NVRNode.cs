@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using LeagueToolkit.Helpers.Structures;
 using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.IO.NVR
 {
@@ -47,7 +47,9 @@ namespace LeagueToolkit.IO.NVR
         {
             // Used if we create it from a parent node.
             this.CentralPointsBoundingBox = centralPointsBox;
-            this.Meshes.AddRange(parentNode.Meshes.FindAll(x => this.CentralPointsBoundingBox.ContainsPoint(x.BoundingSphere.Position)));
+            this.Meshes.AddRange(
+                parentNode.Meshes.FindAll(x => this.CentralPointsBoundingBox.ContainsPoint(x.BoundingSphere.Position))
+            );
             parentNode.Children.Add(this);
             this.BoundingBox = this.CalculateBoundingBox();
         }
@@ -64,24 +66,53 @@ namespace LeagueToolkit.IO.NVR
         {
             if (Meshes.Count > 0)
             {
-                Vector3 min = new Vector3(Meshes[0].BoundingBox.Min.X, Meshes[0].BoundingBox.Min.Y, Meshes[0].BoundingBox.Min.Z);
-                Vector3 max = new Vector3(Meshes[0].BoundingBox.Max.X, Meshes[0].BoundingBox.Max.Y, Meshes[0].BoundingBox.Max.Z);
+                Vector3 min = new Vector3(
+                    Meshes[0].BoundingBox.Min.X,
+                    Meshes[0].BoundingBox.Min.Y,
+                    Meshes[0].BoundingBox.Min.Z
+                );
+                Vector3 max = new Vector3(
+                    Meshes[0].BoundingBox.Max.X,
+                    Meshes[0].BoundingBox.Max.Y,
+                    Meshes[0].BoundingBox.Max.Z
+                );
                 for (int i = 1; i < Meshes.Count; i++)
                 {
                     Box box = Meshes[i].BoundingBox;
-                    if (box.Min.X < min.X) { min.X = box.Min.X; }
-                    if (box.Min.Y < min.Y) { min.Y = box.Min.Y; }
-                    if (box.Min.Z < min.Z) { min.Z = box.Min.Z; }
-                    if (box.Max.X > max.X) { max.X = box.Max.X; }
-                    if (box.Max.Y > max.Y) { max.Y = box.Max.Y; }
-                    if (box.Max.Z > max.Z) { max.Z = box.Max.Z; }
+                    if (box.Min.X < min.X)
+                    {
+                        min.X = box.Min.X;
+                    }
+                    if (box.Min.Y < min.Y)
+                    {
+                        min.Y = box.Min.Y;
+                    }
+                    if (box.Min.Z < min.Z)
+                    {
+                        min.Z = box.Min.Z;
+                    }
+                    if (box.Max.X > max.X)
+                    {
+                        max.X = box.Max.X;
+                    }
+                    if (box.Max.Y > max.Y)
+                    {
+                        max.Y = box.Max.Y;
+                    }
+                    if (box.Max.Z > max.Z)
+                    {
+                        max.Z = box.Max.Z;
+                    }
                 }
                 return new Box(min, max);
             }
             else
             {
-                // No meshes inside, set bounding box to 
-                return new Box(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
+                // No meshes inside, set bounding box to
+                return new Box(
+                    new Vector3(NullCoordinate, NullCoordinate, NullCoordinate),
+                    new Vector3(NullCoordinate, NullCoordinate, NullCoordinate)
+                );
             }
         }
 
@@ -89,21 +120,50 @@ namespace LeagueToolkit.IO.NVR
         {
             if (Meshes.Count > 0)
             {
-                Vector3 min = new Vector3(Meshes[0].BoundingSphere.Position.X, Meshes[0].BoundingSphere.Position.Y, Meshes[0].BoundingSphere.Position.Z);
-                Vector3 max = new Vector3(Meshes[0].BoundingSphere.Position.X, Meshes[0].BoundingSphere.Position.Y, Meshes[0].BoundingSphere.Position.Z);
+                Vector3 min = new Vector3(
+                    Meshes[0].BoundingSphere.Position.X,
+                    Meshes[0].BoundingSphere.Position.Y,
+                    Meshes[0].BoundingSphere.Position.Z
+                );
+                Vector3 max = new Vector3(
+                    Meshes[0].BoundingSphere.Position.X,
+                    Meshes[0].BoundingSphere.Position.Y,
+                    Meshes[0].BoundingSphere.Position.Z
+                );
                 for (int i = 1; i < Meshes.Count; i++)
                 {
                     Vector3 spherePosition = Meshes[i].BoundingSphere.Position;
-                    if (spherePosition.X < min.X) { min.X = spherePosition.X; }
-                    if (spherePosition.Y < min.Y) { min.Y = spherePosition.Y; }
-                    if (spherePosition.Z < min.Z) { min.Z = spherePosition.Z; }
-                    if (spherePosition.X > max.X) { max.X = spherePosition.X; }
-                    if (spherePosition.Y > max.Y) { max.Y = spherePosition.Y; }
-                    if (spherePosition.Z > max.Z) { max.Z = spherePosition.Z; }
+                    if (spherePosition.X < min.X)
+                    {
+                        min.X = spherePosition.X;
+                    }
+                    if (spherePosition.Y < min.Y)
+                    {
+                        min.Y = spherePosition.Y;
+                    }
+                    if (spherePosition.Z < min.Z)
+                    {
+                        min.Z = spherePosition.Z;
+                    }
+                    if (spherePosition.X > max.X)
+                    {
+                        max.X = spherePosition.X;
+                    }
+                    if (spherePosition.Y > max.Y)
+                    {
+                        max.Y = spherePosition.Y;
+                    }
+                    if (spherePosition.Z > max.Z)
+                    {
+                        max.Z = spherePosition.Z;
+                    }
                 }
                 return new Box(min, max);
             }
-            return new Box(new Vector3(NullCoordinate, NullCoordinate, NullCoordinate), new Vector3(NullCoordinate, NullCoordinate, NullCoordinate));
+            return new Box(
+                new Vector3(NullCoordinate, NullCoordinate, NullCoordinate),
+                new Vector3(NullCoordinate, NullCoordinate, NullCoordinate)
+            );
         }
 
         public void Split()

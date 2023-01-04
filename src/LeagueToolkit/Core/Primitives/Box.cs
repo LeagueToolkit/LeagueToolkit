@@ -1,9 +1,8 @@
-﻿using LeagueToolkit.Core.Primitives;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace LeagueToolkit.Helpers.Structures
+namespace LeagueToolkit.Core.Primitives
 {
     /// <summary>
     /// Represents an Axis-Aligned Bounding Box
@@ -143,12 +142,12 @@ namespace LeagueToolkit.Helpers.Structures
         /// <returns>Wheter this <see cref="Box"/> contains the <see cref="Vector3"/> <paramref name="point"/></returns>
         public bool ContainsPoint(Vector3 point)
         {
-            return (point.X >= this.Min.X)
-                && (point.X <= this.Max.X)
-                && (point.Y >= this.Min.Y)
-                && (point.Y <= this.Max.Y)
-                && (point.Z >= this.Min.Z)
-                && (point.Z <= this.Max.Z);
+            return point.X >= this.Min.X
+                && point.X <= this.Max.X
+                && point.Y >= this.Min.Y
+                && point.Y <= this.Max.Y
+                && point.Z >= this.Min.Z
+                && point.Z <= this.Max.Z;
         }
     }
 }
