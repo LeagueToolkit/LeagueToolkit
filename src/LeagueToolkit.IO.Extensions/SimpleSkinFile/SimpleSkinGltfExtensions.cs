@@ -83,12 +83,11 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                 // Add vertices to primitive
                 ReadOnlySpan<ushort> indices = skinnedMesh.IndicesView.Span.Slice(range.StartIndex, range.IndexCount);
-                ushort minIndex = indices.Min();
                 for (int i = 0; i < indices.Length; i += 3)
                 {
-                    IVertexBuilder v1 = vertices[indices[i + 0] - minIndex];
-                    IVertexBuilder v2 = vertices[indices[i + 1] - minIndex];
-                    IVertexBuilder v3 = vertices[indices[i + 2] - minIndex];
+                    IVertexBuilder v1 = vertices[indices[i + 0]];
+                    IVertexBuilder v2 = vertices[indices[i + 1]];
+                    IVertexBuilder v3 = vertices[indices[i + 2]];
 
                     primitiveBuilder.AddTriangle(v1, v2, v3);
                 }
