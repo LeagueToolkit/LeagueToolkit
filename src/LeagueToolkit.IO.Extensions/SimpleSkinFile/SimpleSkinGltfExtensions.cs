@@ -181,7 +181,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return (skinnedMesh, skeleton);
         }
 
-        private static MeshBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4> CreateVertexSkinnedMesh(
+        private static IMeshBuilder<MaterialBuilder> CreateVertexSkinnedMesh(
             SkinnedMesh skinnedMesh,
             Skeleton skeleton,
             IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
@@ -191,8 +191,16 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.IsNotNull(skeleton, nameof(skeleton));
             Guard.IsNotNull(materialTextues, nameof(materialTextues));
 
-            MeshBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4> meshBuilder =
-                VERTEX_SKINNED.CreateCompatibleMesh();
+            VertexBufferDescription vertexBufferDescription = skinnedMesh.VerticesView.Description;
+            IMeshBuilder<MaterialBuilder> meshBuilder = skinnedMesh.VerticesView.Description switch
+            {
+                _ when vertexBufferDescription == SkinnedMeshVertex.BASIC => VERTEX_SKINNED.CreateCompatibleMesh(),
+                _ when vertexBufferDescription == SkinnedMeshVertex.COLOR
+                    => VERTEX_SKINNED_COLOR.CreateCompatibleMesh(),
+                _ when vertexBufferDescription == SkinnedMeshVertex.TANGENT
+                    => VERTEX_SKINNED_TANGENT.CreateCompatibleMesh(),
+                _ => throw new NotImplementedException($"Unsupported {nameof(VertexBufferDescription)}")
+            };
 
             IVertexBuilder[] vertices = CreateVertices(skinnedMesh, skeleton);
 
