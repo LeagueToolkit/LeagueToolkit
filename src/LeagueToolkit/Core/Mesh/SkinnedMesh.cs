@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
@@ -22,7 +23,7 @@ namespace LeagueToolkit.Core.Mesh
         public Box AABB { get; private set; }
 
         /// <summary>Gets the mesh's Bounding Sphere</summary>
-        public R3DSphere BoundingSphere { get; private set; }
+        public Sphere BoundingSphere { get; private set; }
 
         /// <summary>Gets a read-only list of the mesh's primitive ranges</summary>
         public IReadOnlyList<SkinnedMeshRange> Ranges => this._ranges;
@@ -88,7 +89,7 @@ namespace LeagueToolkit.Core.Mesh
             int vertexCount = 0;
             VertexBufferDescription vertexBufferDescription = SkinnedMeshVertex.BASIC;
             Box boundingBox = new();
-            R3DSphere boundingSphere = R3DSphere.Infinite;
+            Sphere boundingSphere = Sphere.INFINITE;
             SkinnedMeshRange[] ranges;
             if (major is 0)
             {
@@ -131,7 +132,7 @@ namespace LeagueToolkit.Core.Mesh
                     };
 
                     boundingBox = br.ReadBox();
-                    boundingSphere = new(br);
+                    boundingSphere = br.ReadSphere();
                 }
             }
 
@@ -196,7 +197,7 @@ namespace LeagueToolkit.Core.Mesh
             bw.Write((int)GetVertexTypeForDescription(this._vertexBuffer.Description));
 
             bw.WriteBox(this.AABB);
-            this.BoundingSphere.Write(bw);
+            bw.WriteSphere(this.BoundingSphere);
 
             bw.Write(this._indexBuffer.Span.Cast<ushort, byte>());
             bw.Write(this._vertexBuffer.View.Span);

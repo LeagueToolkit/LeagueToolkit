@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Helpers.Structures;
 using System;
 using System.IO;
 using System.Numerics;
@@ -69,6 +70,12 @@ namespace LeagueToolkit.Helpers.Extensions
         {
             writer.WriteVector3(box.Min);
             writer.WriteVector3(box.Max);
+        }
+
+        public static void WriteSphere(this BinaryWriter writer, Sphere sphere)
+        {
+            writer.WriteVector3(sphere.Position);
+            writer.Write(sphere.Radius);
         }
 
         public static void WritePaddedString(this BinaryWriter writer, string value, int length)
