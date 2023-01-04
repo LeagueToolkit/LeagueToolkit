@@ -50,11 +50,22 @@ namespace LeagueToolkit.Sandbox
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             Skeleton skeleton = new("akali.skl");
 
+            List<(string name, Animation animation)> animations = new();
+            foreach (string animationFile in Directory.EnumerateFiles("animations"))
+            {
+                Animation animation = new(animationFile);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
             skinnedMesh
                 .ToGltf(
                     skeleton,
-                    new Dictionary<string, ReadOnlyMemory<byte>>(),
-                    new List<(string name, Animation animation)>()
+                    new Dictionary<string, ReadOnlyMemory<byte>>()
+                    {
+                        { "Akali_Base_Body_Mat", File.ReadAllBytes("akali_base_tx_cm.dds") }
+                    },
+                    animations
                 )
                 .WriteGLB(File.OpenWrite("akali.glb"));
         }
