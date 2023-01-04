@@ -18,6 +18,7 @@ namespace LeagueToolkit.IO.OBJ
         public string MaterialsFile { get; set; } = "";
         public bool IsSmooth { get; set; } = false;
 
+        // TODO: Refactor this garbage API
         public OBJFile(List<Vector3> vertices, List<uint> indices)
         {
             this.Vertices = vertices;
@@ -39,7 +40,13 @@ namespace LeagueToolkit.IO.OBJ
             this.Groups.Add(new OBJGroup("default", "defaultMat", indices, indices, indices));
         }
 
-        public OBJFile(List<Vector3> vertices, List<OBJGroup> groups, List<Vector2> uvs, List<Vector3> normals, string mtlFile = "")
+        public OBJFile(
+            List<Vector3> vertices,
+            List<OBJGroup> groups,
+            List<Vector2> uvs,
+            List<Vector3> normals,
+            string mtlFile = ""
+        )
         {
             MaterialsFile = mtlFile;
             this.Vertices = vertices;
@@ -82,11 +89,15 @@ namespace LeagueToolkit.IO.OBJ
                     // No groups found
                     if (mainGroupIndex == -1)
                     {
-                        this.Groups.Add(new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices));
+                        this.Groups.Add(
+                            new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices)
+                        );
                     }
                     else
                     {
-                        this.Groups[mainGroupIndex].Faces.AddRange(new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices).Faces);
+                        this.Groups[mainGroupIndex].Faces.AddRange(
+                            new OBJGroup(group.Name, group.Material, tempIndices, tempIndices, tempIndices).Faces
+                        );
                     }
                 }
 
@@ -172,7 +183,9 @@ namespace LeagueToolkit.IO.OBJ
                 }
                 foreach (Vector3 vertex in this.Vertices)
                 {
-                    sw.WriteLine(string.Format(NumberFormatInfo.InvariantInfo, "v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z));
+                    sw.WriteLine(
+                        string.Format(NumberFormatInfo.InvariantInfo, "v {0} {1} {2}", vertex.X, vertex.Y, vertex.Z)
+                    );
                 }
                 foreach (Vector2 uv in this.UVs)
                 {
@@ -188,7 +201,9 @@ namespace LeagueToolkit.IO.OBJ
                 }
                 foreach (Vector3 normal in this.Normals)
                 {
-                    sw.WriteLine(string.Format(NumberFormatInfo.InvariantInfo, "vn {0} {1} {2}", normal.X, normal.Y, normal.Z));
+                    sw.WriteLine(
+                        string.Format(NumberFormatInfo.InvariantInfo, "vn {0} {1} {2}", normal.X, normal.Y, normal.Z)
+                    );
                 }
                 sw.WriteLine("s " + (this.IsSmooth ? "on" : "off"));
                 foreach (OBJGroup group in this.Groups)
@@ -219,20 +234,32 @@ namespace LeagueToolkit.IO.OBJ
             }
             else if (input[0] == "v")
             {
-                this.Vertices.Add(new Vector3(float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                this.Vertices.Add(
+                    new Vector3(
+                        float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
                         float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)));
+                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
+                    )
+                );
             }
             else if (input[0] == "vt")
             {
-                this.UVs.Add(new Vector2(float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
-                    1 - float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat)));
+                this.UVs.Add(
+                    new Vector2(
+                        float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                        1 - float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat)
+                    )
+                );
             }
             else if (input[0] == "vn")
             {
-                this.Normals.Add(new Vector3(float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
+                this.Normals.Add(
+                    new Vector3(
+                        float.Parse(input[1], CultureInfo.InvariantCulture.NumberFormat),
                         float.Parse(input[2], CultureInfo.InvariantCulture.NumberFormat),
-                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)));
+                        float.Parse(input[3], CultureInfo.InvariantCulture.NumberFormat)
+                    )
+                );
             }
             else if (input[0] == "usemtl")
             {
@@ -261,7 +288,8 @@ namespace LeagueToolkit.IO.OBJ
                             (uint.Parse(vertex1[0]) - 1),
                             (uint.Parse(vertex2[0]) - 1),
                             (uint.Parse(vertex3[0]) - 1)
-                        });
+                        }
+                    );
                 }
                 else if (vertex1.Length == 2)
                 {
@@ -277,16 +305,17 @@ namespace LeagueToolkit.IO.OBJ
                             (uint.Parse(vertex1[1]) - 1),
                             (uint.Parse(vertex2[1]) - 1),
                             (uint.Parse(vertex3[1]) - 1)
-                        });
+                        }
+                    );
                 }
                 else if (vertex1.Length == 3)
                 {
                     face = new OBJFace(
                         new uint[]
                         {
-                             (uint.Parse(vertex1[0]) - 1),
-                             (uint.Parse(vertex2[0]) - 1),
-                             (uint.Parse(vertex3[0]) - 1)
+                            (uint.Parse(vertex1[0]) - 1),
+                            (uint.Parse(vertex2[0]) - 1),
+                            (uint.Parse(vertex3[0]) - 1)
                         },
                         new uint[]
                         {
@@ -299,7 +328,8 @@ namespace LeagueToolkit.IO.OBJ
                             (uint.Parse(vertex1[2]) - 1),
                             (uint.Parse(vertex2[2]) - 1),
                             (uint.Parse(vertex3[2]) - 1)
-                        });
+                        }
+                    );
                 }
 
                 if (face != null)

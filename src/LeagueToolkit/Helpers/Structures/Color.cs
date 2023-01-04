@@ -321,8 +321,10 @@ namespace LeagueToolkit.Helpers.Structures
             return !a.Equals(b);
         }
 
-        public static implicit operator System.Numerics.Vector4(Color color) =>
-            new System.Numerics.Vector4(color.R, color.G, color.B, color.A);
+        public static implicit operator System.Numerics.Vector4(Color color) => new(color.R, color.G, color.B, color.A);
+
+        public static implicit operator Color(System.Numerics.Vector4 vector) =>
+            new(vector.X, vector.Y, vector.Z, vector.W);
     }
 
     public enum ColorFormat

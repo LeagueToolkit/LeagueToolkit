@@ -4,7 +4,6 @@ using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.IO.SimpleSkinFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +28,7 @@ namespace LeagueToolkit.Core.Mesh
 
         public bool IsDisposed { get; private set; }
 
-        internal SkinnedMesh(
+        public SkinnedMesh(
             IEnumerable<SkinnedMeshRange> ranges,
             VertexBuffer vertexBuffer,
             MemoryOwner<ushort> indexBuffer
