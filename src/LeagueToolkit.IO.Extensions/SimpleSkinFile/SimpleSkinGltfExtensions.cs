@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
@@ -110,6 +111,9 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
+                    var joints = boneIndices[i];
+                    Vector4 jointWeights = boneWeights[i];
+
                     VERTEX_SKINNED vertex = new();
                     vertex = hasTangents switch
                     {
@@ -130,8 +134,15 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                             ),
                         false => vertex.WithMaterial(diffuseUvs[i])
                     };
-
-                    SetVertexSkinning(i, skeleton, vertex, boneWeights, boneIndices);
+                    vertex = vertex.WithSkinning(
+                        new (int, float)[]
+                        {
+                            (skeleton.Influences[joints.x], jointWeights.X),
+                            (skeleton.Influences[joints.y], jointWeights.Y),
+                            (skeleton.Influences[joints.z], jointWeights.Z),
+                            (skeleton.Influences[joints.w], jointWeights.W)
+                        }
+                    );
 
                     vertices[i] = vertex;
                 }
@@ -152,10 +163,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return meshBuilder;
         }
 
-        private static void SetVertexSkinning(
+        private static void WithVertexSkinning(
             int index,
             Skeleton skeleton,
-            IVertexBuilder vertex,
+            ref IVertexBuilder vertex,
             VertexElementArray<Vector4> boneWeights,
             VertexElementArray<(byte x, byte y, byte z, byte w)> boneIndices
         )

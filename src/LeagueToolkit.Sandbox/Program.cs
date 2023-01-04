@@ -48,8 +48,9 @@ namespace LeagueToolkit.Sandbox
         static void ProfileSkinnedMesh()
         {
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
+            Skeleton skeleton = new("akali.skl");
 
-            skinnedMesh.WriteSimpleSkin("akali_rewritten.skn");
+            skinnedMesh.ToGltf(skeleton).WriteGLB(File.OpenWrite("akali.glb"));
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
