@@ -1,7 +1,7 @@
-﻿using System.Text;
-using System.IO;
+﻿using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.Helpers.Extensions;
+using System.IO;
+using System.Numerics;
 
 namespace LeagueToolkit.IO.NVR
 {
@@ -9,27 +9,27 @@ namespace LeagueToolkit.IO.NVR
     {
         public Color Color { get; private set; }
         public string Name { get; private set; }
-        public R3DMatrix44 Matrix { get; private set; }
+        public Matrix4x4 Transform { get; private set; }
 
         public NVRChannel(BinaryReader br)
         {
             this.Color = br.ReadColor(ColorFormat.RgbaF32);
             this.Name = br.ReadPaddedString(260);
-            this.Matrix = new R3DMatrix44(br);
+            this.Transform = br.ReadMatrix4x4RowMajor();
         }
 
-        public NVRChannel(string name, Color color, R3DMatrix44 matrix)
+        public NVRChannel(string name, Color color, Matrix4x4 matrix)
         {
             this.Name = name;
             this.Color = color;
-            this.Matrix = matrix;
+            this.Transform = matrix;
         }
 
         public void Write(BinaryWriter bw)
         {
             bw.WriteColor(this.Color, ColorFormat.RgbaF32);
-            bw.Write(this.Name.PadRight(260, '\u0000').ToCharArray());
-            this.Matrix.Write(bw);
+            bw.WritePaddedString(this.Name, 260);
+            bw.WriteMatrix4x4RowMajor(this.Transform);
         }
     }
 }

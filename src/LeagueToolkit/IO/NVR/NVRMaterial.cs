@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.Helpers.Extensions;
+using System.Numerics;
 
 namespace LeagueToolkit.IO.NVR
 {
@@ -20,19 +21,19 @@ namespace LeagueToolkit.IO.NVR
         {
             this.Name = br.ReadPaddedString(260);
             this.Type = (NVRMaterialType)br.ReadInt32();
-            if(readOld)
+            if (readOld)
             {
                 Color diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
                 string diffuseName = br.ReadPaddedString(260);
-                this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, R3DMatrix44.IDENTITY));
+                this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, Matrix4x4.Identity));
 
                 Color emmisiveColor = br.ReadColor(ColorFormat.RgbaF32);
                 string emissiveName = br.ReadPaddedString(260);
-                this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, R3DMatrix44.IDENTITY));
+                this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, Matrix4x4.Identity));
 
                 for (int i = 0; i < 6; i++)
                 {
-                    this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IDENTITY));
+                    this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), Matrix4x4.Identity));
                 }
             }
             else
@@ -60,16 +61,28 @@ namespace LeagueToolkit.IO.NVR
         // Easy way to create a material with working values. Needs to be used with vertex 8
         public static NVRMaterial CreateMaterial(string materialName, string textureName)
         {
-            return CreateMaterial(materialName, textureName, new Color(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f), NVRMaterialType.MATERIAL_TYPE_DEFAULT, NVRMaterialFlags.ColoredVertex);
+            return CreateMaterial(
+                materialName,
+                textureName,
+                new Color(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f),
+                NVRMaterialType.MATERIAL_TYPE_DEFAULT,
+                NVRMaterialFlags.ColoredVertex
+            );
         }
 
-        public static NVRMaterial CreateMaterial(string materialName, string textureName, Color color, NVRMaterialType matType, NVRMaterialFlags matFlags)
+        public static NVRMaterial CreateMaterial(
+            string materialName,
+            string textureName,
+            Color color,
+            NVRMaterialType matType,
+            NVRMaterialFlags matFlags
+        )
         {
             List<NVRChannel> channels = new List<NVRChannel>();
-            channels.Add(new NVRChannel(textureName, color, R3DMatrix44.IDENTITY));
+            channels.Add(new NVRChannel(textureName, color, Matrix4x4.Identity));
             for (int i = 0; i < 7; i++)
             {
-                channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), R3DMatrix44.IDENTITY));
+                channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), Matrix4x4.Identity));
             }
             NVRMaterial newMat = new NVRMaterial(materialName, matType, matFlags, channels);
             return newMat;
@@ -77,9 +90,9 @@ namespace LeagueToolkit.IO.NVR
 
         public void Write(BinaryWriter bw)
         {
-            bw.Write(this.Name.PadRight(260, '\u0000').ToCharArray());
+            bw.WritePaddedString(this.Name, 260);
             bw.Write((int)this.Type);
-            bw.Write((UInt32)this.Flags);
+            bw.Write((int)this.Flags);
             foreach (NVRChannel channel in this.Channels)
             {
                 channel.Write(bw);
@@ -105,6 +118,9 @@ namespace LeagueToolkit.IO.NVR
 
     public class MaterialInvalidChannelCountException : Exception
     {
-        public MaterialInvalidChannelCountException(int actual) : base(String.Format("There have to be exactly 8 channels in a material ({0} channel(s) specified).", actual)) { }
+        public MaterialInvalidChannelCountException(int actual)
+            : base(
+                String.Format("There have to be exactly 8 channels in a material ({0} channel(s) specified).", actual)
+            ) { }
     }
 }
