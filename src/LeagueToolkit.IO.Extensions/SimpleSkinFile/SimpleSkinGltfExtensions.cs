@@ -10,6 +10,7 @@ using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
@@ -33,10 +34,14 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
             Skeleton skeleton,
-            Dictionary<string, SixLabors.ImageSharp.Image> materialTextues = null,
-            List<(string, LeagueAnimation)> leagueAnimations = null
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues,
+            IReadOnlyList<(string name, LeagueAnimation animation)> animations
         )
         {
+            Guard.IsNotNull(skeleton, nameof(skeleton));
+            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+            Guard.IsNotNull(animations, nameof(animations));
+
             SceneBuilder sceneBuilder = new();
             NodeBuilder rootNodeBuilder = new("model");
 
@@ -47,10 +52,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             sceneBuilder.AddSkinnedMesh(meshBuilder, bones.ToArray());
 
             // Create animations
-            if (leagueAnimations is not null)
-            {
-                CreateAnimations(bones.Select(x => x.Node).ToList(), leagueAnimations);
-            }
+            CreateAnimations(bones.Select(x => x.Node).ToList(), animations);
 
             // Flip the scene across the X axis
             sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
@@ -61,9 +63,13 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         private static MeshBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4> CreateVertexSkinnedMesh(
             SkinnedMesh skinnedMesh,
             Skeleton skeleton,
-            Dictionary<string, SixLabors.ImageSharp.Image> materialTextues
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
         )
         {
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(skeleton, nameof(skeleton));
+            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+
             MeshBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4> meshBuilder =
                 VERTEX_SKINNED.CreateCompatibleMesh();
 
@@ -74,12 +80,9 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 MaterialBuilder material = new MaterialBuilder(range.Material).WithUnlitShader();
                 var primitiveBuilder = meshBuilder.UsePrimitive(material);
 
-                // Assign submesh Image
-                if (materialTextues is not null && materialTextues.ContainsKey(range.Material))
-                {
-                    var submeshImage = materialTextues[range.Material];
-                    AssignMaterialTexture(material, submeshImage);
-                }
+                // Assign texture to material
+                if (materialTextues.TryGetValue(range.Material, out ReadOnlyMemory<byte> textureMemory))
+                    AssignMaterialTexture(material, textureMemory);
 
                 // Add vertices to primitive
                 ReadOnlySpan<ushort> indices = skinnedMesh.IndicesView.Span.Slice(range.StartIndex, range.IndexCount);
@@ -98,6 +101,9 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static IVertexBuilder[] CreateVertices(SkinnedMesh skinnedMesh, Skeleton skeleton)
         {
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(skeleton, nameof(skeleton));
+
             bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
                 ElementName.PrimaryColor,
                 out var primaryColorAccessor
@@ -179,23 +185,20 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return vertices;
         }
 
-        private static void AssignMaterialTexture(MaterialBuilder materialBuilder, SixLabors.ImageSharp.Image texture)
-        {
-            MemoryStream textureStream = new MemoryStream();
-            texture.Save(textureStream, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
-
-            materialBuilder
-                .UseChannel(KnownChannel.BaseColor)
-                .UseTexture()
-                .WithPrimaryImage(new SharpGLTF.Memory.MemoryImage(textureStream.GetBuffer()));
-        }
+        private static void AssignMaterialTexture(
+            MaterialBuilder materialBuilder,
+            ReadOnlyMemory<byte> textureMemory
+        ) => materialBuilder.UseChannel(KnownChannel.BaseColor).UseTexture().WithPrimaryImage(textureMemory.ToArray());
 
         private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(
             NodeBuilder rootNode,
             Skeleton skeleton
         )
         {
-            var bones = new List<(NodeBuilder, Matrix4x4)>();
+            Guard.IsNotNull(rootNode, nameof(rootNode));
+            Guard.IsNotNull(skeleton, nameof(skeleton));
+
+            var joints = new List<(NodeBuilder, Matrix4x4)>();
 
             foreach (SkeletonJoint joint in skeleton.Joints)
             {
@@ -206,73 +209,68 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    bones.Add((jointNode, joint.InverseBindTransform));
+                    joints.Add((jointNode, joint.InverseBindTransform));
                 }
                 else
                 {
                     SkeletonJoint parentJoint = skeleton.Joints.FirstOrDefault(x => x.ID == joint.ParentID);
-                    NodeBuilder parentNode = bones.FirstOrDefault(x => x.Item1.Name == parentJoint.Name).Item1;
+                    NodeBuilder parentNode = joints.FirstOrDefault(x => x.Item1.Name == parentJoint.Name).Item1;
                     NodeBuilder jointNode = parentNode.CreateNode(joint.Name);
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    bones.Add((jointNode, joint.InverseBindTransform));
+                    joints.Add((jointNode, joint.InverseBindTransform));
                 }
             }
 
-            return bones;
+            return joints;
         }
 
-        private static void CreateAnimations(List<NodeBuilder> joints, List<(string, LeagueAnimation)> leagueAnimations)
+        private static void CreateAnimations(
+            IReadOnlyList<NodeBuilder> joints,
+            IReadOnlyList<(string name, LeagueAnimation animation)> animations
+        )
         {
-            // Check if all animations have names, if not then create them
-            for (int i = 0; i < leagueAnimations.Count; i++)
-            {
-                if (string.IsNullOrEmpty(leagueAnimations[i].Item1))
-                {
-                    leagueAnimations[i] = ("Animation" + i, leagueAnimations[i].Item2);
-                }
-            }
+            Guard.IsNotNull(joints, nameof(joints));
+            Guard.IsNotNull(animations, nameof(animations));
 
-            foreach ((string animationName, LeagueAnimation leagueAnimation) in leagueAnimations)
+            foreach (var (name, animation) in animations)
             {
-                foreach (AnimationTrack track in leagueAnimation.Tracks)
+                foreach (AnimationTrack track in animation.Tracks)
                 {
                     NodeBuilder joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
 
-                    if (joint is not null)
+                    if (joint is null)
+                        continue;
+
+                    if (track.Translations.Count == 0)
+                        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
+                    if (track.Translations.Count == 1)
+                        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
+                    CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(name);
+                    foreach (var translation in track.Translations)
                     {
-                        if (track.Translations.Count == 0)
-                            track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                        if (track.Translations.Count == 1)
-                            track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                        CurveBuilder<Vector3> translationBuilder = joint
-                            .UseTranslation()
-                            .UseTrackBuilder(animationName);
-                        foreach (var translation in track.Translations)
-                        {
-                            translationBuilder.SetPoint(translation.Key, translation.Value);
-                        }
+                        translationBuilder.SetPoint(translation.Key, translation.Value);
+                    }
 
-                        if (track.Rotations.Count == 0)
-                            track.Rotations.Add(0.0f, Quaternion.Identity);
-                        if (track.Rotations.Count == 1)
-                            track.Rotations.Add(1.0f, Quaternion.Identity);
-                        CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(animationName);
-                        foreach (var rotation in track.Rotations)
-                        {
-                            rotationBuilder.SetPoint(rotation.Key, rotation.Value);
-                        }
+                    if (track.Rotations.Count == 0)
+                        track.Rotations.Add(0.0f, Quaternion.Identity);
+                    if (track.Rotations.Count == 1)
+                        track.Rotations.Add(1.0f, Quaternion.Identity);
+                    CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(name);
+                    foreach (var rotation in track.Rotations)
+                    {
+                        rotationBuilder.SetPoint(rotation.Key, rotation.Value);
+                    }
 
-                        if (track.Scales.Count == 0)
-                            track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                        if (track.Scales.Count == 1)
-                            track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                        CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(animationName);
-                        foreach (var scale in track.Scales.ToList())
-                        {
-                            scaleBuilder.SetPoint(scale.Key, scale.Value);
-                        }
+                    if (track.Scales.Count == 0)
+                        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
+                    if (track.Scales.Count == 1)
+                        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
+                    CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(name);
+                    foreach (var scale in track.Scales.ToList())
+                    {
+                        scaleBuilder.SetPoint(scale.Key, scale.Value);
                     }
                 }
             }
@@ -428,6 +426,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static Skeleton CreateLeagueSkeleton(Skin skin)
         {
+            Guard.IsNotNull(skin, nameof(skin));
+
             List<Node> nodes = new(skin.JointsCount);
             for (int i = 0; i < skin.JointsCount; i++)
             {
@@ -478,7 +478,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 influences.Add(i);
             }
 
-            return new Skeleton(joints, influences);
+            return new(joints, influences);
         }
     }
 }

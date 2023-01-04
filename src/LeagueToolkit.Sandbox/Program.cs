@@ -50,7 +50,13 @@ namespace LeagueToolkit.Sandbox
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             Skeleton skeleton = new("akali.skl");
 
-            skinnedMesh.ToGltf(skeleton).WriteGLB(File.OpenWrite("akali.glb"));
+            skinnedMesh
+                .ToGltf(
+                    skeleton,
+                    new Dictionary<string, ReadOnlyMemory<byte>>(),
+                    new List<(string name, Animation animation)>()
+                )
+                .WriteGLB(File.OpenWrite("akali.glb"));
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
