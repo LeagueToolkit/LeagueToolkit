@@ -5,6 +5,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.IO.WorldGeometry
 {
@@ -17,22 +18,27 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// Texture Path of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public string Texture { get; set; }
+
         /// <summary>
         /// Material of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public string Material { get; set; }
+
         /// <summary>
         /// Bounding Sphere of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public R3DSphere Sphere { get; private set; }
+        public Sphere Sphere { get; private set; }
+
         /// <summary>
         /// Axis Aligned Bounding Box of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public Box BoundingBox { get; private set; }
+
         /// <summary>
         /// Vertices of this <see cref="WorldGeometryModel"/>
         /// </summary>
         public List<WorldGeometryVertex> Vertices { get; set; } = new List<WorldGeometryVertex>();
+
         /// <summary>
         /// Indices of this <see cref="WorldGeometryModel"/>
         /// </summary>
@@ -50,7 +56,12 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// <param name="material">Material of this <see cref="WorldGeometryModel"/></param>
         /// <param name="vertices">Vertices of this <see cref="WorldGeometryModel"/></param>
         /// <param name="indices">Indices of this <see cref="WorldGeometryModel"/></param>
-        public WorldGeometryModel(string texture, string material, List<WorldGeometryVertex> vertices, List<uint> indices)
+        public WorldGeometryModel(
+            string texture,
+            string material,
+            List<WorldGeometryVertex> vertices,
+            List<uint> indices
+        )
         {
             this.Texture = texture;
             this.Material = material;
@@ -68,7 +79,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         {
             this.Texture = br.ReadPaddedString(260);
             this.Material = br.ReadPaddedString(64);
-            this.Sphere = new R3DSphere(br);
+            this.Sphere = br.ReadSphere();
             this.BoundingBox = br.ReadBox();
 
             uint vertexCount = br.ReadUInt32();
@@ -78,7 +89,7 @@ namespace LeagueToolkit.IO.WorldGeometry
                 this.Vertices.Add(new WorldGeometryVertex(br));
             }
 
-            if(indexCount <= 65536)
+            if (indexCount <= 65536)
             {
                 for (int i = 0; i < indexCount; i++)
                 {
@@ -103,8 +114,8 @@ namespace LeagueToolkit.IO.WorldGeometry
             bw.Write(Encoding.ASCII.GetBytes(this.Texture.PadRight(260, '\u0000')));
             bw.Write(Encoding.ASCII.GetBytes(this.Material.PadRight(64, '\u0000')));
 
-            Tuple<R3DSphere, Box> boundingGeometry = CalculateBoundingGeometry();
-            boundingGeometry.Item1.Write(bw);
+            Tuple<Sphere, Box> boundingGeometry = CalculateBoundingGeometry();
+            bw.WriteSphere(boundingGeometry.Item1);
             bw.WriteBox(boundingGeometry.Item2);
 
             bw.Write(this.Vertices.Count);
@@ -114,7 +125,7 @@ namespace LeagueToolkit.IO.WorldGeometry
                 vertex.Write(bw);
             }
 
-            if(this.Indices.Count <= 65536)
+            if (this.Indices.Count <= 65536)
             {
                 foreach (ushort index in this.Indices)
                 {
@@ -130,11 +141,11 @@ namespace LeagueToolkit.IO.WorldGeometry
             }
         }
 
-        public Tuple<R3DSphere, Box> CalculateBoundingGeometry()
+        public Tuple<Sphere, Box> CalculateBoundingGeometry()
         {
             Box box = CalculateBoundingBox();
-            R3DSphere sphere = CalculateSphere(box);
-            return new Tuple<R3DSphere, Box>(sphere, box);
+            Sphere sphere = CalculateSphere(box);
+            return new Tuple<Sphere, Box>(sphere, box);
         }
 
         /// <summary>
@@ -142,7 +153,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// </summary>
         public Box CalculateBoundingBox()
         {
-            if(this.Vertices == null || this.Vertices.Count == 0)
+            if (this.Vertices == null || this.Vertices.Count == 0)
             {
                 return new Box(new Vector3(0, 0, 0), new Vector3(0, 0, 0));
             }
@@ -153,12 +164,18 @@ namespace LeagueToolkit.IO.WorldGeometry
 
                 foreach (WorldGeometryVertex vertex in this.Vertices)
                 {
-                    if (min.X > vertex.Position.X) min.X = vertex.Position.X;
-                    if (min.Y > vertex.Position.Y) min.Y = vertex.Position.Y;
-                    if (min.Z > vertex.Position.Z) min.Z = vertex.Position.Z;
-                    if (max.X < vertex.Position.X) max.X = vertex.Position.X;
-                    if (max.Y < vertex.Position.Y) max.Y = vertex.Position.Y;
-                    if (max.Z < vertex.Position.Z) max.Z = vertex.Position.Z;
+                    if (min.X > vertex.Position.X)
+                        min.X = vertex.Position.X;
+                    if (min.Y > vertex.Position.Y)
+                        min.Y = vertex.Position.Y;
+                    if (min.Z > vertex.Position.Z)
+                        min.Z = vertex.Position.Z;
+                    if (max.X < vertex.Position.X)
+                        max.X = vertex.Position.X;
+                    if (max.Y < vertex.Position.Y)
+                        max.Y = vertex.Position.Y;
+                    if (max.Z < vertex.Position.Z)
+                        max.Z = vertex.Position.Z;
                 }
 
                 return new Box(min, max);
@@ -168,27 +185,31 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// <summary>
         /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/>
         /// </summary>
-        public R3DSphere CalculateSphere()
+        public Sphere CalculateSphere()
         {
             Box box = CalculateBoundingBox();
-            Vector3 centralPoint = new Vector3(0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
+            Vector3 centralPoint = new Vector3(
+                0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
                 0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
-                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z));
+                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z)
+            );
 
-            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+            return new(centralPoint, Vector3.Distance(centralPoint, box.Max));
         }
 
         /// <summary>
         /// Calculates the Bounding Sphere of this <see cref="WorldGeometryModel"/> from the specified <see cref="Box"/>
         /// </summary>
         /// <param name="box"><see cref="Box"/> to use for calculation</param>
-        public R3DSphere CalculateSphere(Box box)
+        public Sphere CalculateSphere(Box box)
         {
-            Vector3 centralPoint = new Vector3(0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
+            Vector3 centralPoint = new Vector3(
+                0.5f * (this.BoundingBox.Max.X + this.BoundingBox.Min.X),
                 0.5f * (this.BoundingBox.Max.Y + this.BoundingBox.Min.Y),
-                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z));
+                0.5f * (this.BoundingBox.Max.Z + this.BoundingBox.Min.Z)
+            );
 
-            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, box.Max));
+            return new(centralPoint, Vector3.Distance(centralPoint, box.Max));
         }
     }
 }

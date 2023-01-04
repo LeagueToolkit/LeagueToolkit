@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Helpers.Structures;
 using System;
 using System.IO;
 using System.Linq;
@@ -62,6 +63,14 @@ namespace LeagueToolkit.Helpers.Extensions
         public static Box ReadBox(this BinaryReader reader)
         {
             return new(reader.ReadVector3(), reader.ReadVector3());
+        }
+
+        public static Sphere ReadSphere(this BinaryReader reader)
+        {
+            Vector3 position = reader.ReadVector3();
+            float radius = reader.ReadSingle();
+
+            return new(position, radius);
         }
 
         public static string ReadPaddedString(this BinaryReader reader, int length)

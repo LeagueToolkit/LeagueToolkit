@@ -8,6 +8,7 @@ using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.OBJ;
 using System.Numerics;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.IO.NVR
 {
@@ -15,7 +16,7 @@ namespace LeagueToolkit.IO.NVR
     {
         public NVRMeshQuality QualityLevel { get; set; }
         public int Flag { get; private set; }
-        public R3DSphere BoundingSphere { get; private set; }
+        public Sphere BoundingSphere { get; private set; }
         public Box BoundingBox { get; private set; }
         public NVRMaterial Material { get; private set; }
         public NVRDrawIndexedPrimitive[] IndexedPrimitives { get; private set; } = new NVRDrawIndexedPrimitive[2];
@@ -26,18 +27,24 @@ namespace LeagueToolkit.IO.NVR
         public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
         {
             this.QualityLevel = (NVRMeshQuality)br.ReadInt32();
-            if(!readOld)
+            if (!readOld)
             {
                 this.Flag = br.ReadInt32();
             }
-            this.BoundingSphere = new R3DSphere(br);
+            this.BoundingSphere = br.ReadSphere();
             this.BoundingBox = br.ReadBox();
             this.Material = buffers.Materials[br.ReadInt32()];
             this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(br, buffers, this, true);
             this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(br, buffers, this, false);
         }
 
-        public NVRMesh(NVRMeshQuality meshQualityLevel, int flag, NVRMaterial material, List<NVRVertex> vertices, List<int> indices)
+        public NVRMesh(
+            NVRMeshQuality meshQualityLevel,
+            int flag,
+            NVRMaterial material,
+            List<NVRVertex> vertices,
+            List<int> indices
+        )
         {
             this.QualityLevel = meshQualityLevel;
             this.Flag = flag;
@@ -50,26 +57,53 @@ namespace LeagueToolkit.IO.NVR
             for (int i = 1; i < vertices.Count; i++)
             {
                 Vector3 position = vertices[i].Position;
-                if (position.X < min[0]) { min[0] = position.X; }
-                if (position.Y < min[1]) { min[1] = position.Y; }
-                if (position.Z < min[2]) { min[2] = position.Z; }
-                if (position.X > max[0]) { max[0] = position.X; }
-                if (position.Y > max[1]) { max[1] = position.Y; }
-                if (position.Z > max[2]) { max[2] = position.Z; }
+                if (position.X < min[0])
+                {
+                    min[0] = position.X;
+                }
+                if (position.Y < min[1])
+                {
+                    min[1] = position.Y;
+                }
+                if (position.Z < min[2])
+                {
+                    min[2] = position.Z;
+                }
+                if (position.X > max[0])
+                {
+                    max[0] = position.X;
+                }
+                if (position.Y > max[1])
+                {
+                    max[1] = position.Y;
+                }
+                if (position.Z > max[2])
+                {
+                    max[2] = position.Z;
+                }
             }
             this.BoundingBox = new Box(new Vector3(min[0], min[1], min[2]), new Vector3(max[0], max[1], max[2]));
 
             float radius = max[0] - min[0];
-            if (max[1] - min[1] > radius) { radius = max[1] - min[1]; }
-            if (max[2] - min[2] > radius) { radius = max[2] - min[2]; }
-            this.BoundingSphere = new R3DSphere(new Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2), radius / 2);
+            if (max[1] - min[1] > radius)
+            {
+                radius = max[1] - min[1];
+            }
+            if (max[2] - min[2] > radius)
+            {
+                radius = max[2] - min[2];
+            }
+            this.BoundingSphere = new(
+                new Vector3((min[0] + max[0]) / 2, (min[1] + max[1]) / 2, (min[2] + max[2]) / 2),
+                radius / 2
+            );
         }
 
         public void Write(BinaryWriter bw)
         {
             bw.Write((int)this.QualityLevel);
             bw.Write(this.Flag);
-            this.BoundingSphere.Write(bw);
+            bw.WriteSphere(this.BoundingSphere);
             bw.WriteBox(this.BoundingBox);
             bw.Write(this.MaterialIndex);
             this.IndexedPrimitives[0].Write(bw);
@@ -121,7 +155,11 @@ namespace LeagueToolkit.IO.NVR
 
             // Take the cross product of the two vectors to get
             // the normal vector which will be stored in out
-            Vector3 norm = new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
+            Vector3 norm = new Vector3(
+                (v1.Y * v2.Z) - (v1.Z * v2.Y),
+                (v1.Z * v2.X) - (v1.X * v2.Z),
+                (v1.X * v2.Y) - (v1.Y * v2.X)
+            );
             return norm;
         }
     }
@@ -129,6 +167,7 @@ namespace LeagueToolkit.IO.NVR
     public enum NVRMeshQuality : int
     {
         VERY_LOW = -100,
+
         // -1 should mean something
         LOW = 0,
         MEDIUM = 1,

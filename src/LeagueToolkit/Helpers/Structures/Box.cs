@@ -1,7 +1,6 @@
-﻿using LeagueToolkit.Helpers.Extensions;
+﻿using LeagueToolkit.Core.Primitives;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 
 namespace LeagueToolkit.Helpers.Structures
@@ -16,7 +15,7 @@ namespace LeagueToolkit.Helpers.Structures
 
         public const int VERTEX_COUNT = 8;
 
-        public Box() 
+        public Box()
         {
             this.Min = new(float.MaxValue, float.MaxValue, float.MaxValue);
             this.Max = new(float.MinValue, float.MinValue, float.MinValue);
@@ -130,11 +129,11 @@ namespace LeagueToolkit.Helpers.Structures
             };
         }
 
-        public R3DSphere GetBoundingSphere()
+        public Sphere GetBoundingSphere()
         {
             Vector3 centralPoint = GetCentralPoint();
 
-            return new R3DSphere(centralPoint, Vector3.Distance(centralPoint, this.Max));
+            return new(centralPoint, Vector3.Distance(centralPoint, this.Max));
         }
 
         /// <summary>
