@@ -11,7 +11,7 @@ jobs:
     env:
       BUILD_CONFIG: "Release"
       LEAGUE_TOOLKIT_PROJECT: "LeagueToolkit"
-      TARGET_FRAMEWORK: "netstandard2.1"
+      TARGET_FRAMEWORK: "net6.0"
 
     runs-on: ubuntu-latest
 
