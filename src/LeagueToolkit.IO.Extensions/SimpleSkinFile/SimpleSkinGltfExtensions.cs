@@ -10,21 +10,16 @@ using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
-using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
-using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
-    using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
     using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
     using VERTEX_SKINNED_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexJoints4>;
     using VERTEX_SKINNED_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexJoints4>;
