@@ -28,6 +28,11 @@ using LeagueToolkit.Helpers;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
 using CommunityToolkit.HighPerformance.Buffers;
 using System.Buffers;
+using LeagueToolkit.Core.Memory;
+using CommunityToolkit.Diagnostics;
+using System.Threading;
+using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Core.Mesh;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -35,7 +40,34 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            TestMetaRoslynCodegen("metaroslyn.cs");
+            //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
+            //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
+            ProfileSkinnedMesh();
+        }
+
+        static void ProfileSkinnedMesh()
+        {
+            using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
+            Skeleton skeleton = new("akali.skl");
+
+            List<(string name, Animation animation)> animations = new();
+            foreach (string animationFile in Directory.EnumerateFiles("animations"))
+            {
+                Animation animation = new(animationFile);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
+            skinnedMesh
+                .ToGltf(
+                    skeleton,
+                    new Dictionary<string, ReadOnlyMemory<byte>>()
+                    {
+                        { "Akali_Base_Body_Mat", File.ReadAllBytes("akali_base_tx_cm.dds") }
+                    },
+                    animations
+                )
+                .WriteGLB(File.OpenWrite("akali.glb"));
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
@@ -51,45 +83,97 @@ namespace LeagueToolkit.Sandbox
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
             using MapGeometry mgeo = new(toRead);
-            MapGeometryBuilder mapBuilder = new();
+            //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
+            //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
-            mapBuilder.UseBucketGrid(mgeo.BucketGrid).UseBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+            MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
+                .WithBucketGrid(mgeo.BucketGrid)
+                .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+
+            Dictionary<ElementName, int> elementOrder =
+                new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
-                MapGeometryModelBuilder meshBuilder = new();
+                var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
+                    VertexBufferUsage.Static,
+                    mesh.VerticesView.Buffers
+                        .SelectMany(vertexBuffer => vertexBuffer.Description.Elements)
+                        .OrderBy(element => element.Name),
+                    mesh.VerticesView.VertexCount
+                );
+                var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Length);
 
-                for (int i = 0; i < mesh.Submeshes.Count; i++)
-                {
-                    MapGeometrySubmesh submesh = mesh.Submeshes[i];
+                indexBufferWriter.Write(mesh.Indices.Span);
+                RewriteVertexBuffer(mesh, vertexBufferWriter);
 
-                    meshBuilder.UseSubmesh(new(submesh.Material, submesh.StartIndex, submesh.IndexCount));
-                }
-
-                meshBuilder
-                    .UseTransform(mesh.Transform)
-                    .UseFlipNormalsToggle(mesh.FlipNormals)
-                    .UseEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
-                    .UseVisibilityFlags(mesh.VisibilityFlags)
-                    .UseRenderFlags(mesh.RenderFlags)
-                    .UseStationaryLightSampler(mesh.StationaryLight)
-                    .UseBakedLightSampler(mesh.BakedLight)
-                    .UseBakedPaintSampler(mesh.BakedPaint)
-                    .UseGeometry(
-                        mesh.Indices.Length,
-                        mesh.Vertices.Length,
-                        (indexBufferWriter, vertexBufferWriter) =>
-                        {
-                            indexBufferWriter.Write(mesh.Indices);
-                            vertexBufferWriter.Write(mesh.Vertices);
-                        }
+                MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()
+                    .WithTransform(mesh.Transform)
+                    .WithDisableBackfaceCulling(mesh.DisableBackfaceCulling)
+                    .WithEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
+                    .WithVisibilityFlags(mesh.VisibilityFlags)
+                    .WithRenderFlags(mesh.RenderFlags)
+                    .WithStationaryLightSampler(mesh.StationaryLight)
+                    .WithBakedLightSampler(mesh.BakedLight)
+                    .WithBakedPaintSampler(mesh.BakedPaint)
+                    .WithGeometry(
+                        mesh.Submeshes.Select(
+                            submesh =>
+                                new MeshPrimitiveBuilder(submesh.Material, submesh.StartIndex, submesh.IndexCount)
+                        ),
+                        vertexBuffer,
+                        indexBuffer
                     );
 
-                mapBuilder.UseMesh(meshBuilder);
+                mapBuilder.WithMesh(meshBuilder);
             }
 
             using MapGeometry builtMap = mapBuilder.Build();
             builtMap.Write(rewriteTo, 13);
+
+            static void RewriteVertexBuffer(MapGeometryModel mesh, VertexBufferWriter writer)
+            {
+                bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
+                bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+                bool hasBaseColor = mesh.VerticesView.TryGetAccessor(
+                    ElementName.PrimaryColor,
+                    out var baseColorAccessor
+                );
+                bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+                bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(
+                    ElementName.LightmapUV,
+                    out var lightmapUvAccessor
+                );
+
+                if (hasPositions is false)
+                    ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
+
+                VertexElementArray<Vector3> positionsArray = positionAccessor.AsVector3Array();
+                VertexElementArray<Vector3> normalsArray = hasNormals ? normalAccessor.AsVector3Array() : new();
+                var baseColorArray = hasBaseColor ? baseColorAccessor.AsBgraU8Array() : new();
+                VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs
+                    ? diffuseUvAccessor.AsVector2Array()
+                    : new();
+                VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs
+                    ? lightmapUvAccessor.AsVector2Array()
+                    : new();
+
+                for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
+                {
+                    writer.WriteVector3(i, ElementName.Position, positionsArray[i]);
+                    if (hasNormals)
+                        writer.WriteVector3(i, ElementName.Normal, normalsArray[i]);
+                    if (hasBaseColor)
+                    {
+                        var (b, g, r, a) = baseColorArray[i];
+                        writer.WriteColorBgraU8(i, ElementName.PrimaryColor, new(r, g, b, a));
+                    }
+                    if (hasDiffuseUvs)
+                        writer.WriteVector2(i, ElementName.DiffuseUV, diffuseUvsArray[i]);
+                    if (hasLightmapUvs)
+                        writer.WriteVector2(i, ElementName.LightmapUV, lightmapUvsArray[i]);
+                }
+            }
         }
 
         static void TestWGEO()

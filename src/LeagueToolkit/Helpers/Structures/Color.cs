@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CommunityToolkit.Diagnostics;
+using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace LeagueToolkit.Helpers.Structures
 {
@@ -13,8 +15,10 @@ namespace LeagueToolkit.Helpers.Structures
             get => this._r;
             set
             {
-                if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
-                else this._r = value;
+                if (value < 0 || value > 1)
+                    throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                else
+                    this._r = value;
             }
         }
         public float G
@@ -22,8 +26,10 @@ namespace LeagueToolkit.Helpers.Structures
             get => this._g;
             set
             {
-                if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
-                else this._g = value;
+                if (value < 0 || value > 1)
+                    throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                else
+                    this._g = value;
             }
         }
         public float B
@@ -31,8 +37,10 @@ namespace LeagueToolkit.Helpers.Structures
             get => this._b;
             set
             {
-                if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
-                else this._b = value;
+                if (value < 0 || value > 1)
+                    throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                else
+                    this._b = value;
             }
         }
         public float A
@@ -40,8 +48,10 @@ namespace LeagueToolkit.Helpers.Structures
             get => this._a;
             set
             {
-                if (value < 0 || value > 1) throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
-                else this._a = value;
+                if (value < 0 || value > 1)
+                    throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                else
+                    this._a = value;
             }
         }
 
@@ -51,6 +61,7 @@ namespace LeagueToolkit.Helpers.Structures
         private float _a;
 
         public Color(byte r, byte g, byte b) : this(r, g, b, 1) { }
+
         public Color(byte r, byte g, byte b, byte a)
         {
             this._r = r / 255f;
@@ -58,13 +69,19 @@ namespace LeagueToolkit.Helpers.Structures
             this._b = b / 255f;
             this._a = a / 255f;
         }
+
         public Color(float r, float g, float b) : this(r, g, b, 1) { }
+
         public Color(float r, float g, float b, float a)
         {
-            if (r < 0 || r > 1) Math.Clamp(r, 0, 1);
-            if (g < 0 || g > 1) Math.Clamp(g, 0, 1);
-            if (b < 0 || b > 1) Math.Clamp(b, 0, 1);
-            if (a < 0 || a > 1) Math.Clamp(a, 0, 1);
+            if (r < 0 || r > 1)
+                Math.Clamp(r, 0, 1);
+            if (g < 0 || g > 1)
+                Math.Clamp(g, 0, 1);
+            if (b < 0 || b > 1)
+                Math.Clamp(b, 0, 1);
+            if (a < 0 || a > 1)
+                Math.Clamp(a, 0, 1);
 
             this._r = r;
             this._g = g;
@@ -72,7 +89,7 @@ namespace LeagueToolkit.Helpers.Structures
             this._a = a;
         }
 
-        public static int FormatSize(ColorFormat format)
+        public static int GetFormatSize(ColorFormat format)
         {
             switch (format)
             {
@@ -93,65 +110,132 @@ namespace LeagueToolkit.Helpers.Structures
             }
         }
 
-        public byte[] GetBytes(ColorFormat format)
+        public static Color Read(ReadOnlySpan<byte> source, ColorFormat format)
         {
-            int formatSize = FormatSize(format);
-            byte[] colorBuffer = new byte[formatSize];
-
             if (format == ColorFormat.RgbU8)
             {
-                colorBuffer[0] = (byte)(this.R * 255);
-                colorBuffer[1] = (byte)(this.G * 255);
-                colorBuffer[2] = (byte)(this.B * 255);
+                float r = source[0] / 255f;
+                float g = source[1] / 255f;
+                float b = source[2] / 255f;
+                return new Color(r, g, b);
             }
             else if (format == ColorFormat.RgbaU8)
             {
-                colorBuffer[0] = (byte)(this.R * 255);
-                colorBuffer[1] = (byte)(this.G * 255);
-                colorBuffer[2] = (byte)(this.B * 255);
-                colorBuffer[3] = (byte)(this.A * 255);
-            }
-            else if (format == ColorFormat.BgrU8)
-            {
-                colorBuffer[0] = (byte)(this.B * 255);
-                colorBuffer[1] = (byte)(this.G * 255);
-                colorBuffer[2] = (byte)(this.R * 255);
-            }
-            else if (format == ColorFormat.BgraU8)
-            {
-                colorBuffer[0] = (byte)(this.B * 255);
-                colorBuffer[1] = (byte)(this.G * 255);
-                colorBuffer[2] = (byte)(this.R * 255);
-                colorBuffer[3] = (byte)(this.A * 255);
+                float r = source[0] / 255f;
+                float g = source[1] / 255f;
+                float b = source[2] / 255f;
+                float a = source[3] / 255f;
+                return new Color(r, g, b, a);
             }
             else if (format == ColorFormat.RgbF32)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(this.R), 0, colorBuffer, sizeof(float) * 0, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.G), 0, colorBuffer, sizeof(float) * 1, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.B), 0, colorBuffer, sizeof(float) * 2, sizeof(float));
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float r = colorFloats[0];
+                float g = colorFloats[1];
+                float b = colorFloats[2];
+                return new Color(r, g, b);
             }
             else if (format == ColorFormat.RgbaF32)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(this.R), 0, colorBuffer, sizeof(float) * 0, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.G), 0, colorBuffer, sizeof(float) * 1, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.B), 0, colorBuffer, sizeof(float) * 2, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.A), 0, colorBuffer, sizeof(float) * 3, sizeof(float));
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float r = colorFloats[0];
+                float g = colorFloats[1];
+                float b = colorFloats[2];
+                float a = colorFloats[3];
+                return new Color(r, g, b, a);
+            }
+            else if (format == ColorFormat.BgrU8)
+            {
+                float b = source[0] / 255f;
+                float g = source[1] / 255f;
+                float r = source[2] / 255f;
+                return new Color(r, g, b);
+            }
+            else if (format == ColorFormat.BgraU8)
+            {
+                float b = source[0] / 255f;
+                float g = source[1] / 255f;
+                float r = source[2] / 255f;
+                float a = source[3] / 255f;
+                return new Color(r, g, b, a);
             }
             else if (format == ColorFormat.BgrF32)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(this.B), 0, colorBuffer, sizeof(float) * 0, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.G), 0, colorBuffer, sizeof(float) * 1, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.R), 0, colorBuffer, sizeof(float) * 2, sizeof(float));
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float b = colorFloats[0];
+                float g = colorFloats[1];
+                float r = colorFloats[2];
+                return new Color(r, g, b);
             }
             else if (format == ColorFormat.BgraF32)
             {
-                Buffer.BlockCopy(BitConverter.GetBytes(this.B), 0, colorBuffer, sizeof(float) * 0, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.G), 0, colorBuffer, sizeof(float) * 1, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.R), 0, colorBuffer, sizeof(float) * 2, sizeof(float));
-                Buffer.BlockCopy(BitConverter.GetBytes(this.A), 0, colorBuffer, sizeof(float) * 3, sizeof(float));
+                ReadOnlySpan<float> colorFloats = MemoryMarshal.Cast<byte, float>(source);
+                float b = colorFloats[0];
+                float g = colorFloats[1];
+                float r = colorFloats[2];
+                float a = colorFloats[3];
+                return new Color(r, g, b, a);
             }
+            else
+            {
+                throw new ArgumentException(nameof(format), $"Unsupported color format: {format}");
+            }
+        }
 
-            return colorBuffer;
+        public void Write(Span<byte> destination, ColorFormat format)
+        {
+            if (format == ColorFormat.RgbU8)
+            {
+                destination[0] = (byte)(this._r * 255);
+                destination[1] = (byte)(this._g * 255);
+                destination[2] = (byte)(this._b * 255);
+            }
+            else if (format == ColorFormat.RgbaU8)
+            {
+                destination[0] = (byte)(this._r * 255);
+                destination[1] = (byte)(this._g * 255);
+                destination[2] = (byte)(this._b * 255);
+                destination[3] = (byte)(this._a * 255);
+            }
+            else if (format == ColorFormat.BgrU8)
+            {
+                destination[0] = (byte)(this._b * 255);
+                destination[1] = (byte)(this._g * 255);
+                destination[2] = (byte)(this._r * 255);
+            }
+            else if (format == ColorFormat.BgraU8)
+            {
+                destination[0] = (byte)(this._b * 255);
+                destination[1] = (byte)(this._g * 255);
+                destination[2] = (byte)(this._r * 255);
+                destination[3] = (byte)(this._a * 255);
+            }
+            else if (format == ColorFormat.RgbF32)
+            {
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 0, sizeof(float)), ref this._r);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 1, sizeof(float)), ref this._g);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 2, sizeof(float)), ref this._b);
+            }
+            else if (format == ColorFormat.RgbaF32)
+            {
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 0, sizeof(float)), ref this._r);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 1, sizeof(float)), ref this._g);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 2, sizeof(float)), ref this._b);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 3, sizeof(float)), ref this._a);
+            }
+            else if (format == ColorFormat.BgrF32)
+            {
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 0, sizeof(float)), ref this._b);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 1, sizeof(float)), ref this._g);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 2, sizeof(float)), ref this._r);
+            }
+            else if (format == ColorFormat.BgraF32)
+            {
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 0, sizeof(float)), ref this._b);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 1, sizeof(float)), ref this._g);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 2, sizeof(float)), ref this._r);
+                MemoryMarshal.Write(destination.Slice(sizeof(float) * 3, sizeof(float)), ref this._a);
+            }
         }
 
         public string ToString(ColorFormat format)
@@ -162,15 +246,33 @@ namespace LeagueToolkit.Helpers.Structures
             }
             else if (format == ColorFormat.RgbaU8)
             {
-                return string.Format("{0} {1} {2} {3}", (byte)(this.R * 255), (byte)(this.G * 255), (byte)(this.B * 255), (byte)(this.B * 255));
+                return string.Format(
+                    "{0} {1} {2} {3}",
+                    (byte)(this.R * 255),
+                    (byte)(this.G * 255),
+                    (byte)(this.B * 255),
+                    (byte)(this.B * 255)
+                );
             }
             else if (format == ColorFormat.BgrU8)
             {
-                return string.Format("{0} {1} {2} {3}", (byte)(this.B * 255), (byte)(this.G * 255), (byte)(this.R * 255), (byte)(this.B * 255));
+                return string.Format(
+                    "{0} {1} {2} {3}",
+                    (byte)(this.B * 255),
+                    (byte)(this.G * 255),
+                    (byte)(this.R * 255),
+                    (byte)(this.B * 255)
+                );
             }
             else if (format == ColorFormat.BgraU8)
             {
-                return string.Format("{0} {1} {2} {3}", (byte)(this.B * 255), (byte)(this.G * 255), (byte)(this.R * 255), (byte)(this.B * 255));
+                return string.Format(
+                    "{0} {1} {2} {3}",
+                    (byte)(this.B * 255),
+                    (byte)(this.G * 255),
+                    (byte)(this.R * 255),
+                    (byte)(this.B * 255)
+                );
             }
             else if (format == ColorFormat.RgbF32)
             {
@@ -196,10 +298,7 @@ namespace LeagueToolkit.Helpers.Structures
 
         public bool Equals(Color other)
         {
-            return this.R == other.R &&
-                this.G == other.G &&
-                this.B == other.B &&
-                this.A == other.A;
+            return this.R == other.R && this.G == other.G && this.B == other.B && this.A == other.A;
         }
 
         public override bool Equals(object obj)
@@ -216,12 +315,16 @@ namespace LeagueToolkit.Helpers.Structures
         {
             return a.Equals(b);
         }
+
         public static bool operator !=(Color a, Color b)
         {
             return !a.Equals(b);
         }
 
-        public static implicit operator System.Numerics.Vector4(Color color) => new System.Numerics.Vector4(color.R, color.G, color.B, color.A);
+        public static implicit operator System.Numerics.Vector4(Color color) => new(color.R, color.G, color.B, color.A);
+
+        public static implicit operator Color(System.Numerics.Vector4 vector) =>
+            new(vector.X, vector.Y, vector.Z, vector.W);
     }
 
     public enum ColorFormat

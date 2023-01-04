@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System;
@@ -9,10 +10,13 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
-    public sealed class MapGeometryModel : IDisposable
+    /// <summary>
+    /// Represents a mesh inside of a <see cref="MapGeometry"/> environment asset
+    /// </summary>
+    public sealed class MapGeometryModel
     {
         /// <summary>
-        /// The name of this mesh
+        /// Gets the mesh instance name
         /// </summary>
         /// <remarks>
         /// This feature is supported only if <c>version &lt; 12</c>
@@ -20,27 +24,34 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public string Name { get; private set; }
 
         /// <summary>
-        /// A read-only view into the serialized vertex buffer
+        /// Gets the mesh's <see cref="InstancedVertexBufferView"/>
         /// </summary>
-        public ReadOnlySpan<MapGeometryVertex> Vertices => this._vertices.Span;
+        public InstancedVertexBufferView VerticesView { get; private set; }
 
         /// <summary>
-        /// A read-only view into the index buffer
+        /// Gets a read-only view into the index buffer
         /// </summary>
-        public ReadOnlySpan<ushort> Indices => this._indices.Span;
+        public ReadOnlyMemory<ushort> Indices { get; private set; }
 
-        private readonly MemoryOwner<MapGeometryVertex> _vertices;
-        private readonly MemoryOwner<ushort> _indices;
-
+        /// <summary>
+        /// Gets a read-only collection of the mesh's primitives
+        /// </summary>
         public IReadOnlyList<MapGeometrySubmesh> Submeshes => this._submeshes;
         private readonly List<MapGeometrySubmesh> _submeshes = new();
 
         /// <summary>
-        /// Tells the game to flip the normals of this mesh
+        /// Gets whether to disable backface culling for the mesh
         /// </summary>
-        public bool FlipNormals { get; private set; }
+        public bool DisableBackfaceCulling { get; private set; }
 
+        /// <summary>
+        /// Gets a <see cref="Box"/> which represents the mesh AABB
+        /// </summary>
         public Box BoundingBox { get; private set; }
+
+        /// <summary>
+        /// Gets the mesh transform
+        /// </summary>
         public Matrix4x4 Transform { get; private set; }
 
         /// <summary>
@@ -53,10 +64,10 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// Tells the game on which Visibility Flags this mesh should be rendered
         /// </summary>
         public MapGeometryVisibilityFlags VisibilityFlags { get; private set; } = MapGeometryVisibilityFlags.AllLayers;
+
+        /// <summary>Gets the render flags of the mesh</summary>
         public MapGeometryMeshRenderFlags RenderFlags { get; private set; }
 
-        /// <summary>
-        /// </summary>
         /// <remarks>
         /// This feature is supported only if <c>version &lt; 7</c>
         /// </remarks>
@@ -67,49 +78,35 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// see <see href="https://docs.unity3d.com/Manual/LightProbes-TechnicalInformation.html">Unity - Light Probes</see>
         /// </summary>
         /// <remarks>
-        /// This feature is supported only if <c>version &lt; 9</c>
-        /// <br>Since version 9, terrain meshes use baked light instead</br>
+        /// This feature is supported only if <c>version &lt; 9</c><br></br>
+        /// Since version 9, terrain meshes use baked light instead
         /// </remarks>
         public IReadOnlyList<Vector3> LightProbes => this._lightProbes;
         private readonly Vector3[] _lightProbes;
 
-        /// <summary>
-        /// Information for the "STATIONARY_LIGHT" sampler
-        /// </summary>
-        /// <remarks>
-        /// Usually contains a diffuse texture
-        /// </remarks>
+        /// <summary>Gets the <c>"STATIONARY_LIGHT"</c> sampler data</summary>
+        /// <remarks>Usually contains a diffuse texture</remarks>
         public MapGeometrySamplerData StationaryLight { get; private set; }
 
-        /// <summary>
-        /// Information for the "BAKED_LIGHT" sampler
-        /// </summary>
-        /// <remarks>
-        /// Usually contains a lightmap texture (baked from scene point lights)
-        /// </remarks>
+        /// <summary>Gets the <c>"BAKED_LIGHT"</c> sampler data</summary>
+        /// <remarks>Usually contains a lightmap texture (baked from scene point lights)</remarks>
         public MapGeometrySamplerData BakedLight { get; private set; }
 
-        /// <summary>
-        /// Information for the "BAKED_PAINT" sampler
-        /// </summary>
-        /// <remarks>
-        /// Usually contains a texture with baked diffuse and lightmap data
-        /// </remarks>
+        /// <summary>Gets the <c>"BAKED_PAINT"</c> sampler data</summary>
+        /// <remarks>Usually contains a texture with baked diffuse and lightmap data</remarks>
         public MapGeometrySamplerData BakedPaint { get; private set; }
 
-        public const uint MAX_SUBMESH_COUNT = 64;
-
-        internal int _vertexElementGroupId;
-        internal int _vertexBufferId;
+        internal int _baseVertexBufferDescriptionId;
+        internal int[] _vertexBufferIds;
         internal int _indexBufferId;
 
         internal MapGeometryModel(
             int id,
-            MemoryOwner<MapGeometryVertex> vertices,
-            MemoryOwner<ushort> indices,
+            IVertexBufferView vertexBufferView,
+            ReadOnlyMemory<ushort> indexBufferView,
             IEnumerable<MapGeometrySubmesh> submeshes,
             Matrix4x4 transform,
-            bool flipNormals,
+            bool disableBackfaceCulling,
             MapGeometryEnvironmentQualityFilter environmentQualityFilter,
             MapGeometryVisibilityFlags visibilityFlags,
             MapGeometryMeshRenderFlags renderFlags,
@@ -119,35 +116,31 @@ namespace LeagueToolkit.IO.MapGeometryFile
         )
         {
             this.Name = CreateName(id);
-            this._vertices = vertices;
-            this._indices = indices;
+
+            this.VerticesView = new(vertexBufferView.VertexCount, new[] { vertexBufferView });
+            this.Indices = indexBufferView;
             this._submeshes = new(submeshes);
+
             this.Transform = transform;
-            this.FlipNormals = flipNormals;
+
+            this.DisableBackfaceCulling = disableBackfaceCulling;
             this.EnvironmentQualityFilter = environmentQualityFilter;
             this.VisibilityFlags = visibilityFlags;
             this.RenderFlags = renderFlags;
+
             this.StationaryLight = stationaryLight;
             this.BakedLight = bakedLight;
             this.BakedPaint = bakedPaint;
 
-            this.BoundingBox = Box.FromVertices(TakeVertexPositions());
-
-            IEnumerable<Vector3> TakeVertexPositions()
-            {
-                for (int i = 0; i < vertices.Length; i++)
-                {
-                    yield return vertices.Span[i].Position ?? Vector3.Zero;
-                }
-            }
+            this.BoundingBox = Box.FromVertices(vertexBufferView.GetAccessor(ElementName.Position).AsVector3Array());
         }
 
         internal MapGeometryModel(
-            BinaryReader br,
             int id,
-            List<MapGeometryVertexElementGroup> vertexElementGroups,
-            List<long> vertexBufferOffsets,
-            List<MemoryOwner<ushort>> indexBuffers,
+            MapGeometry environmentAsset,
+            BinaryReader br,
+            IReadOnlyList<VertexBufferDescription> vertexBufferDescriptions,
+            IReadOnlyList<long> vertexBufferOffsets,
             bool useSeparatePointLights,
             uint version
         )
@@ -156,30 +149,30 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             int vertexCount = br.ReadInt32();
             uint vertexBufferCount = br.ReadUInt32();
-            int baseVertexElementGroup = br.ReadInt32();
 
-            this._vertices = MemoryOwner<MapGeometryVertex>.Allocate(vertexCount, AllocationMode.Clear);
+            // This ID is always that of the "instanced" vertex buffer which
+            // means that the data of the first vertex buffer is instanced (unique to this mesh instance).
+            // (Assuming that this mesh uses at least 2 vertex buffers)
+            int baseVertexBufferDescriptionId = br.ReadInt32();
+
+            IVertexBufferView[] vertexBufferViews = new IVertexBufferView[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
-                long returnPosition = br.BaseStream.Position;
-                br.BaseStream.Seek(vertexBufferOffsets[vertexBufferId], SeekOrigin.Begin);
-
-                for (int j = 0; j < vertexCount; j++)
-                {
-                    MapGeometryVertex.ReadAndCombineElements(
-                        ref this._vertices.Span[j],
-                        vertexElementGroups[baseVertexElementGroup + i],
-                        br
-                    );
-                }
-
-                br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
+                vertexBufferViews[i] = environmentAsset.ReflectVertexBuffer(
+                    vertexBufferId,
+                    vertexBufferDescriptions[baseVertexBufferDescriptionId + i],
+                    vertexCount,
+                    br,
+                    vertexBufferOffsets[vertexBufferId]
+                );
             }
+
+            this.VerticesView = new(vertexCount, vertexBufferViews);
 
             uint indexCount = br.ReadUInt32();
             int indexBufferId = br.ReadInt32();
-            this._indices = indexBuffers[indexBufferId];
+            this.Indices = environmentAsset.ReflectIndexBuffer(indexBufferId);
 
             if (version >= 13)
             {
@@ -194,7 +187,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             if (version != 5)
             {
-                this.FlipNormals = br.ReadBoolean();
+                this.DisableBackfaceCulling = br.ReadBoolean();
             }
 
             this.BoundingBox = br.ReadBox();
@@ -246,12 +239,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 bw.Write(Encoding.ASCII.GetBytes(this.Name));
             }
 
-            bw.Write(this._vertices.Length);
-            bw.Write((uint)1);
-            bw.Write(this._vertexElementGroupId);
-            bw.Write(this._vertexBufferId); //we only have one vertex buffer
+            bw.Write(this.VerticesView.VertexCount);
+            bw.Write(this._vertexBufferIds.Length);
+            bw.Write(this._baseVertexBufferDescriptionId);
 
-            bw.Write(this._indices.Length);
+            foreach (int vertexBufferId in this._vertexBufferIds)
+            {
+                bw.Write(vertexBufferId);
+            }
+
+            bw.Write(this.Indices.Length);
             bw.Write(this._indexBufferId);
 
             if (version >= 13)
@@ -267,7 +264,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             if (version != 5)
             {
-                bw.Write(this.FlipNormals);
+                bw.Write(this.DisableBackfaceCulling);
             }
 
             bw.WriteBox(this.BoundingBox);
@@ -314,25 +311,29 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
+        /// <summary>
+        /// Creates a name for a <see cref="MapGeometryModel"/> with the specified <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">The ID of the <see cref="MapGeometryModel"/></param>
+        /// <returns>The created name</returns>
         public static string CreateName(int id)
         {
             // League assigns this name to the meshes automatically during reading
             return $"MapGeo_Instance_{id}";
         }
-
-        public void Dispose()
-        {
-            this._indices?.Dispose();
-            this._vertices?.Dispose();
-
-            GC.SuppressFinalize(this);
-        }
     }
 
+    /// <summary>
+    /// Used for limiting the visibility of environment meshes based on layer changes
+    /// </summary>
     [Flags]
     public enum MapGeometryVisibilityFlags : byte
     {
+        /// <summary>
+        /// Toggles visibility on no layers
+        /// </summary>
         NoLayer = 0,
+
         Layer1 = 1 << 0,
         Layer2 = 1 << 1,
         Layer3 = 1 << 2,
@@ -341,9 +342,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
         Layer6 = 1 << 5,
         Layer7 = 1 << 6,
         Layer8 = 1 << 7,
+
+        /// <summary>
+        /// Toggles visibility on all layers
+        /// </summary>
         AllLayers = Layer1 | Layer2 | Layer3 | Layer4 | Layer5 | Layer6 | Layer7 | Layer8
     }
 
+    /// <summary>
+    /// Used for limiting the visibility of an environment mesh for specific environment quality settings
+    /// </summary>
     [Flags]
     public enum MapGeometryEnvironmentQualityFilter : byte
     {
@@ -353,9 +361,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
         High = 1 << 3,
         VeryHigh = 1 << 4,
 
+        /// <summary>
+        /// Toggles visibility for all qualities
+        /// </summary>
         AllQualities = VeryLow | Low | Medium | High | VeryHigh
     }
 
+    /// <summary>
+    /// General render flags
+    /// </summary>
     [Flags]
     public enum MapGeometryMeshRenderFlags : byte
     {
@@ -365,16 +379,28 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// <code>miscRenderFlags: u8 = 1 || isGroundLayer: flag = true || useNavmeshMask: flag = true</code>
         /// </summary>
         HighRenderPriority = 1 << 0,
-        UnknownConstructDistortionBuffer = 1 << 1,
+
+        /// <summary>
+        /// <br>⚠️ SPECULATIVE ⚠️</br>
+        /// Tells the renderer to render distortion effects of a mesh's material into a separate buffer
+        /// <br>⚠️ SPECULATIVE ⚠️</br>
+        /// </summary>
+        UseEnvironmentDistortionEffectBuffer = 1 << 1,
 
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is unchecked
         /// </summary>
+        /// <remarks>
+        /// If no eye candy flag is set, the mesh will always be rendered
+        /// </remarks>
         RenderOnlyIfEyeCandyOn = 1 << 2, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
 
         /// <summary>
         /// Mesh will be rendered only if "Hide Eye Candy" option is checked
         /// </summary>
+        /// <remarks>
+        /// If no eye candy flag is set, the mesh will always be rendered
+        /// </remarks>
         RenderOnlyIfEyeCandyOff = 1 << 3 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
     }
 }

@@ -5,17 +5,17 @@
     /// </summary>
     public struct MapGeometryBakedTerrainSamplers
     {
-        /// <value>
+        /// <summary>
         /// The name of the primary sampler
-        /// </value>
+        /// </summary>
         /// <remarks>
         /// Known values: <c>BAKED_DIFFUSE_TEXTURE</c>
         /// </remarks>
         public string Primary;
 
-        /// <value>
+        /// <summary>
         /// The name of the secondary sampler
-        /// </value>
+        /// </summary>
         /// <remarks>
         /// This sampler uses the same description and texture handle as <see cref="Primary"/>
         /// <br>

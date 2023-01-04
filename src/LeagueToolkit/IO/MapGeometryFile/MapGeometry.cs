@@ -1,41 +1,66 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures.BucketGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
     /// <summary>
-    /// Contains the evironment asset geometry
+    /// Represents an environment asset
     /// </summary>
     public sealed class MapGeometry : IDisposable
     {
-        /// <value>
-        /// Represents the baked terrain samplers used for this environment asset
-        /// </value>
+        /// <summary>Gets the baked terrain samplers used for this environment asset</summary>
         public MapGeometryBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
 
-        /// <value>
-        /// Represents the meshes used by this environment asset
-        /// </value>
+        /// <summary>Gets a read-only list of the meshes used by this environment asset</summary>
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
-        /// <value>
-        /// Represents the bucketed scene graph for this environment asset
-        /// </value>
+        /// <summary>Gets the bucketed scene graph for the environment asset</summary>
         public BucketGrid BucketGrid { get; private set; }
 
-        /// <value>
-        /// Represents the planar reflectors used by this environment asset
-        /// </value>
+        /// <summary>Gets a read-only list of the planar reflectors used by the environment asset</summary>
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
+
+        private readonly VertexBuffer[] _vertexBuffers;
+        private readonly MemoryOwner<ushort>[] _indexBuffers;
+
+        public bool IsDisposed { get; private set; }
+
+        internal MapGeometry(
+            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            IEnumerable<MapGeometryModel> meshes,
+            BucketGrid bucketGrid,
+            IEnumerable<MapGeometryPlanarReflector> planarReflectors,
+            IEnumerable<VertexBuffer> vertexBuffers,
+            IEnumerable<MemoryOwner<ushort>> indexBuffers
+        )
+        {
+            Guard.IsNotNull(meshes, nameof(meshes));
+            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
+            Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
+            Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
+            Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
+
+            this.BakedTerrainSamplers = bakedTerrainSamplers;
+            this._meshes = new(meshes);
+            this.BucketGrid = bucketGrid;
+            this._planarReflectors = new(planarReflectors);
+
+            this._vertexBuffers = vertexBuffers.ToArray();
+            this._indexBuffers = indexBuffers.ToArray();
+        }
 
         /// <summary>
         /// Creates a new <see cref="MapGeometry"/> instance by reading it from <paramref name="fileLocation"/>
@@ -73,53 +98,58 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             ReadBakedTerrainSamplers(br, version);
 
-            List<MapGeometryVertexElementGroup> vertexElementGroups = new();
-            uint vertexElementGroupCount = br.ReadUInt32();
-            for (int i = 0; i < vertexElementGroupCount; i++)
+            uint vertexBufferDescriptionCount = br.ReadUInt32();
+            VertexBufferDescription[] vertexBufferDescriptions = new VertexBufferDescription[
+                vertexBufferDescriptionCount
+            ];
+            for (int i = 0; i < vertexBufferDescriptionCount; i++)
             {
-                vertexElementGroups.Add(new MapGeometryVertexElementGroup(br));
+                vertexBufferDescriptions[i] = VertexBufferDescription.ReadFromMapGeometry(br);
             }
 
+            // Reading of vertex buffers is deferred until we start reading meshes
             uint vertexBufferCount = br.ReadUInt32();
-            List<long> vertexBufferOffsets = new();
+            this._vertexBuffers = new VertexBuffer[vertexBufferCount];
+            long[] vertexBufferOffsets = new long[vertexBufferCount];
             for (int i = 0; i < vertexBufferCount; i++)
             {
                 if (version >= 13)
                 {
-                    MapGeometryVisibilityFlags visibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
+                    MapGeometryVisibilityFlags _ = (MapGeometryVisibilityFlags)br.ReadByte();
                 }
 
                 uint bufferSize = br.ReadUInt32();
 
-                vertexBufferOffsets.Add(br.BaseStream.Position);
+                vertexBufferOffsets[i] = br.BaseStream.Position;
                 br.BaseStream.Seek(bufferSize, SeekOrigin.Current);
             }
 
             uint indexBufferCount = br.ReadUInt32();
-            List<MemoryOwner<ushort>> indexBuffers = new();
+            this._indexBuffers = new MemoryOwner<ushort>[indexBufferCount];
             for (int i = 0; i < indexBufferCount; i++)
             {
                 if (version >= 13)
                 {
-                    MapGeometryVisibilityFlags visibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
+                    MapGeometryVisibilityFlags _ = (MapGeometryVisibilityFlags)br.ReadByte();
                 }
 
                 int bufferSize = br.ReadInt32();
                 MemoryOwner<ushort> indexBuffer = MemoryOwner<ushort>.Allocate(bufferSize / 2);
 
-                for (int j = 0; j < bufferSize / 2; j++)
-                {
-                    indexBuffer.Span[j] = br.ReadUInt16();
-                }
+                int bytesRead = br.Read(indexBuffer.Span.Cast<ushort, byte>());
+                if (bytesRead != bufferSize)
+                    throw new IOException(
+                        $"Failed to read index buffer: {i} {nameof(bufferSize)}: {bufferSize} {nameof(bytesRead)}: {bytesRead}"
+                    );
 
-                indexBuffers.Add(indexBuffer);
+                this._indexBuffers[i] = indexBuffer;
             }
 
             uint modelCount = br.ReadUInt32();
             for (int i = 0; i < modelCount; i++)
             {
                 this._meshes.Add(
-                    new(br, i, vertexElementGroups, vertexBufferOffsets, indexBuffers, useSeparatePointLights, version)
+                    new(i, this, br, vertexBufferDescriptions, vertexBufferOffsets, useSeparatePointLights, version)
                 );
             }
 
@@ -133,23 +163,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     this._planarReflectors.Add(new(br));
                 }
             }
-        }
-
-        internal MapGeometry(
-            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
-            IEnumerable<MapGeometryModel> meshes,
-            BucketGrid bucketGrid,
-            IEnumerable<MapGeometryPlanarReflector> planarReflectors
-        )
-        {
-            Guard.IsNotNull(meshes, nameof(meshes));
-            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
-            Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
-
-            this.BakedTerrainSamplers = bakedTerrainSamplers;
-            this._meshes = new(meshes);
-            this.BucketGrid = bucketGrid;
-            this._planarReflectors = new(planarReflectors);
         }
 
         internal void ReadBakedTerrainSamplers(BinaryReader br, uint version)
@@ -168,15 +181,45 @@ namespace LeagueToolkit.IO.MapGeometryFile
             this.BakedTerrainSamplers = bakedTerrainSamplers;
         }
 
+        internal IVertexBufferView ReflectVertexBuffer(
+            int id,
+            VertexBufferDescription description,
+            int vertexCount,
+            BinaryReader br,
+            long offset
+        )
+        {
+            // A buffer can be reused by multiple meshes
+            if (this._vertexBuffers[id] is VertexBuffer existingBuffer)
+                return existingBuffer;
+
+            // If it hasn't been read yet:
+            long returnPosition = br.BaseStream.Position;
+            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(description.Elements, vertexCount);
+
+            // Seek to the buffer offset, read it and seek back
+            br.BaseStream.Seek(offset, SeekOrigin.Begin);
+            int bytesRead = br.Read(vertexBufferOwner.Span);
+            if (bytesRead != vertexBufferOwner.Length)
+                throw new IOException(
+                    $"Failed to read vertex buffer: {id} size: {vertexBufferOwner.Length} {nameof(bytesRead)}: {bytesRead}"
+                );
+            br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
+
+            // Create the buffer, store it and return a view into it
+            VertexBuffer vertexBuffer = VertexBuffer.Create(description.Usage, description.Elements, vertexBufferOwner);
+            this._vertexBuffers[id] = vertexBuffer;
+            return vertexBuffer;
+        }
+
+        internal ReadOnlyMemory<ushort> ReflectIndexBuffer(int id) => this._indexBuffers[id].Memory;
+
         /// <summary>
         /// Writes this <see cref="MapGeometry"/> instance into <paramref name="fileLocation"/> with the requested <paramref name="version"/>
         /// </summary>
         /// <param name="fileLocation">The file to write into</param>
         /// <param name="version">The version of the written <see cref="MapGeometry"/> file</param>
-        public void Write(string fileLocation, uint version)
-        {
-            Write(File.Create(fileLocation), version);
-        }
+        public void Write(string fileLocation, uint version) => Write(File.Create(fileLocation), version);
 
         /// <summary>
         /// Writes this <see cref="MapGeometry"/> instance into <paramref name="stream"/>
@@ -200,20 +243,20 @@ namespace LeagueToolkit.IO.MapGeometryFile
             bool usesSeparatePointLights = false;
             if (version < 7)
             {
-                usesSeparatePointLights = UsesSeparatePointLights();
+                usesSeparatePointLights = this._meshes.Any(mesh => mesh.PointLight is not null);
                 bw.Write(usesSeparatePointLights);
             }
 
             WriteBakedTerrainSamplers(bw, version);
 
-            List<MapGeometryVertexElementGroup> vertexElementGroups = GenerateVertexElementGroups();
+            List<VertexBufferDescription> vertexElementGroups = GenerateVertexBufferDescriptions();
             bw.Write(vertexElementGroups.Count);
-            foreach (MapGeometryVertexElementGroup vertexElementGroup in vertexElementGroups)
+            foreach (VertexBufferDescription vertexElementGroup in vertexElementGroups)
             {
-                vertexElementGroup.Write(bw);
+                vertexElementGroup.WriteToMapGeometry(bw);
             }
 
-            WriteVertexBuffers(bw, vertexElementGroups, version);
+            WriteVertexBuffers(bw, version);
             WriteIndexBuffers(bw, version);
 
             bw.Write(this._meshes.Count);
@@ -234,38 +277,28 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
-        private bool UsesSeparatePointLights()
+        // TODO: Instanced Vertex Buffers
+        private List<VertexBufferDescription> GenerateVertexBufferDescriptions()
         {
-            foreach (MapGeometryModel mesh in this.Meshes)
-            {
-                if (mesh.PointLight is not null)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private List<MapGeometryVertexElementGroup> GenerateVertexElementGroups()
-        {
-            List<MapGeometryVertexElementGroup> vertexElementGroups = new();
+            List<VertexBufferDescription> descriptions = new();
 
             foreach (MapGeometryModel mesh in this.Meshes)
             {
-                // TODO: Create method which verifies that each vertex is of the same format
-                //       and throws if it detects an inconsistency
-                MapGeometryVertexElementGroup vertexElementGroup = new(mesh.Vertices[0]);
-
-                if (!vertexElementGroups.Contains(vertexElementGroup))
+                // Find base descriptor index, if it doesn't exist, create it
+                IEnumerable<VertexBufferDescription> meshDescriptions = mesh.VerticesView.Buffers.Select(
+                    buffer => buffer.Description
+                );
+                int baseDescriptionId = descriptions.IndexOf(meshDescriptions);
+                if (baseDescriptionId == -1)
                 {
-                    vertexElementGroups.Add(vertexElementGroup);
+                    baseDescriptionId = descriptions.Count;
+                    descriptions.AddRange(meshDescriptions);
                 }
 
-                mesh._vertexElementGroupId = vertexElementGroups.IndexOf(vertexElementGroup);
+                mesh._baseVertexBufferDescriptionId = baseDescriptionId;
             }
 
-            return vertexElementGroups;
+            return descriptions;
         }
 
         private void WriteBakedTerrainSamplers(BinaryWriter bw, uint version)
@@ -294,81 +327,136 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
-        private void WriteVertexBuffers(
-            BinaryWriter bw,
-            List<MapGeometryVertexElementGroup> vertexElementGroups,
-            uint version
-        )
+        // TODO: Vertex Buffer instancing
+        private void WriteVertexBuffers(BinaryWriter bw, uint version)
         {
-            // Write count of buffers
-            bw.Write(this.Meshes.Count);
+            // Get vertex buffer IDs for each mesh
+            List<int[]> bufferIdsOfMeshes = new(this._meshes.Select(GetMeshVertexBufferIds));
 
-            int currentVertexBufferId = 0;
-            foreach (MapGeometryModel mesh in this.Meshes)
+            // Set the vertex buffer IDs for each mesh and collect visibility flags for each vertex buffer
+            MapGeometryVisibilityFlags[] visibilityFlagsOfBuffers = new MapGeometryVisibilityFlags[
+                this._vertexBuffers.Length
+            ];
+            for (int meshId = 0; meshId < bufferIdsOfMeshes.Count; meshId++)
             {
-                int vertexSize = vertexElementGroups[mesh._vertexElementGroupId].GetVertexSize();
-                int vertexBufferSize = mesh.Vertices.Length * vertexSize;
+                MapGeometryModel mesh = this._meshes[meshId];
 
-                // Write buffer layer mask
+                // It would be better to pass this into the mesh writing function
+                int[] currentMeshBufferIds = bufferIdsOfMeshes[meshId];
+                mesh._vertexBufferIds = currentMeshBufferIds;
+
+                // Merge flags
+                for (int i = 0; i < currentMeshBufferIds.Length; i++)
+                    visibilityFlagsOfBuffers[currentMeshBufferIds[i]] |= mesh.VisibilityFlags;
+            }
+
+            // Write count of buffers
+            bw.Write(this._vertexBuffers.Length);
+
+            // Write buffer data
+            for (int i = 0; i < this._vertexBuffers.Length; i++)
+            {
+                VertexBuffer vertexBuffer = this._vertexBuffers[i];
+
                 if (version >= 13)
-                {
-                    bw.Write((byte)mesh.VisibilityFlags);
-                }
-
-                // Write buffer size
-                bw.Write(vertexBufferSize);
-
-                // Write buffer data
-                for (int currentVertex = 0; currentVertex < mesh.Vertices.Length; currentVertex++)
-                {
-                    mesh.Vertices[currentVertex].Write(bw);
-                }
-
-                mesh._vertexBufferId = currentVertexBufferId;
-
-                currentVertexBufferId++;
+                    bw.Write((byte)visibilityFlagsOfBuffers[i]);
+                bw.Write(vertexBuffer.View.Length);
+                bw.Write(vertexBuffer.View.Span);
             }
         }
 
         private void WriteIndexBuffers(BinaryWriter bw, uint version)
         {
-            // Write count of buffers
-            bw.Write(this.Meshes.Count);
+            // Get index buffer id for each mesh
+            List<int> bufferIdOfMeshes = new(this._meshes.Select(GetMeshIndexBufferId));
 
-            int currentIndexBufferId = 0;
-            foreach (MapGeometryModel mesh in this.Meshes)
+            // Set the index buffer id for each mesh and collect visibility flags for each buffer
+            MapGeometryVisibilityFlags[] visibilityFlagsOfBuffers = new MapGeometryVisibilityFlags[
+                this._indexBuffers.Length
+            ];
+            for (int meshId = 0; meshId < bufferIdOfMeshes.Count; meshId++)
             {
-                // Marshal Indices array of mesh into a buffer for writing into the stream
-                ReadOnlySpan<byte> indexBuffer = MemoryMarshal.AsBytes(mesh.Indices);
+                MapGeometryModel mesh = this._meshes[meshId];
 
-                // Write buffer layer mask
+                // It would be better to pass this into the mesh writing function
+                int meshIndexBufferId = bufferIdOfMeshes[meshId];
+                mesh._indexBufferId = meshIndexBufferId;
+
+                // Merge flags
+                visibilityFlagsOfBuffers[meshIndexBufferId] |= mesh.VisibilityFlags;
+            }
+
+            // Write count of buffers
+            bw.Write(this._indexBuffers.Length);
+
+            // Write buffer data
+            for (int i = 0; i < this._indexBuffers.Length; i++)
+            {
+                ReadOnlySpan<byte> indexBuffer = this._indexBuffers[i].Span.Cast<ushort, byte>();
+
                 if (version >= 13)
-                {
-                    bw.Write((byte)mesh.VisibilityFlags);
-                }
-
-                // Write size of buffer and the buffer itself
+                    bw.Write((byte)visibilityFlagsOfBuffers[i]);
                 bw.Write(indexBuffer.Length);
                 bw.Write(indexBuffer);
-
-                mesh._indexBufferId = currentIndexBufferId;
-                currentIndexBufferId++;
             }
+        }
+
+        private int[] GetMeshVertexBufferIds(MapGeometryModel mesh)
+        {
+            int[] bufferIds = new int[mesh.VerticesView.Buffers.Count];
+            for (int i = 0; i < bufferIds.Length; i++)
+            {
+                int bufferId = Array.FindIndex(
+                    this._vertexBuffers,
+                    buffer => buffer.View.Equals(mesh.VerticesView.Buffers[i].View)
+                );
+                if (bufferId == -1)
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"Failed to find vertex buffer {i} for mesh: {mesh.Name}"
+                    );
+
+                bufferIds[i] = bufferId;
+            }
+
+            return bufferIds;
+        }
+
+        private int GetMeshIndexBufferId(MapGeometryModel mesh)
+        {
+            return Array.FindIndex(this._indexBuffers, buffer => buffer.Span == mesh.Indices.Span) switch
+            {
+                -1 => throw new InvalidOperationException($"Failed to find index buffer for mesh: {mesh.Name}"),
+                int bufferId => bufferId
+            };
         }
 
         public void Dispose()
         {
-            if (this._meshes is null)
-            {
-                return;
-            }
-
-            foreach (MapGeometryModel mesh in this._meshes)
-            {
-                mesh?.Dispose();
-            }
-
+            Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (this.IsDisposed)
+                return;
+
+            if (disposing)
+            {
+                if (this._vertexBuffers is not null)
+                    foreach (VertexBuffer vertexBuffer in this._vertexBuffers)
+                    {
+                        vertexBuffer?.Dispose();
+                    }
+
+                if (this._indexBuffers is not null)
+                    foreach (MemoryOwner<ushort> indexBuffer in this._indexBuffers)
+                    {
+                        indexBuffer?.Dispose();
+                    }
+            }
+
+            this.IsDisposed = true;
         }
     }
 }

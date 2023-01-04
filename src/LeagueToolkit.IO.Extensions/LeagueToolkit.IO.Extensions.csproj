@@ -2,7 +2,7 @@
 
   <!-- project settings -->
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <LangVersion>9</LangVersion>
   </PropertyGroup>
 
@@ -21,8 +21,7 @@
 
   <!-- package references -->
   <ItemGroup>
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0027" />
   </ItemGroup>
 
   <!-- project references -->

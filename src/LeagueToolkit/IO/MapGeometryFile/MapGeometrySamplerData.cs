@@ -1,6 +1,4 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -8,28 +6,21 @@ using System.Text;
 namespace LeagueToolkit.IO.MapGeometryFile
 {
     /// <summary>
-    /// Contains information for an arbitrary environment terrain mesh sampler
+    /// Represents an environment terrain mesh sampler
     /// </summary>
     public struct MapGeometrySamplerData
     {
-        /// <summary>
-        /// The path of the texture to use for this sampler
-        /// </summary>
+        /// <summary>Gets the texture path</summary>
         public string Texture;
 
-        /// <summary>
-        /// The scale of UVs being used to sample from <see cref="Texture"/>
-        /// </summary>
+        /// <summary>Gets the UV scale being used to sample from <see cref="Texture"/></summary>
         public Vector2 Scale;
 
-        /// <summary>
-        /// The offset of UVs being used to sample from <see cref="Texture"/>
-        /// </summary>
-        /// <remarks>
-        /// Applied after scaling
-        /// </remarks>
+        /// <summary>Gets the UV offset being used to sample from <see cref="Texture"/></summary>
+        /// <remarks>Applied after scaling</remarks>
         public Vector2 Bias;
 
+        /// <summary>Creates a new <see cref="MapGeometrySamplerData"/> object</summary>
         public MapGeometrySamplerData()
         {
             this.Texture = string.Empty;
@@ -37,6 +28,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             this.Bias = Vector2.Zero;
         }
 
+        /// <summary>Creates a new <see cref="MapGeometrySamplerData"/> object with the specified parameters</summary>
         public MapGeometrySamplerData(string texture, Vector2 scale, Vector2 bias)
         {
             this.Texture = texture;
@@ -54,7 +46,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             };
         }
 
-        internal void Write(BinaryWriter bw) 
+        internal void Write(BinaryWriter bw)
         {
             bw.Write(this.Texture.Length);
             bw.Write(Encoding.ASCII.GetBytes(this.Texture ?? string.Empty));
