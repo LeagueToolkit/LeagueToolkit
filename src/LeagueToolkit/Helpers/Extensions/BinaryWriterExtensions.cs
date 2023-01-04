@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LeagueToolkit.Helpers.Extensions
 {
@@ -67,6 +69,19 @@ namespace LeagueToolkit.Helpers.Extensions
         {
             writer.WriteVector3(box.Min);
             writer.WriteVector3(box.Max);
+        }
+
+        public static void WritePaddedString(this BinaryWriter writer, string value, int length)
+        {
+            if (value.Length > length)
+                throw new ArgumentException(
+                    $"{nameof(value.Length)}: {value.Length} is greater than {nameof(length)}: {length}"
+                );
+
+            Span<char> data = stackalloc char[length];
+            data.Clear();
+            value.AsSpan().CopyTo(data);
+            writer.Write(data);
         }
     }
 }

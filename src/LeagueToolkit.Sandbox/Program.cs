@@ -32,6 +32,7 @@ using LeagueToolkit.Core.Memory;
 using CommunityToolkit.Diagnostics;
 using System.Threading;
 using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Core.Mesh;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -40,7 +41,33 @@ namespace LeagueToolkit.Sandbox
         static void Main(string[] args)
         {
             //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
-            ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
+            //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
+            ProfileSkinnedMesh();
+        }
+
+        static void ProfileSkinnedMesh()
+        {
+            using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
+            Skeleton skeleton = new("akali.skl");
+
+            List<(string name, Animation animation)> animations = new();
+            foreach (string animationFile in Directory.EnumerateFiles("animations"))
+            {
+                Animation animation = new(animationFile);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
+            skinnedMesh
+                .ToGltf(
+                    skeleton,
+                    new Dictionary<string, ReadOnlyMemory<byte>>()
+                    {
+                        { "Akali_Base_Body_Mat", File.ReadAllBytes("akali_base_tx_cm.dds") }
+                    },
+                    animations
+                )
+                .WriteGLB(File.OpenWrite("akali.glb"));
         }
 
         static void TestMetaRoslynCodegen(string outputFile)
