@@ -40,7 +40,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
         public MapGeometryBuilder WithMesh(MapGeometryModelBuilder mesh)
         {
-            Guard.IsNotNull(mesh, nameof(mesh));
+            ArgumentNullException.ThrowIfNull(mesh, nameof(mesh));
 
             this._meshes.Add(mesh);
             return this;
@@ -48,7 +48,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
         public MapGeometryBuilder WithBucketGrid(BucketGrid bucketGrid)
         {
-            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
+            ArgumentNullException.ThrowIfNull(bucketGrid, nameof(bucketGrid));
 
             this._bucketGrid = bucketGrid;
             return this;
@@ -76,7 +76,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
             int vertexCount
         )
         {
-            Guard.IsNotNull(vertexElements, nameof(vertexElements));
+            ArgumentNullException.ThrowIfNull(vertexElements, nameof(vertexElements));
             Guard.IsGreaterThan(vertexCount, 0, nameof(vertexCount));
 
             MemoryOwner<byte> bufferOwner = VertexBuffer.AllocateForElements(vertexElements, vertexCount);

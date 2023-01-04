@@ -47,11 +47,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
             IEnumerable<MemoryOwner<ushort>> indexBuffers
         )
         {
-            Guard.IsNotNull(meshes, nameof(meshes));
-            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
-            Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
-            Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
-            Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
+            ArgumentNullException.ThrowIfNull(meshes, nameof(meshes));
+            ArgumentNullException.ThrowIfNull(bucketGrid, nameof(bucketGrid));
+            ArgumentNullException.ThrowIfNull(planarReflectors, nameof(planarReflectors));
+            ArgumentNullException.ThrowIfNull(vertexBuffers, nameof(vertexBuffers));
+            ArgumentNullException.ThrowIfNull(indexBuffers, nameof(indexBuffers));
 
             this.BakedTerrainSamplers = bakedTerrainSamplers;
             this._meshes = new(meshes);

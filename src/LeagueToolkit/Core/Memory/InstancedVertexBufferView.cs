@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,7 +40,7 @@ namespace LeagueToolkit.Core.Memory
 
         private void ValidateBuffers(int vertexCount, IReadOnlyList<IVertexBufferView> vertexBuffers)
         {
-            Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
+            ArgumentNullException.ThrowIfNull(vertexBuffers, nameof(vertexBuffers));
             Guard.HasSizeGreaterThanOrEqualTo(vertexBuffers, 1, nameof(vertexBuffers));
 
             IEnumerable<ElementName> elements = vertexBuffers.SelectMany(x => x.Elements.Keys);
