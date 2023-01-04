@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Helpers.Extensions;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -15,30 +15,37 @@ namespace LeagueToolkit.IO.MapObjects
         /// Name of this <see cref="MOBObject"/>
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
         /// Type of this <see cref="MOBObject"/>
         /// </summary>
         public MOBObjectType Type { get; set; }
+
         /// <summary>
         /// Skin ID of this <see cref="MOBObject"/>
         /// </summary>
         public uint SkinID { get; set; }
+
         /// <summary>
         /// Collision flag of this <see cref="MOBObject"/>
         /// </summary>
         public bool IgnoreCollisionOnPlacement { get; set; }
+
         /// <summary>
         /// Position of this <see cref="MOBObject"/>
         /// </summary>
         public Vector3 Position { get; set; }
+
         /// <summary>
         /// Rotation of this <see cref="MOBObject"/>
         /// </summary>
         public Vector3 Rotation { get; set; }
+
         /// <summary>
         /// Scale of this <see cref="MOBObject"/>
         /// </summary>
         public Vector3 Scale { get; set; }
+
         /// <summary>
         /// Bounding Box of this <see cref="MOBObject"/>
         /// </summary>
@@ -55,7 +62,16 @@ namespace LeagueToolkit.IO.MapObjects
         /// <param name="rotation">Scale of this <see cref="MOBObject"/></param>
         /// <param name="scale">Scale of this <see cref="MOBObject"/></param>
         /// <param name="boundingBox">Bounding Box of this <see cref="MOBObject"/></param>
-        public MOBObject(string name, MOBObjectType type, uint skinID, bool ignoreCollisionOnPlacement, Vector3 position, Vector3 rotation, Vector3 scale, Box boundingBox)
+        public MOBObject(
+            string name,
+            MOBObjectType type,
+            uint skinID,
+            bool ignoreCollisionOnPlacement,
+            Vector3 position,
+            Vector3 rotation,
+            Vector3 scale,
+            Box boundingBox
+        )
         {
             this.Name = name;
             this.Type = type;
@@ -109,42 +125,52 @@ namespace LeagueToolkit.IO.MapObjects
         /// Represents a <see cref="MOBObject"/> where minions spawn
         /// </summary>
         BarrackSpawn,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> where players spawn
         /// </summary>
         NexusSpawn,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that indicates the size of the map
         /// </summary>
         LevelSize,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that is an Inhibitor
         /// </summary>
         Barrack,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that is a Nexus
         /// </summary>
         Nexus,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that is a Turret
         /// </summary>
         Turret,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that is a Shop
         /// </summary>
         Shop,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that is a Lake
         /// </summary>
         Lake,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that is a Navigation Waypoint
         /// </summary>
         Nav,
+
         /// <summary>
         /// Represents a <see cref="MOBObject"/> that provides certain information for the game
         /// </summary>
         Info,
+
         /// <summary>
         /// Represnts a <see cref="MOBObject"/> that is a Level Prop
         /// </summary>

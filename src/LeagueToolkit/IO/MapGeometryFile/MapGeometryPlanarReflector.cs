@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Helpers.Extensions;
 using System.IO;
 using System.Numerics;
 
