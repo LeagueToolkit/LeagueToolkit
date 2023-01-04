@@ -1,0 +1,18 @@
+﻿namespace LeagueToolkit.IO.ReleaseManifestFile;
+
+table ReleaseManifestFile
+{
+    ID: ulong;
+    ParentID: ulong;
+    Size: uint;
+    Name: string;
+    LanguageFlags: ulong;
+    Unknown5: byte; // Type/Size unknown
+    Unknown6: byte; // Type/Size unknown
+    ChunkIDs: [ulong];
+    Unk8: byte;
+    Link: string;
+    Unknown10: byte; // Type/Size unknown
+    ChunkingParametersIndex: byte;
+    Permissions: byte;
+}

@@ -1,0 +1,9 @@
+﻿include "ReleaseManifestBundleChunk.fbs";
+
+namespace LeagueToolkit.IO.ReleaseManifestFile;
+
+table ReleaseManifestBundle
+{
+    ID: ulong;
+    Chunks: [ReleaseManifestBundleChunk];
+}

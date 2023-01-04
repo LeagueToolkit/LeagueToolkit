@@ -1,0 +1,7 @@
+﻿namespace LeagueToolkit.IO.ReleaseManifestFile;
+
+// Vtable size unknown
+table ReleaseManifestEncryptionKey
+{
+    Unknown0: byte; // Type/Size unknown
+}

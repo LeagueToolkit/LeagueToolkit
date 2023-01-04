@@ -1,0 +1,20 @@
+﻿include "ReleaseManifestBundle.fbs";
+include "ReleaseManifestLanguage.fbs";
+include "ReleaseManifestFile.fbs";
+include "ReleaseManifestDirectory.fbs";
+include "ReleaseManifestEncryptionKey.fbs";
+include "ReleaseManifestChunkingParameter.fbs";
+
+attribute "fs_serializer";
+
+namespace LeagueToolkit.IO.ReleaseManifestFile;
+
+table ReleaseManifestBody(fs_serializer)
+{
+    Bundles: [ReleaseManifestBundle];
+    Languages: [ReleaseManifestLanguage];
+    Files: [ReleaseManifestFile];
+    Directories: [ReleaseManifestDirectory];
+    EncryptionKeys: [ReleaseManifestEncryptionKey];
+    ChunkingParameters: [ReleaseManifestChunkingParameter];
+}

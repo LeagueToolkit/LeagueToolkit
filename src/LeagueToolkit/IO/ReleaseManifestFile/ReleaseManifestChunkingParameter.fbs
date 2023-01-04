@@ -1,0 +1,10 @@
+﻿namespace LeagueToolkit.IO.ReleaseManifestFile;
+
+table ReleaseManifestChunkingParameter
+{
+    ID: ushort;
+    Unknown1: byte;
+    Unknown2: byte;
+    Unknown3: int;
+    MaxUncompressedSize: int;
+}
