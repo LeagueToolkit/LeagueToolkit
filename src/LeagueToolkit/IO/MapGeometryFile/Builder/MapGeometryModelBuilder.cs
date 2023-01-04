@@ -70,8 +70,8 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
             ReadOnlyMemory<ushort> indexBuffer
         )
         {
-            ArgumentNullException.ThrowIfNull(primitives, nameof(primitives));
-            ArgumentNullException.ThrowIfNull(vertexBuffer, nameof(vertexBuffer));
+            Guard.IsNotNull(primitives, nameof(primitives));
+            Guard.IsNotNull(vertexBuffer, nameof(vertexBuffer));
             Guard.HasSizeGreaterThan(vertexBuffer.View.Span, 0, nameof(vertexBuffer));
             Guard.HasSizeGreaterThan(indexBuffer.Span, 0, nameof(indexBuffer));
 

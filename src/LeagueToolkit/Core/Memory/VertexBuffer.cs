@@ -31,8 +31,8 @@ namespace LeagueToolkit.Core.Memory
 
         private VertexBuffer(VertexBufferUsage usage, IEnumerable<VertexElement> elements, MemoryOwner<byte> buffer)
         {
-            ArgumentNullException.ThrowIfNull(elements);
-            ArgumentNullException.ThrowIfNull(buffer, nameof(buffer));
+            Guard.IsNotNull(elements);
+            Guard.IsNotNull(buffer, nameof(buffer));
 
             this.Description = new(usage, elements);
 
@@ -98,7 +98,7 @@ namespace LeagueToolkit.Core.Memory
         /// <param name="vertexCount">The vertex count of the buffer</param>
         public static MemoryOwner<byte> AllocateForElements(IEnumerable<VertexElement> elements, int vertexCount)
         {
-            ArgumentNullException.ThrowIfNull(elements, nameof(elements));
+            Guard.IsNotNull(elements, nameof(elements));
 
             // We don't need to order the elements here because vertex size will be the same regardless of order
             int stride = SanitizeElements(elements).Sum(element => element.GetSize());
@@ -108,7 +108,7 @@ namespace LeagueToolkit.Core.Memory
 
         internal static IEnumerable<VertexElement> SanitizeElements(IEnumerable<VertexElement> elements)
         {
-            ArgumentNullException.ThrowIfNull(elements, nameof(elements));
+            Guard.IsNotNull(elements, nameof(elements));
 
             return SanitizeElementsForDuplication(elements);
         }
@@ -119,8 +119,8 @@ namespace LeagueToolkit.Core.Memory
             Func<VertexElement, TElementKey> keySelector
         )
         {
-            ArgumentNullException.ThrowIfNull(elements, nameof(elements));
-            ArgumentNullException.ThrowIfNull(keySelector, nameof(keySelector));
+            Guard.IsNotNull(elements, nameof(elements));
+            Guard.IsNotNull(keySelector, nameof(keySelector));
 
             return SanitizeElementsForDuplication(elements).OrderBy(keySelector);
         }

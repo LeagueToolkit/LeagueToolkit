@@ -33,7 +33,7 @@ namespace LeagueToolkit.Core.Memory
         /// <param name="buffer">The memory region for writing the vertex data</param>
         public VertexBufferWriter(IEnumerable<VertexElement> elements, Memory<byte> buffer)
         {
-            ArgumentNullException.ThrowIfNull(elements, nameof(elements));
+            Guard.IsNotNull(elements, nameof(elements));
 
             // Store offset of each element for reading
             int currentElementOffset = 0;

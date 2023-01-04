@@ -9,8 +9,8 @@ namespace LeagueToolkit.Meta
             get => this._value;
             set
             {
-                ArgumentNullException.ThrowIfNull(value, nameof(value));
-                this._value = value;
+                if (value is null) throw new ArgumentNullException(nameof(value));
+                else this._value = value;
             }
         }
 
@@ -18,8 +18,8 @@ namespace LeagueToolkit.Meta
 
         public MetaEmbedded(T value)
         {
-            ArgumentNullException.ThrowIfNull(value, nameof(value));
-            this._value = value;
+            if (value is null) throw new ArgumentNullException(nameof(value));
+            else this._value = value;
         }
 
         object IMetaEmbedded.GetValue()
