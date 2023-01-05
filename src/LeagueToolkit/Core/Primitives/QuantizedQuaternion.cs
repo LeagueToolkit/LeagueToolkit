@@ -17,7 +17,7 @@ namespace LeagueToolkit.Core.Primitives
             ushort v_b = (ushort)(bits >> 15 & 0x7FFFu);
             ushort v_c = (ushort)(bits & 0x7FFFu);
 
-            double sqrt2 = 1.41421356237;
+            const double sqrt2 = 1.41421356237;
             float a = (float)(v_a / 32767.0 * sqrt2 - 1 / sqrt2);
             float b = (float)(v_b / 32767.0 * sqrt2 - 1 / sqrt2);
             float c = (float)(v_c / 32767.0 * sqrt2 - 1 / sqrt2);
