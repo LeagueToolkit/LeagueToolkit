@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
-using LeagueToolkit.Helpers.Structures.BucketGrid;
+﻿using LeagueToolkit.Core.SceneGraph;
+using LeagueToolkit.Helpers.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,6 +16,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// Models of this <see cref="WorldGeometry"/>
         /// </summary>
         public List<WorldGeometryModel> Models { get; set; } = new List<WorldGeometryModel>();
+
         /// <summary>
         /// <see cref="WGEOBucketGeometry"/> of this <see cref="WorldGeometry"/>
         /// </summary>
@@ -66,7 +67,7 @@ namespace LeagueToolkit.IO.WorldGeometry
                 uint modelCount = br.ReadUInt32();
                 uint faceCount = br.ReadUInt32();
 
-                for(int i = 0; i < modelCount; i++)
+                for (int i = 0; i < modelCount; i++)
                 {
                     this.Models.Add(new WorldGeometryModel(br));
                 }

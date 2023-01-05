@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.Converters;
-using LeagueToolkit.Helpers.Structures.BucketGrid;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.MapGeometryFile;
@@ -33,6 +32,7 @@ using CommunityToolkit.Diagnostics;
 using System.Threading;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Mesh;
+using LeagueToolkit.Core.SceneGraph;
 
 namespace LeagueToolkit.Sandbox
 {

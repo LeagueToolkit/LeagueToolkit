@@ -2,9 +2,9 @@
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.SceneGraph;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures.BucketGrid;
 using System;
 using System.Collections.Generic;
 using System.IO;

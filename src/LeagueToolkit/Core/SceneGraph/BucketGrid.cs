@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-namespace LeagueToolkit.Helpers.Structures.BucketGrid
+namespace LeagueToolkit.Core.SceneGraph
 {
     public class BucketGrid
     {

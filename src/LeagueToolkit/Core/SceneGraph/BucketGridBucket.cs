@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace LeagueToolkit.Helpers.Structures.BucketGrid
+namespace LeagueToolkit.Core.SceneGraph
 {
     public struct BucketGridBucket
     {

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
-using LeagueToolkit.Helpers.Structures.BucketGrid;
+using LeagueToolkit.Core.SceneGraph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
