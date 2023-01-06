@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Cryptography;
-using LeagueToolkit.Helpers.Extensions;
+﻿using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Helpers.Hashing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +30,14 @@ namespace LeagueToolkit.IO.SkeletonFile
             }
         }
 
-        public SkeletonJoint(short id, short parentId, string name, Vector3 localPosition, Vector3 localScale, Quaternion localRotation)
+        public SkeletonJoint(
+            short id,
+            short parentId,
+            string name,
+            Vector3 localPosition,
+            Vector3 localScale,
+            Quaternion localRotation
+        )
         {
             this.ID = id;
             this.ParentID = parentId;
@@ -51,6 +58,7 @@ namespace LeagueToolkit.IO.SkeletonFile
                 ReadNew(br);
             }
         }
+
         private void ReadLegacy(BinaryReader br, short id = 0)
         {
             this.ID = id;
@@ -76,23 +84,21 @@ namespace LeagueToolkit.IO.SkeletonFile
                 M12 = transform[0, 1],
                 M13 = transform[0, 2],
                 M14 = transform[0, 3],
-
                 M21 = transform[1, 0],
                 M22 = transform[1, 1],
                 M23 = transform[1, 2],
                 M24 = transform[1, 3],
-
                 M31 = transform[2, 0],
                 M32 = transform[2, 1],
                 M33 = transform[2, 2],
                 M34 = transform[2, 3],
-
                 M41 = transform[3, 0],
                 M42 = transform[3, 1],
                 M43 = transform[3, 2],
                 M44 = transform[3, 3],
             };
         }
+
         private void ReadNew(BinaryReader br)
         {
             this.Flags = br.ReadUInt16();
@@ -128,6 +134,7 @@ namespace LeagueToolkit.IO.SkeletonFile
 
             return scaleMatrix * rotationMatrix * translationMatrix;
         }
+
         private Matrix4x4 ComposeGlobal(Vector3 translation, Vector3 scale, Quaternion rotation)
         {
             Matrix4x4 translationMatrix = Matrix4x4.CreateTranslation(translation);
@@ -145,18 +152,20 @@ namespace LeagueToolkit.IO.SkeletonFile
             bw.Write(this.ID);
             bw.Write(this.ParentID);
             bw.Write((ushort)0); // pad
-            bw.Write(Cryptography.ElfHash(this.Name));
+            bw.Write(Elf.HashLower(this.Name));
             bw.Write(this.Radius);
             WriteLocalTransform(bw);
             WriteInverseGlobalTransform(bw);
             bw.Write(nameOffset - (int)bw.BaseStream.Position);
         }
+
         private void WriteLocalTransform(BinaryWriter bw)
         {
             bw.WriteVector3(this.LocalTransform.Translation);
             bw.WriteVector3(this.LocalTransform.GetScale());
             bw.WriteQuaternion(Quaternion.CreateFromRotationMatrix(this.LocalTransform));
         }
+
         private void WriteInverseGlobalTransform(BinaryWriter bw)
         {
             Matrix4x4 inverse = this.InverseBindTransform;

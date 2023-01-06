@@ -1,6 +1,6 @@
-﻿using LeagueToolkit.Helpers.Cryptography;
-using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Helpers.Hashing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,9 +24,9 @@ namespace LeagueToolkit.IO.SkeletonFile
             this.Joints = joints;
             this.Influences = influenceMap;
 
-            foreach(SkeletonJoint joint in this.Joints)
+            foreach (SkeletonJoint joint in this.Joints)
             {
-                if(joint.ParentID == -1)
+                if (joint.ParentID == -1)
                 {
                     joint.GlobalTransform = joint.LocalTransform;
                 }
@@ -36,7 +36,9 @@ namespace LeagueToolkit.IO.SkeletonFile
                 }
             }
         }
+
         public Skeleton(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+
         public Skeleton(Stream stream, bool leaveOpen = false)
         {
             using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8, leaveOpen))
@@ -123,6 +125,7 @@ namespace LeagueToolkit.IO.SkeletonFile
                 this.AssetName = br.ReadZeroTerminatedString();
             }
         }
+
         private void ReadLegacy(BinaryReader br)
         {
             string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
@@ -162,9 +165,9 @@ namespace LeagueToolkit.IO.SkeletonFile
             }
 
             // Derive Local transformations
-            foreach(SkeletonJoint joint in this.Joints)
+            foreach (SkeletonJoint joint in this.Joints)
             {
-                if(joint.ParentID == -1)
+                if (joint.ParentID == -1)
                 {
                     joint.LocalTransform = joint.GlobalTransform;
                 }
@@ -181,6 +184,7 @@ namespace LeagueToolkit.IO.SkeletonFile
         {
             Write(File.Create(fileLocation));
         }
+
         public void Write(Stream stream)
         {
             using (BinaryWriter bw = new BinaryWriter(stream))
@@ -242,7 +246,7 @@ namespace LeagueToolkit.IO.SkeletonFile
                 bw.Seek(jointIndicesOffset, SeekOrigin.Begin);
                 foreach (SkeletonJoint joint in this.Joints)
                 {
-                    bw.Write(Cryptography.ElfHash(joint.Name));
+                    bw.Write(Elf.HashLower(joint.Name));
                     bw.Write((ushort)0);
                     bw.Write(joint.ID);
                 }

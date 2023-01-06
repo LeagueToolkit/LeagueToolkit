@@ -57,7 +57,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
-namespace LeagueToolkit.Helpers.Cryptography
+namespace LeagueToolkit.Helpers.Hashing
 {
     [ComVisible(true)]
     public static class XXHash
@@ -66,16 +66,16 @@ namespace LeagueToolkit.Helpers.Cryptography
         *  Constants
         ***************************************/
         const uint PRIME32_1 = 2654435761U,
-                   PRIME32_2 = 2246822519U,
-                   PRIME32_3 = 3266489917U,
-                   PRIME32_4 = 668265263U,
-                   PRIME32_5 = 374761393U;
+            PRIME32_2 = 2246822519U,
+            PRIME32_3 = 3266489917U,
+            PRIME32_4 = 668265263U,
+            PRIME32_5 = 374761393U;
 
         const ulong PRIME64_1 = 11400714785074694791UL,
-                    PRIME64_2 = 14029467366897019727UL,
-                    PRIME64_3 = 1609587929392839161UL,
-                    PRIME64_4 = 9650029242287828579UL,
-                    PRIME64_5 = 2870177450012600261UL;
+            PRIME64_2 = 14029467366897019727UL,
+            PRIME64_3 = 1609587929392839161UL,
+            PRIME64_4 = 9650029242287828579UL,
+            PRIME64_5 = 2870177450012600261UL;
 
         /*****************************
         *  Definitions
@@ -87,7 +87,11 @@ namespace LeagueToolkit.Helpers.Cryptography
               typedef enum { XXH_OK=0, XXH_ERROR } XXH_errorcode;
         */
         [Serializable]
-        internal enum ErrorCode { XXH_OK = 0, XXH_ERROR }
+        internal enum ErrorCode
+        {
+            XXH_OK = 0,
+            XXH_ERROR
+        }
 
         /******************************************
         *  Macros
@@ -106,8 +110,15 @@ namespace LeagueToolkit.Helpers.Cryptography
             Original C implementation definition:
               #define XXH_rotl64(x,r) ((x << r) | (x >> (64 - r)))
         */
-        static uint XXH_rotl32(uint x, int r) { return ((x << r) | (x >> (32 - r))); }
-        static ulong XXH_rotl64(ulong x, int r) { return ((x << r) | (x >> (64 - r))); }
+        static uint XXH_rotl32(uint x, int r)
+        {
+            return x << r | x >> 32 - r;
+        }
+
+        static ulong XXH_rotl64(ulong x, int r)
+        {
+            return x << r | x >> 64 - r;
+        }
 
         /*****************************
         *  Simple Hash Functions
@@ -117,6 +128,7 @@ namespace LeagueToolkit.Helpers.Cryptography
         {
             return XXH32(input, 0U);
         }
+
         static public uint XXH32(byte[] input, uint seed)
         {
             if (input == null)
@@ -124,10 +136,12 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             return XXH32(input, 0, input.Length, seed);
         }
+
         static public uint XXH32(Stream inputStream)
         {
             return XXH32(inputStream, 0U);
         }
+
         static public uint XXH32(Stream inputStream, uint seed)
         {
             State32 state = new State32();
@@ -142,10 +156,12 @@ namespace LeagueToolkit.Helpers.Cryptography
                 throw;
             }
         }
+
         static public ulong XXH64(byte[] input)
         {
             return XXH64(input, 0UL);
         }
+
         static public ulong XXH64(byte[] input, ulong seed)
         {
             if (input == null)
@@ -153,10 +169,12 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             return XXH64(input, 0, input.Length, seed);
         }
+
         static public ulong XXH64(Stream inputStream)
         {
             return XXH64(inputStream, 0U);
         }
+
         static public ulong XXH64(Stream inputStream, ulong seed)
         {
             State64 state = new State64();
@@ -197,10 +215,11 @@ namespace LeagueToolkit.Helpers.Cryptography
             if (input.GetLowerBound(0) != 0)
                 ThrowArrayNonZeroLowerBound("input");
             if (offset < 0)
-                ThrowArgumentNonNegativeNumber("offset"); ;
+                ThrowArgumentNonNegativeNumber("offset");
+            ;
             if (length < 0)
                 ThrowArgumentNonNegativeNumber("length");
-            if (input.Length < (offset + length))
+            if (input.Length < offset + length)
                 ThrowArrayInvalidOffsetAndLength();
 
 #if EnableSimpleVersion
@@ -239,8 +258,7 @@ namespace LeagueToolkit.Helpers.Cryptography
                     v4 += p.ReadUInt32() * PRIME32_2;
                     v4 = XXH_rotl32(v4, 13);
                     v4 *= PRIME32_1;
-                }
-                while (p.Position <= limit);
+                } while (p.Position <= limit);
 
                 h32 = XXH_rotl32(v1, 1) + XXH_rotl32(v2, 7) + XXH_rotl32(v3, 12) + XXH_rotl32(v4, 18);
             }
@@ -272,6 +290,7 @@ namespace LeagueToolkit.Helpers.Cryptography
             return h32;
 #endif
         }
+
         static public ulong XXH64(byte[] input, int offset, int length, ulong seed)
         {
             if (input == null)
@@ -284,7 +303,7 @@ namespace LeagueToolkit.Helpers.Cryptography
                 ThrowArgumentNonNegativeNumber("offset");
             if (length < 0)
                 ThrowArgumentNonNegativeNumber("length");
-            if (input.Length < (offset + length))
+            if (input.Length < offset + length)
                 ThrowArrayInvalidOffsetAndLength();
 
 #if EnableSimpleVersion
@@ -323,8 +342,7 @@ namespace LeagueToolkit.Helpers.Cryptography
                     v4 += p.ReadUInt64() * PRIME64_2;
                     v4 = XXH_rotl64(v4, 31);
                     v4 *= PRIME64_1;
-                }
-                while (p.Position <= limit);
+                } while (p.Position <= limit);
 
                 h64 = XXH_rotl64(v1, 1) + XXH_rotl64(v2, 7) + XXH_rotl64(v3, 12) + XXH_rotl64(v4, 18);
 
@@ -371,7 +389,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             if (p.Position + 4 <= bEnd)
             {
-                h64 ^= (ulong)(p.ReadUInt32()) * PRIME64_1;
+                h64 ^= p.ReadUInt32() * PRIME64_1;
                 h64 = XXH_rotl64(h64, 23) * PRIME64_2 + PRIME64_3;
             }
 
@@ -408,41 +426,43 @@ namespace LeagueToolkit.Helpers.Cryptography
              Original C implementation definition:
                typedef struct { long long ll[11]; } XXH64_state_t;
         */
-        [Serializable]                            // Original C implementation definition:
-        public sealed class State32               // typedef struct
-        {                                         // {
-            internal ulong total_len;             //     U64 total_len;
-            internal uint seed;                   //     U32 seed;
-            internal uint v1;                     //     U32 v1;
-            internal uint v2;                     //     U32 v2;
-            internal uint v3;                     //     U32 v3;
-            internal uint v4;                     //     U32 v4;
-            internal byte[] mem32 = null;         //     U32 mem32[4];   /* defined as U32 for alignment */
-            internal uint memsize;                //     U32 memsize;
-                                                  //
+        [Serializable] // Original C implementation definition:
+        public sealed class State32 // typedef struct
+        { // {
+            internal ulong total_len; //     U64 total_len;
+            internal uint seed; //     U32 seed;
+            internal uint v1; //     U32 v1;
+            internal uint v2; //     U32 v2;
+            internal uint v3; //     U32 v3;
+            internal uint v4; //     U32 v4;
+            internal byte[] mem32 = null; //     U32 mem32[4];   /* defined as U32 for alignment */
+            internal uint memsize; //     U32 memsize;
+
+            //
             public bool IsInitialized
             {
                 get { return mem32 != null; }
             }
-        }                                         // } XXH_istate32_t;
+        } // } XXH_istate32_t;
 
-        [Serializable]                            // Original C implementation definition:
-        public sealed class State64               // typedef struct
-        {                                         // {
-            internal ulong total_len;             //     U64 total_len;
-            internal ulong seed;                  //     U64 seed;
-            internal ulong v1;                    //     U64 v1;
-            internal ulong v2;                    //     U64 v2;
-            internal ulong v3;                    //     U64 v3;
-            internal ulong v4;                    //     U64 v4;
-            internal byte[] mem64 = null;         //     U64 mem64[4];   /* defined as U64 for alignment */
-            internal uint memsize;                //     U32 memsize;
-                                                  //
+        [Serializable] // Original C implementation definition:
+        public sealed class State64 // typedef struct
+        { // {
+            internal ulong total_len; //     U64 total_len;
+            internal ulong seed; //     U64 seed;
+            internal ulong v1; //     U64 v1;
+            internal ulong v2; //     U64 v2;
+            internal ulong v3; //     U64 v3;
+            internal ulong v4; //     U64 v4;
+            internal byte[] mem64 = null; //     U64 mem64[4];   /* defined as U64 for alignment */
+            internal uint memsize; //     U32 memsize;
+
+            //
             public bool IsInitialized
             {
                 get { return mem64 != null; }
             }
-        }                                         // } XXH_istate64_t;
+        } // } XXH_istate64_t;
 
         /* These functions create and initialize a XXH state object.
         CreateState32() :
@@ -456,6 +476,7 @@ namespace LeagueToolkit.Helpers.Cryptography
         {
             return CreateState32(0U);
         }
+
         static public State64 CreateState64()
         {
             return CreateState64(0U);
@@ -467,6 +488,7 @@ namespace LeagueToolkit.Helpers.Cryptography
             ResetState32(value, seed);
             return value;
         }
+
         static public State64 CreateState64(ulong seed)
         {
             State64 value = new State64();
@@ -478,15 +500,15 @@ namespace LeagueToolkit.Helpers.Cryptography
 
         /* These functions calculate the xxHash of an input provided in multiple smaller packets,
          * as opposed to an input provided as a single block.
-         * 
+         *
          * XXH state space must first be allocated.
-         * 
+         *
          * Start a new hash by initializing state with a seed, using ResetStateXX().
-         * 
+         *
          * Then, feed the hash state by calling UpdateStateXX() as many times as necessary.
          * Obviously, input must be valid, meaning allocated and read accessible.
          * The function returns an error code, with 0 meaning OK, and any other value meaning there is an error.
-         * 
+         *
          * Finally, you can produce a hash anytime, by using DigestStateXX().
          * This function returns the final XX-bits hash.
          * You can nonetheless continue feeding the hash state with more input,
@@ -516,6 +538,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             InternalResetState32(state, seed);
         }
+
         static public bool UpdateState32(State32 state, byte[] input)
         {
             if (state == null)
@@ -529,8 +552,9 @@ namespace LeagueToolkit.Helpers.Cryptography
             if (input.GetLowerBound(0) != 0)
                 ThrowArrayNonZeroLowerBound("input");
 
-            return (ErrorCode.XXH_OK == InternalUpdateState32(state, input, 0, input.Length));
+            return ErrorCode.XXH_OK == InternalUpdateState32(state, input, 0, input.Length);
         }
+
         static public bool UpdateState32(State32 state, byte[] input, int offset, int length)
         {
             if (state == null)
@@ -547,11 +571,12 @@ namespace LeagueToolkit.Helpers.Cryptography
                 ThrowArgumentNonNegativeNumber("offset");
             if (length < 0)
                 ThrowArgumentNonNegativeNumber("length");
-            if (input.Length < (offset + length))
+            if (input.Length < offset + length)
                 ThrowArrayInvalidOffsetAndLength();
 
-            return (ErrorCode.XXH_OK == InternalUpdateState32(state, input, offset, length));
+            return ErrorCode.XXH_OK == InternalUpdateState32(state, input, offset, length);
         }
+
         static public bool UpdateState32(State32 state, Stream inputStream)
         {
             if (inputStream == null)
@@ -572,6 +597,7 @@ namespace LeagueToolkit.Helpers.Cryptography
             } while (size > 0);
             return true;
         }
+
         static public uint DigestState32(State32 state)
         {
             if (state == null)
@@ -589,6 +615,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             InternalResetState64(state, seed);
         }
+
         static public bool UpdateState64(State64 state, byte[] input)
         {
             if (state == null)
@@ -602,8 +629,9 @@ namespace LeagueToolkit.Helpers.Cryptography
             if (input.GetLowerBound(0) != 0)
                 ThrowArrayNonZeroLowerBound("input");
 
-            return (ErrorCode.XXH_OK == InternalUpdateState64(state, input, 0, input.Length));
+            return ErrorCode.XXH_OK == InternalUpdateState64(state, input, 0, input.Length);
         }
+
         static public bool UpdateState64(State64 state, byte[] input, int offset, int length)
         {
             if (state == null)
@@ -620,11 +648,12 @@ namespace LeagueToolkit.Helpers.Cryptography
                 ThrowArgumentNonNegativeNumber("offset");
             if (length < 0)
                 ThrowArgumentNonNegativeNumber("length");
-            if (input.Length < (offset + length))
+            if (input.Length < offset + length)
                 ThrowArrayInvalidOffsetAndLength();
 
-            return (ErrorCode.XXH_OK == InternalUpdateState64(state, input, offset, length));
+            return ErrorCode.XXH_OK == InternalUpdateState64(state, input, offset, length);
         }
+
         static public bool UpdateState64(State64 state, Stream inputStream)
         {
             if (inputStream == null)
@@ -645,6 +674,7 @@ namespace LeagueToolkit.Helpers.Cryptography
             } while (size > 0);
             return true;
         }
+
         static public ulong DigestState64(State64 state)
         {
             if (state == null)
@@ -664,8 +694,9 @@ namespace LeagueToolkit.Helpers.Cryptography
             state.v4 = seed - PRIME32_1;
             state.total_len = 0;
             state.memsize = 0;
-            state.mem32 = new Byte[16];
+            state.mem32 = new byte[16];
         }
+
         static internal ErrorCode InternalUpdateState32(State32 state, byte[] input, int offset, int length)
         {
             InputTextStream p = new InputTextStream(input, offset);
@@ -673,14 +704,14 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             state.total_len += (ulong)length;
 
-            if (state.memsize + length < 16)   /* fill in tmp buffer */
+            if (state.memsize + length < 16) /* fill in tmp buffer */
             {
                 Array.Copy(input, offset, state.mem32, state.memsize, length);
                 state.memsize += (uint)length;
                 return ErrorCode.XXH_OK;
             }
 
-            if (state.memsize > 0)   /* some data left from previous update */
+            if (state.memsize > 0) /* some data left from previous update */
             {
                 Array.Copy(input, offset, state.mem32, state.memsize, 16 - state.memsize);
                 {
@@ -708,8 +739,7 @@ namespace LeagueToolkit.Helpers.Cryptography
                     v2 = XXH32_round(v2, p.ReadUInt32());
                     v3 = XXH32_round(v3, p.ReadUInt32());
                     v4 = XXH32_round(v4, p.ReadUInt32());
-                }
-                while (p.Position <= limit);
+                } while (p.Position <= limit);
 
                 state.v1 = v1;
                 state.v2 = v2;
@@ -725,6 +755,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             return ErrorCode.XXH_OK;
         }
+
         static internal uint InternalDigestState32(State32 state)
         {
             InputTextStream p = new InputTextStream(state.mem32);
@@ -733,7 +764,11 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             if (state.total_len >= 16)
             {
-                h32 = XXH_rotl32(state.v1, 1) + XXH_rotl32(state.v2, 7) + XXH_rotl32(state.v3, 12) + XXH_rotl32(state.v4, 18);
+                h32 =
+                    XXH_rotl32(state.v1, 1)
+                    + XXH_rotl32(state.v2, 7)
+                    + XXH_rotl32(state.v3, 12)
+                    + XXH_rotl32(state.v4, 18);
             }
             else
             {
@@ -762,6 +797,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             return h32;
         }
+
         static private uint XXH32_round(uint seed, uint input)
         {
             seed += input * PRIME32_2;
@@ -779,8 +815,9 @@ namespace LeagueToolkit.Helpers.Cryptography
             state.v4 = seed - PRIME64_1;
             state.total_len = 0;
             state.memsize = 0;
-            state.mem64 = new Byte[32];
+            state.mem64 = new byte[32];
         }
+
         static internal ErrorCode InternalUpdateState64(State64 state, byte[] input, int offset, int length)
         {
             InputTextStream p = new InputTextStream(input, offset);
@@ -788,14 +825,14 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             state.total_len += (ulong)length;
 
-            if (state.memsize + length < 32)   /* fill in tmp buffer */
+            if (state.memsize + length < 32) /* fill in tmp buffer */
             {
                 Array.Copy(input, offset, state.mem64, state.memsize, length);
                 state.memsize += (uint)length;
                 return ErrorCode.XXH_OK;
             }
 
-            if (state.memsize > 0)   /* tmp buffer is full */
+            if (state.memsize > 0) /* tmp buffer is full */
             {
                 Array.Copy(input, offset, state.mem64, state.memsize, 32 - state.memsize);
                 {
@@ -834,8 +871,7 @@ namespace LeagueToolkit.Helpers.Cryptography
                     v2 = XXH64_round(v2, p.ReadUInt64());
                     v3 = XXH64_round(v3, p.ReadUInt64());
                     v4 = XXH64_round(v4, p.ReadUInt64());
-                }
-                while (p.Position <= limit);
+                } while (p.Position <= limit);
 
                 state.v1 = v1;
                 state.v2 = v2;
@@ -851,6 +887,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             return ErrorCode.XXH_OK;
         }
+
         static internal ulong InternalDigestState64(State64 state)
         {
             InputTextStream p = new InputTextStream(state.mem64);
@@ -886,7 +923,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             if (p.Position + 4 <= bEnd)
             {
-                h64 ^= (ulong)(p.ReadUInt32()) * PRIME64_1;
+                h64 ^= p.ReadUInt32() * PRIME64_1;
                 h64 = XXH_rotl64(h64, 23) * PRIME64_2 + PRIME64_3;
             }
 
@@ -904,6 +941,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
             return h64;
         }
+
         static private ulong XXH64_round(ulong acc, ulong input)
         {
             acc += input * PRIME64_2;
@@ -911,6 +949,7 @@ namespace LeagueToolkit.Helpers.Cryptography
             acc *= PRIME64_1;
             return acc;
         }
+
         static private ulong XXH64_mergeRound(ulong acc, ulong val)
         {
             val = XXH64_round(0, val);
@@ -939,17 +978,17 @@ namespace LeagueToolkit.Helpers.Cryptography
                     return 0;
                 }
             }
+
             // Gets the position within the current stream.
             public int Position
             {
-                get
-                { return _position; }
+                get { return _position; }
             }
+
             // Gets a value that indicates whether the current stream position is at the end of the stream.
             public bool EndOfStream
             {
-                get
-                { return ((this.data == null) || !(_position < this.data.Length)); }
+                get { return this.data == null || !(_position < this.data.Length); }
             }
 
             internal InputTextStream(byte[] input)
@@ -964,6 +1003,7 @@ namespace LeagueToolkit.Helpers.Cryptography
                 this.data = input;
                 _position = 0;
             }
+
             internal InputTextStream(byte[] input, int offset)
             {
                 if (input == null)
@@ -992,7 +1032,8 @@ namespace LeagueToolkit.Helpers.Cryptography
                 Skip(4);
                 return value;
             }
-            // Reads an 8-byte unsigned integer from the current stream and advances the position of the stream by 
+
+            // Reads an 8-byte unsigned integer from the current stream and advances the position of the stream by
             // eight bytes.
             public ulong ReadUInt64()
             {
@@ -1003,7 +1044,8 @@ namespace LeagueToolkit.Helpers.Cryptography
                 Skip(8);
                 return value;
             }
-            // Reads the next byte from the current stream and advances the current position of the stream by one 
+
+            // Reads the next byte from the current stream and advances the current position of the stream by one
             // byte.
             public byte ReadByte()
             {
@@ -1012,6 +1054,7 @@ namespace LeagueToolkit.Helpers.Cryptography
 
                 return this.data[_position++];
             }
+
             // Skip a number of bytes in the current stream.
             public bool Skip(int skipNumBytes)
             {
@@ -1038,33 +1081,40 @@ namespace LeagueToolkit.Helpers.Cryptography
         {
             throw new ArgumentOutOfRangeException(paramName, "Specified argument must be a non-negative integer.");
         }
+
         static void ThrowArrayMultiRank(string paramName)
         {
             throw new ArgumentException("Multi dimension array is not supported on this operation.", paramName);
         }
+
         static void ThrowArrayNonZeroLowerBound(string paramName)
         {
             throw new ArgumentException("The lower bound of target array must be zero.", paramName);
         }
+
         static void ThrowArrayInvalidOffsetAndLength()
         {
             throw new ArgumentException(
-                "Offset and length wereout of bounds for the array or count is greater than the number " +
-                "of elements from offset to the end of the array.");
+                "Offset and length wereout of bounds for the array or count is greater than the number "
+                    + "of elements from offset to the end of the array."
+            );
         }
+
         static void ThrowArrayInvalidOffset(string paramName)
         {
             throw new ArgumentOutOfRangeException(paramName, "Offset was out of bounds for the array.");
         }
+
         static void ThrowStateUninitialized(string paramName)
         {
             throw new ArgumentException(
-                "Specified state is uninitialized. States must then be initialized using ResetStateXX() " +
-                "before first use.", paramName);
+                "Specified state is uninitialized. States must then be initialized using ResetStateXX() "
+                    + "before first use.",
+                paramName
+            );
         }
 
         #endregion
-
     }
 
     [ComVisible(true)]
@@ -1072,17 +1122,19 @@ namespace LeagueToolkit.Helpers.Cryptography
     {
         protected XXHash32()
         {
-            base.HashSizeValue = 0x20;
+            HashSizeValue = 0x20;
         }
 
         static public new XXHash32 Create()
         {
             return new XXHash32CryptoServiceProvider(0);
         }
+
         static public XXHash32 Create(int seed)
         {
             return new XXHash32CryptoServiceProvider(seed);
         }
+
         static public XXHash32 Create(uint seed)
         {
             return new XXHash32CryptoServiceProvider(seed);
@@ -1094,11 +1146,8 @@ namespace LeagueToolkit.Helpers.Cryptography
     {
         private XXHash.State32 _state;
 
-        public XXHash32CryptoServiceProvider()
-            : this(0)
-        {
+        public XXHash32CryptoServiceProvider() : this(0) { }
 
-        }
         public XXHash32CryptoServiceProvider(int seed)
         {
             _state = new XXHash.State32();
@@ -1108,10 +1157,8 @@ namespace LeagueToolkit.Helpers.Cryptography
             }
             Initialize();
         }
-        public XXHash32CryptoServiceProvider(uint seed)
-            : this(unchecked((int)seed))
-        {
-        }
+
+        public XXHash32CryptoServiceProvider(uint seed) : this(unchecked((int)seed)) { }
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
@@ -1120,11 +1167,13 @@ namespace LeagueToolkit.Helpers.Cryptography
             if (errorCode != XXHash.ErrorCode.XXH_OK)
                 throw new InvalidOperationException();
         }
+
         protected override byte[] HashFinal()
         {
             uint value = XXHash.InternalDigestState32(_state);
             return BitConverter.GetBytes(value);
         }
+
         public override void Initialize()
         {
             XXHash.InternalResetState32(_state, _state.seed);
@@ -1136,17 +1185,19 @@ namespace LeagueToolkit.Helpers.Cryptography
     {
         protected XXHash64()
         {
-            base.HashSizeValue = 0x40;
+            HashSizeValue = 0x40;
         }
 
         static public new XXHash64 Create()
         {
             return new XXHash64CryptoServiceProvider(0);
         }
+
         static public XXHash64 Create(long seed)
         {
             return new XXHash64CryptoServiceProvider(seed);
         }
+
         static public XXHash64 Create(ulong seed)
         {
             return new XXHash64CryptoServiceProvider(seed);
@@ -1158,11 +1209,8 @@ namespace LeagueToolkit.Helpers.Cryptography
     {
         private XXHash.State64 _state;
 
-        public XXHash64CryptoServiceProvider()
-            : this(0)
-        {
+        public XXHash64CryptoServiceProvider() : this(0) { }
 
-        }
         public XXHash64CryptoServiceProvider(long seed)
         {
             _state = new XXHash.State64();
@@ -1172,10 +1220,8 @@ namespace LeagueToolkit.Helpers.Cryptography
             }
             Initialize();
         }
-        public XXHash64CryptoServiceProvider(ulong seed)
-            : this(unchecked((long)seed))
-        {
-        }
+
+        public XXHash64CryptoServiceProvider(ulong seed) : this(unchecked((long)seed)) { }
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
@@ -1184,11 +1230,13 @@ namespace LeagueToolkit.Helpers.Cryptography
             if (errorCode != XXHash.ErrorCode.XXH_OK)
                 throw new InvalidOperationException();
         }
+
         protected override byte[] HashFinal()
         {
             ulong value = XXHash.InternalDigestState64(_state);
             return BitConverter.GetBytes(value);
         }
+
         public override void Initialize()
         {
             XXHash.InternalResetState64(_state, _state.seed);

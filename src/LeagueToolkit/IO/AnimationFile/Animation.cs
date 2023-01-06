@@ -1,7 +1,7 @@
 ﻿using LeagueToolkit.Core.Primitives;
-using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.SkeletonFile;
 using System;
@@ -369,7 +369,7 @@ namespace LeagueToolkit.IO.AnimationFile
                 string trackName = br.ReadPaddedString(32);
                 uint flags = br.ReadUInt32();
 
-                AnimationTrack track = new AnimationTrack(Cryptography.ElfHash(trackName));
+                AnimationTrack track = new(Elf.HashLower(trackName));
 
                 float frameTime = 0f;
                 for (int j = 0; j < frameCount; j++)
@@ -456,7 +456,7 @@ namespace LeagueToolkit.IO.AnimationFile
         {
             foreach (AnimationTrack track in this.Tracks)
             {
-                if (!skeleton.Joints.Any(x => Cryptography.ElfHash(x.Name) == track.JointHash))
+                if (!skeleton.Joints.Any(x => Elf.HashLower(x.Name) == track.JointHash))
                 {
                     return false;
                 }

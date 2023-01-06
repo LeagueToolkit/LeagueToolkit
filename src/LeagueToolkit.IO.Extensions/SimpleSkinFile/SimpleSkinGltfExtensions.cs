@@ -2,8 +2,8 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
-using LeagueToolkit.Helpers.Cryptography;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.SkeletonFile;
 using SharpGLTF.Animations;
@@ -500,7 +500,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             {
                 foreach (AnimationTrack track in animation.Tracks)
                 {
-                    NodeBuilder joint = joints.FirstOrDefault(x => Cryptography.ElfHash(x.Name) == track.JointHash);
+                    NodeBuilder joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
 
                     if (joint is null)
                         continue;

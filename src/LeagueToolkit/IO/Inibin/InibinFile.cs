@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Cryptography;
+﻿using LeagueToolkit.Helpers.Hashing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +54,15 @@ namespace LeagueToolkit.IO.Inibin
                     uint valueCount = br.ReadUInt32();
                     stringDataLength = br.ReadUInt32();
 
-                    this.Sets.Add(InibinFlags.StringList, new InibinSet(br, InibinFlags.StringList, (uint)br.BaseStream.Length - stringDataLength, valueCount));
+                    this.Sets.Add(
+                        InibinFlags.StringList,
+                        new InibinSet(
+                            br,
+                            InibinFlags.StringList,
+                            (uint)br.BaseStream.Length - stringDataLength,
+                            valueCount
+                        )
+                    );
                 }
                 else if (version == 2)
                 {
@@ -71,7 +79,10 @@ namespace LeagueToolkit.IO.Inibin
                     }
                     if (flags.HasFlag(InibinFlags.FixedPointFloatList))
                     {
-                        this.Sets.Add(InibinFlags.FixedPointFloatList, new InibinSet(br, InibinFlags.FixedPointFloatList));
+                        this.Sets.Add(
+                            InibinFlags.FixedPointFloatList,
+                            new InibinSet(br, InibinFlags.FixedPointFloatList)
+                        );
                     }
                     if (flags.HasFlag(InibinFlags.Int16List))
                     {
@@ -87,7 +98,10 @@ namespace LeagueToolkit.IO.Inibin
                     }
                     if (flags.HasFlag(InibinFlags.FixedPointFloatListVec3))
                     {
-                        this.Sets.Add(InibinFlags.FixedPointFloatListVec3, new InibinSet(br, InibinFlags.FixedPointFloatListVec3));
+                        this.Sets.Add(
+                            InibinFlags.FixedPointFloatListVec3,
+                            new InibinSet(br, InibinFlags.FixedPointFloatListVec3)
+                        );
                     }
                     if (flags.HasFlag(InibinFlags.Float32ListVec3))
                     {
@@ -95,7 +109,10 @@ namespace LeagueToolkit.IO.Inibin
                     }
                     if (flags.HasFlag(InibinFlags.FixedPointFloatListVec2))
                     {
-                        this.Sets.Add(InibinFlags.FixedPointFloatListVec2, new InibinSet(br, InibinFlags.FixedPointFloatListVec2));
+                        this.Sets.Add(
+                            InibinFlags.FixedPointFloatListVec2,
+                            new InibinSet(br, InibinFlags.FixedPointFloatListVec2)
+                        );
                     }
                     if (flags.HasFlag(InibinFlags.Float32ListVec2))
                     {
@@ -103,7 +120,10 @@ namespace LeagueToolkit.IO.Inibin
                     }
                     if (flags.HasFlag(InibinFlags.FixedPointFloatListVec4))
                     {
-                        this.Sets.Add(InibinFlags.FixedPointFloatListVec4, new InibinSet(br, InibinFlags.FixedPointFloatListVec4));
+                        this.Sets.Add(
+                            InibinFlags.FixedPointFloatListVec4,
+                            new InibinSet(br, InibinFlags.FixedPointFloatListVec4)
+                        );
                     }
                     if (flags.HasFlag(InibinFlags.Float32ListVec4))
                     {
@@ -111,7 +131,10 @@ namespace LeagueToolkit.IO.Inibin
                     }
                     if (flags.HasFlag(InibinFlags.StringList))
                     {
-                        this.Sets.Add(InibinFlags.StringList, new InibinSet(br, InibinFlags.StringList, (uint)br.BaseStream.Length - stringDataLength));
+                        this.Sets.Add(
+                            InibinFlags.StringList,
+                            new InibinSet(br, InibinFlags.StringList, (uint)br.BaseStream.Length - stringDataLength)
+                        );
                     }
                 }
                 else
@@ -199,7 +222,6 @@ namespace LeagueToolkit.IO.Inibin
                     }
                 }
 
-
                 bw.Write((byte)2);
                 bw.Write(stringDataLength);
                 bw.Write((ushort)flags);
@@ -219,7 +241,7 @@ namespace LeagueToolkit.IO.Inibin
         /// <param name="value">Value to add</param>
         public void AddValue(string section, string property, object value)
         {
-            AddValue(Cryptography.SectionHash(section, property), value);
+            AddValue(Sdbm.HashLowerWithDelimiter(section, property, '*'), value);
         }
 
         /// <summary>
@@ -345,7 +367,8 @@ namespace LeagueToolkit.IO.Inibin
         /// <summary>
         /// Initializes a new instance of <see cref="FixedPointFloatOverflowException"/>
         /// </summary>
-        public FixedPointFloatOverflowException() : base("The Fixed Point Float value has to be between 0.0 and 25.5") { }
+        public FixedPointFloatOverflowException() : base("The Fixed Point Float value has to be between 0.0 and 25.5")
+        { }
     }
 
     /// <summary>
@@ -369,50 +392,62 @@ namespace LeagueToolkit.IO.Inibin
         /// Represents an <see cref="int"/> value
         /// </summary>
         Int32List = 1,
+
         /// <summary>
         /// Represents a <see cref="float"/> value
         /// </summary>
         Float32List = 1 << 1,
+
         /// <summary>
         /// Represents a <see cref="double"/> value with the range of 0.0 - 25.5
         /// </summary>
         FixedPointFloatList = 1 << 2,
+
         /// <summary>
         /// Represents a <see cref="short"/> value
         /// </summary>
         Int16List = 1 << 3,
+
         /// <summary>
         /// Represents a <see cref="byte"/> value
         /// </summary>
         Int8List = 1 << 4,
+
         /// <summary>
         /// Represents a <see cref="bool"/> value
         /// </summary>
         BitList = 1 << 5,
+
         /// <summary>
         /// Represents a <see cref="byte"/> Vector3 value
         /// </summary>
         FixedPointFloatListVec3 = 1 << 6,
+
         /// <summary>
         /// Represents a <see cref="float"/> Vector3 value
         /// </summary>
         Float32ListVec3 = 1 << 7,
+
         /// <summary>
         /// Represents a <see cref="byte"/> Vector2 value
         /// </summary>
         FixedPointFloatListVec2 = 1 << 8,
+
         /// <summary>
         /// Represents a <see cref="float"/> Vector2 value
         /// </summary>
         Float32ListVec2 = 1 << 9,
+
         /// <summary>
         /// Represents a <see cref="byte"/> Vector4 value
         /// </summary>
         FixedPointFloatListVec4 = 1 << 10,
+
         /// <summary>
         /// Represents a <see cref="float"/> Vector4 value
         /// </summary>
         Float32ListVec4 = 1 << 11,
+
         /// <summary>
         /// Represents a <see cref="string"/> value
         /// </summary>

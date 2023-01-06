@@ -1,5 +1,5 @@
 ﻿using LeagueToolkit.Helpers;
-using LeagueToolkit.Helpers.Cryptography;
+using LeagueToolkit.Helpers.Hashing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -32,6 +32,7 @@ namespace LeagueToolkit.IO.WadFile
         {
             this.ChecksumType = checksumType;
         }
+
         public WadEntryBuilder(WadEntry entry)
         {
             this.ChecksumType = entry.ChecksumType;
@@ -39,16 +40,35 @@ namespace LeagueToolkit.IO.WadFile
 
             switch (entry.Type)
             {
-                case WadEntryType.Uncompressed: WithUncompressedDataStream(entry.GetDataHandle().GetDecompressedStream()); break;
-                case WadEntryType.GZipCompressed: WithGZipDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
-                case WadEntryType.ZStandardCompressed or WadEntryType.ZStandardChunked: WithZstdDataStream(entry.GetDataHandle().GetCompressedStream(), entry.CompressedSize, entry.UncompressedSize); break;
-                case WadEntryType.FileRedirection: WithFileRedirection(entry.FileRedirection); break;
+                case WadEntryType.Uncompressed:
+                    WithUncompressedDataStream(entry.GetDataHandle().GetDecompressedStream());
+                    break;
+                case WadEntryType.GZipCompressed:
+                    WithGZipDataStream(
+                        entry.GetDataHandle().GetCompressedStream(),
+                        entry.CompressedSize,
+                        entry.UncompressedSize
+                    );
+                    break;
+                case WadEntryType.ZStandardCompressed
+                or WadEntryType.ZStandardChunked:
+                    WithZstdDataStream(
+                        entry.GetDataHandle().GetCompressedStream(),
+                        entry.CompressedSize,
+                        entry.UncompressedSize
+                    );
+                    break;
+                case WadEntryType.FileRedirection:
+                    WithFileRedirection(entry.FileRedirection);
+                    break;
             }
         }
+
         public WadEntryBuilder WithPath(string path)
         {
             return WithPathXXHash(XXHash.XXH64(Encoding.UTF8.GetBytes(path.ToLower())));
         }
+
         public WadEntryBuilder WithPathXXHash(ulong hash)
         {
             this.PathXXHash = hash;
@@ -67,6 +87,7 @@ namespace LeagueToolkit.IO.WadFile
 
             return this;
         }
+
         public WadEntryBuilder WithGZipDataStream(Stream stream, int compressedSize, int uncompressedSize)
         {
             this.EntryType = WadEntryType.GZipCompressed;
@@ -78,6 +99,7 @@ namespace LeagueToolkit.IO.WadFile
 
             return this;
         }
+
         public WadEntryBuilder WithUncompressedDataStream(Stream stream)
         {
             this.EntryType = WadEntryType.Uncompressed;
@@ -88,7 +110,10 @@ namespace LeagueToolkit.IO.WadFile
 
             return this;
         }
-        public WadEntryBuilder WithFileDataStream(string fileLocation) => WithFileDataStream(File.OpenRead(fileLocation));
+
+        public WadEntryBuilder WithFileDataStream(string fileLocation) =>
+            WithFileDataStream(File.OpenRead(fileLocation));
+
         public WadEntryBuilder WithFileDataStream(FileStream stream)
         {
             string filePath = stream.Name;
@@ -96,8 +121,12 @@ namespace LeagueToolkit.IO.WadFile
             return WithGenericDataStream(filePath, stream);
         }
 
-        public WadEntryBuilder WithGenericDataStream(LeagueFileType fileType, Stream stream) => WithGenericDataStream($".{Utilities.GetExtension(fileType)}", stream);
-        public WadEntryBuilder WithGenericDataStream(string path, Stream stream) => WithGenericDataStream(Utilities.GetExtensionWadCompressionType(Path.GetExtension(path)), stream);
+        public WadEntryBuilder WithGenericDataStream(LeagueFileType fileType, Stream stream) =>
+            WithGenericDataStream($".{Utilities.GetExtension(fileType)}", stream);
+
+        public WadEntryBuilder WithGenericDataStream(string path, Stream stream) =>
+            WithGenericDataStream(Utilities.GetExtensionWadCompressionType(Path.GetExtension(path)), stream);
+
         public WadEntryBuilder WithGenericDataStream(WadEntryType entryType, Stream stream)
         {
             this.EntryType = entryType;
@@ -120,7 +149,7 @@ namespace LeagueToolkit.IO.WadFile
 
         internal void ComputeChecksum()
         {
-            if(this.ChecksumType == WadEntryChecksumType.SHA256)
+            if (this.ChecksumType == WadEntryChecksumType.SHA256)
             {
                 using (SHA256 sha = SHA256.Create())
                 {
@@ -129,7 +158,7 @@ namespace LeagueToolkit.IO.WadFile
                     this.Checksum = sha.ComputeHash(this.DataStream).Take(8).ToArray();
                 }
             }
-            else if(this.ChecksumType == WadEntryChecksumType.XXHash3)
+            else if (this.ChecksumType == WadEntryChecksumType.XXHash3)
             {
                 byte[] data = new byte[this.DataStream.Length];
 
