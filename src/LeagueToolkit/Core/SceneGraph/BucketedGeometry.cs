@@ -177,7 +177,10 @@ namespace LeagueToolkit.Core.SceneGraph
             float minX = this.BucketSizeX * x;
             float minZ = this.BucketSizeZ * z;
 
-            return new(new(minX, 0f, minZ), new(minX + this.BucketSizeX, 0, minZ + this.BucketSizeZ));
+            return new(
+                new(minX, float.MinValue, minZ),
+                new(minX + this.BucketSizeX, float.MaxValue, minZ + this.BucketSizeZ)
+            );
         }
     }
 
