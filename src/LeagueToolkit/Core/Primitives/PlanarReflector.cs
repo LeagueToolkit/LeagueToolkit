@@ -1,9 +1,8 @@
-﻿using LeagueToolkit.Core.Primitives;
-using LeagueToolkit.Helpers.Extensions;
+﻿using LeagueToolkit.Helpers.Extensions;
 using System.IO;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometryFile
+namespace LeagueToolkit.Core.Primitives
 {
     /*
      * Process:
@@ -64,40 +63,46 @@ namespace LeagueToolkit.IO.MapGeometryFile
     /// Describes a <see href="http://www.bluevoid.com/opengl/sig00/advanced00/notes/node164.html">planar reflector</see> plane
     /// </summary>
     /// <remarks>
-    /// Only 1 <see cref="MapGeometryPlanarReflector"/> can be active in a scene at the same time
+    /// Only 1 <see cref="PlanarReflector"/> can be active in a scene at the same time
     /// (This is determined by frustum culling)
     /// </remarks>
-    public struct MapGeometryPlanarReflector
+    public readonly struct PlanarReflector
     {
-        /// <summary>
-        /// <see cref="Transform"/>.Translation is origin of <see cref="Plane"/>
-        /// </summary>
-        public Matrix4x4 Transform { get; set; }
-        public Box Plane { get; set; }
-        public Vector3 Normal { get; set; }
+        /// <summary>Gets the plane's transform</summary>
+        public Matrix4x4 Transform { get; }
 
-        public MapGeometryPlanarReflector()
+        /// <summary>Gets the reflection plane</summary>
+        public Box Plane { get; }
+
+        /// <summary>Gets the reflection plane normal</summary>
+        public Vector3 Normal { get; }
+
+        /// <summary>Creates a new <see cref="PlanarReflector"/> object</summary>
+        public PlanarReflector()
         {
             this.Transform = Matrix4x4.Identity;
             this.Plane = new();
             this.Normal = Vector3.Zero;
         }
 
-        public MapGeometryPlanarReflector(Matrix4x4 transform, Box plane, Vector3 normal)
+        /// <summary>Creates a new <see cref="PlanarReflector"/> object with the specified parameters</summary>
+        public PlanarReflector(Matrix4x4 transform, Box plane, Vector3 normal)
         {
             this.Transform = transform;
             this.Plane = plane;
             this.Normal = normal;
         }
 
-        internal MapGeometryPlanarReflector(BinaryReader br)
+        internal static PlanarReflector ReadFromMapGeometry(BinaryReader br)
         {
-            this.Transform = br.ReadMatrix4x4RowMajor();
-            this.Plane = br.ReadBox();
-            this.Normal = br.ReadVector3();
+            Matrix4x4 transform = br.ReadMatrix4x4RowMajor();
+            Box plane = br.ReadBox();
+            Vector3 normal = br.ReadVector3();
+
+            return new(transform, plane, normal);
         }
 
-        internal void Write(BinaryWriter bw)
+        internal void WriteToMapGeometry(BinaryWriter bw)
         {
             bw.WriteMatrix4x4RowMajor(this.Transform);
             bw.WriteBox(this.Plane);

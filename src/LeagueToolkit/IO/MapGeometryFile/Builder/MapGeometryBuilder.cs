@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         private MapGeometryBakedTerrainSamplers _bakedTerrainSamplers;
         private readonly List<MapGeometryModelBuilder> _meshes = new();
         private BucketedGeometry _sceneGraph;
-        private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
+        private readonly List<PlanarReflector> _planarReflectors = new();
 
         private readonly List<VertexBuffer> _vertexBuffers = new();
         private readonly List<MemoryOwner<ushort>> _indexBuffers = new();
@@ -75,10 +76,10 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         }
 
         /// <summary>
-        /// Adds the specified <see cref="MapGeometryPlanarReflector"/> into the environment asset
+        /// Adds the specified <see cref="PlanarReflector"/> into the environment asset
         /// </summary>
-        /// <param name="planarReflector">The <see cref="MapGeometryPlanarReflector"/> to add</param>
-        public MapGeometryBuilder WithPlanarReflector(MapGeometryPlanarReflector planarReflector)
+        /// <param name="planarReflector">The <see cref="PlanarReflector"/> to add</param>
+        public MapGeometryBuilder WithPlanarReflector(PlanarReflector planarReflector)
         {
             this._planarReflectors.Add(planarReflector);
             return this;

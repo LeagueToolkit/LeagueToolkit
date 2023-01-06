@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
@@ -29,8 +30,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public BucketedGeometry SceneGraph { get; private set; }
 
         /// <summary>Gets a read-only list of the planar reflectors used by the environment asset</summary>
-        public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
-        private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
+        public IReadOnlyList<PlanarReflector> PlanarReflectors => this._planarReflectors;
+        private readonly List<PlanarReflector> _planarReflectors = new();
 
         private readonly VertexBuffer[] _vertexBuffers;
         private readonly MemoryOwner<ushort>[] _indexBuffers;
@@ -41,7 +42,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
             IEnumerable<MapGeometryModel> meshes,
             BucketedGeometry sceneGraph,
-            IEnumerable<MapGeometryPlanarReflector> planarReflectors,
+            IEnumerable<PlanarReflector> planarReflectors,
             IEnumerable<VertexBuffer> vertexBuffers,
             IEnumerable<MemoryOwner<ushort>> indexBuffers
         )
@@ -159,7 +160,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 uint planarReflectorCount = br.ReadUInt32();
                 for (int i = 0; i < planarReflectorCount; i++)
                 {
-                    this._planarReflectors.Add(new(br));
+                    this._planarReflectors.Add(PlanarReflector.ReadFromMapGeometry(br));
                 }
             }
         }
@@ -269,9 +270,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
             if (version >= 13)
             {
                 bw.Write(this.PlanarReflectors.Count);
-                foreach (MapGeometryPlanarReflector planarReflector in this.PlanarReflectors)
+                foreach (PlanarReflector planarReflector in this.PlanarReflectors)
                 {
-                    planarReflector.Write(bw);
+                    planarReflector.WriteToMapGeometry(bw);
                 }
             }
         }
