@@ -20,14 +20,44 @@ using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
+    using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
+    using VERTEX_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexEmpty>;
     using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
     using VERTEX_SKINNED_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexJoints4>;
     using VERTEX_SKINNED_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexJoints4>;
+    using VERTEX_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexEmpty>;
 
     public static class SimpleSkinGltfExtensions
     {
         /// <summary>
-        /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified textures and animations
+        /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified textures
+        /// </summary>
+        /// <param name="skinnedMesh">The <see cref="SkinnedMesh"/> to covert</param>
+        /// <param name="materialTextues">The texture data for the specified materials</param>
+        /// <returns>The created glTF asset</returns>
+        public static ModelRoot ToGltf(
+            this SkinnedMesh skinnedMesh,
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
+        )
+        {
+            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+
+            SceneBuilder sceneBuilder = new();
+            NodeBuilder rootNodeBuilder = new("model");
+
+            var meshBuilder = CreateMeshBuilder(skinnedMesh, materialTextues);
+
+            // Add mesh to scene
+            sceneBuilder.AddRigidMesh(meshBuilder, rootNodeBuilder);
+
+            // Flip the scene across the X axis
+            sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
+
+            return sceneBuilder.ToGltf2();
+        }
+
+        /// <summary>
+        /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified skeleton, textures and animations
         /// </summary>
         /// <param name="skinnedMesh">The <see cref="SkinnedMesh"/> to covert</param>
         /// <param name="skeleton">The <see cref="Skeleton"/> of the <see cref="SkinnedMesh"/></param>
@@ -48,7 +78,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             SceneBuilder sceneBuilder = new();
             NodeBuilder rootNodeBuilder = new("model");
 
-            var meshBuilder = CreateVertexSkinnedMesh(skinnedMesh, skeleton, materialTextues);
+            var meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, skeleton, materialTextues);
             var bones = CreateSkeleton(rootNodeBuilder, skeleton);
 
             // Add mesh to scene
@@ -181,7 +211,30 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return (skinnedMesh, skeleton);
         }
 
-        private static IMeshBuilder<MaterialBuilder> CreateVertexSkinnedMesh(
+        private static IMeshBuilder<MaterialBuilder> CreateMeshBuilder(
+            SkinnedMesh skinnedMesh,
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
+        )
+        {
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+
+            VertexBufferDescription vertexBufferDescription = skinnedMesh.VerticesView.Description;
+            IMeshBuilder<MaterialBuilder> meshBuilder = skinnedMesh.VerticesView.Description switch
+            {
+                _ when vertexBufferDescription == SkinnedMeshVertex.BASIC => VERTEX.CreateCompatibleMesh(),
+                _ when vertexBufferDescription == SkinnedMeshVertex.COLOR => VERTEX_COLOR.CreateCompatibleMesh(),
+                _ when vertexBufferDescription == SkinnedMeshVertex.TANGENT => VERTEX_TANGENT.CreateCompatibleMesh(),
+                _ => throw new NotImplementedException($"Unsupported {nameof(VertexBufferDescription)}")
+            };
+
+            IVertexBuilder[] vertices = CreateVertices(skinnedMesh);
+            BuildMeshPrimitives(meshBuilder, skinnedMesh, vertices, materialTextues);
+
+            return meshBuilder;
+        }
+
+        private static IMeshBuilder<MaterialBuilder> CreateSkinnedMeshBuilder(
             SkinnedMesh skinnedMesh,
             Skeleton skeleton,
             IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
@@ -202,7 +255,23 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 _ => throw new NotImplementedException($"Unsupported {nameof(VertexBufferDescription)}")
             };
 
-            IVertexBuilder[] vertices = CreateVertices(skinnedMesh, skeleton);
+            IVertexBuilder[] vertices = CreateSkinnedVertices(skinnedMesh, skeleton);
+            BuildMeshPrimitives(meshBuilder, skinnedMesh, vertices, materialTextues);
+
+            return meshBuilder;
+        }
+
+        private static void BuildMeshPrimitives(
+            IMeshBuilder<MaterialBuilder> meshBuilder,
+            SkinnedMesh skinnedMesh,
+            IReadOnlyList<IVertexBuilder> vertices,
+            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
+        )
+        {
+            Guard.IsNotNull(meshBuilder, nameof(meshBuilder));
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(vertices, nameof(vertices));
+            Guard.IsNotNull(materialTextues, nameof(materialTextues));
 
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
@@ -224,11 +293,74 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     primitiveBuilder.AddTriangle(v1, v2, v3);
                 }
             }
-
-            return meshBuilder;
         }
 
-        private static IVertexBuilder[] CreateVertices(SkinnedMesh skinnedMesh, Skeleton skeleton)
+        private static IVertexBuilder[] CreateVertices(SkinnedMesh skinnedMesh)
+        {
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+
+            bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
+                ElementName.PrimaryColor,
+                out var primaryColorAccessor
+            );
+            bool hasTangents = skinnedMesh.VerticesView.TryGetAccessor(ElementName.Tangent, out var tangentAccessor);
+
+            IVertexBuilder[] vertices = new IVertexBuilder[skinnedMesh.VerticesView.VertexCount];
+            VertexElementArray<Vector3> positions = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.Position)
+                .AsVector3Array();
+            VertexElementArray<Vector3> normals = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.Normal)
+                .AsVector3Array();
+            VertexElementArray<Vector2> diffuseUvs = skinnedMesh.VerticesView
+                .GetAccessor(ElementName.DiffuseUV)
+                .AsVector2Array();
+            VertexElementArray<(byte b, byte g, byte r, byte a)> primaryColors = hasPrimaryColor
+                ? primaryColorAccessor.AsBgraU8Array()
+                : default;
+            VertexElementArray<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : default;
+
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                IVertexBuilder vertex = (hasPrimaryColor, hasTangents) switch
+                {
+                    (false, false) => new VERTEX(),
+                    (true, false) => new VERTEX_COLOR(),
+                    (true, true) => new VERTEX_TANGENT(),
+                    (false, true) => throw new InvalidOperationException("Mesh must have colors if it has tangents"),
+                };
+
+                vertex.SetGeometry(
+                    hasTangents switch
+                    {
+                        true => new VertexPositionNormalTangent(positions[i], normals[i], tangents[i]),
+                        false => new VertexPositionNormal(positions[i], normals[i]),
+                    }
+                );
+                vertex.SetMaterial(
+                    hasPrimaryColor switch
+                    {
+                        true
+                            => new VertexColor1Texture1(
+                                new Vector4(
+                                    primaryColors[i].r / 255,
+                                    primaryColors[i].g / 255,
+                                    primaryColors[i].b / 255,
+                                    primaryColors[i].a / 255
+                                ),
+                                diffuseUvs[i]
+                            ),
+                        false => new VertexTexture1(diffuseUvs[i])
+                    }
+                );
+
+                vertices[i] = vertex;
+            }
+
+            return vertices;
+        }
+
+        private static IVertexBuilder[] CreateSkinnedVertices(SkinnedMesh skinnedMesh, Skeleton skeleton)
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
             Guard.IsNotNull(skeleton, nameof(skeleton));

@@ -23,12 +23,9 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
+            //using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            //ProfileSkinnedMesh();
-
-            Box one_one = mgeo.SceneGraph.GetBucketBox(1, 1);
-            Box zero_zero = mgeo.SceneGraph.GetBucketBox(0, 0);
+            ProfileSkinnedMesh();
         }
 
         static void ProfileSkinnedMesh()
@@ -46,12 +43,10 @@ namespace LeagueToolkit.Sandbox
 
             skinnedMesh
                 .ToGltf(
-                    skeleton,
                     new Dictionary<string, ReadOnlyMemory<byte>>()
                     {
                         { "Akali_Base_Body_Mat", File.ReadAllBytes("akali_base_tx_cm.dds") }
-                    },
-                    animations
+                    }
                 )
                 .WriteGLB(File.OpenWrite("akali.glb"));
         }
