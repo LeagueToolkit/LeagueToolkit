@@ -27,8 +27,8 @@ namespace LeagueToolkit.Sandbox
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileSkinnedMesh();
 
-            Box one_one = mgeo.BucketGrid.GetBucketBox(1, 1);
-            Box zero_zero = mgeo.BucketGrid.GetBucketBox(0, 0);
+            Box one_one = mgeo.SceneGraph.GetBucketBox(1, 1);
+            Box zero_zero = mgeo.SceneGraph.GetBucketBox(0, 0);
         }
 
         static void ProfileSkinnedMesh()
@@ -73,7 +73,7 @@ namespace LeagueToolkit.Sandbox
             //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
             MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
-                .WithBucketGrid(mgeo.BucketGrid)
+                .WithSceneGraph(mgeo.SceneGraph)
                 .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
             Dictionary<ElementName, int> elementOrder =

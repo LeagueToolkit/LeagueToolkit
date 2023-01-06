@@ -15,9 +15,7 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
-    /// <summary>
-    /// Represents an environment asset
-    /// </summary>
+    /// <summary>Represents an environment asset</summary>
     public sealed class MapGeometry : IDisposable
     {
         /// <summary>Gets the baked terrain samplers used for this environment asset</summary>
@@ -27,8 +25,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
-        /// <summary>Gets the bucketed scene graph for the environment asset</summary>
-        public BucketedGeometry BucketGrid { get; private set; }
+        /// <summary>Gets the <see cref="BucketedGeometry"/> scene graph for the environment asset</summary>
+        public BucketedGeometry SceneGraph { get; private set; }
 
         /// <summary>Gets a read-only list of the planar reflectors used by the environment asset</summary>
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
@@ -42,21 +40,21 @@ namespace LeagueToolkit.IO.MapGeometryFile
         internal MapGeometry(
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
             IEnumerable<MapGeometryModel> meshes,
-            BucketedGeometry bucketGrid,
+            BucketedGeometry sceneGraph,
             IEnumerable<MapGeometryPlanarReflector> planarReflectors,
             IEnumerable<VertexBuffer> vertexBuffers,
             IEnumerable<MemoryOwner<ushort>> indexBuffers
         )
         {
             Guard.IsNotNull(meshes, nameof(meshes));
-            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
+            Guard.IsNotNull(sceneGraph, nameof(sceneGraph));
             Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
             Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
             Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
 
             this.BakedTerrainSamplers = bakedTerrainSamplers;
             this._meshes = new(meshes);
-            this.BucketGrid = bucketGrid;
+            this.SceneGraph = sceneGraph;
             this._planarReflectors = new(planarReflectors);
 
             this._vertexBuffers = vertexBuffers.ToArray();
@@ -154,7 +152,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 );
             }
 
-            this.BucketGrid = new(br);
+            this.SceneGraph = new(br);
 
             if (version >= 13)
             {
@@ -266,7 +264,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 model.Write(bw, usesSeparatePointLights, version);
             }
 
-            this.BucketGrid.Write(bw);
+            this.SceneGraph.Write(bw);
 
             if (version >= 13)
             {
