@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Hashing;
 using System;
 
 namespace LeagueToolkit.Meta.Attributes
@@ -10,7 +10,8 @@ namespace LeagueToolkit.Meta.Attributes
             get => this._name;
             set
             {
-                if (value is null) throw new ArgumentNullException(nameof(value));
+                if (value is null)
+                    throw new ArgumentNullException(nameof(value));
 
                 this._name = value;
                 this._nameHash = Fnv1a.HashLower(value);
@@ -31,7 +32,8 @@ namespace LeagueToolkit.Meta.Attributes
             get => this._path;
             set
             {
-                if (value is null) throw new ArgumentNullException(nameof(value));
+                if (value is null)
+                    throw new ArgumentNullException(nameof(value));
 
                 this._path = value;
                 this._pathHash = Fnv1a.HashLower(value);
@@ -57,6 +59,7 @@ namespace LeagueToolkit.Meta.Attributes
             this.Name = name;
             this._nameHash = Fnv1a.HashLower(name);
         }
+
         public MetaClassAttribute(uint nameHash)
         {
             this.Name = string.Empty;

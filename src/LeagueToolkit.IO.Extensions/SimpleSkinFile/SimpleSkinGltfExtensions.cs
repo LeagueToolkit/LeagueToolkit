@@ -2,8 +2,8 @@
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.SkeletonFile;
 using SharpGLTF.Animations;

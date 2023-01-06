@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Hashing;
 using System.IO;
 using System.Text;
 

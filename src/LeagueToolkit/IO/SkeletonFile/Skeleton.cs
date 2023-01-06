@@ -1,6 +1,6 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Hashing;
+using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Hashing;
 using System;
 using System.Collections.Generic;
 using System.IO;

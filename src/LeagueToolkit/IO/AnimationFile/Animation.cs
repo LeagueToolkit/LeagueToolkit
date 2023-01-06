@@ -1,7 +1,7 @@
 ﻿using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.SkeletonFile;
 using System;

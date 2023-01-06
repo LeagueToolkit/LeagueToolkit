@@ -1,4 +1,4 @@
-﻿namespace LeagueToolkit.Helpers.Hashing
+﻿namespace LeagueToolkit.Hashing
 {
     public static class Fnv1a
     {

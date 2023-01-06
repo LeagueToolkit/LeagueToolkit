@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Hashing;
+using LeagueToolkit.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;

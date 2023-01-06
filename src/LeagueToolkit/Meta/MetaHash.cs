@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Hashing;
 
 namespace LeagueToolkit.Meta
 {
@@ -12,6 +12,7 @@ namespace LeagueToolkit.Meta
             this.Hash = hash;
             this.Value = string.Empty;
         }
+
         public MetaHash(string value)
         {
             this.Hash = Fnv1a.HashLower(value);
@@ -32,6 +33,7 @@ namespace LeagueToolkit.Meta
         {
             return metaHash.Hash;
         }
+
         public static implicit operator MetaHash(uint hash)
         {
             return new MetaHash(hash);

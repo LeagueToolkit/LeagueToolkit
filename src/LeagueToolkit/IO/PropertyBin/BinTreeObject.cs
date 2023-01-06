@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Hashing;
+﻿using LeagueToolkit.Hashing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,31 +20,28 @@ namespace LeagueToolkit.IO.PropertyBin
             this.MetaClassHash = metaClassHash;
             this.Properties = this._properties.AsReadOnly();
         }
+
         public BinTreeObject(string metaClass, string path, ICollection<BinTreeProperty> properties)
-            : this(Fnv1a.HashLower(metaClass), Fnv1a.HashLower(path), properties)
-        {
+            : this(Fnv1a.HashLower(metaClass), Fnv1a.HashLower(path), properties) { }
 
-        }
         public BinTreeObject(string metaClass, uint pathHash, ICollection<BinTreeProperty> properties)
-            : this(Fnv1a.HashLower(metaClass), pathHash, properties)
-        {
+            : this(Fnv1a.HashLower(metaClass), pathHash, properties) { }
 
-        }
         public BinTreeObject(uint metaClassHash, string path, ICollection<BinTreeProperty> properties)
-            : this(metaClassHash, Fnv1a.HashLower(path), properties)
-        {
+            : this(metaClassHash, Fnv1a.HashLower(path), properties) { }
 
-        }
         public BinTreeObject(uint metaClassHash, uint pathHash, ICollection<BinTreeProperty> properties)
         {
             this.MetaClassHash = metaClassHash;
             this.PathHash = pathHash;
-            this._properties = new List<BinTreeProperty>(properties.Select(x => 
-            {
-                // Assign this as a parent of the properties
-                x.Parent = this;
-                return x;
-            }));
+            this._properties = new List<BinTreeProperty>(
+                properties.Select(x =>
+                {
+                    // Assign this as a parent of the properties
+                    x.Parent = this;
+                    return x;
+                })
+            );
             this.Properties = this._properties.AsReadOnly();
         }
 
@@ -64,6 +61,7 @@ namespace LeagueToolkit.IO.PropertyBin
         {
             bw.Write(this.MetaClassHash);
         }
+
         internal void WriteContent(BinaryWriter bw)
         {
             bw.Write(GetSize());
@@ -88,13 +86,15 @@ namespace LeagueToolkit.IO.PropertyBin
                 this._properties.Add(property);
             }
         }
+
         public void RemoveProperty(uint nameHash)
         {
             if (this._properties.FirstOrDefault(x => x.NameHash == nameHash) is BinTreeProperty property)
             {
                 this._properties.Remove(property);
             }
-            else throw new ArgumentException("Failed to find a property with the specified name hash", nameof(nameHash));
+            else
+                throw new ArgumentException("Failed to find a property with the specified name hash", nameof(nameHash));
         }
 
         private int GetSize()
@@ -110,9 +110,9 @@ namespace LeagueToolkit.IO.PropertyBin
 
         public bool Equals(BinTreeObject other)
         {
-            return this.PathHash == other.PathHash &&
-                this.MetaClassHash == other.MetaClassHash &&
-                this._properties.SequenceEqual(other._properties);
+            return this.PathHash == other.PathHash
+                && this.MetaClassHash == other.MetaClassHash
+                && this._properties.SequenceEqual(other._properties);
         }
     }
 }

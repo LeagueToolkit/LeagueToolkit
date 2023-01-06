@@ -5,8 +5,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using LeagueToolkit.Helpers.Hashing;
 using LeagueToolkit.IO.PropertyBin.Properties;
+using LeagueToolkit.Hashing;
 
 namespace LeagueToolkit.IO.PropertyBin
 {
@@ -30,10 +30,9 @@ namespace LeagueToolkit.IO.PropertyBin
             this.Objects = this._objects.AsReadOnly();
             this.PatchObjects = this._patchObjects.AsReadOnly();
         }
-        public BinTree(string fileLocation) : this(File.OpenRead(fileLocation))
-        {
 
-        }
+        public BinTree(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+
         public BinTree(Stream stream) : this()
         {
             using (BinaryReader br = new BinaryReader(stream))
@@ -50,7 +49,8 @@ namespace LeagueToolkit.IO.PropertyBin
 
                     ulong unknown = br.ReadUInt64();
                     magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                    if (magic != "PROP") throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
+                    if (magic != "PROP")
+                        throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
                 }
 
                 Version = br.ReadUInt32();
@@ -108,19 +108,28 @@ namespace LeagueToolkit.IO.PropertyBin
                 string valueName = parts[^1];
                 foreach (string part in parts)
                 {
-                    if (part == valueName) break; // don't handle the value part
+                    if (part == valueName)
+                        break; // don't handle the value part
                     uint nameHash = Fnv1a.HashLower(part);
-                    if (currentObject.Properties.Find(((BinTreeProperty property, string) p) => p.property.NameHash == nameHash) == (null, null))
+                    if (
+                        currentObject.Properties.Find(
+                            ((BinTreeProperty property, string) p) => p.property.NameHash == nameHash
+                        ) == (null, null)
+                    )
                     {
                         currentObject.Properties.Add((new BinTreeNested(currentObject, nameHash), part));
                     }
 
-                    (BinTreeProperty property, _) = currentObject.Properties.Find(((BinTreeProperty property, string) p) => p.property.NameHash == nameHash);
+                    (BinTreeProperty property, _) = currentObject.Properties.Find(
+                        ((BinTreeProperty property, string) p) => p.property.NameHash == nameHash
+                    );
                     currentObject = (IBinNestedProvider)property;
                 }
 
                 // set the actual value to the deepest BinNested
-                currentObject.Properties.Add((BinTreeProperty.Read(br, currentObject, type, Fnv1a.HashLower(valueName)), valueName));
+                currentObject.Properties.Add(
+                    (BinTreeProperty.Read(br, currentObject, type, Fnv1a.HashLower(valueName)), valueName)
+                );
             }
         }
 
@@ -189,13 +198,15 @@ namespace LeagueToolkit.IO.PropertyBin
                 this._objects.Add(treeObject);
             }
         }
+
         public void RemoveObject(uint pathHash)
         {
             if (this._objects.FirstOrDefault(x => x.PathHash == pathHash) is BinTreeObject treeObject)
             {
                 this._objects.Remove(treeObject);
             }
-            else throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
+            else
+                throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
         }
     }
 

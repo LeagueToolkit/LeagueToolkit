@@ -57,7 +57,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
-namespace LeagueToolkit.Helpers.Hashing
+namespace LeagueToolkit.Hashing
 {
     [ComVisible(true)]
     public static class XXHash

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LeagueToolkit.Helpers.Hashing
+namespace LeagueToolkit.Hashing
 {
     public static class Sdbm
     {
@@ -41,7 +41,7 @@ namespace LeagueToolkit.Helpers.Hashing
                 hash = key[i] + 65599 * hash;
             }
 
-            hash = (65599 * hash + delimiter);
+            hash = 65599 * hash + delimiter;
             for (int i = 0; i < value.Length; i++)
             {
                 hash = value[i] + 65599 * hash;
