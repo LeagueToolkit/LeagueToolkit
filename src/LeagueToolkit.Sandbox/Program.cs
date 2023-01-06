@@ -40,9 +40,9 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
+            using MapGeometry mgeo = new("base.mapgeo");
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            ProfileSkinnedMesh();
+            //ProfileSkinnedMesh();
         }
 
         static void ProfileSkinnedMesh()
@@ -172,37 +172,6 @@ namespace LeagueToolkit.Sandbox
                         writer.WriteVector2(i, ElementName.DiffuseUV, diffuseUvsArray[i]);
                     if (hasLightmapUvs)
                         writer.WriteVector2(i, ElementName.LightmapUV, lightmapUvsArray[i]);
-                }
-            }
-        }
-
-        static void TestWGEO()
-        {
-            WorldGeometry wgeo = new WorldGeometry("room.wgeo");
-            Directory.CreateDirectory("kek");
-
-            for (int i = 0; i < 128; i++)
-            {
-                for (int j = 0; j < 128; j++)
-                {
-                    BucketGridBucket bucket = wgeo.BucketGrid.Buckets[i, j];
-
-                    List<uint> indices = wgeo.BucketGrid.Indices
-                        .GetRange((int)bucket.StartIndex, (bucket.InsideFaceCount + bucket.StickingOutFaceCount) * 3)
-                        .Select(x => (uint)x)
-                        .ToList();
-
-                    if (indices.Count != 0)
-                    {
-                        int startVertex = (int)indices.Min();
-                        int vertexCount = (int)indices.Max() - startVertex;
-                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(
-                            startVertex + (int)bucket.BaseVertex,
-                            vertexCount
-                        );
-
-                        new OBJFile(vertices, indices).Write(string.Format("kek/bucket{0}_{1}.obj", i, j));
-                    }
                 }
             }
         }

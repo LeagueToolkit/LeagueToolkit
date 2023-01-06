@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
@@ -63,7 +64,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// <summary>
         /// Tells the game on which Visibility Flags this mesh should be rendered
         /// </summary>
-        public MapGeometryVisibilityFlags VisibilityFlags { get; private set; } = MapGeometryVisibilityFlags.AllLayers;
+        public EnvironmentVisibilityFlags VisibilityFlags { get; private set; } = EnvironmentVisibilityFlags.AllLayers;
 
         /// <summary>Gets the render flags of the mesh</summary>
         public MapGeometryMeshRenderFlags RenderFlags { get; private set; }
@@ -108,7 +109,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             Matrix4x4 transform,
             bool disableBackfaceCulling,
             MapGeometryEnvironmentQualityFilter environmentQualityFilter,
-            MapGeometryVisibilityFlags visibilityFlags,
+            EnvironmentVisibilityFlags visibilityFlags,
             MapGeometryMeshRenderFlags renderFlags,
             MapGeometrySamplerData stationaryLight,
             MapGeometrySamplerData bakedLight,
@@ -176,7 +177,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             if (version >= 13)
             {
-                this.VisibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
+                this.VisibilityFlags = (EnvironmentVisibilityFlags)br.ReadByte();
             }
 
             uint submeshCount = br.ReadUInt32();
@@ -196,7 +197,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             if (version >= 7 && version <= 12)
             {
-                this.VisibilityFlags = (MapGeometryVisibilityFlags)br.ReadByte();
+                this.VisibilityFlags = (EnvironmentVisibilityFlags)br.ReadByte();
             }
 
             if (version >= 11)
@@ -321,32 +322,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // League assigns this name to the meshes automatically during reading
             return $"MapGeo_Instance_{id}";
         }
-    }
-
-    /// <summary>
-    /// Used for limiting the visibility of environment meshes based on layer changes
-    /// </summary>
-    [Flags]
-    public enum MapGeometryVisibilityFlags : byte
-    {
-        /// <summary>
-        /// Toggles visibility on no layers
-        /// </summary>
-        NoLayer = 0,
-
-        Layer1 = 1 << 0,
-        Layer2 = 1 << 1,
-        Layer3 = 1 << 2,
-        Layer4 = 1 << 3,
-        Layer5 = 1 << 4,
-        Layer6 = 1 << 5,
-        Layer7 = 1 << 6,
-        Layer8 = 1 << 7,
-
-        /// <summary>
-        /// Toggles visibility on all layers
-        /// </summary>
-        AllLayers = Layer1 | Layer2 | Layer3 | Layer4 | Layer5 | Layer6 | Layer7 | Layer8
     }
 
     /// <summary>

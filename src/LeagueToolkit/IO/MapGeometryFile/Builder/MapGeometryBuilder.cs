@@ -12,7 +12,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
     {
         private MapGeometryBakedTerrainSamplers _bakedTerrainSamplers;
         private readonly List<MapGeometryModelBuilder> _meshes = new();
-        private BucketGrid _bucketGrid;
+        private BucketedGeometry _bucketGrid;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
 
         private readonly List<VertexBuffer> _vertexBuffers = new();
@@ -46,7 +46,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
             return this;
         }
 
-        public MapGeometryBuilder WithBucketGrid(BucketGrid bucketGrid)
+        public MapGeometryBuilder WithBucketGrid(BucketedGeometry bucketGrid)
         {
             Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
 
