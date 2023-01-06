@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.MapGeometryFile;
 using System;
@@ -53,10 +54,11 @@ namespace LeagueToolkit.Core.SceneGraph
         /// <summary>Gets a read-only view into the face visibility flags</summary>
         public IReadOnlyList<EnvironmentVisibilityFlags> FaceVisibilityFlags => this._faceVisibilityFlags;
 
+        private readonly GeometryBucket[,] _buckets;
+
         private readonly Vector3[] _vertices;
         private readonly ushort[] _indices;
 
-        private readonly GeometryBucket[,] _buckets;
         private readonly EnvironmentVisibilityFlags[] _faceVisibilityFlags;
 
         internal BucketedGeometry(BinaryReader br)
@@ -162,6 +164,20 @@ namespace LeagueToolkit.Core.SceneGraph
                 flags |= BucketedGeometryFlags.HasFaceVisibilityFlags;
 
             return flags;
+        }
+
+        /// <summary>
+        /// Gets the AABB of a bucket at the specified coordinates
+        /// </summary>
+        /// <param name="x">The X coordinate/index of the bucket</param>
+        /// <param name="z">The Z coordinate/index of the bucket</param>
+        /// <returns>The <see cref="Box"/> for the specified bucket in world space</returns>
+        public Box GetBucketBox(int x, int z)
+        {
+            float minX = this.BucketSizeX * x;
+            float minZ = this.BucketSizeZ * z;
+
+            return new(new(minX, 0f, minZ), new(minX + this.BucketSizeX, 0, minZ + this.BucketSizeZ));
         }
     }
 
