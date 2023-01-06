@@ -8,36 +8,52 @@ using System.Linq;
 
 namespace LeagueToolkit.IO.MapGeometryFile.Builder
 {
+    /// <summary>Exposes an API for building a <see cref="MapGeometry"/> object</summary>
     public sealed class MapGeometryBuilder
     {
         private MapGeometryBakedTerrainSamplers _bakedTerrainSamplers;
         private readonly List<MapGeometryModelBuilder> _meshes = new();
-        private BucketGrid _bucketGrid;
+        private BucketedGeometry _sceneGraph;
         private readonly List<MapGeometryPlanarReflector> _planarReflectors = new();
 
         private readonly List<VertexBuffer> _vertexBuffers = new();
         private readonly List<MemoryOwner<ushort>> _indexBuffers = new();
 
+        /// <summary>Creates a new <see cref="MapGeometryBuilder"/> object</summary>
         public MapGeometryBuilder() { }
 
+        /// <summary>Builds a new <see cref="MapGeometry"/> object from this <see cref="MapGeometryBuilder"/></summary>
+        /// <returns>The built <see cref="MapGeometry"/> object</returns>
+        /// <remarks>
+        /// Each <see cref="MapGeometryBuilder"/> instance should only be built from once,
+        /// building multiple <see cref="MapGeometry"/> objects from a single <see cref="MapGeometryBuilder"/> instance is undefined behavior
+        /// </remarks>
         public MapGeometry Build()
         {
             return new(
                 this._bakedTerrainSamplers,
                 this._meshes.Select((mesh, id) => mesh.Build(id)),
-                this._bucketGrid,
+                this._sceneGraph,
                 this._planarReflectors,
                 this._vertexBuffers,
                 this._indexBuffers
             );
         }
 
+        /// <summary>
+        /// Sets the specified <see cref="MapGeometryBakedTerrainSamplers"/> to be used by the environment asset
+        /// </summary>
+        /// <param name="bakedTerrainSamplers">The <see cref="MapGeometryBakedTerrainSamplers"/> to use</param>
         public MapGeometryBuilder WithBakedTerrainSamplers(MapGeometryBakedTerrainSamplers bakedTerrainSamplers)
         {
             this._bakedTerrainSamplers = bakedTerrainSamplers;
             return this;
         }
 
+        /// <summary>
+        /// Adds the specified <see cref="MapGeometryModelBuilder"/> into the environment asset
+        /// </summary>
+        /// <param name="mesh">The <see cref="MapGeometryModelBuilder"/> to add</param>
         public MapGeometryBuilder WithMesh(MapGeometryModelBuilder mesh)
         {
             Guard.IsNotNull(mesh, nameof(mesh));
@@ -46,14 +62,22 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
             return this;
         }
 
-        public MapGeometryBuilder WithBucketGrid(BucketGrid bucketGrid)
+        /// <summary>
+        /// Sets the specified <see cref="BucketedGeometry"/> scene graph to be used by the environment asset
+        /// </summary>
+        /// <param name="sceneGraph">The <see cref="BucketedGeometry"/> scene graph to add</param>
+        public MapGeometryBuilder WithSceneGraph(BucketedGeometry sceneGraph)
         {
-            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
+            Guard.IsNotNull(sceneGraph, nameof(sceneGraph));
 
-            this._bucketGrid = bucketGrid;
+            this._sceneGraph = sceneGraph;
             return this;
         }
 
+        /// <summary>
+        /// Adds the specified <see cref="MapGeometryPlanarReflector"/> into the environment asset
+        /// </summary>
+        /// <param name="planarReflector">The <see cref="MapGeometryPlanarReflector"/> to add</param>
         public MapGeometryBuilder WithPlanarReflector(MapGeometryPlanarReflector planarReflector)
         {
             this._planarReflectors.Add(planarReflector);

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.SceneGraph;
 using LeagueToolkit.Helpers.Exceptions;
@@ -14,9 +15,7 @@ using System.Text;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
-    /// <summary>
-    /// Represents an environment asset
-    /// </summary>
+    /// <summary>Represents an environment asset</summary>
     public sealed class MapGeometry : IDisposable
     {
         /// <summary>Gets the baked terrain samplers used for this environment asset</summary>
@@ -26,8 +25,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public IReadOnlyList<MapGeometryModel> Meshes => this._meshes;
         private readonly List<MapGeometryModel> _meshes = new();
 
-        /// <summary>Gets the bucketed scene graph for the environment asset</summary>
-        public BucketGrid BucketGrid { get; private set; }
+        /// <summary>Gets the <see cref="BucketedGeometry"/> scene graph for the environment asset</summary>
+        public BucketedGeometry SceneGraph { get; private set; }
 
         /// <summary>Gets a read-only list of the planar reflectors used by the environment asset</summary>
         public IReadOnlyList<MapGeometryPlanarReflector> PlanarReflectors => this._planarReflectors;
@@ -41,21 +40,21 @@ namespace LeagueToolkit.IO.MapGeometryFile
         internal MapGeometry(
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
             IEnumerable<MapGeometryModel> meshes,
-            BucketGrid bucketGrid,
+            BucketedGeometry sceneGraph,
             IEnumerable<MapGeometryPlanarReflector> planarReflectors,
             IEnumerable<VertexBuffer> vertexBuffers,
             IEnumerable<MemoryOwner<ushort>> indexBuffers
         )
         {
             Guard.IsNotNull(meshes, nameof(meshes));
-            Guard.IsNotNull(bucketGrid, nameof(bucketGrid));
+            Guard.IsNotNull(sceneGraph, nameof(sceneGraph));
             Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
             Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
             Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
 
             this.BakedTerrainSamplers = bakedTerrainSamplers;
             this._meshes = new(meshes);
-            this.BucketGrid = bucketGrid;
+            this.SceneGraph = sceneGraph;
             this._planarReflectors = new(planarReflectors);
 
             this._vertexBuffers = vertexBuffers.ToArray();
@@ -115,7 +114,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             {
                 if (version >= 13)
                 {
-                    MapGeometryVisibilityFlags _ = (MapGeometryVisibilityFlags)br.ReadByte();
+                    EnvironmentVisibilityFlags _ = (EnvironmentVisibilityFlags)br.ReadByte();
                 }
 
                 uint bufferSize = br.ReadUInt32();
@@ -130,7 +129,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             {
                 if (version >= 13)
                 {
-                    MapGeometryVisibilityFlags _ = (MapGeometryVisibilityFlags)br.ReadByte();
+                    EnvironmentVisibilityFlags _ = (EnvironmentVisibilityFlags)br.ReadByte();
                 }
 
                 int bufferSize = br.ReadInt32();
@@ -153,7 +152,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 );
             }
 
-            this.BucketGrid = new(br);
+            this.SceneGraph = new(br);
 
             if (version >= 13)
             {
@@ -265,7 +264,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 model.Write(bw, usesSeparatePointLights, version);
             }
 
-            this.BucketGrid.Write(bw);
+            this.SceneGraph.Write(bw);
 
             if (version >= 13)
             {
@@ -334,7 +333,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             List<int[]> bufferIdsOfMeshes = new(this._meshes.Select(GetMeshVertexBufferIds));
 
             // Set the vertex buffer IDs for each mesh and collect visibility flags for each vertex buffer
-            MapGeometryVisibilityFlags[] visibilityFlagsOfBuffers = new MapGeometryVisibilityFlags[
+            EnvironmentVisibilityFlags[] visibilityFlagsOfBuffers = new EnvironmentVisibilityFlags[
                 this._vertexBuffers.Length
             ];
             for (int meshId = 0; meshId < bufferIdsOfMeshes.Count; meshId++)
@@ -371,7 +370,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             List<int> bufferIdOfMeshes = new(this._meshes.Select(GetMeshIndexBufferId));
 
             // Set the index buffer id for each mesh and collect visibility flags for each buffer
-            MapGeometryVisibilityFlags[] visibilityFlagsOfBuffers = new MapGeometryVisibilityFlags[
+            EnvironmentVisibilityFlags[] visibilityFlagsOfBuffers = new EnvironmentVisibilityFlags[
                 this._indexBuffers.Length
             ];
             for (int meshId = 0; meshId < bufferIdOfMeshes.Count; meshId++)

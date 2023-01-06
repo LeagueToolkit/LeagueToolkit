@@ -1,38 +1,21 @@
-﻿using LeagueToolkit.Converters;
+﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Mesh;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.IO.AnimationFile;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.IO.NavigationGridOverlay;
-using LeagueToolkit.IO.NVR;
-using LeagueToolkit.IO.OBJ;
-using LeagueToolkit.IO.ReleaseManifestFile;
+using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.StaticObjectFile;
-using LeagueToolkit.IO.WadFile;
-using LeagueToolkit.IO.WGT;
-using LeagueToolkit.IO.WorldGeometry;
-using Newtonsoft.Json;
+using LeagueToolkit.Meta.Dump;
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
-using LeagueToolkit.Meta;
-using LeagueToolkit.Meta.Attributes;
 using System.Numerics;
-using LeagueToolkit.Meta.Dump;
-using System.Reflection;
-using LeagueToolkit.Helpers;
-using LeagueToolkit.IO.MapGeometryFile.Builder;
-using CommunityToolkit.HighPerformance.Buffers;
-using System.Buffers;
-using LeagueToolkit.Core.Memory;
-using CommunityToolkit.Diagnostics;
-using System.Threading;
-using CommunityToolkit.HighPerformance;
-using LeagueToolkit.Core.Mesh;
-using LeagueToolkit.Core.SceneGraph;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -40,9 +23,12 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            //using MapGeometry mgeo = new("worlds_trophyonly_rewritten_reordered.mapgeo");
+            using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            ProfileSkinnedMesh();
+            //ProfileSkinnedMesh();
+
+            Box one_one = mgeo.SceneGraph.GetBucketBox(1, 1);
+            Box zero_zero = mgeo.SceneGraph.GetBucketBox(0, 0);
         }
 
         static void ProfileSkinnedMesh()
@@ -87,7 +73,7 @@ namespace LeagueToolkit.Sandbox
             //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
             MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
-                .WithBucketGrid(mgeo.BucketGrid)
+                .WithSceneGraph(mgeo.SceneGraph)
                 .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
             Dictionary<ElementName, int> elementOrder =
@@ -172,37 +158,6 @@ namespace LeagueToolkit.Sandbox
                         writer.WriteVector2(i, ElementName.DiffuseUV, diffuseUvsArray[i]);
                     if (hasLightmapUvs)
                         writer.WriteVector2(i, ElementName.LightmapUV, lightmapUvsArray[i]);
-                }
-            }
-        }
-
-        static void TestWGEO()
-        {
-            WorldGeometry wgeo = new WorldGeometry("room.wgeo");
-            Directory.CreateDirectory("kek");
-
-            for (int i = 0; i < 128; i++)
-            {
-                for (int j = 0; j < 128; j++)
-                {
-                    BucketGridBucket bucket = wgeo.BucketGrid.Buckets[i, j];
-
-                    List<uint> indices = wgeo.BucketGrid.Indices
-                        .GetRange((int)bucket.StartIndex, (bucket.InsideFaceCount + bucket.StickingOutFaceCount) * 3)
-                        .Select(x => (uint)x)
-                        .ToList();
-
-                    if (indices.Count != 0)
-                    {
-                        int startVertex = (int)indices.Min();
-                        int vertexCount = (int)indices.Max() - startVertex;
-                        List<Vector3> vertices = wgeo.BucketGrid.Vertices.GetRange(
-                            startVertex + (int)bucket.BaseVertex,
-                            vertexCount
-                        );
-
-                        new OBJFile(vertices, indices).Write(string.Format("kek/bucket{0}_{1}.obj", i, j));
-                    }
                 }
             }
         }

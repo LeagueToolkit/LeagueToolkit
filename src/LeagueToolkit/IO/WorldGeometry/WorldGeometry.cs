@@ -20,7 +20,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// <summary>
         /// <see cref="WGEOBucketGeometry"/> of this <see cref="WorldGeometry"/>
         /// </summary>
-        public BucketGrid BucketGrid { get; set; }
+        public BucketedGeometry BucketGrid { get; set; }
 
         /// <summary>
         /// Initializes a new empty <see cref="WorldGeometry"/>
@@ -32,7 +32,7 @@ namespace LeagueToolkit.IO.WorldGeometry
         /// </summary>
         /// <param name="models">Models of this <see cref="WorldGeometry"/></param>
         /// <param name="bucketGrid"><see cref="BucketGrid"/> of this <see cref="WorldGeometry"/></param>
-        public WorldGeometry(List<WorldGeometryModel> models, BucketGrid bucketGrid)
+        public WorldGeometry(List<WorldGeometryModel> models, BucketedGeometry bucketGrid)
         {
             this.Models = models;
             this.BucketGrid = bucketGrid;
@@ -74,7 +74,7 @@ namespace LeagueToolkit.IO.WorldGeometry
 
                 if (version == 5)
                 {
-                    this.BucketGrid = new BucketGrid(br);
+                    this.BucketGrid = new BucketedGeometry(br);
                 }
             }
         }

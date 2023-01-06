@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Extensions;
 using System;
@@ -18,7 +19,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
 
         private bool _disableBackfaceCulling;
         private MapGeometryEnvironmentQualityFilter _environmentQualityMask;
-        private MapGeometryVisibilityFlags _visibilityFlags;
+        private EnvironmentVisibilityFlags _visibilityFlags;
         private MapGeometryMeshRenderFlags _renderFlags;
 
         private MapGeometrySamplerData _stationaryLight;
@@ -106,7 +107,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         }
 
         /// <summary>Sets the specified visibility flags for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder WithVisibilityFlags(MapGeometryVisibilityFlags visibilityFlags)
+        public MapGeometryModelBuilder WithVisibilityFlags(EnvironmentVisibilityFlags visibilityFlags)
         {
             this._visibilityFlags = visibilityFlags;
             return this;

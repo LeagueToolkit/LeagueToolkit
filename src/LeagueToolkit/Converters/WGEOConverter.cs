@@ -15,7 +15,7 @@ namespace LeagueToolkit.Converters
         /// <param name="nvr">The <see cref="NVRFile"/> to be used for models</param>
         /// <param name="bucketTemplate">The <see cref="WGEOBucketGeometry"/> to be used a a template for bucket geometry</param>
         /// <returns>A <see cref="WorldGeometry"/> converted from <paramref name="nvr"/></returns>
-        public static WorldGeometry ConvertNVR(NVRFile nvr, BucketGrid bucketTemplate)
+        public static WorldGeometry ConvertNVR(NVRFile nvr, BucketedGeometry bucketTemplate)
         {
             List<WorldGeometryModel> models = new List<WorldGeometryModel>();
 
