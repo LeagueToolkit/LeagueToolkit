@@ -1,4 +1,6 @@
-﻿using LeagueToolkit.Hashing;
+﻿// TODO: Move this into a separate library
+#if DEBUG
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta.Attributes;
@@ -835,3 +837,4 @@ namespace LeagueToolkit.Meta.Dump
         public static MetaDump Deserialize(string dump) => JsonConvert.DeserializeObject<MetaDump>(dump);
     }
 }
+#endif

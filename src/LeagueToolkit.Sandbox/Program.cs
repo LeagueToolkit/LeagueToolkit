@@ -51,6 +51,7 @@ namespace LeagueToolkit.Sandbox
                 .WriteGLB(File.OpenWrite("akali.glb"));
         }
 
+#if DEBUG
         static void TestMetaRoslynCodegen(string outputFile)
         {
             IEnumerable<string> classes = File.ReadLines("hashes.bintypes.txt").Select(line => line.Split(' ')[1]);
@@ -60,6 +61,7 @@ namespace LeagueToolkit.Sandbox
                 .Deserialize(File.ReadAllText("latest_meta.json"))
                 .WriteMetaClasses(outputFile, classes, properties);
         }
+#endif
 
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {
