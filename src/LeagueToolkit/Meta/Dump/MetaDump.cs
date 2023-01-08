@@ -7,14 +7,13 @@ using LeagueToolkit.Meta.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LeagueToolkit.Meta.Dump
@@ -528,39 +527,42 @@ namespace LeagueToolkit.Meta.Dump
 
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
         #region Initializer Creators
-        private EqualsValueClauseSyntax CreatePropertyInitializer(object defaultValue, MetaDumpProperty property)
+
+        private EqualsValueClauseSyntax CreatePropertyInitializer(JsonElement defaultValue, MetaDumpProperty property)
         {
-            ExpressionSyntax expression = defaultValue switch
+            ExpressionSyntax expression = defaultValue.ValueKind switch
             {
-                // true | false
-                bool boolValue when (property.Type == BinPropertyType.Bool)
-                    => boolValue
-                        ? LiteralExpression(SyntaxKind.TrueLiteralExpression)
-                        : LiteralExpression(SyntaxKind.FalseLiteralExpression),
-                // new(true) | new(false)
-                bool boolValue when (property.Type == BinPropertyType.BitBool)
-                    => boolValue
-                        ? ImplicitObjectCreationExpression(
+                // true
+                JsonValueKind.True when (property.Type == BinPropertyType.Bool)
+                    => LiteralExpression(SyntaxKind.TrueLiteralExpression),
+                // false
+                JsonValueKind.False when (property.Type == BinPropertyType.Bool)
+                    => LiteralExpression(SyntaxKind.FalseLiteralExpression),
+                // new(true)
+                JsonValueKind.True when (property.Type == BinPropertyType.BitBool)
+                    => ImplicitObjectCreationExpression(
                             ArgumentList(
                                 SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.TrueLiteralExpression)))
                             ),
                             null
-                        )
-                        : ImplicitObjectCreationExpression(
+                        ),
+                // new(false)
+                JsonValueKind.False when (property.Type == BinPropertyType.BitBool)
+                    => ImplicitObjectCreationExpression(
                             ArgumentList(
                                 SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.FalseLiteralExpression)))
                             ),
                             null
                         ),
                 // new(0U)
-                string stringValue when (property.Type == BinPropertyType.Hash)
+                JsonValueKind.String when (property.Type == BinPropertyType.Hash)
                     => ImplicitObjectCreationExpression(
                         ArgumentList(
                             SingletonSeparatedList(
                                 Argument(
                                     LiteralExpression(
                                         SyntaxKind.NumericLiteralExpression,
-                                        Literal(Convert.ToUInt32(stringValue, 16))
+                                        Literal(Convert.ToUInt32(defaultValue.GetString(), 16))
                                     )
                                 )
                             )
@@ -568,14 +570,14 @@ namespace LeagueToolkit.Meta.Dump
                         null
                     ),
                 // new(0U)
-                string stringValue when (property.Type == BinPropertyType.ObjectLink)
+                JsonValueKind.String when (property.Type == BinPropertyType.ObjectLink)
                     => ImplicitObjectCreationExpression(
                         ArgumentList(
                             SingletonSeparatedList(
                                 Argument(
                                     LiteralExpression(
                                         SyntaxKind.NumericLiteralExpression,
-                                        Literal(Convert.ToUInt32(stringValue, 16))
+                                        Literal(Convert.ToUInt32(defaultValue.GetString(), 16))
                                     )
                                 )
                             )
@@ -583,14 +585,14 @@ namespace LeagueToolkit.Meta.Dump
                         null
                     ),
                 // new(0UL)
-                string stringValue when (property.Type == BinPropertyType.WadEntryLink)
+                JsonValueKind.String when (property.Type == BinPropertyType.WadEntryLink)
                     => ImplicitObjectCreationExpression(
                         ArgumentList(
                             SingletonSeparatedList(
                                 Argument(
                                     LiteralExpression(
                                         SyntaxKind.NumericLiteralExpression,
-                                        Literal(Convert.ToUInt64(stringValue, 16))
+                                        Literal(Convert.ToUInt64(defaultValue.GetString(), 16))
                                     )
                                 )
                             )
@@ -598,27 +600,25 @@ namespace LeagueToolkit.Meta.Dump
                         null
                     ),
                 // new(new())
-                JObject when (property.Type == BinPropertyType.Embedded)
+                JsonValueKind.Object when (property.Type == BinPropertyType.Embedded)
                     => ImplicitObjectCreationExpression(
                         ArgumentList(SingletonSeparatedList(Argument(ImplicitObjectCreationExpression()))),
                         null
                     ),
                 // null
-                null when (property.Type == BinPropertyType.Structure)
+                JsonValueKind.Null when (property.Type == BinPropertyType.Structure)
                     => LiteralExpression(SyntaxKind.NullLiteralExpression),
                 // new MetaOptional<T>(default(T), false)
-                null when (property.Type == BinPropertyType.Optional)
-                    => CreateNullableInitializerSyntax(property, null),
                 // new MetaOptional<T>(nullableValue, true)
-                object nullableValue when (property.Type == BinPropertyType.Optional)
-                    => CreateNullableInitializerSyntax(property, nullableValue),
+                _ when (property.Type == BinPropertyType.Optional)
+                    => CreateNullableInitializerSyntax(property, defaultValue),
                 _ => CreateCommonInitializerSyntax(property.Type, defaultValue)
             };
 
             return EqualsValueClause(expression);
         }
 
-        private ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, object value)
+        private ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, JsonElement value)
         {
             TypeSyntax argumentTypeDeclaration = CreatePrimitivePropertyTypeDeclaration(property.Container.Type, false);
 
@@ -633,13 +633,13 @@ namespace LeagueToolkit.Meta.Dump
                         new ArgumentSyntax[]
                         {
                             Argument(
-                                value is null
+                                value.ValueKind is JsonValueKind.Null
                                     ? DefaultExpression(argumentTypeDeclaration)
                                     : CreateCommonInitializerSyntax(property.Container.Type, value)
                             ),
                             Argument(
                                 LiteralExpression(
-                                    value is null ? SyntaxKind.FalseLiteralExpression : SyntaxKind.TrueLiteralExpression
+                                    value.ValueKind is JsonValueKind.Null ? SyntaxKind.FalseLiteralExpression : SyntaxKind.TrueLiteralExpression
                                 )
                             )
                         }
@@ -649,25 +649,24 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateCommonInitializerSyntax(BinPropertyType valueType, object defaultValue)
+        private ExpressionSyntax CreateCommonInitializerSyntax(BinPropertyType valueType, JsonElement defaultValue)
         {
-            return defaultValue switch
+            return defaultValue.ValueKind switch
             {
-                string stringValue => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(stringValue)),
-                long floatLongValue when valueType == BinPropertyType.Float
-                    => CreateFloatInitializerExpression(floatLongValue),
-                long longValue
-                    => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{longValue}", longValue)),
-                double doubleValue => CreateFloatInitializerExpression((float)doubleValue),
-                JObject _ => ImplicitObjectCreationExpression(),
-                JArray jArray
+                JsonValueKind.String => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(defaultValue.GetString())),
+                JsonValueKind.Number when valueType == BinPropertyType.Float
+                    => CreateFloatInitializerExpression(defaultValue.GetSingle()),
+                JsonValueKind.Number
+                    => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{defaultValue.GetInt64()}", defaultValue.GetInt64())),
+                JsonValueKind.Object => ImplicitObjectCreationExpression(),
+                JsonValueKind.Array
                     => valueType switch
                     {
-                        BinPropertyType.Vector2 => CreateVector2InitializerExpression(jArray),
-                        BinPropertyType.Vector3 => CreateVector3InitializerExpression(jArray),
-                        BinPropertyType.Vector4 => CreateVector4InitializerExpression(jArray),
-                        BinPropertyType.Color => CreateColorInitializerExpression(jArray),
-                        BinPropertyType.Matrix44 => CreateMatrix4x4InitializerExpression(jArray),
+                        BinPropertyType.Vector2 => CreateVector2InitializerExpression(defaultValue.EnumerateArray()),
+                        BinPropertyType.Vector3 => CreateVector3InitializerExpression(defaultValue.EnumerateArray()),
+                        BinPropertyType.Vector4 => CreateVector4InitializerExpression(defaultValue.EnumerateArray()),
+                        BinPropertyType.Color => CreateColorInitializerExpression(defaultValue.EnumerateArray()),
+                        BinPropertyType.Matrix44 => CreateMatrix4x4InitializerExpression(defaultValue.EnumerateArray()),
                         BinPropertyType.Container => ImplicitObjectCreationExpression(),
                         BinPropertyType.UnorderedContainer => ImplicitObjectCreationExpression(),
                         _ => throw new NotImplementedException()
@@ -679,106 +678,67 @@ namespace LeagueToolkit.Meta.Dump
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #region Numeric Primitive Initializer Creators
         private ExpressionSyntax CreateFloatInitializerExpression(float value) =>
-            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{value}f", value));
+            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{value.ToString(NumberFormatInfo.InvariantInfo)}f", value));
 
-        private ExpressionSyntax CreateVector2InitializerExpression(JArray jArray)
+        private ExpressionSyntax CreateVector2InitializerExpression(IEnumerable<JsonElement> elements)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Vector2)),
                 ArgumentList(
                     SeparatedList(
-                        new ArgumentSyntax[]
-                        {
-                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1]))
-                        }
+                        elements.Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
                     )
                 ),
                 null
             );
         }
 
-        private ExpressionSyntax CreateVector3InitializerExpression(JArray jArray)
+        private ExpressionSyntax CreateVector3InitializerExpression(IEnumerable<JsonElement> elements)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Vector3)),
                 ArgumentList(
                     SeparatedList(
-                        new ArgumentSyntax[]
-                        {
-                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2]))
-                        }
+                        elements.Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
                     )
                 ),
                 null
             );
         }
 
-        private ExpressionSyntax CreateVector4InitializerExpression(JArray jArray)
+        private ExpressionSyntax CreateVector4InitializerExpression(IEnumerable<JsonElement> elements)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Vector4)),
                 ArgumentList(
                     SeparatedList(
-                        new ArgumentSyntax[]
-                        {
-                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[3]))
-                        }
+                        elements.Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
                     )
                 ),
                 null
             );
         }
 
-        private ExpressionSyntax CreateColorInitializerExpression(JArray jArray)
+        private ExpressionSyntax CreateColorInitializerExpression(IEnumerable<JsonElement> elements)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Color)),
                 ArgumentList(
                     SeparatedList(
-                        new ArgumentSyntax[]
-                        {
-                            Argument(CreateFloatInitializerExpression((float)jArray[0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[3]))
-                        }
+                        elements.Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
                     )
                 ),
                 null
             );
         }
 
-        private ExpressionSyntax CreateMatrix4x4InitializerExpression(JArray jArray)
+        private ExpressionSyntax CreateMatrix4x4InitializerExpression(IEnumerable<JsonElement> elements)
         {
             return ObjectCreationExpression(
                 IdentifierName(nameof(Matrix4x4)),
                 ArgumentList(
                     SeparatedList(
-                        new ArgumentSyntax[]
-                        {
-                            Argument(CreateFloatInitializerExpression((float)jArray[0][0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[0][1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[0][2])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[0][3])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1][0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1][1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1][2])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[1][3])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2][0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2][1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2][2])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[2][3])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[3][0])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[3][1])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[3][2])),
-                            Argument(CreateFloatInitializerExpression((float)jArray[3][3]))
-                        }
+                        elements.SelectMany(arrayElement => arrayElement.EnumerateArray().Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle()))))
                     )
                 ),
                 null
@@ -834,7 +794,8 @@ namespace LeagueToolkit.Meta.Dump
                 .Select(requiredNamespace => UsingDirective(ParseName(requiredNamespace, consumeFullText: true)));
         }
 
-        public static MetaDump Deserialize(string dump) => JsonConvert.DeserializeObject<MetaDump>(dump);
+        public static MetaDump Deserialize(string dump) =>
+            JsonSerializer.Deserialize<MetaDump>(dump, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
     }
 }
 #endif

@@ -1,39 +1,41 @@
 ﻿using CommunityToolkit.Diagnostics;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LeagueToolkit.Meta.Dump
 {
     public sealed class MetaDumpClass
     {
-        [JsonProperty(PropertyName = "alignment")]
+        [JsonInclude]
         public uint Alignment { get; private set; }
 
-        [JsonProperty(PropertyName = "base")]
+        [JsonInclude]
         public string Base { get; private set; }
 
-        [JsonProperty(PropertyName = "defaults")]
-        public Dictionary<string, object> Defaults { get; private set; }
+        [JsonInclude]
+        public Dictionary<string, JsonElement> Defaults { get; private set; }
 
-        [JsonProperty(PropertyName = "fn")]
+        [JsonPropertyName("fn")]
+        [JsonInclude]
         public MetaDumpClassFunctions Functions { get; private set; }
 
-        [JsonProperty(PropertyName = "is")]
+        [JsonInclude]
         public MetaDumpClassIs Is { get; private set; }
 
-        [JsonProperty(PropertyName = "properties")]
+        [JsonInclude]
         public Dictionary<string, MetaDumpProperty> Properties { get; private set; }
 
-        [JsonProperty(PropertyName = "secondary_bases")]
+        [JsonPropertyName("secondary_bases")]
+        [JsonInclude]
         public Dictionary<string, uint> SecondaryBases { get; private set; }
 
-        [JsonProperty(PropertyName = "secondary_children")]
+        [JsonPropertyName("secondary_children")]
+        [JsonInclude]
         public Dictionary<string, uint> SecondaryChildren { get; private set; }
 
-        [JsonProperty(PropertyName = "size")]
+        [JsonInclude]
         public uint Size { get; private set; }
 
         // TODO: Cleanup
@@ -108,40 +110,46 @@ namespace LeagueToolkit.Meta.Dump
 
     public sealed class MetaDumpClassFunctions
     {
-        [JsonProperty(PropertyName = "constructor")]
+        [JsonInclude]
         public string Constructor { get; private set; }
 
-        [JsonProperty(PropertyName = "destructor")]
+        [JsonInclude]
         public string Destructor { get; private set; }
 
-        [JsonProperty(PropertyName = "inplace_constructor")]
+        [JsonPropertyName("inplace_constructor")]
+        [JsonInclude]
         public string InplaceConstructor { get; private set; }
 
-        [JsonProperty(PropertyName = "inplace_destructor")]
+        [JsonPropertyName("inplace_destructor")]
+        [JsonInclude]
         public string InplaceDestructor { get; private set; }
 
-        [JsonProperty(PropertyName = "register")]
+        [JsonInclude]
         public string Register { get; private set; }
 
-        [JsonProperty(PropertyName = "upcast_secondary")]
+        [JsonPropertyName("upcast_secondary")]
+        [JsonInclude]
         public string UpcastSecondary { get; private set; }
     }
 
     public sealed class MetaDumpClassIs
     {
-        [JsonProperty(PropertyName = "interface")]
+        [JsonInclude]
         public bool Interface { get; private set; }
 
-        [JsonProperty(PropertyName = "property_base")]
+        [JsonPropertyName("property_base")]
+        [JsonInclude]
         public bool PropertyBase { get; private set; }
 
-        [JsonProperty(PropertyName = "secondary_base")]
+        [JsonPropertyName("secondary_base")]
+        [JsonInclude]
         public bool SecondaryBase { get; private set; }
 
-        [JsonProperty(PropertyName = "unk5")]
+        [JsonPropertyName("unk5")]
+        [JsonInclude]
         public bool Unknown5 { get; private set; }
 
-        [JsonProperty(PropertyName = "value")]
+        [JsonInclude]
         public bool Value { get; private set; }
     }
 }

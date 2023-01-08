@@ -1,56 +1,81 @@
 ﻿using LeagueToolkit.IO.PropertyBin;
-using Newtonsoft.Json;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LeagueToolkit.Meta.Dump
 {
     public sealed class MetaDumpProperty
     {
-        [JsonProperty(PropertyName = "other_class")] public string OtherClass { get; private set; }
-        [JsonProperty(PropertyName = "offset")] public uint Offset { get; private set; }
-        [JsonProperty(PropertyName = "bitmask")] public uint Bitmask { get; private set; }
+        [JsonPropertyName("other_class")]
+        [JsonInclude]
+        public string OtherClass { get; private set; }
+
+        [JsonInclude]
+        public uint Offset { get; private set; }
+
+        [JsonInclude]
+        public uint Bitmask { get; private set; }
 
         [JsonConverter(typeof(MetaDumpBinPropertyTypeJsonConverter))]
-        [JsonProperty(PropertyName = "value_type")] public BinPropertyType Type { get; private set; }
+        [JsonPropertyName("value_type")]
+        [JsonInclude]
+        public BinPropertyType Type { get; private set; }
 
-        [JsonProperty(PropertyName = "container")] public MetaDumpContainer Container { get; private set; }
-        [JsonProperty(PropertyName = "map")] public MetaDumpMap Map { get; private set; }
+        [JsonInclude]
+        public MetaDumpContainer Container { get; private set; }
+
+        [JsonInclude]
+        public MetaDumpMap Map { get; private set; }
     }
 
     public sealed class MetaDumpContainer
     {
-        [JsonProperty(PropertyName = "vtable")] public string VTable { get; private set; }
+        [JsonInclude]
+        public string VTable { get; private set; }
 
         [JsonConverter(typeof(MetaDumpBinPropertyTypeJsonConverter))]
-        [JsonProperty(PropertyName = "value_type")] public BinPropertyType Type { get; private set; }
+        [JsonPropertyName("value_type")]
+        [JsonInclude]
+        public BinPropertyType Type { get; private set; }
 
-        [JsonProperty(PropertyName = "value_size")] public uint ValueSize { get; private set; }
-        [JsonProperty(PropertyName = "fixed_size")] public int? FixedSize { get; private set; }
+        [JsonPropertyName("value_size")]
+        [JsonInclude]
+        public uint ValueSize { get; private set; }
+        [JsonPropertyName("fixed_size")]
+        [JsonInclude]
+        public int? FixedSize { get; private set; }
 
         [JsonConverter(typeof(MetaDumpContainerStorageTypeJsonConverter))]
-        [JsonProperty(PropertyName = "storage")] public MetaDumpContainerStorageType? Storage { get; private set; }
+        [JsonInclude]
+        public MetaDumpContainerStorageType? Storage { get; private set; }
     }
 
     public sealed class MetaDumpMap
     {
-        [JsonProperty(PropertyName = "vtable")] public string VTable { get; private set; }
-        
-        [JsonConverter(typeof(MetaDumpBinPropertyTypeJsonConverter))]
-        [JsonProperty(PropertyName = "key_type")] public BinPropertyType KeyType { get; private set; }
+        [JsonInclude]
+        public string VTable { get; private set; }
 
         [JsonConverter(typeof(MetaDumpBinPropertyTypeJsonConverter))]
-        [JsonProperty(PropertyName = "value_type")] public BinPropertyType ValueType { get; private set; }
+        [JsonPropertyName("key_type")]
+        [JsonInclude]
+        public BinPropertyType KeyType { get; private set; }
+
+        [JsonConverter(typeof(MetaDumpBinPropertyTypeJsonConverter))]
+        [JsonPropertyName("value_type")]
+        [JsonInclude]
+        public BinPropertyType ValueType { get; private set; }
 
         [JsonConverter(typeof(MetaDumpMapStorageTypeJsonConverter))]
-        [JsonProperty(PropertyName = "storage")] public MetaDumpMapStorageType Storage { get; private set; }
+        [JsonInclude]
+        public MetaDumpMapStorageType Storage { get; private set; }
     }
 
     public class MetaDumpBinPropertyTypeJsonConverter : JsonConverter<BinPropertyType>
     {
-        public override BinPropertyType ReadJson(JsonReader reader, Type objectType, [AllowNull] BinPropertyType existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BinPropertyType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            string type = reader.Value as string;
+            string type = reader.GetString();
 
             return type switch
             {
@@ -85,7 +110,7 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        public override void WriteJson(JsonWriter writer, [AllowNull] BinPropertyType value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, BinPropertyType value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
@@ -93,9 +118,9 @@ namespace LeagueToolkit.Meta.Dump
 
     public class MetaDumpMapStorageTypeJsonConverter : JsonConverter<MetaDumpMapStorageType>
     {
-        public override MetaDumpMapStorageType ReadJson(JsonReader reader, Type objectType, [AllowNull] MetaDumpMapStorageType existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override MetaDumpMapStorageType Read(ref Utf8JsonReader reader, Type objectType, JsonSerializerOptions options)
         {
-            string storage = reader.Value as string;
+            string storage = reader.GetString();
             return storage switch
             {
                 "UnknownMap" => MetaDumpMapStorageType.UnknownMap,
@@ -106,7 +131,7 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        public override void WriteJson(JsonWriter writer, [AllowNull] MetaDumpMapStorageType value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, MetaDumpMapStorageType metaDumpMapStorageType, JsonSerializerOptions jsonSerializerOptions)
         {
             throw new NotImplementedException();
         }
@@ -114,9 +139,9 @@ namespace LeagueToolkit.Meta.Dump
 
     public class MetaDumpContainerStorageTypeJsonConverter : JsonConverter<MetaDumpContainerStorageType?>
     {
-        public override MetaDumpContainerStorageType? ReadJson(JsonReader reader, Type objectType, [AllowNull] MetaDumpContainerStorageType? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override MetaDumpContainerStorageType? Read(ref Utf8JsonReader reader, Type objectType, JsonSerializerOptions options)
         {
-            string storage = reader.Value as string;
+            string storage = reader.GetString();
             return storage switch
             {
                 "UnknownVector" => MetaDumpContainerStorageType.UnknownVector,
@@ -129,7 +154,7 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        public override void WriteJson(JsonWriter writer, [AllowNull] MetaDumpContainerStorageType? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, MetaDumpContainerStorageType? value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }

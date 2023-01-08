@@ -31,7 +31,6 @@
     </PackageReference>
     <PackageReference Include="FlatSharp.Runtime" Version="7.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" Condition="'$(Configuration)'=='DEBUG'" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="XXHash3.NET" Version="1.2.2" />
     <PackageReference Include="ZstdSharp.Port" Version="0.6.1" />
   </ItemGroup>
