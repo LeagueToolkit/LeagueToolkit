@@ -6,9 +6,12 @@ using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
+using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.StaticObjectFile;
+using LeagueToolkit.Meta;
+using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
 using System;
 using System.Buffers;
@@ -16,6 +19,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -25,7 +29,7 @@ namespace LeagueToolkit.Sandbox
         {
             //using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            ProfileSkinnedMesh();
+            ProfileMetaSerialization();
         }
 
         static void ProfileSkinnedMesh()
@@ -62,6 +66,20 @@ namespace LeagueToolkit.Sandbox
                 .WriteMetaClasses(outputFile, classes, properties);
         }
 #endif
+
+        static void ProfileMetaSerialization()
+        {
+            BinTree binTree = new("base_srx.materials.bin");
+
+            MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+                Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+            );
+
+            StaticMaterialDef staticMaterialDef = MetaSerializer.Deserialize<StaticMaterialDef>(
+                metaEnvironment,
+                binTree.Objects.First(x => x.PathHash == 0x75cccc52)
+            );
+        }
 
         static void ProfileMapgeo(string toRead, string rewriteTo)
         {

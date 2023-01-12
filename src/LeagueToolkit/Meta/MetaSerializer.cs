@@ -156,7 +156,7 @@ namespace LeagueToolkit.Meta
 
         private static object DeserializeStructure(MetaEnvironment environment, BinTreeStructure structure)
         {
-            Type metaClassType = environment.FindMetaClass(structure.MetaClassHash);
+            Type metaClassType = environment.GetMetaClassType(structure.MetaClassHash);
             if (metaClassType is null)
                 return null; // Couldn't deserialize structure
 
@@ -169,7 +169,7 @@ namespace LeagueToolkit.Meta
 
         private static object DeserializeEmbedded(MetaEnvironment environment, BinTreeEmbedded embedded)
         {
-            Type metaClassType = environment.FindMetaClass(embedded.MetaClassHash);
+            Type metaClassType = environment.GetMetaClassType(embedded.MetaClassHash);
             if (metaClassType is null)
                 return null; // Couldn't deserialize structure
 
