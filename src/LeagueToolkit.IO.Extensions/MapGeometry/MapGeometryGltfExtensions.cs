@@ -1,156 +1,232 @@
-﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Environment;
+﻿using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
-using SharpGLTF.Geometry;
-using SharpGLTF.Geometry.VertexTypes;
-using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
-using SharpGLTF.Transforms;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
-    using VERTEX = VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexEmpty>;
-
     public static class MapGeometryGltfExtensions
     {
-        public static ModelRoot ToGLTF(this MapGeometry mgeo)
+        public static ModelRoot ToGltf(this MapGeometry mapGeometry)
         {
             ModelRoot root = ModelRoot.CreateModel();
-            Scene scene = root.UseScene("Map");
-            Node rootNode = scene.CreateNode("Map");
+            Scene scene = root.UseScene(root.LogicalScenes.Count);
+            Node mapNode = scene.CreateNode("map").WithLocalScale(new(-1f, 1f, 1f));
 
-            // Find all layer combinations used in the Map
-            // so we can group the meshes
-            var layerModelMap = new Dictionary<EnvironmentVisibilityFlags, List<MapGeometryModel>>();
-            foreach (MapGeometryModel mesh in mgeo.Meshes)
+            foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
-                if (!layerModelMap.ContainsKey(mesh.VisibilityFlags))
-                {
-                    layerModelMap.Add(mesh.VisibilityFlags, new List<MapGeometryModel>());
-                }
+                // Create materials
+                Dictionary<string, Material> materials = new();
+                foreach (MapGeometrySubmesh range in mesh.Submeshes)
+                    materials.Add(
+                        range.Material,
+                        root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(mesh.DisableBackfaceCulling)
+                    );
 
-                layerModelMap[mesh.VisibilityFlags].Add(mesh);
+                // Create mesh
+                Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
+
+                // Create mesh node
+                mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
             }
 
-            // Create node for each layer combination
-            var layerNodeMap = new Dictionary<EnvironmentVisibilityFlags, Node>();
-            foreach (var layerModelPair in layerModelMap)
-            {
-                layerNodeMap.Add(
-                    layerModelPair.Key,
-                    rootNode.CreateNode(DeriveLayerCombinationName(layerModelPair.Key))
-                );
-            }
+            root.MergeBuffers();
 
-            foreach (MapGeometryModel mesh in mgeo.Meshes)
-            {
-                IMeshBuilder<MaterialBuilder> meshBuilder = BuildMapGeometryMeshStatic(mesh);
-
-                layerNodeMap[mesh.VisibilityFlags]
-                    .CreateNode()
-                    .WithMesh(root.CreateMesh(meshBuilder))
-                    .WithLocalTransform(new AffineTransform(mesh.Transform));
-            }
+            root.DefaultScene = scene;
 
             return root;
         }
 
-        private static string DeriveLayerCombinationName(EnvironmentVisibilityFlags layerCombination)
+        private static Mesh CreateGltfMesh(
+            ModelRoot root,
+            MapGeometryModel mesh,
+            IReadOnlyDictionary<string, Material> materials
+        )
         {
-            if (layerCombination == EnvironmentVisibilityFlags.NoLayer)
-            {
-                return "NoLayer";
-            }
-            else if (layerCombination == EnvironmentVisibilityFlags.AllLayers)
-            {
-                return "AllLayers";
-            }
-            else
-            {
-                string name = "Layer-";
+            Mesh gltfMesh = root.CreateMesh(mesh.Name);
 
-                foreach (EnvironmentVisibilityFlags layerFlag in Enum.GetValues(typeof(EnvironmentVisibilityFlags)))
-                {
-                    if (
-                        layerCombination.HasFlag(layerFlag)
-                        && layerFlag != EnvironmentVisibilityFlags.AllLayers
-                        && layerFlag != EnvironmentVisibilityFlags.NoLayer
-                    )
-                    {
-                        byte layerIndex = byte.Parse(layerFlag.ToString().Replace("Layer", ""));
-                        name += layerIndex + "-";
-                    }
-                }
+            foreach (MapGeometrySubmesh range in mesh.Submeshes)
+            {
+                MemoryAccessor indicesMemoryAccessor = CreateGltfMeshPrimitiveIndicesMemoryAccessor(
+                    range,
+                    mesh.Indices
+                );
+                MemoryAccessor[] vertexMemoryAccessors = CreateGltfMeshPrimitiveVertexMemoryAccessors(
+                    range,
+                    mesh.VerticesView
+                );
 
-                return name.Remove(name.Length - 1);
+                SanitizeVertexMemoryAccessors(vertexMemoryAccessors);
+
+                MemoryAccessor.VerifyVertexIndices(indicesMemoryAccessor, (uint)range.VertexCount);
+                MemoryAccessor.SanitizeVertexAttributes(vertexMemoryAccessors);
+
+                gltfMesh
+                    .CreatePrimitive()
+                    .WithMaterial(materials[range.Material])
+                    .WithIndicesAccessor(PrimitiveType.TRIANGLES, indicesMemoryAccessor)
+                    .WithVertexAccessors(vertexMemoryAccessors);
             }
+
+            return gltfMesh;
         }
 
-        private static VERTEX[] BuildMeshVertices(MapGeometryModel mesh)
+        private static MemoryAccessor[] CreateGltfMeshPrimitiveVertexMemoryAccessors(
+            MapGeometrySubmesh range,
+            InstancedVertexBufferView vertexBuffer
+        )
         {
-            bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
-            bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-            bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.PrimaryColor, out var baseColorAccessor);
-            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
-            bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(ElementName.LightmapUV, out var lightmapUvAccessor);
-
-            if (hasPositions is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
-
-            VertexElementArray<Vector3> positionsArray = positionAccessor.AsVector3Array();
-            VertexElementArray<Vector3> normalsArray = hasNormals ? normalAccessor.AsVector3Array() : new();
-            var baseColorArray = hasBaseColor ? baseColorAccessor.AsBgraU8Array() : new();
-            VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : new();
-            VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs ? lightmapUvAccessor.AsVector2Array() : new();
-
-            VERTEX[] gltfVertices = new VERTEX[mesh.VerticesView.VertexCount];
-            for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
+            List<MemoryAccessor> memoryAccessors = new();
+            foreach (VertexElement element in vertexBuffer.Buffers.SelectMany(x => x.Description.Elements))
             {
-                gltfVertices[i] = new VERTEX()
-                    .WithGeometry(positionsArray[i], hasNormals ? normalsArray[i] : Vector3.Zero)
-                    .WithMaterial(
-                        hasBaseColor
-                            ? new(
-                                baseColorArray[i].r * 255,
-                                baseColorArray[i].g * 255,
-                                baseColorArray[i].b * 255,
-                                baseColorArray[i].a * 255
-                            )
-                            : Vector4.UnitW,
-                        hasDiffuseUvs ? diffuseUvsArray[i] : Vector2.Zero,
-                        hasLightmapUvs ? lightmapUvsArray[i] : Vector2.Zero
+                // Create access info
+                MemoryAccessInfo accessInfo = GetElementMemoryAccessInfo(element, range.VertexCount);
+
+                // Create vertex memory accessor
+                ArraySegment<byte> gltfAccessorBuffer = new(new byte[accessInfo.StepByteLength * range.VertexCount]);
+                MemoryAccessor gltfMemoryAccessor = new(gltfAccessorBuffer, accessInfo);
+
+                // Write data
+                int elementSize = element.GetSize();
+                VertexElementAccessor elementAccessor = vertexBuffer.GetAccessor(element.Name);
+                Span<byte> gltfMemoryAccessorData = gltfMemoryAccessor.Data.AsSpan();
+                for (int i = 0; i < range.VertexCount; i++)
+                {
+                    // First slice into start vertex and then slice the element
+                    ReadOnlySpan<byte> elementData = elementAccessor.BufferView.Span
+                        .Slice(range.MinVertex * elementSize)
+                        .Slice(i * elementAccessor.VertexStride + elementAccessor.ElementOffset, elementSize);
+
+                    WriteAttributeData(
+                        gltfMemoryAccessorData,
+                        i * accessInfo.StepByteLength,
+                        element.Format,
+                        elementData
                     );
+                }
+
+                memoryAccessors.Add(gltfMemoryAccessor);
             }
 
-            return gltfVertices;
+            return memoryAccessors.ToArray();
         }
 
-        private static IMeshBuilder<MaterialBuilder> BuildMapGeometryMeshStatic(MapGeometryModel mesh)
+        private static MemoryAccessor CreateGltfMeshPrimitiveIndicesMemoryAccessor(
+            MapGeometrySubmesh range,
+            ReadOnlyMemory<ushort> indexBuffer
+        )
         {
-            VERTEX[] vertices = BuildMeshVertices(mesh);
-            var meshBuilder = VERTEX.CreateCompatibleMesh(mesh.Name);
+            MemoryAccessor memoryAccessor =
+                new(
+                    new(new byte[2 * range.IndexCount]),
+                    new("INDEX", 0, range.IndexCount, 0, DimensionType.SCALAR, EncodingType.UNSIGNED_SHORT)
+                );
 
-            foreach (MapGeometrySubmesh submesh in mesh.Submeshes)
+            Span<ushort> accessorBuffer = memoryAccessor.Data.AsSpan().Cast<byte, ushort>();
+            for (int i = 0; i < range.IndexCount; i++)
+                accessorBuffer[i] = (ushort)(indexBuffer.Span[i + range.StartIndex] - range.MinVertex);
+
+            return memoryAccessor;
+        }
+
+        private static void WriteAttributeData(
+            Span<byte> buffer,
+            int offset,
+            ElementFormat format,
+            ReadOnlySpan<byte> data
+        )
+        {
+            if (format is ElementFormat.BGRA_Packed8888)
+                WriteAttributeBgraU8(buffer, offset, data);
+            else if (format is ElementFormat.ZYXW_Packed8888)
+                WriteAttributeZyxwU8(buffer, offset, data);
+            else
+                data.CopyTo(buffer[offset..]);
+        }
+
+        private static void WriteAttributeBgraU8(Span<byte> buffer, int offset, ReadOnlySpan<byte> data)
+        {
+            buffer[offset + 0] = data[2];
+            buffer[offset + 1] = data[1];
+            buffer[offset + 2] = data[0];
+            buffer[offset + 3] = data[3];
+        }
+
+        private static void WriteAttributeZyxwU8(Span<byte> buffer, int offset, ReadOnlySpan<byte> data)
+        {
+            buffer[offset + 0] = data[2];
+            buffer[offset + 1] = data[1];
+            buffer[offset + 2] = data[0];
+            buffer[offset + 3] = data[3];
+        }
+
+        private static void SanitizeVertexMemoryAccessors(MemoryAccessor[] memoryAccessors)
+        {
+            SanitizeVertexNormalMemoryAccessor(memoryAccessors);
+        }
+
+        private static void SanitizeVertexNormalMemoryAccessor(MemoryAccessor[] memoryAccessors)
+        {
+            MemoryAccessor normalAccessor = memoryAccessors.FirstOrDefault(x => x.Attribute.Name == "NORMAL");
+            if (normalAccessor is not null)
             {
-                ReadOnlySpan<ushort> indices = mesh.Indices.Span.Slice(submesh.StartIndex, submesh.IndexCount);
+                MemoryAccessor positionAccessor = memoryAccessors.First(x => x.Attribute.Name == "POSITION");
 
-                MaterialBuilder material = new MaterialBuilder(submesh.Material).WithUnlitShader();
-                var primitive = meshBuilder.UsePrimitive(material);
+                Vector3Array positionsArray = positionAccessor.AsVector3Array();
+                Vector3Array normalsArray = normalAccessor.AsVector3Array();
 
-                for (int i = 0; i < indices.Length; i += 3)
+                for (int i = 0; i < positionsArray.Count; i++)
                 {
-                    VERTEX v1 = vertices[indices[i + 0]];
-                    VERTEX v2 = vertices[indices[i + 1]];
-                    VERTEX v3 = vertices[indices[i + 2]];
+                    Vector3 normal = normalsArray[i];
 
-                    primitive.AddTriangle(v1, v2, v3);
+                    if (normal == Vector3.Zero)
+                        normal = positionsArray[i];
+
+                    float length = normal.Length();
+                    if (length < 0.99f || length > 0.01f)
+                        normal = Vector3.Normalize(normal);
+
+                    normalsArray[i] = normal;
                 }
             }
+        }
 
-            return meshBuilder;
+        private static MemoryAccessInfo GetElementMemoryAccessInfo(VertexElement element, int vertexCount)
+        {
+            string attribute = GetGltfVertexAttributeFromElementName(element.Name);
+
+            return element.Format switch
+            {
+                ElementFormat.X_Float32 => new(attribute, 0, vertexCount, 0, DimensionType.SCALAR, EncodingType.FLOAT),
+                ElementFormat.XY_Float32 => new(attribute, 0, vertexCount, 0, DimensionType.VEC2, EncodingType.FLOAT),
+                ElementFormat.XYZ_Float32 => new(attribute, 0, vertexCount, 0, DimensionType.VEC3, EncodingType.FLOAT),
+                ElementFormat.XYZW_Float32 => new(attribute, 0, vertexCount, 0, DimensionType.VEC4, EncodingType.FLOAT),
+
+                ElementFormat.BGRA_Packed8888
+                or ElementFormat.ZYXW_Packed8888
+                or ElementFormat.RGBA_Packed8888
+                or ElementFormat.XYZW_Packed8888
+                    => new(attribute, 0, vertexCount, 0, DimensionType.VEC4, EncodingType.UNSIGNED_BYTE, true),
+            };
+        }
+
+        private static string GetGltfVertexAttributeFromElementName(ElementName element)
+        {
+            return element switch
+            {
+                ElementName.Position => "POSITION",
+                ElementName.Normal => "NORMAL",
+                ElementName.PrimaryColor => "COLOR_0",
+                ElementName.SecondaryColor => "COLOR_1",
+                ElementName.DiffuseUV => "TEXCOORD_0",
+                ElementName.LightmapUV => "TEXCOORD_1",
+                ElementName.Tangent => "TANGENT",
+                _ => throw new NotImplementedException($"Cannot map element: {element} to a glTF vertex attribute")
+            };
         }
     }
 }

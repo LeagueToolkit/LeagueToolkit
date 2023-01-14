@@ -27,9 +27,28 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            //using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
+            using MapGeometry mgeo = new("ioniabase.mapgeo");
+            foreach (MapGeometryModel mesh in mgeo.Meshes)
+            {
+                bool x = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var accessor);
+                if (x)
+                {
+                    VertexElementArray<Vector3> normals = accessor.AsVector3Array();
+
+                    for (int i = 0; i < normals.Count; i++)
+                    {
+                        if (normals[i] == Vector3.Zero)
+                        {
+                            ;
+                        }
+                    }
+                }
+            }
+
+            mgeo.ToGltf().SaveGLB("ioniabase_togltfnew.glb");
+
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            ProfileMetaSerialization();
+            //ProfileMetaSerialization();
         }
 
         static void ProfileSkinnedMesh()
