@@ -1,17 +1,33 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Hashing;
+using LeagueToolkit.IO.PropertyBin;
+using LeagueToolkit.Meta;
+using LeagueToolkit.Meta.Classes;
+using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
+using SixLabors.ImageSharp.Textures.Formats;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
+
+using ImageSharpTexture = SixLabors.ImageSharp.Textures.Texture;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
     public static class MapGeometryGltfExtensions
     {
-        public static ModelRoot ToGltf(this MapGeometry mapGeometry)
+        private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[] { "DiffuseTexture", "Diffuse_Texture" };
+
+        public static ModelRoot ToGltf(
+            this MapGeometry mapGeometry,
+            BinTree materialsBin,
+            MapGeometryGltfConversionContext context
+        )
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
@@ -20,12 +36,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
             foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
                 // Create materials
-                Dictionary<string, Material> materials = new();
-                foreach (MapGeometrySubmesh range in mesh.Submeshes)
-                    materials.TryAdd(
-                        range.Material,
-                        root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(mesh.DisableBackfaceCulling)
-                    );
+                Dictionary<string, Material> materials = CreateGltfMeshMaterials(
+                    mesh,
+                    mapGeometry.BakedTerrainSamplers,
+                    root,
+                    materialsBin,
+                    context
+                );
 
                 // Create mesh
                 Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
@@ -75,6 +92,111 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
 
             return gltfMesh;
+        }
+
+        private static Dictionary<string, Material> CreateGltfMeshMaterials(
+            MapGeometryModel mesh,
+            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            ModelRoot root,
+            BinTree materialsBin,
+            MapGeometryGltfConversionContext context
+        )
+        {
+            Guard.IsNotNull(mesh, nameof(mesh));
+            Guard.IsNotNull(root, nameof(root));
+            Guard.IsNotNull(materialsBin, nameof(materialsBin));
+            Guard.IsNotNull(context, nameof(context));
+
+            Dictionary<string, Material> materials = new();
+            foreach (MapGeometrySubmesh range in mesh.Submeshes)
+            {
+                Material material = root.CreateMaterial(range.Material).WithDoubleSide(mesh.DisableBackfaceCulling);
+
+                InitializeMaterial(material, mesh, bakedTerrainSamplers, root, materialsBin, context);
+            }
+
+            return materials;
+        }
+
+        private static void InitializeMaterial(
+            Material material,
+            MapGeometryModel mesh,
+            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            ModelRoot root,
+            BinTree materialsBin,
+            MapGeometryGltfConversionContext context
+        )
+        {
+            Guard.IsNotNull(material, nameof(material));
+
+            // If game data path is null, initialize to unlit shader and return
+            if (string.IsNullOrEmpty(context.Settings.GameDataPath))
+            {
+                material.InitializeUnlit();
+                return;
+            }
+
+            StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
+
+            InitializeMaterialBaseColorChannel(material, materialDef, bakedTerrainSamplers, mesh, root, context);
+        }
+
+        private static StaticMaterialDef ResolveMaterialDefiniton(
+            string materialName,
+            BinTree materialsBin,
+            MapGeometryGltfConversionContext context
+        )
+        {
+            // Find material definition bin object
+            BinTreeObject materialBinObject = materialsBin.Objects.FirstOrDefault(
+                x => x.PathHash == Fnv1a.HashLower(materialName)
+            );
+            if (materialBinObject is null && context.Settings.ThrowIfMaterialNotFound is true)
+                ThrowHelper.ThrowInvalidOperationException($"Failed to find {materialName} in {nameof(materialsBin)}");
+
+            // Deserialize material definition
+            StaticMaterialDef materialDef = null;
+            try
+            {
+                materialDef = MetaSerializer.Deserialize<StaticMaterialDef>(context.MetaEnvironment, materialBinObject);
+            }
+            catch (Exception)
+            {
+                if (context.Settings.ThrowOnMaterialDeserializationFailure)
+                    throw;
+            }
+
+            return materialDef;
+        }
+
+        private static void InitializeMaterialBaseColorChannel(
+            Material material,
+            StaticMaterialDef materialDef,
+            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            MapGeometryModel mesh,
+            ModelRoot root,
+            MapGeometryGltfConversionContext context
+        )
+        {
+            Guard.IsNotNull(materialDef, nameof(materialDef));
+
+            // Resolve diffuse sampler definition
+            StaticMaterialShaderSamplerDef diffuseSampler = materialDef.SamplerValues.FirstOrDefault(
+                x =>
+                    DIFFUSE_SAMPLER_NAMES.Contains(x.Value.SamplerName)
+                    || x.Value.SamplerName == bakedTerrainSamplers.Primary
+            );
+
+            // If diffuse sampler wasn't found and STATIONARY_LIGHT and BAKED_PAINT
+            // are also null then we cannot create a valid diffuse channel, return
+            string textureName = diffuseSampler?.TextureName ?? mesh.StationaryLight.Texture ?? mesh.BakedPaint.Texture;
+            if (string.IsNullOrEmpty(textureName))
+                return;
+
+            string texturePath = Path.Join(context.Settings.GameDataPath, textureName);
+            ITextureFormat texture = ImageSharpTexture.DetectFormat(texturePath);
+
+            //material.WithChannelTexture("BaseColor", 0, "");
         }
 
         private static MemoryAccessor[] CreateGltfMeshVertexMemoryAccessors(InstancedVertexBufferView vertexBuffer)
@@ -220,6 +342,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 or ElementFormat.RGBA_Packed8888
                 or ElementFormat.XYZW_Packed8888
                     => new(attribute, 0, vertexCount, 0, DimensionType.VEC4, EncodingType.UNSIGNED_BYTE, true),
+                _ => throw new NotImplementedException("Invalid element format"),
             };
         }
 
@@ -237,5 +360,60 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 _ => throw new NotImplementedException($"Cannot map element: {element} to a glTF vertex attribute")
             };
         }
+    }
+
+    /// <summary>
+    /// Contains the necessary information for conversion to glTF
+    /// </summary>
+    public readonly struct MapGeometryGltfConversionContext
+    {
+        /// <summary>
+        /// Gets the <see cref="Meta.MetaEnvironment"/> used during the conversion
+        /// </summary>
+        public MetaEnvironment MetaEnvironment { get; init; }
+
+        /// <summary>
+        /// Gets the <see cref="MapGeometryGltfConversionSettings"/> used during the conversion
+        /// </summary>
+        public MapGeometryGltfConversionSettings Settings { get; init; }
+
+        /// <summary>
+        /// Creates a new <see cref="MapGeometryGltfConversionContext"/> object with the specified parameters
+        /// </summary>
+        /// <param name="metaEnvironment">The <see cref="Meta.MetaEnvironment"/> to use</param>
+        /// <param name="settings">The <see cref="MapGeometryGltfConversionSettings"/> to use</param>
+        public MapGeometryGltfConversionContext(
+            MetaEnvironment metaEnvironment,
+            MapGeometryGltfConversionSettings settings
+        )
+        {
+            this.MetaEnvironment = metaEnvironment;
+            this.Settings = settings;
+        }
+    }
+
+    /// <summary>
+    /// glTF Conversion settings
+    /// </summary>
+    public struct MapGeometryGltfConversionSettings
+    {
+        /// <summary>
+        /// Gets or sets the game data path which is used for resolving assets.<br></br>
+        /// Set this if you want to bundle textures and materials into the glTF asset.
+        /// </summary>
+        public string GameDataPath { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the conversion routine
+        /// should throw if it cannot find a material in the provided <see cref="BinTree"/>
+        /// </summary>
+        public bool ThrowIfMaterialNotFound { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the conversion routine
+        /// should throw if it fails to deserialize a <see cref="Meta.Classes.StaticMaterialDef"/>
+        /// from the provided <see cref="BinTree"/>
+        /// </summary>
+        public bool ThrowOnMaterialDeserializationFailure { get; set; }
     }
 }

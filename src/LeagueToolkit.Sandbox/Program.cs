@@ -27,11 +27,34 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            using MapGeometry mgeo = new("ioniabase.mapgeo");
-            mgeo.ToGltf().SaveGLB("ioniabase_togltfnew.glb");
+            ProfileMapgeoToGltf();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
+        }
+
+        static void ProfileMapgeoToGltf()
+        {
+            BinTree materialsBin = new("ioniabase.materials.bin");
+            using MapGeometry mgeo = new("ioniabase.mapgeo");
+
+            MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+                Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+            );
+
+            mgeo.ToGltf(
+                    materialsBin,
+                    new(
+                        metaEnvironment,
+                        new()
+                        {
+                            GameDataPath = "X:/lol/game",
+                            ThrowIfMaterialNotFound = true,
+                            ThrowOnMaterialDeserializationFailure = true
+                        }
+                    )
+                )
+                .SaveGLB("ioniabase_togltfnew.glb");
         }
 
         static void ProfileSkinnedMesh()
