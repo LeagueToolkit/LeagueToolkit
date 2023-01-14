@@ -49,22 +49,23 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Mesh gltfMesh = root.CreateMesh(mesh.Name);
 
+            MemoryAccessor[] meshVertexMemoryAccessors = CreateGltfMeshVertexMemoryAccessors(mesh.VerticesView);
+
+            MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
+            SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
+
             foreach (MapGeometrySubmesh range in mesh.Submeshes)
             {
-                // TODO: Can probably use MemoryAccessInfo.Slice to avoid buffer re-allocation
                 MemoryAccessor indicesMemoryAccessor = CreateGltfMeshPrimitiveIndicesMemoryAccessor(
                     range,
                     mesh.Indices
                 );
                 MemoryAccessor[] vertexMemoryAccessors = CreateGltfMeshPrimitiveVertexMemoryAccessors(
                     range,
-                    mesh.VerticesView
+                    meshVertexMemoryAccessors
                 );
 
-                SanitizeVertexMemoryAccessors(vertexMemoryAccessors);
-
                 MemoryAccessor.VerifyVertexIndices(indicesMemoryAccessor, (uint)range.VertexCount);
-                MemoryAccessor.SanitizeVertexAttributes(vertexMemoryAccessors);
 
                 gltfMesh
                     .CreatePrimitive()
@@ -76,31 +77,30 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return gltfMesh;
         }
 
-        private static MemoryAccessor[] CreateGltfMeshPrimitiveVertexMemoryAccessors(
-            MapGeometrySubmesh range,
-            InstancedVertexBufferView vertexBuffer
-        )
+        private static MemoryAccessor[] CreateGltfMeshVertexMemoryAccessors(InstancedVertexBufferView vertexBuffer)
         {
             List<MemoryAccessor> memoryAccessors = new();
             foreach (VertexElement element in vertexBuffer.Buffers.SelectMany(x => x.Description.Elements))
             {
                 // Create access info
-                MemoryAccessInfo accessInfo = GetElementMemoryAccessInfo(element, range.VertexCount);
+                MemoryAccessInfo accessInfo = GetElementMemoryAccessInfo(element, vertexBuffer.VertexCount);
 
                 // Create vertex memory accessor
-                ArraySegment<byte> gltfAccessorBuffer = new(new byte[accessInfo.StepByteLength * range.VertexCount]);
+                ArraySegment<byte> gltfAccessorBuffer =
+                    new(new byte[accessInfo.StepByteLength * vertexBuffer.VertexCount]);
                 MemoryAccessor gltfMemoryAccessor = new(gltfAccessorBuffer, accessInfo);
 
                 // Write data
                 int elementSize = element.GetSize();
                 VertexElementAccessor elementAccessor = vertexBuffer.GetAccessor(element.Name);
                 Span<byte> gltfMemoryAccessorData = gltfMemoryAccessor.Data.AsSpan();
-                for (int i = 0; i < range.VertexCount; i++)
+                for (int i = 0; i < vertexBuffer.VertexCount; i++)
                 {
                     // First slice into start vertex and then slice the element
-                    ReadOnlySpan<byte> elementData = elementAccessor.BufferView.Span[
-                        (range.MinVertex * elementSize)..
-                    ].Slice(i * elementAccessor.VertexStride + elementAccessor.ElementOffset, elementSize);
+                    ReadOnlySpan<byte> elementData = elementAccessor.BufferView.Span.Slice(
+                        i * elementAccessor.VertexStride + elementAccessor.ElementOffset,
+                        elementSize
+                    );
 
                     WriteAttributeData(
                         gltfMemoryAccessorData,
@@ -115,6 +115,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             return memoryAccessors.ToArray();
         }
+
+        private static MemoryAccessor[] CreateGltfMeshPrimitiveVertexMemoryAccessors(
+            MapGeometrySubmesh range,
+            MemoryAccessor[] meshMemoryAccessors
+        ) =>
+            meshMemoryAccessors
+                .Select(x => new MemoryAccessor(x.Data, x.Attribute.Slice(range.MinVertex, range.VertexCount)))
+                .ToArray();
 
         private static MemoryAccessor CreateGltfMeshPrimitiveIndicesMemoryAccessor(
             MapGeometrySubmesh range,
