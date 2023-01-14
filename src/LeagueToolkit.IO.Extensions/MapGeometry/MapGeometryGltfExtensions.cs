@@ -15,7 +15,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
-            Node mapNode = scene.CreateNode("map"); //.WithLocalScale(new(-1f, 1f, 1f));
+            Node mapNode = scene.CreateNode("map").WithLocalScale(new(-1f, 1f, 1f));
 
             foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
@@ -31,7 +31,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
 
                 // Create mesh node
-                mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh); //.WithLocalTransform(mesh.Transform);
+                mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
             }
 
             root.MergeBuffers();
