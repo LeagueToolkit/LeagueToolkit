@@ -15,14 +15,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
-            Node mapNode = scene.CreateNode("map").WithLocalScale(new(-1f, 1f, 1f));
+            Node mapNode = scene.CreateNode("map"); //.WithLocalScale(new(-1f, 1f, 1f));
 
             foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
                 // Create materials
                 Dictionary<string, Material> materials = new();
                 foreach (MapGeometrySubmesh range in mesh.Submeshes)
-                    materials.Add(
+                    materials.TryAdd(
                         range.Material,
                         root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(mesh.DisableBackfaceCulling)
                     );
@@ -31,7 +31,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
 
                 // Create mesh node
-                mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
+                mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh); //.WithLocalTransform(mesh.Transform);
             }
 
             root.MergeBuffers();
@@ -51,6 +51,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             foreach (MapGeometrySubmesh range in mesh.Submeshes)
             {
+                // TODO: Can probably use MemoryAccessInfo.Slice to avoid buffer re-allocation
                 MemoryAccessor indicesMemoryAccessor = CreateGltfMeshPrimitiveIndicesMemoryAccessor(
                     range,
                     mesh.Indices
@@ -97,9 +98,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 for (int i = 0; i < range.VertexCount; i++)
                 {
                     // First slice into start vertex and then slice the element
-                    ReadOnlySpan<byte> elementData = elementAccessor.BufferView.Span
-                        .Slice(range.MinVertex * elementSize)
-                        .Slice(i * elementAccessor.VertexStride + elementAccessor.ElementOffset, elementSize);
+                    ReadOnlySpan<byte> elementData = elementAccessor.BufferView.Span[
+                        (range.MinVertex * elementSize)..
+                    ].Slice(i * elementAccessor.VertexStride + elementAccessor.ElementOffset, elementSize);
 
                     WriteAttributeData(
                         gltfMemoryAccessorData,

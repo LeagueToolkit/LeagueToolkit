@@ -27,7 +27,7 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            using MapGeometry mgeo = new("ioniabase.mapgeo");
+            using MapGeometry mgeo = new("riot.mapgeo");
             foreach (MapGeometryModel mesh in mgeo.Meshes)
             {
                 bool x = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var accessor);
@@ -45,7 +45,7 @@ namespace LeagueToolkit.Sandbox
                 }
             }
 
-            mgeo.ToGltf().SaveGLB("ioniabase_togltfnew.glb");
+            mgeo.ToGltf().SaveGLB("riot_togltfnew.glb");
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
