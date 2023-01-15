@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
+using SharpGLTF.IO;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
@@ -16,15 +18,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-
 using GltfImage = SharpGLTF.Schema2.Image;
-using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
-using GltfTextureMipMapFilter = SharpGLTF.Schema2.TextureMipMapFilter;
 using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
+using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 using ImageSharpImage = SixLabors.ImageSharp.Image;
 using ImageSharpTexture = SixLabors.ImageSharp.Textures.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
-using LeagueToolkit.Core.Renderer;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -32,6 +31,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
     {
         private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[] { "DiffuseTexture", "Diffuse_Texture" };
         private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
+
+        private const float DEFAULT_ALPHA_TEST = 0.3f;
 
         private const string TEXTURE_QUALITY_PREFIX_LOW = "4x";
         private const string TEXTURE_QUALITY_PREFIX_MEDIUM = "2x";
@@ -152,14 +153,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Guard.IsNotNull(material, nameof(material));
 
-            // If game data path is null, initialize to unlit shader and return
             if (string.IsNullOrEmpty(context.Settings.GameDataPath))
-            {
-                material.InitializeUnlit();
                 return;
-            }
 
             StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
+
+            material.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = material.Name });
 
             InitializeMaterialRenderTechnique(material, materialDef);
             InitializeMaterialBaseColorChannel(
@@ -215,13 +214,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             if (pass is null)
                 return;
 
-            if (pass.BlendEnable)
-            {
-                material.Alpha = AlphaMode.BLEND;
-                material.DoubleSided = false;
-            }
-
-            // Try to get alpha cutoff
+            // Try to get alpha cutoff, if it doesn't exist then assign default one
             StaticMaterialShaderParamDef alphaTestParameter = materialDef.ParamValues.FirstOrDefault(
                 x => x.Value.Name == "AlphaTestValue"
             );
@@ -229,6 +222,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
             {
                 material.Alpha = AlphaMode.MASK;
                 material.AlphaCutoff = alphaTestParameter.Value.X;
+            }
+            else if (pass.BlendEnable)
+            {
+                material.Alpha = AlphaMode.MASK;
+                material.AlphaCutoff = DEFAULT_ALPHA_TEST;
             }
         }
 
@@ -292,6 +290,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             // Create glTF image
             GltfImage gltfImage = root.UseImage(new(imageStream.ToArray()));
+            gltfImage.Name = Path.GetFileNameWithoutExtension(texturePath);
+
             textureRegistry.Add(texturePath, gltfImage);
 
             return gltfImage;
@@ -506,6 +506,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
                 _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
             };
+
+        private readonly struct GltfMaterialExtras
+        {
+            public string Name { get; init; }
+        }
     }
 
     /// <summary>
