@@ -35,8 +35,8 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileMapgeoToGltf()
         {
-            BinTree materialsBin = new("ioniabase.materials.bin");
-            using MapGeometry mgeo = new("ioniabase.mapgeo");
+            BinTree materialsBin = new("base_srx.materials.bin");
+            using MapGeometry mgeo = new("base_srx.mapgeo");
 
             MetaEnvironment metaEnvironment = MetaEnvironment.Create(
                 Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -54,7 +54,7 @@ namespace LeagueToolkit.Sandbox
                         }
                     )
                 )
-                .SaveGLB("ioniabase_togltfnew.glb");
+                .SaveGLB("base_srx.glb");
         }
 
         static void ProfileSkinnedMesh()

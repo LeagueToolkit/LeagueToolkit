@@ -5,17 +5,22 @@ using LeagueToolkit.Hashing;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
-using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Textures.Formats;
+using SixLabors.ImageSharp.Textures.Formats.Dds;
+using SixLabors.ImageSharp.Textures.TextureFormats;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using GltfImage = SharpGLTF.Schema2.Image;
+using ImageSharpImage = SixLabors.ImageSharp.Image;
 using ImageSharpTexture = SixLabors.ImageSharp.Textures.Texture;
+using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -33,6 +38,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             Scene scene = root.UseScene(root.LogicalScenes.Count);
             Node mapNode = scene.CreateNode("map").WithLocalScale(new(-1f, 1f, 1f));
 
+            TextureRegistry textureRegistry = new();
             foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
                 // Create materials
@@ -41,6 +47,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     mapGeometry.BakedTerrainSamplers,
                     root,
                     materialsBin,
+                    textureRegistry,
                     context
                 );
 
@@ -51,6 +58,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
             }
 
+            root.MergeImages();
             root.MergeBuffers();
 
             root.DefaultScene = scene;
@@ -99,12 +107,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
             ModelRoot root,
             BinTree materialsBin,
+            TextureRegistry textureRegistry,
             MapGeometryGltfConversionContext context
         )
         {
             Guard.IsNotNull(mesh, nameof(mesh));
             Guard.IsNotNull(root, nameof(root));
             Guard.IsNotNull(materialsBin, nameof(materialsBin));
+            Guard.IsNotNull(textureRegistry, nameof(textureRegistry));
             Guard.IsNotNull(context, nameof(context));
 
             Dictionary<string, Material> materials = new();
@@ -112,7 +122,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
             {
                 Material material = root.CreateMaterial(range.Material).WithDoubleSide(mesh.DisableBackfaceCulling);
 
-                InitializeMaterial(material, mesh, bakedTerrainSamplers, root, materialsBin, context);
+                InitializeMaterial(material, mesh, bakedTerrainSamplers, root, materialsBin, textureRegistry, context);
+
+                materials.TryAdd(material.Name, material);
             }
 
             return materials;
@@ -124,6 +136,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
             ModelRoot root,
             BinTree materialsBin,
+            TextureRegistry textureRegistry,
             MapGeometryGltfConversionContext context
         )
         {
@@ -138,7 +151,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
 
-            InitializeMaterialBaseColorChannel(material, materialDef, bakedTerrainSamplers, mesh, root, context);
+            InitializeMaterialBaseColorChannel(
+                material,
+                materialDef,
+                bakedTerrainSamplers,
+                mesh,
+                root,
+                textureRegistry,
+                context
+            );
         }
 
         private static StaticMaterialDef ResolveMaterialDefiniton(
@@ -175,6 +196,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
             MapGeometryModel mesh,
             ModelRoot root,
+            TextureRegistry textureRegistry,
             MapGeometryGltfConversionContext context
         )
         {
@@ -193,10 +215,48 @@ namespace LeagueToolkit.IO.MapGeometryFile
             if (string.IsNullOrEmpty(textureName))
                 return;
 
+            // Create glTF Image
             string texturePath = Path.Join(context.Settings.GameDataPath, textureName);
-            ITextureFormat texture = ImageSharpTexture.DetectFormat(texturePath);
+            GltfImage image = CreateImage(texturePath, textureRegistry, root);
 
-            //material.WithChannelTexture("BaseColor", 0, "");
+            material.WithPBRMetallicRoughness().WithChannelTexture("BaseColor", 0, image);
+        }
+
+        private static ImageSharpTexture LoadTexture(string texturePath)
+        {
+            // TODO: Support TEX files
+            // Get texture format and if it's not DDS, return
+            ITextureFormat textureFormat = ImageSharpTexture.DetectFormat(texturePath);
+            if (textureFormat is not DdsFormat)
+                return null;
+
+            // Load and register texture
+            return ImageSharpTexture.Load(texturePath);
+        }
+
+        private static GltfImage CreateImage(string texturePath, TextureRegistry textureRegistry, ModelRoot root)
+        {
+            // If texture is already loaded, return it
+            if (textureRegistry.TryGetValue(texturePath, out GltfImage existingImage))
+                return existingImage;
+
+            // Load texture
+            using ImageSharpTexture texture = LoadTexture(texturePath);
+            if (texture is not FlatTexture flatTexture)
+                return null;
+
+            // Re-encode to PNG
+            using MemoryStream imageStream = new();
+            using ImageSharpImage image = flatTexture.MipMaps[0].GetImage();
+            image.SaveAsPng(imageStream);
+
+            // Create glTF image
+            GltfImage gltfImage = root.CreateImage();
+            gltfImage.Content = new(imageStream.ToArray());
+
+            textureRegistry.Add(texturePath, gltfImage);
+
+            return gltfImage;
         }
 
         private static MemoryAccessor[] CreateGltfMeshVertexMemoryAccessors(InstancedVertexBufferView vertexBuffer)

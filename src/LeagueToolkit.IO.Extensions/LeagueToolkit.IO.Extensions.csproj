@@ -23,7 +23,6 @@
   <ItemGroup>
     <PackageReference Include="LeagueToolkit.Meta.Classes" Version="12.23.485.7490" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0027" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.0.0" />
     <PackageReference Include="SixLabors.ImageSharp.Textures" Version="0.0.0-alpha.0.136" />
   </ItemGroup>
 
