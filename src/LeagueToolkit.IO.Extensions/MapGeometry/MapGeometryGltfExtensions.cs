@@ -18,15 +18,23 @@ using System.Linq;
 using System.Numerics;
 
 using GltfImage = SharpGLTF.Schema2.Image;
+using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
+using GltfTextureMipMapFilter = SharpGLTF.Schema2.TextureMipMapFilter;
+using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
 using ImageSharpImage = SixLabors.ImageSharp.Image;
 using ImageSharpTexture = SixLabors.ImageSharp.Textures.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
+using LeagueToolkit.Core.Renderer;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
     public static class MapGeometryGltfExtensions
     {
         private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[] { "DiffuseTexture", "Diffuse_Texture" };
+        private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
+
+        private const string TEXTURE_QUALITY_PREFIX_LOW = "4x";
+        private const string TEXTURE_QUALITY_PREFIX_MEDIUM = "2x";
 
         public static ModelRoot ToGltf(
             this MapGeometry mapGeometry,
@@ -120,7 +128,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
             Dictionary<string, Material> materials = new();
             foreach (MapGeometrySubmesh range in mesh.Submeshes)
             {
-                Material material = root.CreateMaterial(range.Material).WithDoubleSide(mesh.DisableBackfaceCulling);
+                Material material = root.CreateMaterial(range.Material)
+                    .WithUnlit()
+                    .WithDoubleSide(mesh.DisableBackfaceCulling);
 
                 InitializeMaterial(material, mesh, bakedTerrainSamplers, root, materialsBin, textureRegistry, context);
 
@@ -151,6 +161,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
 
+            InitializeMaterialRenderTechnique(material, materialDef);
             InitializeMaterialBaseColorChannel(
                 material,
                 materialDef,
@@ -190,6 +201,37 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return materialDef;
         }
 
+        private static void InitializeMaterialRenderTechnique(Material material, StaticMaterialDef materialDef)
+        {
+            // Resolve default technique
+            StaticMaterialTechniqueDef defaultTechnique = materialDef.Techniques.FirstOrDefault(
+                x => x.Value.Name == materialDef.DefaultTechnique
+            );
+            if (defaultTechnique is null)
+                return;
+
+            // Get first render pass definition
+            StaticMaterialPassDef pass = defaultTechnique.Passes.FirstOrDefault();
+            if (pass is null)
+                return;
+
+            if (pass.BlendEnable)
+            {
+                material.Alpha = AlphaMode.BLEND;
+                material.DoubleSided = false;
+            }
+
+            // Try to get alpha cutoff
+            StaticMaterialShaderParamDef alphaTestParameter = materialDef.ParamValues.FirstOrDefault(
+                x => x.Value.Name == "AlphaTestValue"
+            );
+            if (alphaTestParameter is not null)
+            {
+                material.Alpha = AlphaMode.MASK;
+                material.AlphaCutoff = alphaTestParameter.Value.X;
+            }
+        }
+
         private static void InitializeMaterialBaseColorChannel(
             Material material,
             StaticMaterialDef materialDef,
@@ -216,22 +258,20 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return;
 
             // Create glTF Image
-            string texturePath = Path.Join(context.Settings.GameDataPath, textureName);
+            string texturePath = GetQualityPrefixedTexturePath(
+                Path.Join(context.Settings.GameDataPath, textureName),
+                context.Settings.TextureQuality
+            );
             GltfImage image = CreateImage(texturePath, textureRegistry, root);
 
-            material.WithPBRMetallicRoughness().WithChannelTexture("BaseColor", 0, image);
-        }
-
-        private static ImageSharpTexture LoadTexture(string texturePath)
-        {
-            // TODO: Support TEX files
-            // Get texture format and if it's not DDS, return
-            ITextureFormat textureFormat = ImageSharpTexture.DetectFormat(texturePath);
-            if (textureFormat is not DdsFormat)
-                return null;
-
-            // Load and register texture
-            return ImageSharpTexture.Load(texturePath);
+            // Set channel properties
+            MaterialChannel baseColorChannel = material.FindChannel("BaseColor").Value;
+            baseColorChannel.SetTexture(
+                0,
+                image,
+                ws: GetGltfTextureWrapMode((TextureAddress)diffuseSampler.AddressU),
+                wt: GetGltfTextureWrapMode((TextureAddress)diffuseSampler.AddressV)
+            );
         }
 
         private static GltfImage CreateImage(string texturePath, TextureRegistry textureRegistry, ModelRoot root)
@@ -251,12 +291,22 @@ namespace LeagueToolkit.IO.MapGeometryFile
             image.SaveAsPng(imageStream);
 
             // Create glTF image
-            GltfImage gltfImage = root.CreateImage();
-            gltfImage.Content = new(imageStream.ToArray());
-
+            GltfImage gltfImage = root.UseImage(new(imageStream.ToArray()));
             textureRegistry.Add(texturePath, gltfImage);
 
             return gltfImage;
+        }
+
+        private static ImageSharpTexture LoadTexture(string texturePath)
+        {
+            // TODO: Support TEX files
+            // Get texture format and if it's not DDS, return
+            ITextureFormat textureFormat = ImageSharpTexture.DetectFormat(texturePath);
+            if (textureFormat is not DdsFormat)
+                return null;
+
+            // Load and register texture
+            return ImageSharpTexture.Load(texturePath);
         }
 
         private static MemoryAccessor[] CreateGltfMeshVertexMemoryAccessors(InstancedVertexBufferView vertexBuffer)
@@ -420,6 +470,42 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 _ => throw new NotImplementedException($"Cannot map element: {element} to a glTF vertex attribute")
             };
         }
+
+        private static string GetQualityPrefixedTexturePath(string texturePath, MapGeometryGltfTextureQuality quality)
+        {
+            return quality switch
+            {
+                MapGeometryGltfTextureQuality.Low
+                    => Path.Combine(
+                        Path.GetDirectoryName(texturePath),
+                        $"{TEXTURE_QUALITY_PREFIX_LOW}_{Path.GetFileName(texturePath)}"
+                    ),
+                MapGeometryGltfTextureQuality.Medium
+                    => Path.Combine(
+                        Path.GetDirectoryName(texturePath),
+                        $"{TEXTURE_QUALITY_PREFIX_MEDIUM}_{Path.GetFileName(texturePath)}"
+                    ),
+                MapGeometryGltfTextureQuality.High => texturePath,
+                _ => throw new NotImplementedException($"Invalid {nameof(MapGeometryGltfTextureQuality)}: {quality}"),
+            };
+        }
+
+        private static GltfTextureWrapMode GetGltfTextureWrapMode(TextureAddress textureAddress) =>
+            textureAddress switch
+            {
+                TextureAddress.Wrap => GltfTextureWrapMode.REPEAT,
+                TextureAddress.Clamp => GltfTextureWrapMode.CLAMP_TO_EDGE,
+                _ => throw new NotImplementedException($"Invalid {nameof(TextureAddress)}: {textureAddress}")
+            };
+
+        private static GltfTextureInterpolationFilter GetGltfTextureInterpolationFilter(TextureFilter textureFilter) =>
+            textureFilter switch
+            {
+                TextureFilter.None => GltfTextureInterpolationFilter.DEFAULT,
+                TextureFilter.Nearest => GltfTextureInterpolationFilter.NEAREST,
+                TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
+                _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
+            };
     }
 
     /// <summary>
@@ -464,6 +550,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public string GameDataPath { get; set; }
 
         /// <summary>
+        /// Gets or sets the quality of the resolved textures
+        /// </summary>
+        public MapGeometryGltfTextureQuality TextureQuality { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the conversion routine
         /// should throw if it cannot find a material in the provided <see cref="BinTree"/>
         /// </summary>
@@ -475,5 +566,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// from the provided <see cref="BinTree"/>
         /// </summary>
         public bool ThrowOnMaterialDeserializationFailure { get; set; }
+    }
+
+    public enum MapGeometryGltfTextureQuality
+    {
+        Low,
+        Medium,
+        High
     }
 }
