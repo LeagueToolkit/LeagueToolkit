@@ -25,6 +25,8 @@ using BCnEncoder.Shared;
 using LeagueToolkit.Toolkit;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using BCnEncoder.Decoder;
+using BCnEncoder.Shared.ImageFiles;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -64,13 +66,13 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            Texture texture = Texture.Load(File.OpenRead("987bf83d27ef30a3.tex"));
+            Texture texture = Texture.Load(File.OpenRead("4x_canister_a.srt_preseason13_chemtech.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
             Image<Rgba32> image = mipmap.ToImage();
 
-            image.SaveAsPng("987bf83d27ef30a3.tex.png");
+            image.SaveAsPng("4x_canister_a.srt_preseason13_chemtech.dds.png");
         }
 
         static void ProfileSkinnedMesh()

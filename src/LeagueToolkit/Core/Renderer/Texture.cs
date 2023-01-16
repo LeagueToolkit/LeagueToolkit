@@ -151,7 +151,12 @@ namespace LeagueToolkit.Core.Renderer
             };
         }
 
-        private static TextureFileFormat IdentifyFileFormat(Stream stream)
+        /// <summary>
+        /// Identifies the texture file format from the specified stream
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> which contains the <see cref="Texture"/></param>
+        /// <returns>The texture file format</returns>
+        public static TextureFileFormat IdentifyFileFormat(Stream stream)
         {
             if (IsDds(stream))
                 return TextureFileFormat.DDS;
@@ -182,10 +187,24 @@ namespace LeagueToolkit.Core.Renderer
         }
     }
 
-    internal enum TextureFileFormat
+    /// <summary>
+    /// Represents the type of a texture file format
+    /// </summary>
+    public enum TextureFileFormat
     {
+        /// <summary>
+        /// The texture is stored in DDS format
+        /// </summary>
         DDS,
+
+        /// <summary>
+        /// The texture is stored in League of Legends TEX format
+        /// </summary>
         TEX,
+
+        /// <summary>
+        /// The texture is stored in an unknown file format
+        /// </summary>
         Unknown
     }
 

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using BCnEncoder.Shared;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Renderer;
@@ -6,13 +7,12 @@ using LeagueToolkit.Hashing;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
+using LeagueToolkit.Toolkit;
 using SharpGLTF.IO;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Textures.Formats;
-using SixLabors.ImageSharp.Textures.Formats.Dds;
-using SixLabors.ImageSharp.Textures.TextureFormats;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,8 +21,7 @@ using System.Numerics;
 using GltfImage = SharpGLTF.Schema2.Image;
 using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
 using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
-using ImageSharpImage = SixLabors.ImageSharp.Image;
-using ImageSharpTexture = SixLabors.ImageSharp.Textures.Texture;
+using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
 namespace LeagueToolkit.IO.MapGeometryFile
@@ -279,13 +278,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return existingImage;
 
             // Load texture
-            using ImageSharpTexture texture = LoadTexture(texturePath);
-            if (texture is not FlatTexture flatTexture)
-                return null;
+            LeagueTexture texture = LoadTexture(texturePath);
 
             // Re-encode to PNG
+            ReadOnlyMemory2D<ColorRgba32> biggestMipMap = texture.Mips[0];
             using MemoryStream imageStream = new();
-            using ImageSharpImage image = flatTexture.MipMaps[0].GetImage();
+            using Image<Rgba32> image = biggestMipMap.ToImage();
+
             image.SaveAsPng(imageStream);
 
             // Create glTF image
@@ -297,16 +296,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return gltfImage;
         }
 
-        private static ImageSharpTexture LoadTexture(string texturePath)
+        private static LeagueTexture LoadTexture(string texturePath)
         {
-            // TODO: Support TEX files
-            // Get texture format and if it's not DDS, return
-            ITextureFormat textureFormat = ImageSharpTexture.DetectFormat(texturePath);
-            if (textureFormat is not DdsFormat)
+            // Get texture file format and return if it's unknown
+            using FileStream textureStream = File.OpenRead(texturePath);
+            TextureFileFormat format = LeagueTexture.IdentifyFileFormat(textureStream);
+            if (format is TextureFileFormat.Unknown)
                 return null;
 
             // Load and register texture
-            return ImageSharpTexture.Load(texturePath);
+            return LeagueTexture.Load(textureStream);
         }
 
         private static MemoryAccessor[] CreateGltfMeshVertexMemoryAccessors(InstancedVertexBufferView vertexBuffer)

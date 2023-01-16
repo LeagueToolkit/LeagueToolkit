@@ -23,17 +23,22 @@
   <ItemGroup>
     <PackageReference Include="LeagueToolkit.Meta.Classes" Version="12.23.485.7490" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0027" />
-    <PackageReference Include="SixLabors.ImageSharp.Textures" Version="0.0.0-alpha.0.136" />
   </ItemGroup>
 
   <!-- project references -->
   <ItemGroup>
+    <ProjectReference Include="..\LeagueToolkit.Meta.Classes\LeagueToolkit.Meta.Classes.csproj" />
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
   </ItemGroup>
 
   <!-- package icon -->
   <ItemGroup>
     <None Include="fantome.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BCnEncoder">
+      <HintPath>..\LeagueToolkit\BCnEncoder.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
 </Project>
