@@ -2,6 +2,15 @@
   "version": 1,
   "dependencies": {
     "net6.0": {
+      "BCnEncoder.Net": {
+        "type": "Direct",
+        "requested": "[2.1.0, )",
+        "resolved": "2.1.0",
+        "contentHash": "bBKYUDhpYenmp8vy5BVUHmS2LFym0NMga9V+S1eMJ+4zQLBwDw63Bs83AKOyqBKC2AqqgxXdTFA2a2V+SmGoIw==",
+        "dependencies": {
+          "Microsoft.Toolkit.HighPerformance": "7.0.2"
+        }
+      },
       "CommunityToolkit.Diagnostics": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -71,6 +80,11 @@
           "System.Text.Encoding.CodePages": "6.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
+      },
+      "Microsoft.Toolkit.HighPerformance": {
+        "type": "Transitive",
+        "resolved": "7.0.2",
+        "contentHash": "tG6v0AhDw/yJMtiH/tI4F6I/+sNIfu4++6WFfN73FyNcPh31et33w45wo8Lx1sfxcfLtkYk+w2fvU/MubYg4VQ=="
       },
       "System.Collections.Immutable": {
         "type": "Transitive",

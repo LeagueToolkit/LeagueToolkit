@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
@@ -29,7 +30,12 @@ namespace LeagueToolkit.Sandbox
         {
             //using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            ProfileMetaSerialization();
+            ProfileTexture();
+        }
+
+        static void ProfileTexture()
+        {
+            Texture texture = Texture.Load(File.OpenRead("tactitian_set8_stage1_sprite.tex"));
         }
 
         static void ProfileSkinnedMesh()

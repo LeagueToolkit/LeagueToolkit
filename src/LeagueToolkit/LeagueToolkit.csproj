@@ -23,6 +23,7 @@
 
   <!-- package references -->
   <ItemGroup>
+    <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
     <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0" />
     <PackageReference Include="FlatSharp.Compiler" Version="7.0.2">
