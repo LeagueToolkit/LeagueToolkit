@@ -22,7 +22,7 @@ namespace LeagueToolkit.Core.Renderer
         internal Texture(Memory2D<ColorRgba32>[] mips)
         {
             this._mips = mips;
-            this.Mips = this._mips.Cast<ReadOnlyMemory2D<ColorRgba32>>().ToArray();
+            this.Mips = this._mips.Select<Memory2D<ColorRgba32>, ReadOnlyMemory2D<ColorRgba32>>(x => x).ToArray();
         }
 
         public static Texture Load(Stream stream)
@@ -70,9 +70,9 @@ namespace LeagueToolkit.Core.Renderer
             ushort width = br.ReadUInt16();
             ushort height = br.ReadUInt16();
 
-            byte isExtendedFormatMaybe = br.ReadByte(); // this might be version or face count
+            byte isExtendedFormatMaybe = br.ReadByte();
             ExtendedTextureFormat format = MapExtendedTextureFormat(br.ReadByte());
-            byte resourceTypeMaybe = br.ReadByte();
+            byte resourceTypeMaybe = br.ReadByte(); // 0=texture 1=cubemap 2=surface 3=volumetexture
             TextureFlags flags = (TextureFlags)br.ReadByte();
 
             CompressionFormat compressionFormat = GetCompressionFormat(format);
@@ -82,24 +82,28 @@ namespace LeagueToolkit.Core.Renderer
                 ? (int)(Math.Floor(Math.Log2(Math.Max(height, width))) + 1f)
                 : 1;
 
+            // Seek to end because mipmaps are stored in reverse order (from smallest)
+            // We will be reading them in reverse
             br.BaseStream.Seek(0, SeekOrigin.End);
 
             Memory2D<ColorRgba32>[] mipMaps = new Memory2D<ColorRgba32>[mipMapCount];
             for (int i = 0; i < mipMapCount; i++)
             {
+                // Calculate dimensions of current mipmap
                 int currentWidth = Math.Max(width >> i, 1);
                 int currentHeight = Math.Max(height >> i, 1);
-                int widthInBlocks = Math.Max((currentWidth + blockSize - 1) / blockSize, 1);
-                int heightInBlocks = Math.Max((currentHeight + blockSize - 1) / blockSize, 1);
-                int mipMapSize = widthInBlocks * heightInBlocks * blockSize;
+                decoder.GetBlockCount(currentWidth, currentHeight, out int widthInBlocks, out int heightInBlocks);
 
+                int mipMapSize = widthInBlocks * heightInBlocks * blockSize;
                 byte[] mipMapBuffer = ArrayPool<byte>.Shared.Rent(mipMapSize);
 
+                // Seek to start of mipmap and read it into buffer
                 br.BaseStream.Seek(-mipMapSize, SeekOrigin.Current);
                 int bytesRead = br.Read(mipMapBuffer.AsSpan()[..mipMapSize]);
                 if (bytesRead != mipMapSize)
                     throw new IOException($"Failed to read mip: {i}, size: {mipMapSize}, bytesRead: {bytesRead}");
 
+                // Decode buffer and seek back
                 ColorRgba32[] mipMapData = decoder.DecodeRaw(
                     mipMapBuffer,
                     currentWidth,
@@ -108,6 +112,7 @@ namespace LeagueToolkit.Core.Renderer
                 );
                 br.BaseStream.Seek(-mipMapSize, SeekOrigin.Current);
 
+                // Return buffer and add mipmap
                 ArrayPool<byte>.Shared.Return(mipMapBuffer);
                 mipMaps[i] = new(mipMapData, currentHeight, currentWidth);
             }

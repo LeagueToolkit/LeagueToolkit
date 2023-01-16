@@ -35,7 +35,7 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            Texture texture = Texture.Load(File.OpenRead("tactitian_set8_stage1_sprite.tex"));
+            Texture texture = Texture.Load(File.OpenRead("emote_random.tex"));
         }
 
         static void ProfileSkinnedMesh()
