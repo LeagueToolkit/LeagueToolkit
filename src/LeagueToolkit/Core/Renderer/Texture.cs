@@ -5,26 +5,28 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using System;
-using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueToolkit.Core.Renderer
 {
+    /// <summary>
+    /// Represents a Texture
+    /// </summary>
     public sealed class Texture
     {
-        public IReadOnlyList<ReadOnlyMemory2D<ColorRgba32>> Mips { get; }
-        private readonly Memory2D<ColorRgba32>[] _mips;
+        public Memory2D<ColorRgba32>[] Mips { get; set; }
 
-        internal Texture(Memory2D<ColorRgba32>[] mips)
+        public Texture(Memory2D<ColorRgba32>[] mips)
         {
-            this._mips = mips;
-            this.Mips = this._mips.Select<Memory2D<ColorRgba32>, ReadOnlyMemory2D<ColorRgba32>>(x => x).ToArray();
+            this.Mips = mips;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Texture"/> object by reading it from the specified stream
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        /// <returns>The created <see cref="Texture"/> object</returns>
         public static Texture Load(Stream stream)
         {
             Guard.IsNotNull(stream, nameof(stream));
@@ -38,24 +40,27 @@ namespace LeagueToolkit.Core.Renderer
             };
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Texture"/> object by reading it from the specified stream
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        /// <returns>The created <see cref="Texture"/> object</returns>
         public static Texture LoadDds(Stream stream)
         {
             Guard.IsNotNull(stream, nameof(stream));
 
             BcDecoder decoder = new();
             DdsFile ddsFile = DdsFile.Load(stream);
-
-            ColorRgba32[][] mips = decoder.DecodeAllMipMaps(ddsFile);
-            Memory2D<ColorRgba32>[] mipsMemory = new Memory2D<ColorRgba32>[mips.Length];
-            for (int i = 0; i < mips.Length; i++)
-            {
-                DdsMipMap mip = ddsFile.Faces[0].MipMaps[i];
-                mipsMemory[i] = new(mips[i], (int)mip.Height, (int)mip.Width);
-            }
+            Memory2D<ColorRgba32>[] mipsMemory = decoder.DecodeAllMipMaps2D(ddsFile);
 
             return new(mipsMemory);
         }
 
+        /// <summary>
+        /// Creates a new <see cref="Texture"/> object by reading it from the specified stream
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        /// <returns>The created <see cref="Texture"/> object</returns>
         public static Texture LoadTex(Stream stream)
         {
             Guard.IsNotNull(stream, nameof(stream));
@@ -95,25 +100,24 @@ namespace LeagueToolkit.Core.Renderer
                 decoder.GetBlockCount(currentWidth, currentHeight, out int widthInBlocks, out int heightInBlocks);
 
                 int mipMapSize = widthInBlocks * heightInBlocks * blockSize;
-                byte[] mipMapBuffer = ArrayPool<byte>.Shared.Rent(mipMapSize);
+                using MemoryOwner<byte> mipMapBufferOwner = MemoryOwner<byte>.Allocate(mipMapSize);
 
                 // Seek to start of mipmap and read it into buffer
                 br.BaseStream.Seek(-mipMapSize, SeekOrigin.Current);
-                int bytesRead = br.Read(mipMapBuffer.AsSpan()[..mipMapSize]);
+                int bytesRead = br.Read(mipMapBufferOwner.Span);
                 if (bytesRead != mipMapSize)
                     throw new IOException($"Failed to read mip: {i}, size: {mipMapSize}, bytesRead: {bytesRead}");
 
                 // Decode buffer and seek back
                 ColorRgba32[] mipMapData = decoder.DecodeRaw(
-                    mipMapBuffer,
+                    mipMapBufferOwner.Memory,
                     currentWidth,
                     currentHeight,
                     compressionFormat
                 );
                 br.BaseStream.Seek(-mipMapSize, SeekOrigin.Current);
 
-                // Return buffer and add mipmap
-                ArrayPool<byte>.Shared.Return(mipMapBuffer);
+                // Add mipmap
                 mipMaps[i] = new(mipMapData, currentHeight, currentWidth);
             }
 
@@ -130,7 +134,7 @@ namespace LeagueToolkit.Core.Renderer
                 10 or 11 => ExtendedTextureFormat.BC1,
                 12 => ExtendedTextureFormat.BC3,
                 20 => ExtendedTextureFormat.RGBA8,
-                _ => throw new NotImplementedException($"Unsupported texture format: {format}")
+                _ => throw new NotImplementedException($"Unsupported extended texture format: {format}")
             };
         }
 
@@ -143,6 +147,7 @@ namespace LeagueToolkit.Core.Renderer
                 ExtendedTextureFormat.ETC2_EAC => throw new NotImplementedException(),
                 ExtendedTextureFormat.BC1 => CompressionFormat.Bc1,
                 ExtendedTextureFormat.BC3 => CompressionFormat.Bc3,
+                _ => throw new NotImplementedException($"Unsupported extended texture format: {extendedFormat}")
             };
         }
 
@@ -184,7 +189,7 @@ namespace LeagueToolkit.Core.Renderer
         Unknown
     }
 
-    public enum ExtendedTextureFormat
+    internal enum ExtendedTextureFormat
     {
         RGBA8,
         ETC1,
