@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
@@ -20,6 +21,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using BCnEncoder.Shared;
+using LeagueToolkit.Toolkit;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -55,6 +60,17 @@ namespace LeagueToolkit.Sandbox
                     )
                 )
                 .SaveGLB("base_srx.glb");
+        }
+
+        static void ProfileTexture()
+        {
+            Texture texture = Texture.Load(File.OpenRead("987bf83d27ef30a3.tex"));
+
+            ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
+
+            Image<Rgba32> image = mipmap.ToImage();
+
+            image.SaveAsPng("987bf83d27ef30a3.tex.png");
         }
 
         static void ProfileSkinnedMesh()

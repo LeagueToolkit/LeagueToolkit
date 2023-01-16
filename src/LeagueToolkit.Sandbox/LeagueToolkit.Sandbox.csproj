@@ -12,5 +12,10 @@
     <ProjectReference Include="..\LeagueToolkit.Meta.Classes\LeagueToolkit.Meta.Classes.csproj" />
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BCnEncoder">
+      <HintPath>..\LeagueToolkit\BCnEncoder.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>
