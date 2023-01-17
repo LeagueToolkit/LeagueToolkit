@@ -18,11 +18,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using LeagueToolkit.Core.Environment;
 using GltfImage = SharpGLTF.Schema2.Image;
 using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
 using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
+using VisibilityFlagsNodeRegistry = System.Collections.Generic.Dictionary<
+    LeagueToolkit.Core.Environment.EnvironmentVisibilityFlags,
+    SharpGLTF.Schema2.Node
+>;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -51,9 +56,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
-            Node mapNode = scene.CreateNode("map").WithLocalScale(new(-1f, 1f, 1f));
+            Node mapNode = scene.CreateNode("map");
+
+            if (context.Settings.FlipAcrossX)
+                mapNode = mapNode.WithLocalScale(new(-1f, 1f, 1f));
 
             TextureRegistry textureRegistry = new();
+            VisibilityFlagsNodeRegistry visibilityFlagsNodeRegistry = new();
             foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
                 // Create materials
@@ -69,8 +78,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 // Create mesh
                 Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
 
-                // Create mesh node
-                mapNode.CreateNode($"__{mesh.Name}__").WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
+                // Move mesh under node
+                Node meshParent = context.Settings.VisibilityFlagsGroupingPolicy switch
+                {
+                    MapGeometryGltfVisibilityFlagsGroupingPolicy.Default
+                        => ResolveVisibilityFlagsNode(mapNode, mesh.VisibilityFlags, visibilityFlagsNodeRegistry),
+                    MapGeometryGltfVisibilityFlagsGroupingPolicy.Ignore => mapNode,
+                };
+
+                meshParent.CreateNode(mesh.Name).WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
             }
 
             root.MergeImages();
@@ -89,8 +105,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Mesh gltfMesh = root.CreateMesh(mesh.Name);
 
-            MemoryAccessor[] meshVertexMemoryAccessors = CreateGltfMeshVertexMemoryAccessors(mesh.VerticesView);
+            gltfMesh.Extras = JsonContent.Serialize(CreateGltfMeshExtras(mesh));
 
+            MemoryAccessor[] meshVertexMemoryAccessors = CreateGltfMeshVertexMemoryAccessors(mesh.VerticesView);
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
             SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
 
@@ -117,6 +134,19 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return gltfMesh;
         }
 
+        private static GltfMeshExtras CreateGltfMeshExtras(MapGeometryModel mesh) =>
+            new()
+            {
+                Name = mesh.Name,
+                VisibilityFlags = (int)mesh.VisibilityFlags,
+                RenderFlags = (int)mesh.RenderFlags,
+                QualityFlags = (int)mesh.EnvironmentQualityFilter,
+                StationaryLight = mesh.StationaryLight,
+                BakedLight = mesh.BakedLight,
+                BakedPaint = mesh.BakedPaint,
+            };
+
+        #region Material Creation
         private static Dictionary<string, Material> CreateGltfMeshMaterials(
             MapGeometryModel mesh,
             MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
@@ -316,6 +346,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Load and register texture
             return LeagueTexture.Load(textureStream);
         }
+        #endregion
+
 
         private static MemoryAccessor[] CreateGltfMeshVertexMemoryAccessors(InstancedVertexBufferView vertexBuffer)
         {
@@ -479,6 +511,42 @@ namespace LeagueToolkit.IO.MapGeometryFile
             };
         }
 
+        private static Node ResolveVisibilityFlagsNode(
+            Node mapNode,
+            EnvironmentVisibilityFlags visibilityFlags,
+            VisibilityFlagsNodeRegistry visibilityFlagsNodeRegistry
+        )
+        {
+            if (visibilityFlagsNodeRegistry.TryGetValue(visibilityFlags, out Node existingNode))
+                return existingNode;
+
+            string nodeName = GetVisibilityFlagsNodeName(visibilityFlags);
+            Node node = mapNode.CreateNode(nodeName);
+
+            visibilityFlagsNodeRegistry.Add(visibilityFlags, node);
+            return node;
+        }
+
+        private static string GetVisibilityFlagsNodeName(EnvironmentVisibilityFlags visibilityFlags)
+        {
+            if (visibilityFlags == EnvironmentVisibilityFlags.NoLayer)
+                return EnvironmentVisibilityFlags.NoLayer.ToString();
+
+            string[] flags = new string[BitOperations.PopCount((uint)visibilityFlags)];
+            for ((int i, int flagId) = (0, 0); i < 8; i++)
+            {
+                EnvironmentVisibilityFlags flag = (EnvironmentVisibilityFlags)(1 << i);
+
+                if (visibilityFlags.HasFlag(flag))
+                {
+                    flags[flagId] = flag.ToString();
+                    flagId++;
+                }
+            }
+
+            return string.Join(" | ", flags);
+        }
+
         private static string GetQualityPrefixedTexturePath(string texturePath, MapGeometryGltfTextureQuality quality)
         {
             return quality switch
@@ -514,6 +582,19 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
                 _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
             };
+
+        private readonly struct GltfMeshExtras
+        {
+            public string Name { get; init; }
+
+            public int VisibilityFlags { get; init; }
+            public int QualityFlags { get; init; }
+            public int RenderFlags { get; init; }
+
+            public MapGeometrySamplerData StationaryLight { get; init; }
+            public MapGeometrySamplerData BakedLight { get; init; }
+            public MapGeometrySamplerData BakedPaint { get; init; }
+        }
 
         private readonly struct GltfMaterialExtras
         {
@@ -569,6 +650,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public bool FlipAcrossX { get; set; }
 
         /// <summary>
+        /// Gets or sets visibility flags grouping policy for meshes<br></br>
+        /// Default: <see cref="MapGeometryGltfVisibilityFlagsGroupingPolicy.Default"/>
+        /// </summary>
+        public MapGeometryGltfVisibilityFlagsGroupingPolicy VisibilityFlagsGroupingPolicy { get; set; }
+
+        /// <summary>
         /// Gets or sets the quality of the resolved textures<br></br>
         /// Default: <see cref="MapGeometryGltfTextureQuality.Low"/>
         /// </summary>
@@ -589,20 +676,58 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// </summary>
         public bool ThrowOnMaterialDeserializationFailure { get; set; }
 
+        /// <summary>
+        /// Creates a new <see cref="MapGeometryGltfConversionSettings"/> object
+        /// </summary>
         public MapGeometryGltfConversionSettings()
         {
             this.GameDataPath = null;
             this.FlipAcrossX = true;
+            this.VisibilityFlagsGroupingPolicy = MapGeometryGltfVisibilityFlagsGroupingPolicy.Default;
             this.TextureQuality = MapGeometryGltfTextureQuality.Low;
             this.ThrowIfMaterialNotFound = true;
             this.ThrowOnMaterialDeserializationFailure = true;
         }
     }
 
+    /// <summary>
+    /// Specifies the <see cref="EnvironmentVisibilityFlags"/> grouping policy for meshes
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="EnvironmentVisibilityFlags"/> will always be written into the
+    /// <see href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#reference-extras">extras field</see>
+    /// </remarks>
+    public enum MapGeometryGltfVisibilityFlagsGroupingPolicy
+    {
+        /// <summary>
+        /// Groups meshes under their respective <see cref="EnvironmentVisibilityFlags"/> node
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// The meshes will all be placed under the root node
+        /// </summary>
+        Ignore,
+    }
+
+    /// <summary>
+    /// Specifies which texture quality to use
+    /// </summary>
     public enum MapGeometryGltfTextureQuality
     {
+        /// <summary>
+        /// Use textures prefixed with "4x_"
+        /// </summary>
         Low,
+
+        /// <summary>
+        /// Use textures prefixed with "2x_"
+        /// </summary>
         Medium,
+
+        /// <summary>
+        /// Use textures without a prefix
+        /// </summary>
         High
     }
 }
