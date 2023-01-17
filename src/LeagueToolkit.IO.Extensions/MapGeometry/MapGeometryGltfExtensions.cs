@@ -33,6 +33,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
 {
     public static class MapGeometryGltfExtensions
     {
+        private const string DEFAULT_MAP_NAME = "map";
+
         private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[] { "DiffuseTexture", "Diffuse_Texture" };
         private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
 
@@ -56,15 +58,26 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
-            Node mapNode = scene.CreateNode("map");
+
+            string mapNodeName = GetMapName(materialsBin, context);
+            Node mapNode = scene.CreateNode(mapNodeName);
 
             if (context.Settings.FlipAcrossX)
                 mapNode = mapNode.WithLocalScale(new(-1f, 1f, 1f));
 
+            // Create visibility nodes
+            VisibilityFlagsNodeRegistry visibilityFlagsNodeRegistry = CreateIndividualVisibilityFlagsNodeRegistry(
+                mapNode
+            );
+
+            // Create meshes
             TextureRegistry textureRegistry = new();
-            VisibilityFlagsNodeRegistry visibilityFlagsNodeRegistry = new();
-            foreach (MapGeometryModel mesh in mapGeometry.Meshes)
+
+            Mesh[] gltfMeshes = new Mesh[mapGeometry.Meshes.Count];
+            for (int i = 0; i < mapGeometry.Meshes.Count; i++)
             {
+                MapGeometryModel mesh = mapGeometry.Meshes[i];
+
                 // Create materials
                 Dictionary<string, Material> materials = CreateGltfMeshMaterials(
                     mesh,
@@ -77,16 +90,18 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
                 // Create mesh
                 Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
+                gltfMeshes[i] = gltfMesh;
 
-                // Move mesh under node
-                Node meshParent = context.Settings.VisibilityFlagsGroupingPolicy switch
+                // Move mesh under visibility nodes
+                foreach (var (visibilityFlag, node) in visibilityFlagsNodeRegistry)
                 {
-                    MapGeometryGltfVisibilityFlagsGroupingPolicy.Default
-                        => ResolveVisibilityFlagsNode(mapNode, mesh.VisibilityFlags, visibilityFlagsNodeRegistry),
-                    MapGeometryGltfVisibilityFlagsGroupingPolicy.Ignore => mapNode,
-                };
+                    if (!mesh.VisibilityFlags.HasFlag(visibilityFlag))
+                        continue;
 
-                meshParent.CreateNode(mesh.Name).WithMesh(gltfMesh).WithLocalTransform(mesh.Transform);
+                    Node meshNode = node.CreateNode($"{visibilityFlag}.{mesh.Name}").WithMesh(gltfMesh);
+
+                    meshNode.WorldMatrix = mesh.Transform;
+                }
             }
 
             root.MergeImages();
@@ -96,6 +111,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             return root;
         }
+
+        private static VisibilityFlagsNodeRegistry CreateIndividualVisibilityFlagsNodeRegistry(Node mapNode) =>
+            new(
+                Enum.GetValues<EnvironmentVisibilityFlags>()
+                    .Where(x => x is not (EnvironmentVisibilityFlags.NoLayer or EnvironmentVisibilityFlags.AllLayers))
+                    .Select(
+                        x => new KeyValuePair<EnvironmentVisibilityFlags, Node>(x, mapNode.CreateNode(x.ToString()))
+                    )
+            );
 
         private static Mesh CreateGltfMesh(
             ModelRoot root,
@@ -511,6 +535,27 @@ namespace LeagueToolkit.IO.MapGeometryFile
             };
         }
 
+        private static string GetMapName(BinTree materialsBin, MapGeometryGltfConversionContext context)
+        {
+            if (materialsBin is null)
+                return DEFAULT_MAP_NAME;
+
+            BinTreeObject mapContainerObject = materialsBin.Objects.FirstOrDefault(
+                x => x.MetaClassHash == Fnv1a.HashLower(nameof(MapContainer))
+            );
+            if (mapContainerObject is null)
+                throw new InvalidOperationException(
+                    $"Failed to find {nameof(MapContainer)} in the provided materials.bin"
+                );
+
+            MapContainer mapContainer = MetaSerializer.Deserialize<MapContainer>(
+                context.MetaEnvironment,
+                mapContainerObject
+            );
+
+            return string.IsNullOrEmpty(mapContainer.MapPath) ? DEFAULT_MAP_NAME : mapContainer.MapPath;
+        }
+
         private static Node ResolveVisibilityFlagsNode(
             Node mapNode,
             EnvironmentVisibilityFlags visibilityFlags,
@@ -582,6 +627,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
                 _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
             };
+
+        private readonly struct GltfMapRootExtras
+        {
+            public string MapPath { get; init; }
+        }
 
         private readonly struct GltfMeshExtras
         {
