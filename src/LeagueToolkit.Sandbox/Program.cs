@@ -55,8 +55,9 @@ namespace LeagueToolkit.Sandbox
                         new()
                         {
                             GameDataPath = "X:/lol/game",
-                            ThrowIfMaterialNotFound = true,
-                            ThrowOnMaterialDeserializationFailure = true
+                            FlipAcrossX = true,
+                            LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
+                            TextureQuality = MapGeometryGltfTextureQuality.High
                         }
                     )
                 )
