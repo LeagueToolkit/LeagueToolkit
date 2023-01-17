@@ -36,6 +36,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private const string TEXTURE_QUALITY_PREFIX_LOW = "4x";
         private const string TEXTURE_QUALITY_PREFIX_MEDIUM = "2x";
 
+        /// <summary>
+        /// Converts the <see cref="MapGeometry"/> object into a glTF asset
+        /// </summary>
+        /// <param name="mapGeometry">The <see cref="MapGeometry"/> object to convert</param>
+        /// <param name="materialsBin">The "materials.bin" <see cref="BinTree"/> to use for conversion</param>
+        /// <param name="context">The conversion context</param>
+        /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this MapGeometry mapGeometry,
             BinTree materialsBin,
@@ -150,15 +157,17 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MapGeometryGltfConversionContext context
         )
         {
-            Guard.IsNotNull(material, nameof(material));
-
+            // If game path is not set, return
             if (string.IsNullOrEmpty(context.Settings.GameDataPath))
                 return;
 
+            // Get material meta definition
             StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
 
+            // Include material metadata
             material.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = material.Name });
 
+            // Initialize material properties
             InitializeMaterialRenderTechnique(material, materialDef);
             InitializeMaterialBaseColorChannel(
                 material,
@@ -554,22 +563,40 @@ namespace LeagueToolkit.IO.MapGeometryFile
         public string GameDataPath { get; set; }
 
         /// <summary>
-        /// Gets or sets the quality of the resolved textures
+        /// Gets or sets a value indicating whether the main map node should be flipped across the X axis<br></br>
+        /// Default: <see langword="true"/>
+        /// </summary>
+        public bool FlipAcrossX { get; set; }
+
+        /// <summary>
+        /// Gets or sets the quality of the resolved textures<br></br>
+        /// Default: <see cref="MapGeometryGltfTextureQuality.Low"/>
         /// </summary>
         public MapGeometryGltfTextureQuality TextureQuality { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the conversion routine
-        /// should throw if it cannot find a material in the provided <see cref="BinTree"/>
+        /// should throw if it cannot find a material in the provided <see cref="BinTree"/><br></br>
+        /// Default: <see langword="true"/>
         /// </summary>
         public bool ThrowIfMaterialNotFound { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the conversion routine
         /// should throw if it fails to deserialize a <see cref="Meta.Classes.StaticMaterialDef"/>
-        /// from the provided <see cref="BinTree"/>
+        /// from the provided <see cref="BinTree"/><br></br>
+        /// Default: <see langword="true"/>
         /// </summary>
         public bool ThrowOnMaterialDeserializationFailure { get; set; }
+
+        public MapGeometryGltfConversionSettings()
+        {
+            this.GameDataPath = null;
+            this.FlipAcrossX = true;
+            this.TextureQuality = MapGeometryGltfTextureQuality.Low;
+            this.ThrowIfMaterialNotFound = true;
+            this.ThrowOnMaterialDeserializationFailure = true;
+        }
     }
 
     public enum MapGeometryGltfTextureQuality

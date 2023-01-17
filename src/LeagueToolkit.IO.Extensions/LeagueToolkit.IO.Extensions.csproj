@@ -3,7 +3,7 @@
   <!-- project settings -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>9</LangVersion>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
