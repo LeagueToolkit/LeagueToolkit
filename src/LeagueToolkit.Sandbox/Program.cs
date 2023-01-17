@@ -25,14 +25,17 @@ using BCnEncoder.Shared;
 using LeagueToolkit.Toolkit;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace LeagueToolkit.Sandbox
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            //using MapGeometry mgeo = new("worlds_trophyonly.mapgeo");
+            await TestMetaRoslynCodegen("13.1.489.3737.json", "Classes.cs");
+
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             ProfileTexture();
         }
@@ -72,14 +75,24 @@ namespace LeagueToolkit.Sandbox
         }
 
 #if DEBUG
-        static void TestMetaRoslynCodegen(string outputFile)
+        static async Task TestMetaRoslynCodegen(string metaJsonFile, string outputFile)
         {
+            using HttpClient client = new();
+
+            byte[] binTypesBuffer = await client.GetByteArrayAsync(
+                "https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/hashes.bintypes.txt"
+            );
+            byte[] binFieldsBuffer = await client.GetByteArrayAsync(
+                "https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/hashes.binfields.txt"
+            );
+
+            File.WriteAllBytes("hashes.bintypes.txt", binTypesBuffer);
+            File.WriteAllBytes("hashes.binfields.txt", binFieldsBuffer);
+
             IEnumerable<string> classes = File.ReadLines("hashes.bintypes.txt").Select(line => line.Split(' ')[1]);
             IEnumerable<string> properties = File.ReadLines("hashes.binfields.txt").Select(line => line.Split(' ')[1]);
 
-            MetaDump
-                .Deserialize(File.ReadAllText("latest_meta.json"))
-                .WriteMetaClasses(outputFile, classes, properties);
+            MetaDump.Deserialize(File.ReadAllText(metaJsonFile)).WriteMetaClasses(outputFile, classes, properties);
         }
 #endif
 
