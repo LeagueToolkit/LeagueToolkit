@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using BCnEncoder.Shared;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
-using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.MapGeometryFile;
@@ -14,41 +14,65 @@ using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
+using LeagueToolkit.Toolkit;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Numerics;
 using System.Reflection;
-using BCnEncoder.Shared;
-using LeagueToolkit.Toolkit;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Threading.Tasks;
-using System.Net.Http;
 
 namespace LeagueToolkit.Sandbox
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            await TestMetaRoslynCodegen("13.1.489.3737.json", "Classes.cs");
+            ProfileMapgeoToGltf();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            ProfileTexture();
+            //ProfileMetaSerialization();
+        }
+
+        static void ProfileMapgeoToGltf()
+        {
+            BinTree materialsBin = new("base_srx.materials.bin");
+            using MapGeometry mgeo = new("base_srx.mapgeo");
+
+            MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+                Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+            );
+
+            mgeo.ToGltf(
+                    materialsBin,
+                    new(
+                        metaEnvironment,
+                        new()
+                        {
+                            GameDataPath = "X:/lol/game",
+                            FlipAcrossX = true,
+                            LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
+                            TextureQuality = MapGeometryGltfTextureQuality.High
+                        }
+                    )
+                )
+                .SaveGLB("base_srx.glb");
         }
 
         static void ProfileTexture()
         {
-            Texture texture = Texture.Load(File.OpenRead("987bf83d27ef30a3.tex"));
+            Texture texture = Texture.Load(File.OpenRead("4x_canister_a.srt_preseason13_chemtech.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
             Image<Rgba32> image = mipmap.ToImage();
 
-            image.SaveAsPng("987bf83d27ef30a3.tex.png");
+            image.SaveAsPng("4x_canister_a.srt_preseason13_chemtech.dds.png");
         }
 
         static void ProfileSkinnedMesh()

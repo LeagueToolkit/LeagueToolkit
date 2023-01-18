@@ -9,8 +9,10 @@ namespace LeagueToolkit.Meta
             get => this._value;
             set
             {
-                if (value is null) throw new ArgumentNullException(nameof(value));
-                else this._value = value;
+                if (value is null)
+                    throw new ArgumentNullException(nameof(value));
+                else
+                    this._value = value;
             }
         }
 
@@ -18,8 +20,10 @@ namespace LeagueToolkit.Meta
 
         public MetaEmbedded(T value)
         {
-            if (value is null) throw new ArgumentNullException(nameof(value));
-            else this._value = value;
+            if (value is null)
+                throw new ArgumentNullException(nameof(value));
+            else
+                this._value = value;
         }
 
         object IMetaEmbedded.GetValue()
@@ -27,10 +31,12 @@ namespace LeagueToolkit.Meta
             return this.Value;
         }
 
-        public static implicit operator T(MetaEmbedded<T> embedded)
-        {
-            return embedded.Value;
-        }
+        public static implicit operator T(MetaEmbedded<T> embedded) =>
+            embedded switch
+            {
+                null => default,
+                _ => embedded.Value
+            };
     }
 
     internal interface IMetaEmbedded

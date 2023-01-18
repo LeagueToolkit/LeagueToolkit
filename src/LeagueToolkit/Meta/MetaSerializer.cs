@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Hashing;
+﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.PropertyBin.Properties;
@@ -17,6 +18,17 @@ namespace LeagueToolkit.Meta
     {
         public static T Deserialize<T>(MetaEnvironment environment, BinTreeObject treeObject) where T : IMetaClass
         {
+            // If object is already registered, return it
+            if (environment.RegisteredObjects.TryGetValue(treeObject.PathHash, out IMetaClass existingObject))
+            {
+                if (existingObject is T concreteExistingObject)
+                    return concreteExistingObject;
+                else
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"Object: {treeObject.PathHash} is already registered under type: {nameof(T)}"
+                    );
+            }
+
             Type metaClassType = typeof(T);
             MetaClassAttribute metaClassAttribute =
                 metaClassType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
