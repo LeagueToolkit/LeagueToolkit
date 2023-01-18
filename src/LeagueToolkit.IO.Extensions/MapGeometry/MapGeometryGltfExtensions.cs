@@ -36,6 +36,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private const string DEFAULT_MAP_NAME = "map";
 
         private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[] { "DiffuseTexture", "Diffuse_Texture" };
+
+        private static readonly string[] ALPHA_CLIP_PARAM_NAMES = new[] { "AlphaTestValue", "Opacity_Clip" };
         private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
 
         private const float DEFAULT_ALPHA_TEST = 0.3f;
@@ -298,13 +300,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return;
 
             // Try to get alpha cutoff, if it doesn't exist then assign default one
-            StaticMaterialShaderParamDef alphaTestParameter = materialDef.ParamValues.FirstOrDefault(
-                x => x.Value.Name == "AlphaTestValue"
+            StaticMaterialShaderParamDef alphaCutoffParameter = materialDef.ParamValues.FirstOrDefault(
+                x => ALPHA_CLIP_PARAM_NAMES.Contains(x.Value.Name)
             );
-            if (alphaTestParameter is not null)
+            if (alphaCutoffParameter is not null)
             {
                 material.Alpha = AlphaMode.MASK;
-                material.AlphaCutoff = alphaTestParameter.Value.X;
+                material.AlphaCutoff = alphaCutoffParameter.Value.X;
             }
             else if (pass.BlendEnable)
             {
