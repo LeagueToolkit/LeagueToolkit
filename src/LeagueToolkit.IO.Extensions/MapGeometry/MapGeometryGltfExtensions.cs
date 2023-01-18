@@ -336,9 +336,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
             if (diffuseSampler is null)
                 return;
 
-            // If diffuse sampler wasn't found and STATIONARY_LIGHT and BAKED_PAINT
-            // are also null then we cannot create a valid diffuse channel, return
-            string textureName = diffuseSampler.TextureName ?? mesh.StationaryLight.Texture ?? mesh.BakedPaint.Texture;
+            string textureName = !string.IsNullOrEmpty(mesh.BakedPaint.Texture)
+                ? mesh.BakedPaint.Texture
+                : !string.IsNullOrEmpty(diffuseSampler.TextureName)
+                    ? diffuseSampler.TextureName
+                    : mesh.StationaryLight.Texture;
+
+            // Return if we couldn't figure out the texture name
             if (string.IsNullOrEmpty(textureName))
                 return;
 

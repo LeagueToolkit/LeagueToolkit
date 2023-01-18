@@ -66,13 +66,13 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            Texture texture = Texture.Load(File.OpenRead("4x_canister_a.srt_preseason13_chemtech.dds"));
+            Texture texture = Texture.Load(File.OpenRead("3.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
             Image<Rgba32> image = mipmap.ToImage();
 
-            image.SaveAsPng("4x_canister_a.srt_preseason13_chemtech.dds.png");
+            image.SaveAsPng("3.dds.png");
         }
 
         static void ProfileSkinnedMesh()
