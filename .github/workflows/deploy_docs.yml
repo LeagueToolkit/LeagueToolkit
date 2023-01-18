@@ -32,6 +32,7 @@ jobs:
           args: install docfx
       
       - name: Install dependencies
+        working-directory: src
         run: dotnet restore
       
       - name: DocFX Build
