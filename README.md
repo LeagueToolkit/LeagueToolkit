@@ -1,6 +1,6 @@
 <p align="center">
 
-  <img src="resources/LT_Logo_Transparent.png" width="256"/> 
+  <img src="resources/LT_Logo_Transparent.png" width="200"/> 
 
   <h1 align="center">League Toolkit</h1>
 
