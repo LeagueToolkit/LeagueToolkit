@@ -1,6 +1,7 @@
 ﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Hashing;
@@ -18,7 +19,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using LeagueToolkit.Core.Environment;
 using GltfImage = SharpGLTF.Schema2.Image;
 using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
 using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
@@ -28,7 +28,6 @@ using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
     LeagueToolkit.Core.Environment.EnvironmentVisibilityFlags,
     SharpGLTF.Schema2.Node
 >;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -69,7 +68,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             // Create meshes
             TextureRegistry textureRegistry = new();
-
             foreach (MapGeometryModel mesh in mapGeometry.Meshes)
             {
                 // Create materials
@@ -170,31 +168,38 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             if (context.Settings.LayerGroupingPolicy is MapGeometryGltfLayerGroupingPolicy.Default)
             {
-                PlaceGltfMeshIntoVisibilityNodes(gltfMesh, mesh, visibilityNodeRegistry);
+                PlaceGltfMeshIntoVisibilityNodes(gltfMesh, mesh, mapNode, visibilityNodeRegistry);
             }
             else if (context.Settings.LayerGroupingPolicy is MapGeometryGltfLayerGroupingPolicy.Ignore)
             {
-                Node meshNode = mapNode.CreateNode(mesh.Name).WithMesh(gltfMesh);
-
-                meshNode.WorldMatrix = mesh.Transform;
+                PlaceGltfMeshIntoNode(gltfMesh, mesh, mapNode, mesh.Name);
             }
         }
 
         private static void PlaceGltfMeshIntoVisibilityNodes(
             Mesh gltfMesh,
             MapGeometryModel mesh,
+            Node mapNode,
             VisibilityNodeRegistry visibilityNodeRegistry
         )
         {
+            if (mesh.VisibilityFlags == EnvironmentVisibilityFlags.NoLayer)
+                PlaceGltfMeshIntoNode(gltfMesh, mesh, mapNode, mesh.Name);
+
             foreach (var (visibilityFlag, node) in visibilityNodeRegistry)
             {
                 if (!mesh.VisibilityFlags.HasFlag(visibilityFlag))
                     continue;
 
-                Node meshNode = node.CreateNode($"{visibilityFlag}.{mesh.Name}").WithMesh(gltfMesh);
-
-                meshNode.WorldMatrix = mesh.Transform;
+                PlaceGltfMeshIntoNode(gltfMesh, mesh, node, $"{visibilityFlag}.{mesh.Name}");
             }
+        }
+
+        private static void PlaceGltfMeshIntoNode(Mesh gltfMesh, MapGeometryModel mesh, Node node, string meshNodeName)
+        {
+            Node meshNode = node.CreateNode(meshNodeName).WithMesh(gltfMesh);
+
+            meshNode.WorldMatrix = mesh.Transform;
         }
 
         #region Material Creation
