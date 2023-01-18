@@ -15,10 +15,10 @@
     <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Crauzer</Authors>
-    <PackageIcon>fantome.png</PackageIcon>
+    <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>4.0.0-beta.3</Version>
+    <Version>4.0.0-beta.4</Version>
   </PropertyGroup>
 
   <!-- package references -->
@@ -42,7 +42,7 @@
 
   <!-- package icon -->
   <ItemGroup>
-    <None Include="fantome.png" Pack="true" Visible="false" PackagePath="" />
+    <None Include="../../resources/LT_Logo_Transparent_256.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
