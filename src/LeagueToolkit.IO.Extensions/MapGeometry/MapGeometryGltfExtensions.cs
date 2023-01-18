@@ -336,23 +336,35 @@ namespace LeagueToolkit.IO.MapGeometryFile
             if (diffuseSampler is null)
                 return;
 
-            string textureName = !string.IsNullOrEmpty(mesh.BakedPaint.Texture)
-                ? mesh.BakedPaint.Texture
-                : !string.IsNullOrEmpty(diffuseSampler.TextureName)
-                    ? diffuseSampler.TextureName
-                    : mesh.StationaryLight.Texture;
+            int texcoordId = 0;
+            MapGeometrySamplerData sampler = new();
+            if (!string.IsNullOrEmpty(mesh.BakedPaint.Texture))
+            {
+                texcoordId = 1;
+                sampler = mesh.BakedPaint;
+            }
+            else if (!string.IsNullOrEmpty(diffuseSampler.TextureName))
+            {
+                sampler = new(diffuseSampler.TextureName, Vector2.One, Vector2.Zero);
+            }
+            else
+            {
+                sampler = mesh.StationaryLight;
+            }
 
-            // Return if we couldn't figure out the texture name
-            if (string.IsNullOrEmpty(textureName))
+            // Return if we couldn't figure out the sampler
+            if (string.IsNullOrEmpty(sampler.Texture))
                 return;
 
             // Create glTF Image
-            GltfImage image = CreateImage(textureName, textureRegistry, root, context);
+            GltfImage image = CreateImage(sampler.Texture, textureRegistry, root, context);
 
             // Set channel properties
             MaterialChannel baseColorChannel = material.FindChannel("BaseColor").Value;
+
+            baseColorChannel.SetTransform(sampler.Bias, sampler.Scale);
             baseColorChannel.SetTexture(
-                0,
+                texcoordId,
                 image,
                 ws: GetGltfTextureWrapMode((TextureAddress)diffuseSampler.AddressU),
                 wt: GetGltfTextureWrapMode((TextureAddress)diffuseSampler.AddressV)
