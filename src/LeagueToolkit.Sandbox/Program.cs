@@ -41,8 +41,8 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileMapgeoToGltf()
         {
-            BinTree materialsBin = new("base_srx.materials.bin");
-            using MapGeometry mgeo = new("base_srx.mapgeo");
+            BinTree materialsBin = new("ioniabase.materials.bin");
+            using MapGeometry mgeo = new("ioniabase.mapgeo");
 
             MetaEnvironment metaEnvironment = MetaEnvironment.Create(
                 Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -55,13 +55,13 @@ namespace LeagueToolkit.Sandbox
                         new()
                         {
                             GameDataPath = "X:/lol/game",
-                            FlipAcrossX = true,
+                            FlipAcrossX = false,
                             LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
-                            TextureQuality = MapGeometryGltfTextureQuality.High
+                            TextureQuality = MapGeometryGltfTextureQuality.Low
                         }
                     )
                 )
-                .SaveGLB("base_srx.glb");
+                .SaveGLB("ioniabase.glb");
         }
 
         static void ProfileTexture()

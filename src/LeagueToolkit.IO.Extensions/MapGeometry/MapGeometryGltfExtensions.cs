@@ -325,25 +325,23 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Guard.IsNotNull(materialDef, nameof(materialDef));
 
-            // Resolve diffuse sampler definition
+            // Resolve diffuse sampler definition, return if not found
             StaticMaterialShaderSamplerDef diffuseSampler = materialDef.SamplerValues.FirstOrDefault(
                 x =>
                     DIFFUSE_SAMPLER_NAMES.Contains(x.Value.SamplerName)
                     || x.Value.SamplerName == bakedTerrainSamplers.Primary
             );
+            if (diffuseSampler is null)
+                return;
 
             // If diffuse sampler wasn't found and STATIONARY_LIGHT and BAKED_PAINT
             // are also null then we cannot create a valid diffuse channel, return
-            string textureName = diffuseSampler?.TextureName ?? mesh.StationaryLight.Texture ?? mesh.BakedPaint.Texture;
+            string textureName = diffuseSampler.TextureName ?? mesh.StationaryLight.Texture ?? mesh.BakedPaint.Texture;
             if (string.IsNullOrEmpty(textureName))
                 return;
 
             // Create glTF Image
-            string texturePath = GetQualityPrefixedTexturePath(
-                Path.Join(context.Settings.GameDataPath, textureName),
-                context.Settings.TextureQuality
-            );
-            GltfImage image = CreateImage(texturePath, textureRegistry, root);
+            GltfImage image = CreateImage(textureName, textureRegistry, root, context);
 
             // Set channel properties
             MaterialChannel baseColorChannel = material.FindChannel("BaseColor").Value;
@@ -355,8 +353,18 @@ namespace LeagueToolkit.IO.MapGeometryFile
             );
         }
 
-        private static GltfImage CreateImage(string texturePath, TextureRegistry textureRegistry, ModelRoot root)
+        private static GltfImage CreateImage(
+            string textureName,
+            TextureRegistry textureRegistry,
+            ModelRoot root,
+            MapGeometryGltfConversionContext context
+        )
         {
+            string texturePath = GetQualityPrefixedTexturePath(
+                Path.Join(context.Settings.GameDataPath, textureName),
+                context.Settings.TextureQuality
+            );
+
             // If texture is already loaded, return it
             if (textureRegistry.TryGetValue(texturePath, out GltfImage existingImage))
                 return existingImage;
@@ -580,7 +588,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static string GetQualityPrefixedTexturePath(string texturePath, MapGeometryGltfTextureQuality quality)
         {
-            return quality switch
+            string prefixedPath = quality switch
             {
                 MapGeometryGltfTextureQuality.Low
                     => Path.Combine(
@@ -594,6 +602,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     ),
                 MapGeometryGltfTextureQuality.High => texturePath,
                 _ => throw new NotImplementedException($"Invalid {nameof(MapGeometryGltfTextureQuality)}: {quality}"),
+            };
+
+            // Check if file exists, otherwise return non-prefixed
+            return File.Exists(prefixedPath) switch
+            {
+                true => prefixedPath,
+                false => texturePath
             };
         }
 
