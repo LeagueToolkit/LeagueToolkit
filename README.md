@@ -1,15 +1,13 @@
-[![Release](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/release.yaml/badge.svg?branch=main)](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/release.yaml) [![CI](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/LoL-Fantome/LeagueToolkit/actions/workflows/ci.yml)
+<p align="center">
 
-<table>
-  <tbody>
-    <tr>
-      <td><img width=128 height=128 src="https://i.imgur.com/qHBUCXp.png"></td>
-      <td><h1>LeagueToolkit</h1></td>
-    </tr>
-  </tbody>
-</table>
+  <img src="resources/LT_Logo_Transparent.png" width="256"/> 
 
-Fantome library which is used to manage files from League of Legends
+  <h1 align="center">League Toolkit</h1>
+
+  <p align="center">
+    LeagueToolkit is a library for parsing and editing assets from League of Legends
+  </p>
+</p>
 
 ## Discord
 If you want to talk to the developers or other people in the community, join our discord server:
