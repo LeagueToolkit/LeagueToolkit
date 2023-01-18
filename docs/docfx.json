@@ -9,7 +9,8 @@
       ],
       "dest": "api",
       "disableGitFeatures": false,
-      "disableDefaultFilter": false
+      "disableDefaultFilter": false,
+      "filter": "filterConfig.yml"
     }
   ],
   "build": {
@@ -43,10 +44,7 @@
       "_disableBreadcrumb": false
     },
     "fileMetadataFiles": [],
-    "template": [
-      "default",
-      "templates/singulinkfx"
-    ],
+    "template": ["default", "templates/singulinkfx"],
     "xrefService": ["https://xref.docs.microsoft.com/query?uid={uid}"],
     "postProcessors": [],
     "markdownEngineName": "markdig",

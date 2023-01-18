@@ -1,0 +1,7 @@
+apiRules:
+  - include:
+    hasAttribute:
+      uid: LeagueToolkit.Meta.Attributes.MetaClassAttribute
+  - include:
+    hasAttribute:
+      uid: LeagueToolkit.Meta.Attributes.MetaPropertyAttribute
