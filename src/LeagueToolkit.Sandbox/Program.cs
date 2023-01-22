@@ -1,6 +1,7 @@
 ﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using LeagueToolkit.Core.Animation;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
@@ -26,6 +27,7 @@ using System.Net.Http;
 using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
+using RigResource = LeagueToolkit.Core.Animation.RigResource;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -33,10 +35,15 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileMapgeoToGltf();
+            ProfileRigResource();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
+        }
+
+        static void ProfileRigResource()
+        {
+            RigResource skeleton = new(File.OpenRead("Brand.skl"));
         }
 
         static void ProfileMapgeoToGltf()

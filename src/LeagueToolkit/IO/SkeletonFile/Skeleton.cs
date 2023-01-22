@@ -117,12 +117,12 @@ namespace LeagueToolkit.IO.SkeletonFile
             if (nameOffset > 0)
             {
                 br.BaseStream.Seek(nameOffset, SeekOrigin.Begin);
-                this.Name = br.ReadZeroTerminatedString();
+                this.Name = br.ReadNullTerminatedString();
             }
             if (assetNameOffset > 0)
             {
                 br.BaseStream.Seek(assetNameOffset, SeekOrigin.Begin);
-                this.AssetName = br.ReadZeroTerminatedString();
+                this.AssetName = br.ReadNullTerminatedString();
             }
         }
 

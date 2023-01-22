@@ -122,7 +122,7 @@ namespace LeagueToolkit.IO.SkeletonFile
             long returnOffset = br.BaseStream.Position;
 
             br.BaseStream.Seek(returnOffset - 4 + nameOffset, SeekOrigin.Begin);
-            this.Name = br.ReadZeroTerminatedString();
+            this.Name = br.ReadNullTerminatedString();
             br.BaseStream.Seek(returnOffset, SeekOrigin.Begin);
         }
 

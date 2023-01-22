@@ -90,5 +90,11 @@ namespace LeagueToolkit.Helpers.Extensions
             value.AsSpan().CopyTo(data);
             writer.Write(data);
         }
+
+        public static void WriteNullTerminatedString(this BinaryWriter writer, string value)
+        {
+            writer.Write(Encoding.ASCII.GetBytes(value));
+            writer.Write((byte)0);
+        }
     }
 }
