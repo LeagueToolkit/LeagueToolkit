@@ -1,31 +1,76 @@
-﻿using LeagueToolkit.Hashing;
+﻿using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Mesh;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.IO.SkeletonFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueToolkit.Core.Animation
 {
+    /// <summary>
+    /// Represents a skeleton used for a <see cref="SkinnedMesh"/>
+    /// </summary>
     public sealed class RigResource
     {
         internal const int FORMAT_TOKEN = 0x22FD4FC3; // FNV hash of the format token string
 
+        /// <summary>
+        /// Gets the flags
+        /// </summary>
         public ushort Flags { get; private set; }
+
+        /// <summary>
+        /// Gets the name
+        /// </summary>
         public string Name { get; private set; }
+
+        /// <summary>
+        /// Gets the asset name
+        /// </summary>
         public string AssetName { get; private set; }
 
+        /// <summary>
+        /// Gets a read-only list of joints
+        /// </summary>
         public IReadOnlyList<Joint> Joints => this._joints;
         private Joint[] _joints;
 
+        /// <summary>
+        /// Gets a read-only list of influence id's
+        /// </summary>
+        /// <remarks>
+        /// Use this to map <see cref="VertexElement.BLEND_INDEX"/> values
+        /// <code>
+        /// short jointId1 = rigResource.Influences[blendIndex.x];
+        /// </code>
+        /// </remarks>
         public IReadOnlyList<short> Influences => this._influences;
         private short[] _influences;
 
+        internal RigResource(
+            ushort flags,
+            string name,
+            string assetName,
+            IEnumerable<Joint> joints,
+            IEnumerable<short> influences
+        )
+        {
+            this.Flags = flags;
+            this.Name = name;
+            this.AssetName = assetName;
+            this._joints = joints.ToArray();
+            this._influences = influences.ToArray();
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="RigResource"/> object by reading it from the specified stream
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
         public RigResource(Stream stream)
         {
             using BinaryReader br = new(stream, Encoding.UTF8, true);
@@ -197,6 +242,10 @@ namespace LeagueToolkit.Core.Animation
             }
         }
 
+        /// <summary>
+        /// Writes the <see cref="RigResource"/> object into the specified stream
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to write to</param>
         public void Write(Stream stream)
         {
             using BinaryWriter bw = new(stream, Encoding.UTF8, true);

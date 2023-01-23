@@ -1,26 +1,53 @@
 ﻿using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueToolkit.Core.Animation
 {
+    /// <summary>
+    /// Represents a skeleton joint for a <see cref="RigResource"/>
+    /// </summary>
     [DebuggerDisplay("{Name}")]
     public sealed class Joint
     {
+        /// <summary>
+        /// The name of the joint
+        /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        /// The flags of the joint
+        /// </summary>
         public ushort Flags { get; }
+
+        /// <summary>
+        /// The ID of the joint
+        /// </summary>
         public short Id { get; }
+
+        /// <summary>
+        /// The Parent ID of the joint
+        /// </summary>
+        /// <remarks>
+        /// Set to -1 if joint has no parent
+        /// </remarks>
         public short ParentId { get; }
 
+        /// <summary>
+        /// The radius of the joint
+        /// </summary>
         public float Radius { get; } = 2.1f;
+
+        /// <summary>
+        /// The local transform of the joint
+        /// </summary>
         public Matrix4x4 LocalTransform { get; }
+
+        /// <summary>
+        /// The inverse-bind transform of the joint
+        /// </summary>
         public Matrix4x4 InverseBindTransform { get; }
 
         internal Joint(

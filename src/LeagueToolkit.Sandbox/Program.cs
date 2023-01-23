@@ -1,7 +1,6 @@
 ﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
-using LeagueToolkit.Core.Animation;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
@@ -10,12 +9,12 @@ using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
+using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -28,6 +27,8 @@ using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
+using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
+using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -35,10 +36,33 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileRigResource();
+            ProfileGltfToRiggedMesh();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
+        }
+
+        static void ProfileGltfToRiggedMesh()
+        {
+            ModelRoot gltf = ModelRoot.Load("akali.glb");
+
+            var (skinnedMesh, skeleton) = gltf.ToRiggedMesh();
+
+            List<(string name, LeagueAnimation animation)> animations = new();
+            foreach (string animationFile in Directory.EnumerateFiles("animations"))
+            {
+                LeagueAnimation animation = new(animationFile);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
+            skinnedMesh
+                .ToGltf(
+                    skeleton,
+                    new Dictionary<string, ReadOnlyMemory<byte>>(),
+                    new List<(string name, LeagueAnimation animation)>()
+                )
+                .WriteGLB(File.OpenWrite("akali_fromgltf.glb"));
         }
 
         static void ProfileRigResource()
@@ -73,7 +97,7 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            Texture texture = Texture.Load(File.OpenRead("3.dds"));
+            LeagueTexture texture = LeagueTexture.Load(File.OpenRead("3.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
@@ -85,12 +109,12 @@ namespace LeagueToolkit.Sandbox
         static void ProfileSkinnedMesh()
         {
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
-            Skeleton skeleton = new("akali.skl");
+            RigResource skeleton = new(File.OpenRead("akali.skl"));
 
-            List<(string name, Animation animation)> animations = new();
+            List<(string name, LeagueAnimation animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
             {
-                Animation animation = new(animationFile);
+                LeagueAnimation animation = new(animationFile);
 
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }

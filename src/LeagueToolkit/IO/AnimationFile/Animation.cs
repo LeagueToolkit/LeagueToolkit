@@ -1,9 +1,8 @@
-﻿using LeagueToolkit.Core.Primitives;
+﻿using LeagueToolkit.Core.Animation;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.IO.SkeletonFile;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -452,7 +451,7 @@ namespace LeagueToolkit.IO.AnimationFile
             return (time, Vector3.Lerp(a.Item2, b.Item2, 0.5f));
         }
 
-        public bool IsCompatibleWithSkeleton(Skeleton skeleton)
+        public bool IsCompatibleWithSkeleton(RigResource skeleton)
         {
             foreach (AnimationTrack track in this.Tracks)
             {

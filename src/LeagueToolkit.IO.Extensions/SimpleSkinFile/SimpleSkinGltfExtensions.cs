@@ -1,32 +1,34 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Animation;
+using LeagueToolkit.Core.Animation.Builders;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.AnimationFile;
-using LeagueToolkit.IO.SkeletonFile;
 using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
     using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
     using VERTEX_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexEmpty>;
-    using VERTEX_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexEmpty>;
-
     using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
     using VERTEX_SKINNED_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexJoints4>;
     using VERTEX_SKINNED_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexJoints4>;
+    using VERTEX_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexEmpty>;
 
     public static class SimpleSkinGltfExtensions
     {
@@ -61,26 +63,26 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified skeleton, textures and animations
         /// </summary>
         /// <param name="skinnedMesh">The <see cref="SkinnedMesh"/> to covert</param>
-        /// <param name="skeleton">The <see cref="Skeleton"/> of the <see cref="SkinnedMesh"/></param>
+        /// <param name="rig">The <see cref="RigResource"/> of the <see cref="SkinnedMesh"/></param>
         /// <param name="materialTextues">The texture data for the specified materials</param>
         /// <param name="animations">The animations</param>
         /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
-            Skeleton skeleton,
+            RigResource rig,
             IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues,
             IReadOnlyList<(string name, LeagueAnimation animation)> animations
         )
         {
-            Guard.IsNotNull(skeleton, nameof(skeleton));
+            Guard.IsNotNull(rig, nameof(rig));
             Guard.IsNotNull(materialTextues, nameof(materialTextues));
             Guard.IsNotNull(animations, nameof(animations));
 
             SceneBuilder sceneBuilder = new();
             NodeBuilder rootNodeBuilder = new("model");
 
-            var meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, skeleton, materialTextues);
-            var bones = CreateSkeleton(rootNodeBuilder, skeleton);
+            var meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, rig, materialTextues);
+            var bones = CreateSkeleton(rootNodeBuilder, rig);
 
             // Add mesh to scene
             sceneBuilder.AddSkinnedMesh(meshBuilder, bones.ToArray());
@@ -99,7 +101,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         /// </summary>
         /// <param name="root">The <see cref="ModelRoot"/> to convert</param>
         /// <returns>The created <see cref="SkinnedMesh"/> and <see cref="Skeleton"/></returns>
-        public static (SkinnedMesh, Skeleton) ToRiggedMesh(this ModelRoot root)
+        public static (SkinnedMesh, RigResource) ToRiggedMesh(this ModelRoot root)
         {
             Guard.HasSizeEqualTo(root.LogicalMeshes, 1, nameof(root.LogicalMeshes));
             Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
@@ -109,94 +111,84 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 .Select(primitive => (primitive, primitive.GetIndices()))
                 .ToList();
 
+            var (isJointInfluenceLookup, influencesLookup) = CollectGltfMeshInfluences(mesh, root.LogicalSkins[0]);
+
             // Create ranges and index buffer
             int indexOffset = 0;
+            int baseIndex = 0;
             int indexCount = primitiveIndices.Sum(x => x.indices.Count);
             MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
             SkinnedMeshRange[] ranges = new SkinnedMeshRange[mesh.Primitives.Count];
             for (int primitiveId = 0; primitiveId < primitiveIndices.Count; primitiveId++)
             {
                 var (primitive, indices) = primitiveIndices[primitiveId];
+                int primitiveVertexCount = primitive.GetVertexAccessor("POSITION").Count;
 
-                uint minIndex = indices.Min();
-                uint maxIndex = indices.Max();
                 for (int i = 0; i < indices.Count; i++)
                 {
-                    indexBufferOwner.Span[indexOffset + i] = (ushort)(indices[i] - minIndex);
+                    indexBufferOwner.Span[indexOffset + i] = (ushort)(indices[i] + baseIndex);
                 }
 
                 ranges[primitiveId] = new(
                     primitive.Material.Name,
-                    (int)minIndex,
-                    (int)(maxIndex - minIndex + 1),
+                    baseIndex,
+                    primitiveVertexCount,
                     indexOffset,
                     indices.Count
                 );
                 indexOffset += indices.Count;
+                baseIndex += primitiveVertexCount;
             }
 
             // Create vertex buffer
             int vertexCount = ranges.Sum(range => range.VertexCount);
             VertexBufferDescription vertexBufferDescription = CreateRiggedMeshVertexBufferDescription(root);
-            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
-                vertexCount * vertexBufferDescription.GetVertexSize()
+            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
+                vertexBufferDescription.Elements,
+                vertexCount
             );
             VertexBufferWriter vertexBufferWriter = new(vertexBufferDescription.Elements, vertexBufferOwner.Memory);
 
-            List<byte> influences = new();
             for (int primitiveId = 0; primitiveId < mesh.Primitives.Count; primitiveId++)
             {
                 MeshPrimitive primitive = mesh.Primitives[primitiveId];
                 SkinnedMeshRange range = ranges[primitiveId];
 
-                bool hasPositions = primitive.VertexAccessors.TryGetValue("POSITION", out var positionAccessor);
-                bool hasJoints = primitive.VertexAccessors.TryGetValue("JOINTS_0", out var jointsAccessor);
-                bool hasWeights = primitive.VertexAccessors.TryGetValue("WEIGHTS_0", out var weightsAccessor);
-                bool hasNormals = primitive.VertexAccessors.TryGetValue("NORMAL", out var normalAccessor);
-                bool hasDiffuseUvs = primitive.VertexAccessors.TryGetValue("TEXCOORD_0", out var diffuseUvAccessor);
                 bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out var colorAccessor);
-                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT_0", out var tangentAccessor);
+                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT", out var tangentAccessor);
 
-                IList<Vector3> positions = hasPositions ? positionAccessor.AsVector3Array() : null;
-                IList<Vector4> joints = hasJoints ? jointsAccessor.AsVector4Array() : null;
-                IList<Vector4> weights = hasWeights ? weightsAccessor.AsVector4Array() : null;
-                IList<Vector3> normals = hasNormals ? positionAccessor.AsVector3Array() : null;
-                IList<Vector2> diffuseUvs = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : null;
-                IList<Vector4> colors = hasJoints ? colorAccessor.AsColorArray() : null;
-                IList<Vector4> tangents = hasJoints ? tangentAccessor.AsVector4Array() : null;
+                IList<Vector3> positions = primitive.VertexAccessors["POSITION"].AsVector3Array();
+                IList<Vector4> joints = primitive.VertexAccessors["JOINTS_0"].AsVector4Array();
+                IList<Vector4> weights = primitive.VertexAccessors["WEIGHTS_0"].AsVector4Array();
+                IList<Vector3> normals = primitive.VertexAccessors["NORMAL"].AsVector3Array();
+                IList<Vector2> diffuseUvs = primitive.VertexAccessors["TEXCOORD_0"].AsVector2Array();
+                IList<Vector4> colors = hasColors ? colorAccessor.AsColorArray() : null;
+                IList<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : null;
 
                 for (int i = 0; i < positions.Count; i++)
                 {
                     Vector4 vertexJoints = joints[i];
-                    byte[] vertexJointsArray = new[]
-                    {
-                        (byte)vertexJoints.X,
-                        (byte)vertexJoints.Y,
-                        (byte)vertexJoints.Z,
-                        (byte)vertexJoints.W
-                    };
-                    for (int joint = 0; joint < vertexJointsArray.Length; joint++)
-                    {
-                        if (!influences.Any(x => x == vertexJointsArray[joint]))
-                        {
-                            influences.Add(vertexJointsArray[joint]);
-                        }
-                    }
+                    Vector4 vertexWeights = weights[i];
 
-                    vertexBufferWriter.WriteVector3(i, ElementName.Position, positions[i]);
+                    vertexBufferWriter.WriteVector3(i + range.StartVertex, ElementName.Position, positions[i]);
                     vertexBufferWriter.WriteXyzwU8(
-                        i,
+                        i + range.StartVertex,
                         ElementName.BlendIndex,
-                        (vertexJointsArray[0], vertexJointsArray[1], vertexJointsArray[2], vertexJointsArray[3])
+                        (
+                            vertexWeights.X > 0f ? influencesLookup[(short)vertexJoints.X] : (byte)0,
+                            vertexWeights.Y > 0f ? influencesLookup[(short)vertexJoints.Y] : (byte)0,
+                            vertexWeights.Z > 0f ? influencesLookup[(short)vertexJoints.Z] : (byte)0,
+                            vertexWeights.W > 0f ? influencesLookup[(short)vertexJoints.W] : (byte)0
+                        )
                     );
-                    vertexBufferWriter.WriteVector4(i, ElementName.BlendWeight, weights[i]);
-                    vertexBufferWriter.WriteVector3(i, ElementName.Normal, normals[i]);
-                    vertexBufferWriter.WriteVector2(i, ElementName.DiffuseUV, diffuseUvs[i]);
+                    vertexBufferWriter.WriteVector4(i + range.StartVertex, ElementName.BlendWeight, vertexWeights);
+                    vertexBufferWriter.WriteVector3(i + range.StartVertex, ElementName.Normal, normals[i]);
+                    vertexBufferWriter.WriteVector2(i + range.StartVertex, ElementName.DiffuseUV, diffuseUvs[i]);
 
                     if (hasColors || hasTangents)
-                        vertexBufferWriter.WriteColorBgraU8(i, ElementName.PrimaryColor, colors[i]);
+                        vertexBufferWriter.WriteColorBgraU8(i + range.StartVertex, ElementName.PrimaryColor, colors[i]);
                     if (hasTangents)
-                        vertexBufferWriter.WriteVector4(i, ElementName.Tangent, tangents[i]);
+                        vertexBufferWriter.WriteVector4(i + range.StartVertex, ElementName.Tangent, tangents[i]);
                 }
             }
 
@@ -207,9 +199,60 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             );
 
             SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
-            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
+            RigResource skeleton = CreateLeagueSkeleton(root.LogicalSkins[0], isJointInfluenceLookup);
 
             return (skinnedMesh, skeleton);
+        }
+
+        private static (
+            bool[] IsJointInfluenceLookup,
+            Dictionary<short, byte> InfluencesLookup
+        ) CollectGltfMeshInfluences(Mesh mesh, Skin skin)
+        {
+            bool[] isJointInfluenceLookup = new bool[skin.JointsCount];
+            Span<float> joints = stackalloc float[4];
+            Span<float> weights = stackalloc float[4];
+            foreach (MeshPrimitive primitive in mesh.Primitives)
+            {
+                IList<Vector4> jointsArray = primitive.VertexAccessors["JOINTS_0"].AsVector4Array();
+                IList<Vector4> weightsArray = primitive.VertexAccessors["WEIGHTS_0"].AsVector4Array();
+
+                for (int i = 0; i < jointsArray.Count; i++)
+                {
+                    Vector4 jointsVector = jointsArray[i];
+                    Vector4 weightsVector = weightsArray[i];
+
+                    joints[0] = jointsVector.X;
+                    joints[1] = jointsVector.Y;
+                    joints[2] = jointsVector.Z;
+                    joints[3] = jointsVector.W;
+
+                    weights[0] = weightsVector.X;
+                    weights[1] = weightsVector.Y;
+                    weights[2] = weightsVector.Z;
+                    weights[3] = weightsVector.W;
+
+                    for (int j = 0; j < 4; j++)
+                        if (weights[j] > 0f)
+                            isJointInfluenceLookup[(short)joints[j]] = true;
+                }
+            }
+
+            // Collection of all joint Ids which are influences
+            short[] influences = isJointInfluenceLookup
+                .Select((isInfluence, id) => (isInfluence, id))
+                .Where(x => x.isInfluence)
+                .Select(x => (short)x.id)
+                .ToArray();
+            if (influences.Length > 256)
+                ThrowHelper.ThrowInvalidOperationException("Cannot have more than 256 influences");
+
+            // Create reverse lookup
+            Dictionary<short, byte> influencesLookup = new(influences.Length);
+            for (byte i = 0; i < influences.Length; i++)
+                influencesLookup.Add(influences[i], i);
+
+            return (isJointInfluenceLookup, influencesLookup);
         }
 
         private static IMeshBuilder<MaterialBuilder> CreateMeshBuilder(
@@ -237,12 +280,12 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static IMeshBuilder<MaterialBuilder> CreateSkinnedMeshBuilder(
             SkinnedMesh skinnedMesh,
-            Skeleton skeleton,
+            RigResource rig,
             IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
         )
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(skeleton, nameof(skeleton));
+            Guard.IsNotNull(rig, nameof(rig));
             Guard.IsNotNull(materialTextues, nameof(materialTextues));
 
             VertexBufferDescription vertexBufferDescription = skinnedMesh.VerticesView.Description;
@@ -256,7 +299,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 _ => throw new NotImplementedException($"Unsupported {nameof(VertexBufferDescription)}")
             };
 
-            IVertexBuilder[] vertices = CreateSkinnedVertices(skinnedMesh, skeleton);
+            IVertexBuilder[] vertices = CreateSkinnedVertices(skinnedMesh, rig);
             BuildMeshPrimitives(meshBuilder, skinnedMesh, vertices, materialTextues);
 
             return meshBuilder;
@@ -361,10 +404,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return vertices;
         }
 
-        private static IVertexBuilder[] CreateSkinnedVertices(SkinnedMesh skinnedMesh, Skeleton skeleton)
+        private static IVertexBuilder[] CreateSkinnedVertices(SkinnedMesh skinnedMesh, RigResource rig)
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(skeleton, nameof(skeleton));
+            Guard.IsNotNull(rig, nameof(rig));
 
             bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
                 ElementName.PrimaryColor,
@@ -433,10 +476,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     new VertexJoints4(
                         new (int, float)[]
                         {
-                            (skeleton.Influences[joints.x], jointWeights.X),
-                            (skeleton.Influences[joints.y], jointWeights.Y),
-                            (skeleton.Influences[joints.z], jointWeights.Z),
-                            (skeleton.Influences[joints.w], jointWeights.W)
+                            (rig.Influences[joints.x], jointWeights.X),
+                            (rig.Influences[joints.y], jointWeights.Y),
+                            (rig.Influences[joints.z], jointWeights.Z),
+                            (rig.Influences[joints.w], jointWeights.W)
                         }
                     )
                 );
@@ -454,18 +497,18 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(
             NodeBuilder rootNode,
-            Skeleton skeleton
+            RigResource rig
         )
         {
             Guard.IsNotNull(rootNode, nameof(rootNode));
-            Guard.IsNotNull(skeleton, nameof(skeleton));
+            Guard.IsNotNull(rig, nameof(rig));
 
             var joints = new List<(NodeBuilder, Matrix4x4)>();
 
-            foreach (SkeletonJoint joint in skeleton.Joints)
+            foreach (Joint joint in rig.Joints)
             {
                 // Root
-                if (joint.ParentID == -1)
+                if (joint.ParentId is -1)
                 {
                     NodeBuilder jointNode = rootNode.CreateNode(joint.Name);
 
@@ -475,7 +518,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
                 else
                 {
-                    SkeletonJoint parentJoint = skeleton.Joints.FirstOrDefault(x => x.ID == joint.ParentID);
+                    Joint parentJoint = rig.Joints.FirstOrDefault(x => x.Id == joint.ParentId);
                     NodeBuilder parentNode = joints.FirstOrDefault(x => x.Item1.Name == parentJoint.Name).Item1;
                     NodeBuilder jointNode = parentNode.CreateNode(joint.Name);
 
@@ -551,7 +594,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             bool hasNormals = firstPrimitive.VertexAccessors.TryGetValue("NORMAL", out _);
             bool hasDiffuseUvs = firstPrimitive.VertexAccessors.TryGetValue("TEXCOORD_0", out _);
             bool hasColors = firstPrimitive.VertexAccessors.TryGetValue("COLOR_0", out _);
-            bool hasTangents = firstPrimitive.VertexAccessors.TryGetValue("TANGENT_0", out _);
+            bool hasTangents = firstPrimitive.VertexAccessors.TryGetValue("TANGENT", out _);
 
             if (hasPositions is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh does not have positions");
@@ -562,7 +605,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             if (hasNormals is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh does not have normals");
             if (hasDiffuseUvs is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have diffuse Uvs");
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have diffuse uvs");
 
             return (hasColors, hasTangents) switch
             {
@@ -573,61 +616,69 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             };
         }
 
-        private static Skeleton CreateLeagueSkeleton(Skin skin)
+        private static RigResource CreateLeagueSkeleton(Skin skin, bool[] isJointInfluenceLookup)
         {
             Guard.IsNotNull(skin, nameof(skin));
+            Guard.IsNotNull(isJointInfluenceLookup, nameof(isJointInfluenceLookup));
 
-            List<Node> nodes = new(skin.JointsCount);
-            for (int i = 0; i < skin.JointsCount; i++)
+            RigResourceBuilder rigBuilder = new();
+
+            List<(Node Node, Matrix4x4 InverseBindMatrix)> jointNodes = Enumerable
+                .Range(0, skin.JointsCount)
+                .Select(skin.GetJoint)
+                .ToList();
+
+            List<JointBuilder> joints = new(jointNodes.Count);
+            for (int i = 0; i < jointNodes.Count; i++)
             {
-                nodes.Add(skin.GetJoint(i).Joint);
+                var (jointNode, inverseBindTransform) = jointNodes[i];
+
+                CreateRigJointFromGltfNode(
+                    rigBuilder,
+                    joints,
+                    i,
+                    jointNode,
+                    inverseBindTransform,
+                    isJointInfluenceLookup
+                );
             }
 
-            List<SkeletonJoint> joints = new(nodes.Count);
-            for (int i = 0; i < nodes.Count; i++)
+            return rigBuilder.Build();
+        }
+
+        private static void CreateRigJointFromGltfNode(
+            RigResourceBuilder rigBuilder,
+            List<JointBuilder> joints,
+            int id,
+            Node jointNode,
+            Matrix4x4 inverseBindTransform,
+            bool[] isJointInfluenceLookup
+        )
+        {
+            if (jointNode.VisualParent is null || !jointNode.VisualParent.IsSkinJoint)
             {
-                Node jointNode = nodes[i];
-
-                // If parent is null or isn't a skin joint then the joint is a root bone
-                if (jointNode.VisualParent is null || !jointNode.VisualParent.IsSkinJoint)
-                {
-                    Vector3 scale = jointNode.LocalTransform.Scale;
-
-                    joints.Add(
-                        new SkeletonJoint(
-                            (short)i,
-                            -1,
-                            jointNode.Name,
-                            jointNode.LocalTransform.Translation,
-                            scale,
-                            jointNode.LocalTransform.Rotation
-                        )
-                    );
-                }
-                else
-                {
-                    short parentId = (short)nodes.IndexOf(jointNode.VisualParent);
-
-                    joints.Add(
-                        new SkeletonJoint(
-                            (short)i,
-                            parentId,
-                            jointNode.Name,
-                            jointNode.LocalTransform.Translation,
-                            jointNode.LocalTransform.Scale,
-                            jointNode.LocalTransform.Rotation
-                        )
-                    );
-                }
+                joints.Add(
+                    rigBuilder
+                        .CreateJoint(jointNode.Name)
+                        .WithInfluence(isJointInfluenceLookup[id])
+                        .WithLocalTransform(jointNode.LocalMatrix)
+                        .WithInverseBindTransform(inverseBindTransform)
+                );
             }
-
-            List<short> influences = new(joints.Count);
-            for (short i = 0; i < joints.Count; i++)
+            else
             {
-                influences.Add(i);
-            }
+                JointBuilder parent = joints.Find(x => x.Name == jointNode.VisualParent.Name);
+                if (parent is null)
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find parent for {jointNode.Name}");
 
-            return new(joints, influences);
+                joints.Add(
+                    parent
+                        .CreateJoint(jointNode.Name)
+                        .WithInfluence(isJointInfluenceLookup[id])
+                        .WithLocalTransform(jointNode.LocalMatrix)
+                        .WithInverseBindTransform(inverseBindTransform)
+                );
+            }
         }
     }
 }
