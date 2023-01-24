@@ -78,22 +78,24 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.IsNotNull(materialTextues, nameof(materialTextues));
             Guard.IsNotNull(animations, nameof(animations));
 
-            SceneBuilder sceneBuilder = new();
-            NodeBuilder rootNodeBuilder = new("model");
+            ModelRoot root = ModelRoot.CreateModel();
+            Scene scene = root.UseScene("SkinnedMesh");
 
-            var meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, rig, materialTextues);
-            var bones = CreateSkeleton(rootNodeBuilder, rig);
+            Node modelNode = scene.CreateNode("model");
+
+            IMeshBuilder<MaterialBuilder> meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, rig, materialTextues);
+            var joints = CreateSkeleton(modelNode, rig);
+
+            Mesh gltfMesh = root.CreateMesh(meshBuilder);
 
             // Add mesh to scene
-            sceneBuilder.AddSkinnedMesh(meshBuilder, bones.ToArray());
+            modelNode.WithSkinnedMesh(gltfMesh, joints.ToArray());
 
             // Create animations
-            CreateAnimations(bones.Select(x => x.Node).ToList(), animations);
+            CreateAnimations(joints.Select(x => x.Node).ToList(), animations);
 
-            // Flip the scene across the X axis
-            sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
-
-            return sceneBuilder.ToGltf2();
+            root.DefaultScene = scene;
+            return root;
         }
 
         /// <summary>
@@ -107,6 +109,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
 
             Mesh mesh = root.LogicalMeshes[0];
+
             List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
                 .Select(primitive => (primitive, primitive.GetIndices()))
                 .ToList();
@@ -199,7 +202,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             );
 
             SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
-            RigResource skeleton = CreateLeagueSkeleton(root.LogicalSkins[0], isJointInfluenceLookup);
+            RigResource skeleton = CreateLeagueSkeleton(
+                root.LogicalSkins[0].VisualParents.FirstOrDefault(),
+                root.LogicalSkins[0]
+            );
 
             return (skinnedMesh, skeleton);
         }
@@ -319,7 +325,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
-                MaterialBuilder material = new MaterialBuilder(range.Material).WithUnlitShader();
+                MaterialBuilder material = new MaterialBuilder(range.Material).WithUnlitShader().WithDoubleSide(true);
                 var primitiveBuilder = meshBuilder.UsePrimitive(material);
 
                 // Assign texture to material
@@ -476,10 +482,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     new VertexJoints4(
                         new (int, float)[]
                         {
-                            (rig.Influences[joints.x], jointWeights.X),
-                            (rig.Influences[joints.y], jointWeights.Y),
-                            (rig.Influences[joints.z], jointWeights.Z),
-                            (rig.Influences[joints.w], jointWeights.W)
+                            (joints.x, jointWeights.X),
+                            (joints.y, jointWeights.Y),
+                            (joints.z, jointWeights.Z),
+                            (joints.w, jointWeights.W)
                         }
                     )
                 );
@@ -495,44 +501,52 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             ReadOnlyMemory<byte> textureMemory
         ) => materialBuilder.UseChannel(KnownChannel.BaseColor).UseTexture().WithPrimaryImage(textureMemory.ToArray());
 
-        private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(
-            NodeBuilder rootNode,
-            RigResource rig
-        )
+        private static List<(Node Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(Node skeletonNode, RigResource rig)
         {
-            Guard.IsNotNull(rootNode, nameof(rootNode));
+            Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
             Guard.IsNotNull(rig, nameof(rig));
 
-            var joints = new List<(NodeBuilder, Matrix4x4)>();
+            Matrix4x4 flipX = Matrix4x4.CreateScale(-1f, 1f, 1f);
+
+            // We create all rig joints as nodes but only bind those which act as influences
+            // In blender, this makes the un-bound joints act as locators instead of armature joints
+            List<(Node, Matrix4x4)> influenceJointNodes = new();
+            List<Node> jointNodes = new();
 
             foreach (Joint joint in rig.Joints)
             {
+                bool isInfluence = rig.Influences.Any(x => x == joint.Id);
+
                 // Root
                 if (joint.ParentId is -1)
                 {
-                    NodeBuilder jointNode = rootNode.CreateNode(joint.Name);
+                    Node jointNode = skeletonNode.CreateNode(joint.Name);
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    joints.Add((jointNode, joint.InverseBindTransform));
+                    jointNodes.Add(jointNode);
+                    if (isInfluence)
+                        influenceJointNodes.Add((jointNode, joint.InverseBindTransform));
                 }
                 else
                 {
                     Joint parentJoint = rig.Joints.FirstOrDefault(x => x.Id == joint.ParentId);
-                    NodeBuilder parentNode = joints.FirstOrDefault(x => x.Item1.Name == parentJoint.Name).Item1;
-                    NodeBuilder jointNode = parentNode.CreateNode(joint.Name);
+                    Node parentNode = jointNodes.FirstOrDefault(x => x.Name == parentJoint.Name);
+                    Node jointNode = parentNode.CreateNode(joint.Name);
 
                     jointNode.LocalTransform = joint.LocalTransform;
 
-                    joints.Add((jointNode, joint.InverseBindTransform));
+                    jointNodes.Add(jointNode);
+                    if (isInfluence)
+                        influenceJointNodes.Add((jointNode, joint.InverseBindTransform));
                 }
             }
 
-            return joints;
+            return influenceJointNodes;
         }
 
         private static void CreateAnimations(
-            IReadOnlyList<NodeBuilder> joints,
+            IReadOnlyList<Node> joints,
             IReadOnlyList<(string name, LeagueAnimation animation)> animations
         )
         {
@@ -543,7 +557,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             {
                 foreach (AnimationTrack track in animation.Tracks)
                 {
-                    NodeBuilder joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
+                    Node joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
 
                     if (joint is null)
                         continue;
@@ -552,31 +566,19 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                         track.Translations.Add(0.0f, new Vector3(0, 0, 0));
                     if (track.Translations.Count == 1)
                         track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                    CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(name);
-                    foreach (var translation in track.Translations)
-                    {
-                        translationBuilder.SetPoint(translation.Key, translation.Value);
-                    }
+                    joint.WithTranslationAnimation(name, track.Translations);
 
                     if (track.Rotations.Count == 0)
                         track.Rotations.Add(0.0f, Quaternion.Identity);
                     if (track.Rotations.Count == 1)
                         track.Rotations.Add(1.0f, Quaternion.Identity);
-                    CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(name);
-                    foreach (var rotation in track.Rotations)
-                    {
-                        rotationBuilder.SetPoint(rotation.Key, rotation.Value);
-                    }
+                    joint.WithRotationAnimation(name, track.Rotations);
 
                     if (track.Scales.Count == 0)
                         track.Scales.Add(0.0f, new Vector3(1, 1, 1));
                     if (track.Scales.Count == 1)
                         track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                    CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(name);
-                    foreach (var scale in track.Scales.ToList())
-                    {
-                        scaleBuilder.SetPoint(scale.Key, scale.Value);
-                    }
+                    joint.WithScaleAnimation(name, track.Scales);
                 }
             }
         }
@@ -616,68 +618,76 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             };
         }
 
-        private static RigResource CreateLeagueSkeleton(Skin skin, bool[] isJointInfluenceLookup)
+        private static RigResource CreateLeagueSkeleton(Node skeletonNode, Skin skin)
         {
             Guard.IsNotNull(skin, nameof(skin));
-            Guard.IsNotNull(isJointInfluenceLookup, nameof(isJointInfluenceLookup));
 
             RigResourceBuilder rigBuilder = new();
 
-            List<(Node Node, Matrix4x4 InverseBindMatrix)> jointNodes = Enumerable
-                .Range(0, skin.JointsCount)
-                .Select(skin.GetJoint)
-                .ToList();
-
+            List<Node> jointNodes = TraverseJointNodes(skeletonNode).ToList();
             List<JointBuilder> joints = new(jointNodes.Count);
             for (int i = 0; i < jointNodes.Count; i++)
             {
-                var (jointNode, inverseBindTransform) = jointNodes[i];
+                Node jointNode = jointNodes[i];
 
-                CreateRigJointFromGltfNode(
-                    rigBuilder,
-                    joints,
-                    i,
-                    jointNode,
-                    inverseBindTransform,
-                    isJointInfluenceLookup
-                );
+                CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, skeletonNode);
             }
 
             return rigBuilder.Build();
         }
 
-        private static void CreateRigJointFromGltfNode(
+        private static JointBuilder CreateRigJointFromGltfNode(
             RigResourceBuilder rigBuilder,
             List<JointBuilder> joints,
-            int id,
             Node jointNode,
-            Matrix4x4 inverseBindTransform,
-            bool[] isJointInfluenceLookup
+            Node skeletonNode
         )
         {
-            if (jointNode.VisualParent is null || !jointNode.VisualParent.IsSkinJoint)
+            if (joints.Find(x => x.Name == jointNode.Name) is JointBuilder existingJoint)
+                return existingJoint;
+
+            Matrix4x4.Invert(jointNode.WorldMatrix, out Matrix4x4 inverseBindTransform);
+
+            if (jointNode.VisualParent is null || jointNode.VisualParent == skeletonNode)
             {
-                joints.Add(
-                    rigBuilder
-                        .CreateJoint(jointNode.Name)
-                        .WithInfluence(isJointInfluenceLookup[id])
-                        .WithLocalTransform(jointNode.LocalMatrix)
-                        .WithInverseBindTransform(inverseBindTransform)
-                );
+                JointBuilder joint = rigBuilder
+                    .CreateJoint(jointNode.Name)
+                    .WithInfluence(jointNode.IsSkinJoint)
+                    .WithLocalTransform(jointNode.LocalMatrix)
+                    .WithInverseBindTransform(inverseBindTransform);
+
+                joints.Add(joint);
+
+                return joint;
             }
             else
             {
                 JointBuilder parent = joints.Find(x => x.Name == jointNode.VisualParent.Name);
-                if (parent is null)
-                    ThrowHelper.ThrowInvalidOperationException($"Failed to find parent for {jointNode.Name}");
+                parent ??= CreateRigJointFromGltfNode(rigBuilder, joints, jointNode.VisualParent, skeletonNode);
 
-                joints.Add(
-                    parent
-                        .CreateJoint(jointNode.Name)
-                        .WithInfluence(isJointInfluenceLookup[id])
-                        .WithLocalTransform(jointNode.LocalMatrix)
-                        .WithInverseBindTransform(inverseBindTransform)
-                );
+                JointBuilder joint = parent
+                    .CreateJoint(jointNode.Name)
+                    .WithInfluence(jointNode.IsSkinJoint)
+                    .WithLocalTransform(jointNode.LocalMatrix)
+                    .WithInverseBindTransform(inverseBindTransform);
+
+                joints.Add(joint);
+
+                return joint;
+            }
+        }
+
+        private static IEnumerable<Node> TraverseJointNodes(Node node)
+        {
+            IEnumerable<Node> jointNodes = node.VisualChildren.Where(
+                node => node.Skin is null && node.Mesh is null && node.Camera is null
+            );
+            foreach (Node joint in jointNodes)
+            {
+                yield return joint;
+
+                foreach (Node jointChild in TraverseJointNodes(joint))
+                    yield return jointChild;
             }
         }
     }

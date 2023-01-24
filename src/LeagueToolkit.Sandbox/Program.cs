@@ -44,9 +44,25 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileGltfToRiggedMesh()
         {
-            ModelRoot gltf = ModelRoot.Load("akali.glb");
+            using SkinnedMesh originalSkinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
+            RigResource originalRig = new(File.OpenRead("akali.skl"));
 
-            var (skinnedMesh, skeleton) = gltf.ToRiggedMesh();
+            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(
+                originalRig,
+                new Dictionary<string, ReadOnlyMemory<byte>>(),
+                new List<(string name, LeagueAnimation animation)>()
+            );
+
+            {
+                using Stream stream = File.OpenWrite("akali.glb");
+                originalGltf.WriteGLB(stream);
+            }
+
+            {
+                ModelRoot blenderExported = ModelRoot.Load("akali_modelFlipX_exported.glb");
+            }
+
+            var (skinnedMesh, skeleton) = originalGltf.ToRiggedMesh();
 
             List<(string name, LeagueAnimation animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
