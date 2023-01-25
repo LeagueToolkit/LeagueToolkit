@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.Animation.Builders;
 
+[DebuggerDisplay("{GetPath(), nq}", Name = "{Name}")]
 public sealed class JointBuilder
 {
     public string Name { get; set; }
@@ -93,4 +96,11 @@ public sealed class JointBuilder
                 yield return jointChild;
         }
     }
+
+    private string GetPath() =>
+        this.Parent switch
+        {
+            null => this.Name,
+            _ => $"{this.Parent.GetPath()} | {this.Name}"
+        };
 }
