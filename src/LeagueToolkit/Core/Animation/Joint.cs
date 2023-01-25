@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Hashing;
+﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
 using System.Diagnostics;
 using System.IO;
@@ -43,12 +44,32 @@ namespace LeagueToolkit.Core.Animation
         /// <summary>
         /// The local transform of the joint
         /// </summary>
+        /// <remarks>Equivalent to <c>S * R * T</c></remarks>
         public Matrix4x4 LocalTransform { get; }
+
+        /// <summary>The local translation of the joint</summary>
+        public Vector3 LocalTranslation { get; }
+
+        /// <summary>The local scale of the joint</summary>
+        public Vector3 LocalScale { get; }
+
+        /// <summary>The local rotation of the joint</summary>
+        public Quaternion LocalRotation { get; }
 
         /// <summary>
         /// The inverse-bind transform of the joint
         /// </summary>
+        /// <remarks>Equivalent to <c>S * R * T</c></remarks>
         public Matrix4x4 InverseBindTransform { get; }
+
+        /// <summary>The inverse bind translation of the joint</summary>
+        public Vector3 InverseBindTranslation { get; }
+
+        /// <summary>The inverse bind scale of the joint</summary>
+        public Vector3 InverseBindScale { get; }
+
+        /// <summary>The inverse bind rotation of the joint</summary>
+        public Quaternion InverseBindRotation { get; }
 
         internal Joint(
             string name,
@@ -60,13 +81,39 @@ namespace LeagueToolkit.Core.Animation
             Matrix4x4 inverseBindTransform
         )
         {
+            Guard.IsNotNullOrEmpty(name, nameof(name));
+
             this.Name = name;
             this.Flags = flags;
             this.Id = id;
             this.ParentId = parentId;
             this.Radius = radius;
+
+            // Set local transform
+            Matrix4x4.Decompose(
+                localTransform,
+                out Vector3 localScale,
+                out Quaternion localRotation,
+                out Vector3 localTranslation
+            );
+
             this.LocalTransform = localTransform;
+            this.LocalTranslation = localTranslation;
+            this.LocalScale = localScale;
+            this.LocalRotation = localRotation;
+
+            // Set inverse bind transform
+            Matrix4x4.Decompose(
+                inverseBindTransform,
+                out Vector3 inverseBindScale,
+                out Quaternion inverseBindRotation,
+                out Vector3 inverseBindTranslation
+            );
+
             this.InverseBindTransform = inverseBindTransform;
+            this.InverseBindTranslation = inverseBindTranslation;
+            this.InverseBindScale = inverseBindScale;
+            this.InverseBindRotation = inverseBindRotation;
         }
 
         internal void Write(BinaryWriter bw, int nameOffset)
@@ -79,27 +126,16 @@ namespace LeagueToolkit.Core.Animation
             bw.Write(this.Radius);
 
             // Write local transform
-            Matrix4x4.Decompose(
-                this.LocalTransform,
-                out Vector3 localScale,
-                out Quaternion localRotation,
-                out Vector3 localTranslation
-            );
-            bw.WriteVector3(localTranslation);
-            bw.WriteVector3(localScale);
-            bw.WriteQuaternion(localRotation);
+            bw.WriteVector3(this.LocalTranslation);
+            bw.WriteVector3(this.LocalScale);
+            bw.WriteQuaternion(this.LocalRotation);
 
             // Write inverse bind transform
-            Matrix4x4.Decompose(
-                this.InverseBindTransform,
-                out Vector3 inverseBindScale,
-                out Quaternion inverseBindRotation,
-                out Vector3 inverseBindTranslation
-            );
-            bw.WriteVector3(inverseBindTranslation);
-            bw.WriteVector3(inverseBindScale);
-            bw.WriteQuaternion(inverseBindRotation);
+            bw.WriteVector3(this.InverseBindTranslation);
+            bw.WriteVector3(this.InverseBindScale);
+            bw.WriteQuaternion(this.InverseBindRotation);
 
+            // Write relative name offset
             bw.Write(nameOffset - (int)bw.BaseStream.Position);
         }
     }

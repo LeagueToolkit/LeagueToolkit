@@ -84,15 +84,15 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Node modelNode = scene.CreateNode("model");
 
             IMeshBuilder<MaterialBuilder> meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, rig, materialTextues);
-            var joints = CreateSkeleton(modelNode, rig);
+            var (influenceNodes, jointNodes) = CreateGltfSkeleton(modelNode, rig);
 
             Mesh gltfMesh = root.CreateMesh(meshBuilder);
 
             // Add mesh to scene
-            modelNode.WithSkinnedMesh(gltfMesh, joints.ToArray());
+            modelNode.WithSkinnedMesh(gltfMesh, influenceNodes.ToArray());
 
             // Create animations
-            CreateAnimations(joints.Select(x => x.Node).ToList(), animations);
+            CreateAnimations(jointNodes, animations);
 
             root.DefaultScene = scene;
             return root;
@@ -449,7 +449,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             ReadOnlyMemory<byte> textureMemory
         ) => materialBuilder.UseChannel(KnownChannel.BaseColor).UseTexture().WithPrimaryImage(textureMemory.ToArray());
 
-        private static List<(Node Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(Node skeletonNode, RigResource rig)
+        private static (
+            List<(Node Node, Matrix4x4 InverseBindMatrix)> Influences,
+            List<Node> JointNodes
+        ) CreateGltfSkeleton(Node skeletonNode, RigResource rig)
         {
             Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
             Guard.IsNotNull(rig, nameof(rig));
@@ -468,9 +471,11 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 // Root
                 if (joint.ParentId is -1)
                 {
-                    Node jointNode = skeletonNode.CreateNode(joint.Name);
-
-                    jointNode.LocalTransform = joint.LocalTransform;
+                    Node jointNode = skeletonNode
+                        .CreateNode(joint.Name)
+                        .WithLocalTranslation(joint.LocalTranslation)
+                        .WithLocalScale(joint.LocalScale)
+                        .WithLocalRotation(joint.LocalRotation);
 
                     jointNodes.Add(jointNode);
                     if (isInfluence)
@@ -480,9 +485,11 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 {
                     Joint parentJoint = rig.Joints.FirstOrDefault(x => x.Id == joint.ParentId);
                     Node parentNode = jointNodes.FirstOrDefault(x => x.Name == parentJoint.Name);
-                    Node jointNode = parentNode.CreateNode(joint.Name);
-
-                    jointNode.LocalTransform = joint.LocalTransform;
+                    Node jointNode = parentNode
+                        .CreateNode(joint.Name)
+                        .WithLocalTranslation(joint.LocalTranslation)
+                        .WithLocalScale(joint.LocalScale)
+                        .WithLocalRotation(joint.LocalRotation);
 
                     jointNodes.Add(jointNode);
                     if (isInfluence)
@@ -490,7 +497,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
             }
 
-            return influenceJointNodes;
+            return (influenceJointNodes, jointNodes);
         }
 
         private static void CreateAnimations(

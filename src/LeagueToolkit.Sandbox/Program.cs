@@ -44,13 +44,21 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileGltfToRiggedMesh()
         {
+            List<(string name, LeagueAnimation animation)> animations = new();
+            foreach (string animationFile in Directory.EnumerateFiles("animations"))
+            {
+                LeagueAnimation animation = new(animationFile);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
             using SkinnedMesh originalSkinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             RigResource originalRig = new(File.OpenRead("akali.skl"));
 
             ModelRoot originalGltf = originalSkinnedMesh.ToGltf(
                 originalRig,
                 new Dictionary<string, ReadOnlyMemory<byte>>(),
-                new List<(string name, LeagueAnimation animation)>()
+                animations
             );
 
             {
@@ -63,14 +71,6 @@ namespace LeagueToolkit.Sandbox
             }
 
             var (skinnedMesh, skeleton) = originalGltf.ToRiggedMesh();
-
-            List<(string name, LeagueAnimation animation)> animations = new();
-            foreach (string animationFile in Directory.EnumerateFiles("animations"))
-            {
-                LeagueAnimation animation = new(animationFile);
-
-                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
-            }
 
             skinnedMesh
                 .ToGltf(skeleton, new Dictionary<string, ReadOnlyMemory<byte>>(), animations)
