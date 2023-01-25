@@ -620,18 +620,16 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static RigResource CreateLeagueSkeleton(Node skeletonNode, Skin skin)
         {
+            Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
             Guard.IsNotNull(skin, nameof(skin));
 
             RigResourceBuilder rigBuilder = new();
 
+            // Build rig joints
             List<Node> jointNodes = TraverseJointNodes(skeletonNode).ToList();
             List<JointBuilder> joints = new(jointNodes.Count);
-            for (int i = 0; i < jointNodes.Count; i++)
-            {
-                Node jointNode = jointNodes[i];
-
+            foreach (Node jointNode in jointNodes)
                 CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, skeletonNode);
-            }
 
             return rigBuilder.Build();
         }
@@ -643,6 +641,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Node skeletonNode
         )
         {
+            // This is to prevent duplicate joints since we're creating them recursively
             if (joints.Find(x => x.Name == jointNode.Name) is JointBuilder existingJoint)
                 return existingJoint;
 
@@ -662,6 +661,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             }
             else
             {
+                // Find joint parent and create create it recursively if it doesn't exist yet
                 JointBuilder parent = joints.Find(x => x.Name == jointNode.VisualParent.Name);
                 parent ??= CreateRigJointFromGltfNode(rigBuilder, joints, jointNode.VisualParent, skeletonNode);
 
