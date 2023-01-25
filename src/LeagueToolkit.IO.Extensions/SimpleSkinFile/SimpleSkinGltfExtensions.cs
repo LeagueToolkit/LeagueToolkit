@@ -111,12 +111,12 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Mesh mesh = root.LogicalMeshes[0];
             Skin skin = root.LogicalSkins[0];
 
+            // Create rig
+            var (rig, influenceBridgeLookup) = CreateRig(skin.VisualParents.FirstOrDefault(), skin);
+
             List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
                 .Select(primitive => (primitive, primitive.GetIndices()))
                 .ToList();
-
-            RigResource rig = CreateLeagueSkeleton(skin.VisualParents.FirstOrDefault(), skin);
-            byte[] influenceLookup = CreateSkinInfluenceLookup(skin, rig);
 
             // Create ranges and index buffer
             int indexOffset = 0;
@@ -181,10 +181,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                         vertexId,
                         ElementName.BlendIndex,
                         (
-                            vertexWeights.X > 0f ? influenceLookup[(short)vertexJoints.X] : (byte)0,
-                            vertexWeights.Y > 0f ? influenceLookup[(short)vertexJoints.Y] : (byte)0,
-                            vertexWeights.Z > 0f ? influenceLookup[(short)vertexJoints.Z] : (byte)0,
-                            vertexWeights.W > 0f ? influenceLookup[(short)vertexJoints.W] : (byte)0
+                            vertexWeights.X > 0f ? influenceBridgeLookup[(short)vertexJoints.X] : (byte)0,
+                            vertexWeights.Y > 0f ? influenceBridgeLookup[(short)vertexJoints.Y] : (byte)0,
+                            vertexWeights.Z > 0f ? influenceBridgeLookup[(short)vertexJoints.Z] : (byte)0,
+                            vertexWeights.W > 0f ? influenceBridgeLookup[(short)vertexJoints.W] : (byte)0
                         )
                     );
                     vertexBufferWriter.WriteVector4(vertexId, ElementName.BlendWeight, vertexWeights);
@@ -574,7 +574,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
 
         #region glTF -> Rig Resource
-        private static RigResource CreateLeagueSkeleton(Node skeletonNode, Skin skin)
+        private static (RigResource Rig, byte[] InfluenceBridgeLookup) CreateRig(Node skeletonNode, Skin skin)
         {
             Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
             Guard.IsNotNull(skin, nameof(skin));
@@ -587,7 +587,32 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             foreach (Node jointNode in jointNodes)
                 CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, skeletonNode);
 
-            return rigBuilder.Build();
+            // Build rig
+            RigResource rig = rigBuilder.Build();
+
+            // We need to map the vertex joint ids to the influences in the built rig
+            byte[] influenceBridgeLookup = new byte[skin.JointsCount];
+            for (int i = 0; i < skin.JointsCount; i++)
+            {
+                // Get the influence node
+                Node jointNode = skin.GetJoint(i).Joint;
+
+                // Find the rig joint and throw if it doesn't exist
+                Joint influenceJoint = rig.Joints.FirstOrDefault(x => x.Name == jointNode.Name);
+                if (influenceJoint is null)
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find joint for node: {jointNode.Name}");
+
+                // Find the id of the influence mapping in the rig which matches the joint
+                int influenceId = rig.Influences.IndexOf(influenceJoint.Id);
+                if (influenceId is -1)
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"Failed to find influence id for joint: {influenceJoint.Name}"
+                    );
+
+                influenceBridgeLookup[i] = (byte)influenceId;
+            }
+
+            return (rig, influenceBridgeLookup);
         }
 
         private static JointBuilder CreateRigJointFromGltfNode(
@@ -645,33 +670,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 foreach (Node jointChild in TraverseJointNodes(joint))
                     yield return jointChild;
             }
-        }
-
-        private static byte[] CreateSkinInfluenceLookup(Skin skin, RigResource rig)
-        {
-            // We need to map the vertex joint ids to the influences in the built rig
-            byte[] influenceLookup = new byte[skin.JointsCount];
-            for (int i = 0; i < skin.JointsCount; i++)
-            {
-                // Get the influence node
-                Node jointNode = skin.GetJoint(i).Joint;
-
-                // Find the rig joint and throw if it doesn't exist
-                Joint influenceJoint = rig.Joints.FirstOrDefault(x => x.Name == jointNode.Name);
-                if (influenceJoint is null)
-                    ThrowHelper.ThrowInvalidOperationException($"Failed to find joint for node: {jointNode.Name}");
-
-                // Find the id of the influence mapping in the rig which matches the joint
-                int influenceId = rig.Influences.IndexOf(influenceJoint.Id);
-                if (influenceId is -1)
-                    ThrowHelper.ThrowInvalidOperationException(
-                        $"Failed to find influence id for joint: {influenceJoint.Name}"
-                    );
-
-                influenceLookup[i] = (byte)influenceId;
-            }
-
-            return influenceLookup;
         }
         #endregion
     }
