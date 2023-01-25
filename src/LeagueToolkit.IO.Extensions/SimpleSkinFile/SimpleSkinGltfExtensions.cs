@@ -11,6 +11,7 @@ using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp.PixelFormats;
@@ -114,53 +115,89 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             // Create rig
             var (rig, influenceBridgeLookup) = CreateRig(skin.VisualParents.FirstOrDefault(), skin);
 
-            List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
-                .Select(primitive => (primitive, primitive.GetIndices()))
-                .ToList();
+            SkinnedMeshRange[] ranges = CreateSkinnedMeshRanges(mesh.Primitives);
+            MemoryOwner<ushort> indexBufferOwner = CreateSkinnedMeshIndexBuffer(mesh.Primitives);
+            VertexBuffer vertexBuffer = CreateSkinnedMeshVertexBuffer(mesh, ranges, influenceBridgeLookup);
 
-            // Create ranges and index buffer
+            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
+
+            return (skinnedMesh, rig);
+        }
+
+        #region Skinned Mesh creation
+        private static SkinnedMeshRange[] CreateSkinnedMeshRanges(IReadOnlyList<MeshPrimitive> primitives)
+        {
             int indexOffset = 0;
             int baseIndex = 0;
-            int indexCount = primitiveIndices.Sum(x => x.indices.Count);
-            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
-            SkinnedMeshRange[] ranges = new SkinnedMeshRange[mesh.Primitives.Count];
-            for (int primitiveId = 0; primitiveId < primitiveIndices.Count; primitiveId++)
+            SkinnedMeshRange[] ranges = new SkinnedMeshRange[primitives.Count];
+            for (int i = 0; i < primitives.Count; i++)
             {
-                var (primitive, indices) = primitiveIndices[primitiveId];
+                MeshPrimitive primitive = primitives[i];
                 int primitiveVertexCount = primitive.GetVertexAccessor("POSITION").Count;
 
-                for (int i = 0; i < indices.Count; i++)
-                {
-                    indexBufferOwner.Span[indexOffset + i] = (ushort)(indices[i] + baseIndex);
-                }
-
-                ranges[primitiveId] = new(
+                ranges[i] = new(
                     primitive.Material.Name,
                     baseIndex,
                     primitiveVertexCount,
                     indexOffset,
-                    indices.Count
+                    primitive.IndexAccessor.Count
                 );
-                indexOffset += indices.Count;
+
+                indexOffset += primitive.IndexAccessor.Count;
                 baseIndex += primitiveVertexCount;
             }
 
-            // Create vertex buffer
+            return ranges;
+        }
+
+        private static MemoryOwner<ushort> CreateSkinnedMeshIndexBuffer(IReadOnlyList<MeshPrimitive> primitives)
+        {
+            int indexOffset = 0;
+            int baseIndex = 0;
+            int indexCount = primitives.Sum(x => x.IndexAccessor.Count);
+            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
+            for (int primitiveId = 0; primitiveId < primitives.Count; primitiveId++)
+            {
+                MeshPrimitive primitive = primitives[primitiveId];
+                IReadOnlyList<uint> primitiveIndices = primitive.IndexAccessor.AsIndicesArray();
+
+                for (int i = 0; i < primitive.IndexAccessor.Count; i++)
+                {
+                    indexBufferOwner.Span[indexOffset + i] = (ushort)(primitiveIndices[i] + baseIndex);
+                }
+
+                indexOffset += primitiveIndices.Count;
+                baseIndex += primitive.GetVertexAccessor("POSITION").Count;
+            }
+
+            return indexBufferOwner;
+        }
+
+        private static VertexBuffer CreateSkinnedMeshVertexBuffer(
+            Mesh gltfMesh,
+            SkinnedMeshRange[] ranges,
+            byte[] influenceBridgeLookup
+        )
+        {
+            Guard.IsNotNull(gltfMesh, nameof(gltfMesh));
+            Guard.IsNotNull(ranges, nameof(ranges));
+            Guard.IsNotNull(influenceBridgeLookup, nameof(influenceBridgeLookup));
+
             int vertexCount = ranges.Sum(range => range.VertexCount);
-            VertexBufferDescription vertexBufferDescription = CreateRiggedMeshVertexBufferDescription(root);
+            VertexBufferDescription vertexBufferDescription = CreateVertexBufferDescription(gltfMesh);
             MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
                 vertexBufferDescription.Elements,
                 vertexCount
             );
             VertexBufferWriter vertexBufferWriter = new(vertexBufferDescription.Elements, vertexBufferOwner.Memory);
 
-            for (int primitiveId = 0; primitiveId < mesh.Primitives.Count; primitiveId++)
+            for (int primitiveId = 0; primitiveId < gltfMesh.Primitives.Count; primitiveId++)
             {
-                MeshPrimitive primitive = mesh.Primitives[primitiveId];
+                MeshPrimitive primitive = gltfMesh.Primitives[primitiveId];
                 SkinnedMeshRange range = ranges[primitiveId];
 
-                bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out var colorAccessor);
-                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT", out var tangentAccessor);
+                bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out Accessor colorAccessor);
+                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT", out Accessor tangentAccessor);
 
                 IList<Vector3> positions = primitive.VertexAccessors["POSITION"].AsVector3Array();
                 IList<Vector4> joints = primitive.VertexAccessors["JOINTS_0"].AsVector4Array();
@@ -198,16 +235,48 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 }
             }
 
-            VertexBuffer vertexBuffer = VertexBuffer.Create(
+            return VertexBuffer.Create(
                 vertexBufferDescription.Usage,
                 vertexBufferDescription.Elements,
                 vertexBufferOwner
             );
-
-            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
-
-            return (skinnedMesh, rig);
         }
+
+        private static VertexBufferDescription CreateVertexBufferDescription(Mesh gltfMesh)
+        {
+            Guard.IsNotNull(gltfMesh, nameof(gltfMesh));
+            Guard.HasSizeGreaterThan(gltfMesh.Primitives, 0, nameof(gltfMesh.Primitives));
+
+            MeshPrimitive primitive = gltfMesh.Primitives[0];
+
+            bool hasPositions = primitive.VertexAccessors.TryGetValue("POSITION", out _);
+            bool hasJoints = primitive.VertexAccessors.TryGetValue("JOINTS_0", out _);
+            bool hasWeights = primitive.VertexAccessors.TryGetValue("WEIGHTS_0", out _);
+            bool hasNormals = primitive.VertexAccessors.TryGetValue("NORMAL", out _);
+            bool hasDiffuseUvs = primitive.VertexAccessors.TryGetValue("TEXCOORD_0", out _);
+            bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out _);
+            bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT", out _);
+
+            if (hasPositions is false)
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have positions");
+            if (hasJoints is false)
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have joints");
+            if (hasWeights is false)
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have weights");
+            if (hasNormals is false)
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have normals");
+            if (hasDiffuseUvs is false)
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have diffuse uvs");
+
+            return (hasColors, hasTangents) switch
+            {
+                (false, false) => SkinnedMeshVertex.BASIC,
+                (true, false) => SkinnedMeshVertex.COLOR,
+                (true, true) => SkinnedMeshVertex.TANGENT,
+                (false, true) => throw new InvalidOperationException("Mesh must have vertex colors if it has tangents")
+            };
+        }
+        #endregion
 
         private static IMeshBuilder<MaterialBuilder> CreateMeshBuilder(
             SkinnedMesh skinnedMesh,
@@ -536,41 +605,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     joint.WithScaleAnimation(name, track.Scales);
                 }
             }
-        }
-
-        private static VertexBufferDescription CreateRiggedMeshVertexBufferDescription(this ModelRoot root)
-        {
-            Guard.HasSizeEqualTo(root.LogicalMeshes, 1, nameof(root.LogicalMeshes));
-            Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
-
-            MeshPrimitive firstPrimitive = root.LogicalMeshes[0].Primitives[0];
-
-            bool hasPositions = firstPrimitive.VertexAccessors.TryGetValue("POSITION", out _);
-            bool hasJoints = firstPrimitive.VertexAccessors.TryGetValue("JOINTS_0", out _);
-            bool hasWeights = firstPrimitive.VertexAccessors.TryGetValue("WEIGHTS_0", out _);
-            bool hasNormals = firstPrimitive.VertexAccessors.TryGetValue("NORMAL", out _);
-            bool hasDiffuseUvs = firstPrimitive.VertexAccessors.TryGetValue("TEXCOORD_0", out _);
-            bool hasColors = firstPrimitive.VertexAccessors.TryGetValue("COLOR_0", out _);
-            bool hasTangents = firstPrimitive.VertexAccessors.TryGetValue("TANGENT", out _);
-
-            if (hasPositions is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have positions");
-            if (hasJoints is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have joints");
-            if (hasWeights is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have weights");
-            if (hasNormals is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have normals");
-            if (hasDiffuseUvs is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have diffuse uvs");
-
-            return (hasColors, hasTangents) switch
-            {
-                (false, false) => SkinnedMeshVertex.BASIC,
-                (true, false) => SkinnedMeshVertex.COLOR,
-                (true, true) => SkinnedMeshVertex.TANGENT,
-                (false, true) => throw new InvalidOperationException("Mesh must have colors if it has tangents")
-            };
         }
 
         #region glTF -> Rig Resource
