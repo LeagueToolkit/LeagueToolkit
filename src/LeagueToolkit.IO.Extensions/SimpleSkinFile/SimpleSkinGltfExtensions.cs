@@ -172,28 +172,29 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                 for (int i = 0; i < positions.Count; i++)
                 {
+                    int vertexId = i + range.StartVertex;
                     Vector4 vertexJoints = joints[i];
                     Vector4 vertexWeights = weights[i];
 
-                    vertexBufferWriter.WriteVector3(i + range.StartVertex, ElementName.Position, positions[i]);
+                    vertexBufferWriter.WriteVector3(vertexId, ElementName.Position, positions[i]);
                     vertexBufferWriter.WriteXyzwU8(
-                        i + range.StartVertex,
+                        vertexId,
                         ElementName.BlendIndex,
                         (
-                            influenceLookup[(int)vertexJoints.X],
-                            influenceLookup[(int)vertexJoints.Y],
-                            influenceLookup[(int)vertexJoints.Z],
-                            influenceLookup[(int)vertexJoints.W]
+                            vertexWeights.X > 0f ? influenceLookup[(short)vertexJoints.X] : (byte)0,
+                            vertexWeights.Y > 0f ? influenceLookup[(short)vertexJoints.Y] : (byte)0,
+                            vertexWeights.Z > 0f ? influenceLookup[(short)vertexJoints.Z] : (byte)0,
+                            vertexWeights.W > 0f ? influenceLookup[(short)vertexJoints.W] : (byte)0
                         )
                     );
-                    vertexBufferWriter.WriteVector4(i + range.StartVertex, ElementName.BlendWeight, vertexWeights);
-                    vertexBufferWriter.WriteVector3(i + range.StartVertex, ElementName.Normal, normals[i]);
-                    vertexBufferWriter.WriteVector2(i + range.StartVertex, ElementName.DiffuseUV, diffuseUvs[i]);
+                    vertexBufferWriter.WriteVector4(vertexId, ElementName.BlendWeight, vertexWeights);
+                    vertexBufferWriter.WriteVector3(vertexId, ElementName.Normal, normals[i]);
+                    vertexBufferWriter.WriteVector2(vertexId, ElementName.DiffuseUV, diffuseUvs[i]);
 
                     if (hasColors || hasTangents)
-                        vertexBufferWriter.WriteColorBgraU8(i + range.StartVertex, ElementName.PrimaryColor, colors[i]);
+                        vertexBufferWriter.WriteColorBgraU8(vertexId, ElementName.PrimaryColor, colors[i]);
                     if (hasTangents)
-                        vertexBufferWriter.WriteVector4(i + range.StartVertex, ElementName.Tangent, tangents[i]);
+                        vertexBufferWriter.WriteVector4(vertexId, ElementName.Tangent, tangents[i]);
                 }
             }
 
