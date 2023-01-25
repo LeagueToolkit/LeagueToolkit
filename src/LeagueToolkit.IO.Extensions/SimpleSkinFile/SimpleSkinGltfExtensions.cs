@@ -109,12 +109,14 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
 
             Mesh mesh = root.LogicalMeshes[0];
+            Skin skin = root.LogicalSkins[0];
 
             List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
                 .Select(primitive => (primitive, primitive.GetIndices()))
                 .ToList();
 
-            var (isJointInfluenceLookup, influencesLookup) = CollectGltfMeshInfluences(mesh, root.LogicalSkins[0]);
+            RigResource rig = CreateLeagueSkeleton(skin.VisualParents.FirstOrDefault(), skin);
+            byte[] influenceLookup = CreateSkinInfluenceLookup(skin, rig);
 
             // Create ranges and index buffer
             int indexOffset = 0;
@@ -178,10 +180,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                         i + range.StartVertex,
                         ElementName.BlendIndex,
                         (
-                            vertexWeights.X > 0f ? influencesLookup[(short)vertexJoints.X] : (byte)0,
-                            vertexWeights.Y > 0f ? influencesLookup[(short)vertexJoints.Y] : (byte)0,
-                            vertexWeights.Z > 0f ? influencesLookup[(short)vertexJoints.Z] : (byte)0,
-                            vertexWeights.W > 0f ? influencesLookup[(short)vertexJoints.W] : (byte)0
+                            influenceLookup[(int)vertexJoints.X],
+                            influenceLookup[(int)vertexJoints.Y],
+                            influenceLookup[(int)vertexJoints.Z],
+                            influenceLookup[(int)vertexJoints.W]
                         )
                     );
                     vertexBufferWriter.WriteVector4(i + range.StartVertex, ElementName.BlendWeight, vertexWeights);
@@ -202,63 +204,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             );
 
             SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
-            RigResource skeleton = CreateLeagueSkeleton(
-                root.LogicalSkins[0].VisualParents.FirstOrDefault(),
-                root.LogicalSkins[0]
-            );
 
-            return (skinnedMesh, skeleton);
-        }
-
-        private static (
-            bool[] IsJointInfluenceLookup,
-            Dictionary<short, byte> InfluencesLookup
-        ) CollectGltfMeshInfluences(Mesh mesh, Skin skin)
-        {
-            bool[] isJointInfluenceLookup = new bool[skin.JointsCount];
-            Span<float> joints = stackalloc float[4];
-            Span<float> weights = stackalloc float[4];
-            foreach (MeshPrimitive primitive in mesh.Primitives)
-            {
-                IList<Vector4> jointsArray = primitive.VertexAccessors["JOINTS_0"].AsVector4Array();
-                IList<Vector4> weightsArray = primitive.VertexAccessors["WEIGHTS_0"].AsVector4Array();
-
-                for (int i = 0; i < jointsArray.Count; i++)
-                {
-                    Vector4 jointsVector = jointsArray[i];
-                    Vector4 weightsVector = weightsArray[i];
-
-                    joints[0] = jointsVector.X;
-                    joints[1] = jointsVector.Y;
-                    joints[2] = jointsVector.Z;
-                    joints[3] = jointsVector.W;
-
-                    weights[0] = weightsVector.X;
-                    weights[1] = weightsVector.Y;
-                    weights[2] = weightsVector.Z;
-                    weights[3] = weightsVector.W;
-
-                    for (int j = 0; j < 4; j++)
-                        if (weights[j] > 0f)
-                            isJointInfluenceLookup[(short)joints[j]] = true;
-                }
-            }
-
-            // Collection of all joint Ids which are influences
-            short[] influences = isJointInfluenceLookup
-                .Select((isInfluence, id) => (isInfluence, id))
-                .Where(x => x.isInfluence)
-                .Select(x => (short)x.id)
-                .ToArray();
-            if (influences.Length > 256)
-                ThrowHelper.ThrowInvalidOperationException("Cannot have more than 256 influences");
-
-            // Create reverse lookup
-            Dictionary<short, byte> influencesLookup = new(influences.Length);
-            for (byte i = 0; i < influences.Length; i++)
-                influencesLookup.Add(influences[i], i);
-
-            return (isJointInfluenceLookup, influencesLookup);
+            return (skinnedMesh, rig);
         }
 
         private static IMeshBuilder<MaterialBuilder> CreateMeshBuilder(
@@ -618,6 +565,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             };
         }
 
+        #region glTF -> Rig Resource
         private static RigResource CreateLeagueSkeleton(Node skeletonNode, Skin skin)
         {
             Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
@@ -690,5 +638,33 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     yield return jointChild;
             }
         }
+
+        private static byte[] CreateSkinInfluenceLookup(Skin skin, RigResource rig)
+        {
+            // We need to map the vertex joint ids to the influences in the built rig
+            byte[] influenceLookup = new byte[skin.JointsCount];
+            for (int i = 0; i < skin.JointsCount; i++)
+            {
+                // Get the influence node
+                Node jointNode = skin.GetJoint(i).Joint;
+
+                // Find the rig joint and throw if it doesn't exist
+                Joint influenceJoint = rig.Joints.FirstOrDefault(x => x.Name == jointNode.Name);
+                if (influenceJoint is null)
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find joint for node: {jointNode.Name}");
+
+                // Find the id of the influence mapping in the rig which matches the joint
+                int influenceId = rig.Influences.IndexOf(influenceJoint.Id);
+                if (influenceId is -1)
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"Failed to find influence id for joint: {influenceJoint.Name}"
+                    );
+
+                influenceLookup[i] = (byte)influenceId;
+            }
+
+            return influenceLookup;
+        }
+        #endregion
     }
 }

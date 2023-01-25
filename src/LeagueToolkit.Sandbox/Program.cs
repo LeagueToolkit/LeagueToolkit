@@ -73,11 +73,7 @@ namespace LeagueToolkit.Sandbox
             }
 
             skinnedMesh
-                .ToGltf(
-                    skeleton,
-                    new Dictionary<string, ReadOnlyMemory<byte>>(),
-                    new List<(string name, LeagueAnimation animation)>()
-                )
+                .ToGltf(skeleton, new Dictionary<string, ReadOnlyMemory<byte>>(), animations)
                 .WriteGLB(File.OpenWrite("akali_fromgltf.glb"));
         }
 
