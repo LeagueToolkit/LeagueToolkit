@@ -1,32 +1,40 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Animation;
+using LeagueToolkit.Core.Animation.Builders;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.AnimationFile;
-using LeagueToolkit.IO.SkeletonFile;
+using LeagueToolkit.IO.Extensions.Utils;
+using LeagueToolkit.IO.MapGeometryFile;
 using SharpGLTF.Animations;
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
+using GltfImage = SharpGLTF.Schema2.Image;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
     using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
     using VERTEX_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexEmpty>;
-    using VERTEX_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexEmpty>;
-
     using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
     using VERTEX_SKINNED_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexJoints4>;
     using VERTEX_SKINNED_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexJoints4>;
+    using VERTEX_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexEmpty>;
 
     public static class SimpleSkinGltfExtensions
     {
@@ -34,64 +42,65 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified textures
         /// </summary>
         /// <param name="skinnedMesh">The <see cref="SkinnedMesh"/> to covert</param>
-        /// <param name="materialTextues">The texture data for the specified materials</param>
+        /// <param name="materialTextures">The texture data for the specified materials</param>
         /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
-            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
+            IReadOnlyDictionary<string, Stream> materialTextures
         )
         {
-            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(materialTextures, nameof(materialTextures));
 
-            SceneBuilder sceneBuilder = new();
-            NodeBuilder rootNodeBuilder = new("model");
+            ModelRoot root = ModelRoot.CreateModel();
+            Scene scene = root.UseScene("SkinnedMesh");
+            Node modelNode = scene.CreateNode("model");
 
-            var meshBuilder = CreateMeshBuilder(skinnedMesh, materialTextues);
+            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, materialTextures);
+            Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, false, materials);
 
-            // Add mesh to scene
-            sceneBuilder.AddRigidMesh(meshBuilder, rootNodeBuilder);
+            modelNode.WithMesh(gltfMesh);
 
-            // Flip the scene across the X axis
-            sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
-
-            return sceneBuilder.ToGltf2();
+            root.DefaultScene = scene;
+            return root;
         }
 
         /// <summary>
         /// Coverts the <see cref="SkinnedMesh"/> into a glTF asset with the specified skeleton, textures and animations
         /// </summary>
         /// <param name="skinnedMesh">The <see cref="SkinnedMesh"/> to covert</param>
-        /// <param name="skeleton">The <see cref="Skeleton"/> of the <see cref="SkinnedMesh"/></param>
-        /// <param name="materialTextues">The texture data for the specified materials</param>
+        /// <param name="rig">The <see cref="RigResource"/> of the <see cref="SkinnedMesh"/></param>
+        /// <param name="materialTextures">The texture data for the specified materials</param>
         /// <param name="animations">The animations</param>
         /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
-            Skeleton skeleton,
-            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues,
+            RigResource rig,
+            IReadOnlyDictionary<string, Stream> materialTextures,
             IReadOnlyList<(string name, LeagueAnimation animation)> animations
         )
         {
-            Guard.IsNotNull(skeleton, nameof(skeleton));
-            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(rig, nameof(rig));
+            Guard.IsNotNull(materialTextures, nameof(materialTextures));
             Guard.IsNotNull(animations, nameof(animations));
 
-            SceneBuilder sceneBuilder = new();
-            NodeBuilder rootNodeBuilder = new("model");
+            ModelRoot root = ModelRoot.CreateModel();
+            Scene scene = root.UseScene("SkinnedMesh");
+            Node modelNode = scene.CreateNode("model");
 
-            var meshBuilder = CreateSkinnedMeshBuilder(skinnedMesh, skeleton, materialTextues);
-            var bones = CreateSkeleton(rootNodeBuilder, skeleton);
+            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, materialTextures);
+            Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, true, materials);
+            var (influenceNodes, jointNodes) = CreateGltfSkeleton(modelNode, rig);
 
             // Add mesh to scene
-            sceneBuilder.AddSkinnedMesh(meshBuilder, bones.ToArray());
+            modelNode.WithSkinnedMesh(gltfMesh, influenceNodes.ToArray());
 
             // Create animations
-            CreateAnimations(bones.Select(x => x.Node).ToList(), animations);
+            CreateAnimations(jointNodes, animations);
 
-            // Flip the scene across the X axis
-            sceneBuilder.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
-
-            return sceneBuilder.ToGltf2();
+            root.DefaultScene = scene;
+            return root;
         }
 
         /// <summary>
@@ -99,459 +108,158 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         /// </summary>
         /// <param name="root">The <see cref="ModelRoot"/> to convert</param>
         /// <returns>The created <see cref="SkinnedMesh"/> and <see cref="Skeleton"/></returns>
-        public static (SkinnedMesh, Skeleton) ToRiggedMesh(this ModelRoot root)
+        public static (SkinnedMesh, RigResource) ToRiggedMesh(this ModelRoot root)
         {
             Guard.HasSizeEqualTo(root.LogicalMeshes, 1, nameof(root.LogicalMeshes));
             Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
 
             Mesh mesh = root.LogicalMeshes[0];
-            List<(MeshPrimitive primitive, IList<uint> indices)> primitiveIndices = mesh.Primitives
-                .Select(primitive => (primitive, primitive.GetIndices()))
-                .ToList();
+            Skin skin = root.LogicalSkins[0];
 
-            // Create ranges and index buffer
+            // Create rig
+            var (rig, influenceBridgeLookup) = CreateRig(skin.VisualParents.FirstOrDefault(), skin);
+
+            SkinnedMeshRange[] ranges = CreateSkinnedMeshRanges(mesh.Primitives);
+            MemoryOwner<ushort> indexBufferOwner = CreateSkinnedMeshIndexBuffer(mesh.Primitives);
+            VertexBuffer vertexBuffer = CreateSkinnedMeshVertexBuffer(mesh, ranges, influenceBridgeLookup);
+
+            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
+
+            return (skinnedMesh, rig);
+        }
+
+        #region Skinned Mesh creation
+        private static SkinnedMeshRange[] CreateSkinnedMeshRanges(IReadOnlyList<MeshPrimitive> primitives)
+        {
             int indexOffset = 0;
-            int indexCount = primitiveIndices.Sum(x => x.indices.Count);
-            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
-            SkinnedMeshRange[] ranges = new SkinnedMeshRange[mesh.Primitives.Count];
-            for (int primitiveId = 0; primitiveId < primitiveIndices.Count; primitiveId++)
+            int baseIndex = 0;
+            SkinnedMeshRange[] ranges = new SkinnedMeshRange[primitives.Count];
+            for (int i = 0; i < primitives.Count; i++)
             {
-                var (primitive, indices) = primitiveIndices[primitiveId];
+                MeshPrimitive primitive = primitives[i];
+                int primitiveVertexCount = primitive.GetVertexAccessor("POSITION").Count;
 
-                uint minIndex = indices.Min();
-                uint maxIndex = indices.Max();
-                for (int i = 0; i < indices.Count; i++)
-                {
-                    indexBufferOwner.Span[indexOffset + i] = (ushort)(indices[i] - minIndex);
-                }
-
-                ranges[primitiveId] = new(
+                ranges[i] = new(
                     primitive.Material.Name,
-                    (int)minIndex,
-                    (int)(maxIndex - minIndex + 1),
+                    baseIndex,
+                    primitiveVertexCount,
                     indexOffset,
-                    indices.Count
+                    primitive.IndexAccessor.Count
                 );
-                indexOffset += indices.Count;
+
+                indexOffset += primitive.IndexAccessor.Count;
+                baseIndex += primitiveVertexCount;
             }
 
-            // Create vertex buffer
+            return ranges;
+        }
+
+        private static MemoryOwner<ushort> CreateSkinnedMeshIndexBuffer(IReadOnlyList<MeshPrimitive> primitives)
+        {
+            int indexOffset = 0;
+            int baseIndex = 0;
+            int indexCount = primitives.Sum(x => x.IndexAccessor.Count);
+            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
+            for (int primitiveId = 0; primitiveId < primitives.Count; primitiveId++)
+            {
+                MeshPrimitive primitive = primitives[primitiveId];
+                IReadOnlyList<uint> primitiveIndices = primitive.IndexAccessor.AsIndicesArray();
+
+                for (int i = 0; i < primitive.IndexAccessor.Count; i++)
+                {
+                    indexBufferOwner.Span[indexOffset + i] = (ushort)(primitiveIndices[i] + baseIndex);
+                }
+
+                indexOffset += primitiveIndices.Count;
+                baseIndex += primitive.GetVertexAccessor("POSITION").Count;
+            }
+
+            return indexBufferOwner;
+        }
+
+        private static VertexBuffer CreateSkinnedMeshVertexBuffer(
+            Mesh gltfMesh,
+            SkinnedMeshRange[] ranges,
+            byte[] influenceBridgeLookup
+        )
+        {
+            Guard.IsNotNull(gltfMesh, nameof(gltfMesh));
+            Guard.IsNotNull(ranges, nameof(ranges));
+            Guard.IsNotNull(influenceBridgeLookup, nameof(influenceBridgeLookup));
+
             int vertexCount = ranges.Sum(range => range.VertexCount);
-            VertexBufferDescription vertexBufferDescription = CreateRiggedMeshVertexBufferDescription(root);
-            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
-                vertexCount * vertexBufferDescription.GetVertexSize()
+            VertexBufferDescription vertexBufferDescription = CreateVertexBufferDescription(gltfMesh);
+            MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(
+                vertexBufferDescription.Elements,
+                vertexCount
             );
             VertexBufferWriter vertexBufferWriter = new(vertexBufferDescription.Elements, vertexBufferOwner.Memory);
 
-            List<byte> influences = new();
-            for (int primitiveId = 0; primitiveId < mesh.Primitives.Count; primitiveId++)
+            for (int primitiveId = 0; primitiveId < gltfMesh.Primitives.Count; primitiveId++)
             {
-                MeshPrimitive primitive = mesh.Primitives[primitiveId];
+                MeshPrimitive primitive = gltfMesh.Primitives[primitiveId];
                 SkinnedMeshRange range = ranges[primitiveId];
 
-                bool hasPositions = primitive.VertexAccessors.TryGetValue("POSITION", out var positionAccessor);
-                bool hasJoints = primitive.VertexAccessors.TryGetValue("JOINTS_0", out var jointsAccessor);
-                bool hasWeights = primitive.VertexAccessors.TryGetValue("WEIGHTS_0", out var weightsAccessor);
-                bool hasNormals = primitive.VertexAccessors.TryGetValue("NORMAL", out var normalAccessor);
-                bool hasDiffuseUvs = primitive.VertexAccessors.TryGetValue("TEXCOORD_0", out var diffuseUvAccessor);
-                bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out var colorAccessor);
-                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT_0", out var tangentAccessor);
+                bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out Accessor colorAccessor);
+                bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT", out Accessor tangentAccessor);
 
-                IList<Vector3> positions = hasPositions ? positionAccessor.AsVector3Array() : null;
-                IList<Vector4> joints = hasJoints ? jointsAccessor.AsVector4Array() : null;
-                IList<Vector4> weights = hasWeights ? weightsAccessor.AsVector4Array() : null;
-                IList<Vector3> normals = hasNormals ? positionAccessor.AsVector3Array() : null;
-                IList<Vector2> diffuseUvs = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : null;
-                IList<Vector4> colors = hasJoints ? colorAccessor.AsColorArray() : null;
-                IList<Vector4> tangents = hasJoints ? tangentAccessor.AsVector4Array() : null;
+                IList<Vector3> positions = primitive.VertexAccessors["POSITION"].AsVector3Array();
+                IList<Vector4> joints = primitive.VertexAccessors["JOINTS_0"].AsVector4Array();
+                IList<Vector4> weights = primitive.VertexAccessors["WEIGHTS_0"].AsVector4Array();
+                IList<Vector3> normals = primitive.VertexAccessors["NORMAL"].AsVector3Array();
+                IList<Vector2> diffuseUvs = primitive.VertexAccessors["TEXCOORD_0"].AsVector2Array();
+                IList<Vector4> colors = hasColors ? colorAccessor.AsColorArray() : null;
+                IList<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : null;
 
                 for (int i = 0; i < positions.Count; i++)
                 {
+                    int vertexId = i + range.StartVertex;
                     Vector4 vertexJoints = joints[i];
-                    byte[] vertexJointsArray = new[]
-                    {
-                        (byte)vertexJoints.X,
-                        (byte)vertexJoints.Y,
-                        (byte)vertexJoints.Z,
-                        (byte)vertexJoints.W
-                    };
-                    for (int joint = 0; joint < vertexJointsArray.Length; joint++)
-                    {
-                        if (!influences.Any(x => x == vertexJointsArray[joint]))
-                        {
-                            influences.Add(vertexJointsArray[joint]);
-                        }
-                    }
+                    Vector4 vertexWeights = weights[i];
 
-                    vertexBufferWriter.WriteVector3(i, ElementName.Position, positions[i]);
+                    vertexBufferWriter.WriteVector3(vertexId, ElementName.Position, positions[i]);
                     vertexBufferWriter.WriteXyzwU8(
-                        i,
+                        vertexId,
                         ElementName.BlendIndex,
-                        (vertexJointsArray[0], vertexJointsArray[1], vertexJointsArray[2], vertexJointsArray[3])
+                        (
+                            vertexWeights.X > 0f ? influenceBridgeLookup[(short)vertexJoints.X] : (byte)0,
+                            vertexWeights.Y > 0f ? influenceBridgeLookup[(short)vertexJoints.Y] : (byte)0,
+                            vertexWeights.Z > 0f ? influenceBridgeLookup[(short)vertexJoints.Z] : (byte)0,
+                            vertexWeights.W > 0f ? influenceBridgeLookup[(short)vertexJoints.W] : (byte)0
+                        )
                     );
-                    vertexBufferWriter.WriteVector4(i, ElementName.BlendWeight, weights[i]);
-                    vertexBufferWriter.WriteVector3(i, ElementName.Normal, normals[i]);
-                    vertexBufferWriter.WriteVector2(i, ElementName.DiffuseUV, diffuseUvs[i]);
+                    vertexBufferWriter.WriteVector4(vertexId, ElementName.BlendWeight, vertexWeights);
+                    vertexBufferWriter.WriteVector3(vertexId, ElementName.Normal, normals[i]);
+                    vertexBufferWriter.WriteVector2(vertexId, ElementName.DiffuseUV, diffuseUvs[i]);
 
                     if (hasColors || hasTangents)
-                        vertexBufferWriter.WriteColorBgraU8(i, ElementName.PrimaryColor, colors[i]);
+                        vertexBufferWriter.WriteColorBgraU8(vertexId, ElementName.PrimaryColor, colors[i]);
                     if (hasTangents)
-                        vertexBufferWriter.WriteVector4(i, ElementName.Tangent, tangents[i]);
+                        vertexBufferWriter.WriteVector4(vertexId, ElementName.Tangent, tangents[i]);
                 }
             }
 
-            VertexBuffer vertexBuffer = VertexBuffer.Create(
+            return VertexBuffer.Create(
                 vertexBufferDescription.Usage,
                 vertexBufferDescription.Elements,
                 vertexBufferOwner
             );
-
-            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
-            Skeleton skeleton = CreateLeagueSkeleton(root.LogicalSkins[0]);
-
-            return (skinnedMesh, skeleton);
         }
 
-        private static IMeshBuilder<MaterialBuilder> CreateMeshBuilder(
-            SkinnedMesh skinnedMesh,
-            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
-        )
+        private static VertexBufferDescription CreateVertexBufferDescription(Mesh gltfMesh)
         {
-            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(materialTextues, nameof(materialTextues));
+            Guard.IsNotNull(gltfMesh, nameof(gltfMesh));
+            Guard.HasSizeGreaterThan(gltfMesh.Primitives, 0, nameof(gltfMesh.Primitives));
 
-            VertexBufferDescription vertexBufferDescription = skinnedMesh.VerticesView.Description;
-            IMeshBuilder<MaterialBuilder> meshBuilder = skinnedMesh.VerticesView.Description switch
-            {
-                _ when vertexBufferDescription == SkinnedMeshVertex.BASIC => VERTEX.CreateCompatibleMesh(),
-                _ when vertexBufferDescription == SkinnedMeshVertex.COLOR => VERTEX_COLOR.CreateCompatibleMesh(),
-                _ when vertexBufferDescription == SkinnedMeshVertex.TANGENT => VERTEX_TANGENT.CreateCompatibleMesh(),
-                _ => throw new NotImplementedException($"Unsupported {nameof(VertexBufferDescription)}")
-            };
+            MeshPrimitive primitive = gltfMesh.Primitives[0];
 
-            IVertexBuilder[] vertices = CreateVertices(skinnedMesh);
-            BuildMeshPrimitives(meshBuilder, skinnedMesh, vertices, materialTextues);
-
-            return meshBuilder;
-        }
-
-        private static IMeshBuilder<MaterialBuilder> CreateSkinnedMeshBuilder(
-            SkinnedMesh skinnedMesh,
-            Skeleton skeleton,
-            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
-        )
-        {
-            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(skeleton, nameof(skeleton));
-            Guard.IsNotNull(materialTextues, nameof(materialTextues));
-
-            VertexBufferDescription vertexBufferDescription = skinnedMesh.VerticesView.Description;
-            IMeshBuilder<MaterialBuilder> meshBuilder = skinnedMesh.VerticesView.Description switch
-            {
-                _ when vertexBufferDescription == SkinnedMeshVertex.BASIC => VERTEX_SKINNED.CreateCompatibleMesh(),
-                _ when vertexBufferDescription == SkinnedMeshVertex.COLOR
-                    => VERTEX_SKINNED_COLOR.CreateCompatibleMesh(),
-                _ when vertexBufferDescription == SkinnedMeshVertex.TANGENT
-                    => VERTEX_SKINNED_TANGENT.CreateCompatibleMesh(),
-                _ => throw new NotImplementedException($"Unsupported {nameof(VertexBufferDescription)}")
-            };
-
-            IVertexBuilder[] vertices = CreateSkinnedVertices(skinnedMesh, skeleton);
-            BuildMeshPrimitives(meshBuilder, skinnedMesh, vertices, materialTextues);
-
-            return meshBuilder;
-        }
-
-        private static void BuildMeshPrimitives(
-            IMeshBuilder<MaterialBuilder> meshBuilder,
-            SkinnedMesh skinnedMesh,
-            IReadOnlyList<IVertexBuilder> vertices,
-            IReadOnlyDictionary<string, ReadOnlyMemory<byte>> materialTextues
-        )
-        {
-            Guard.IsNotNull(meshBuilder, nameof(meshBuilder));
-            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(vertices, nameof(vertices));
-            Guard.IsNotNull(materialTextues, nameof(materialTextues));
-
-            foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
-            {
-                MaterialBuilder material = new MaterialBuilder(range.Material).WithUnlitShader();
-                var primitiveBuilder = meshBuilder.UsePrimitive(material);
-
-                // Assign texture to material
-                if (materialTextues.TryGetValue(range.Material, out ReadOnlyMemory<byte> textureMemory))
-                    AssignMaterialTexture(material, textureMemory);
-
-                // Add vertices to primitive
-                ReadOnlySpan<ushort> indices = skinnedMesh.IndicesView.Span.Slice(range.StartIndex, range.IndexCount);
-                for (int i = 0; i < indices.Length; i += 3)
-                {
-                    IVertexBuilder v1 = vertices[indices[i + 0]];
-                    IVertexBuilder v2 = vertices[indices[i + 1]];
-                    IVertexBuilder v3 = vertices[indices[i + 2]];
-
-                    primitiveBuilder.AddTriangle(v1, v2, v3);
-                }
-            }
-        }
-
-        private static IVertexBuilder[] CreateVertices(SkinnedMesh skinnedMesh)
-        {
-            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-
-            bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
-                ElementName.PrimaryColor,
-                out var primaryColorAccessor
-            );
-            bool hasTangents = skinnedMesh.VerticesView.TryGetAccessor(ElementName.Tangent, out var tangentAccessor);
-
-            IVertexBuilder[] vertices = new IVertexBuilder[skinnedMesh.VerticesView.VertexCount];
-            VertexElementArray<Vector3> positions = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.Position)
-                .AsVector3Array();
-            VertexElementArray<Vector3> normals = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.Normal)
-                .AsVector3Array();
-            VertexElementArray<Vector2> diffuseUvs = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.DiffuseUV)
-                .AsVector2Array();
-            VertexElementArray<(byte b, byte g, byte r, byte a)> primaryColors = hasPrimaryColor
-                ? primaryColorAccessor.AsBgraU8Array()
-                : default;
-            VertexElementArray<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : default;
-
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                IVertexBuilder vertex = (hasPrimaryColor, hasTangents) switch
-                {
-                    (false, false) => new VERTEX(),
-                    (true, false) => new VERTEX_COLOR(),
-                    (true, true) => new VERTEX_TANGENT(),
-                    (false, true) => throw new InvalidOperationException("Mesh must have colors if it has tangents"),
-                };
-
-                vertex.SetGeometry(
-                    hasTangents switch
-                    {
-                        true => new VertexPositionNormalTangent(positions[i], normals[i], tangents[i]),
-                        false => new VertexPositionNormal(positions[i], normals[i]),
-                    }
-                );
-                vertex.SetMaterial(
-                    hasPrimaryColor switch
-                    {
-                        true
-                            => new VertexColor1Texture1(
-                                new Vector4(
-                                    primaryColors[i].r / 255,
-                                    primaryColors[i].g / 255,
-                                    primaryColors[i].b / 255,
-                                    primaryColors[i].a / 255
-                                ),
-                                diffuseUvs[i]
-                            ),
-                        false => new VertexTexture1(diffuseUvs[i])
-                    }
-                );
-
-                vertices[i] = vertex;
-            }
-
-            return vertices;
-        }
-
-        private static IVertexBuilder[] CreateSkinnedVertices(SkinnedMesh skinnedMesh, Skeleton skeleton)
-        {
-            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(skeleton, nameof(skeleton));
-
-            bool hasPrimaryColor = skinnedMesh.VerticesView.TryGetAccessor(
-                ElementName.PrimaryColor,
-                out var primaryColorAccessor
-            );
-            bool hasTangents = skinnedMesh.VerticesView.TryGetAccessor(ElementName.Tangent, out var tangentAccessor);
-
-            IVertexBuilder[] vertices = new IVertexBuilder[skinnedMesh.VerticesView.VertexCount];
-            VertexElementArray<Vector3> positions = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.Position)
-                .AsVector3Array();
-            VertexElementArray<Vector4> boneWeights = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.BlendWeight)
-                .AsVector4Array();
-            VertexElementArray<(byte x, byte y, byte z, byte w)> boneIndices = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.BlendIndex)
-                .AsXyzwU8Array();
-            VertexElementArray<Vector3> normals = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.Normal)
-                .AsVector3Array();
-            VertexElementArray<Vector2> diffuseUvs = skinnedMesh.VerticesView
-                .GetAccessor(ElementName.DiffuseUV)
-                .AsVector2Array();
-            VertexElementArray<(byte b, byte g, byte r, byte a)> primaryColors = hasPrimaryColor
-                ? primaryColorAccessor.AsBgraU8Array()
-                : default;
-            VertexElementArray<Vector4> tangents = hasTangents ? tangentAccessor.AsVector4Array() : default;
-
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                var joints = boneIndices[i];
-                Vector4 jointWeights = boneWeights[i];
-
-                IVertexBuilder vertex = (hasPrimaryColor, hasTangents) switch
-                {
-                    (false, false) => new VERTEX_SKINNED(),
-                    (true, false) => new VERTEX_SKINNED_COLOR(),
-                    (true, true) => new VERTEX_SKINNED_TANGENT(),
-                    (false, true) => throw new InvalidOperationException("Mesh must have colors if it has tangents"),
-                };
-
-                vertex.SetGeometry(
-                    hasTangents switch
-                    {
-                        true => new VertexPositionNormalTangent(positions[i], normals[i], tangents[i]),
-                        false => new VertexPositionNormal(positions[i], normals[i]),
-                    }
-                );
-                vertex.SetMaterial(
-                    hasPrimaryColor switch
-                    {
-                        true
-                            => new VertexColor1Texture1(
-                                new Vector4(
-                                    primaryColors[i].r / 255,
-                                    primaryColors[i].g / 255,
-                                    primaryColors[i].b / 255,
-                                    primaryColors[i].a / 255
-                                ),
-                                diffuseUvs[i]
-                            ),
-                        false => new VertexTexture1(diffuseUvs[i])
-                    }
-                );
-                vertex.SetSkinning(
-                    new VertexJoints4(
-                        new (int, float)[]
-                        {
-                            (skeleton.Influences[joints.x], jointWeights.X),
-                            (skeleton.Influences[joints.y], jointWeights.Y),
-                            (skeleton.Influences[joints.z], jointWeights.Z),
-                            (skeleton.Influences[joints.w], jointWeights.W)
-                        }
-                    )
-                );
-
-                vertices[i] = vertex;
-            }
-
-            return vertices;
-        }
-
-        private static void AssignMaterialTexture(
-            MaterialBuilder materialBuilder,
-            ReadOnlyMemory<byte> textureMemory
-        ) => materialBuilder.UseChannel(KnownChannel.BaseColor).UseTexture().WithPrimaryImage(textureMemory.ToArray());
-
-        private static List<(NodeBuilder Node, Matrix4x4 InverseBindMatrix)> CreateSkeleton(
-            NodeBuilder rootNode,
-            Skeleton skeleton
-        )
-        {
-            Guard.IsNotNull(rootNode, nameof(rootNode));
-            Guard.IsNotNull(skeleton, nameof(skeleton));
-
-            var joints = new List<(NodeBuilder, Matrix4x4)>();
-
-            foreach (SkeletonJoint joint in skeleton.Joints)
-            {
-                // Root
-                if (joint.ParentID == -1)
-                {
-                    NodeBuilder jointNode = rootNode.CreateNode(joint.Name);
-
-                    jointNode.LocalTransform = joint.LocalTransform;
-
-                    joints.Add((jointNode, joint.InverseBindTransform));
-                }
-                else
-                {
-                    SkeletonJoint parentJoint = skeleton.Joints.FirstOrDefault(x => x.ID == joint.ParentID);
-                    NodeBuilder parentNode = joints.FirstOrDefault(x => x.Item1.Name == parentJoint.Name).Item1;
-                    NodeBuilder jointNode = parentNode.CreateNode(joint.Name);
-
-                    jointNode.LocalTransform = joint.LocalTransform;
-
-                    joints.Add((jointNode, joint.InverseBindTransform));
-                }
-            }
-
-            return joints;
-        }
-
-        private static void CreateAnimations(
-            IReadOnlyList<NodeBuilder> joints,
-            IReadOnlyList<(string name, LeagueAnimation animation)> animations
-        )
-        {
-            Guard.IsNotNull(joints, nameof(joints));
-            Guard.IsNotNull(animations, nameof(animations));
-
-            foreach (var (name, animation) in animations)
-            {
-                foreach (AnimationTrack track in animation.Tracks)
-                {
-                    NodeBuilder joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
-
-                    if (joint is null)
-                        continue;
-
-                    if (track.Translations.Count == 0)
-                        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                    if (track.Translations.Count == 1)
-                        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                    CurveBuilder<Vector3> translationBuilder = joint.UseTranslation().UseTrackBuilder(name);
-                    foreach (var translation in track.Translations)
-                    {
-                        translationBuilder.SetPoint(translation.Key, translation.Value);
-                    }
-
-                    if (track.Rotations.Count == 0)
-                        track.Rotations.Add(0.0f, Quaternion.Identity);
-                    if (track.Rotations.Count == 1)
-                        track.Rotations.Add(1.0f, Quaternion.Identity);
-                    CurveBuilder<Quaternion> rotationBuilder = joint.UseRotation().UseTrackBuilder(name);
-                    foreach (var rotation in track.Rotations)
-                    {
-                        rotationBuilder.SetPoint(rotation.Key, rotation.Value);
-                    }
-
-                    if (track.Scales.Count == 0)
-                        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                    if (track.Scales.Count == 1)
-                        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                    CurveBuilder<Vector3> scaleBuilder = joint.UseScale().UseTrackBuilder(name);
-                    foreach (var scale in track.Scales.ToList())
-                    {
-                        scaleBuilder.SetPoint(scale.Key, scale.Value);
-                    }
-                }
-            }
-        }
-
-        private static VertexBufferDescription CreateRiggedMeshVertexBufferDescription(this ModelRoot root)
-        {
-            Guard.HasSizeEqualTo(root.LogicalMeshes, 1, nameof(root.LogicalMeshes));
-            Guard.HasSizeEqualTo(root.LogicalSkins, 1, nameof(root.LogicalSkins));
-
-            MeshPrimitive firstPrimitive = root.LogicalMeshes[0].Primitives[0];
-
-            bool hasPositions = firstPrimitive.VertexAccessors.TryGetValue("POSITION", out _);
-            bool hasJoints = firstPrimitive.VertexAccessors.TryGetValue("JOINTS_0", out _);
-            bool hasWeights = firstPrimitive.VertexAccessors.TryGetValue("WEIGHTS_0", out _);
-            bool hasNormals = firstPrimitive.VertexAccessors.TryGetValue("NORMAL", out _);
-            bool hasDiffuseUvs = firstPrimitive.VertexAccessors.TryGetValue("TEXCOORD_0", out _);
-            bool hasColors = firstPrimitive.VertexAccessors.TryGetValue("COLOR_0", out _);
-            bool hasTangents = firstPrimitive.VertexAccessors.TryGetValue("TANGENT_0", out _);
+            bool hasPositions = primitive.VertexAccessors.TryGetValue("POSITION", out _);
+            bool hasJoints = primitive.VertexAccessors.TryGetValue("JOINTS_0", out _);
+            bool hasWeights = primitive.VertexAccessors.TryGetValue("WEIGHTS_0", out _);
+            bool hasNormals = primitive.VertexAccessors.TryGetValue("NORMAL", out _);
+            bool hasDiffuseUvs = primitive.VertexAccessors.TryGetValue("TEXCOORD_0", out _);
+            bool hasColors = primitive.VertexAccessors.TryGetValue("COLOR_0", out _);
+            bool hasTangents = primitive.VertexAccessors.TryGetValue("TANGENT", out _);
 
             if (hasPositions is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh does not have positions");
@@ -562,72 +270,294 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             if (hasNormals is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh does not have normals");
             if (hasDiffuseUvs is false)
-                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have diffuse Uvs");
+                ThrowHelper.ThrowInvalidOperationException($"Mesh does not have diffuse uvs");
 
             return (hasColors, hasTangents) switch
             {
                 (false, false) => SkinnedMeshVertex.BASIC,
                 (true, false) => SkinnedMeshVertex.COLOR,
                 (true, true) => SkinnedMeshVertex.TANGENT,
-                (false, true) => throw new InvalidOperationException("Mesh must have colors if it has tangents")
+                (false, true) => throw new InvalidOperationException("Mesh must have vertex colors if it has tangents")
             };
         }
+        #endregion
 
-        private static Skeleton CreateLeagueSkeleton(Skin skin)
+        #region glTF Mesh creation
+        private static Mesh CreateGltfMesh(
+            ModelRoot root,
+            SkinnedMesh skinnedMesh,
+            bool isSkinned,
+            IReadOnlyDictionary<string, Material> materials
+        )
         {
-            Guard.IsNotNull(skin, nameof(skin));
+            Guard.IsNotNull(root, nameof(root));
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(materials, nameof(materials));
 
-            List<Node> nodes = new(skin.JointsCount);
-            for (int i = 0; i < skin.JointsCount; i++)
+            Mesh gltfMesh = root.CreateMesh();
+
+            MemoryAccessor[] meshVertexMemoryAccessors = GltfUtils
+                .CreateVertexMemoryAccessors(skinnedMesh.VerticesView)
+                .Where(x => isSkinned || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_)")))
+                .ToArray();
+
+            MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
+            GltfUtils.SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
+
+            int baseVertex = 0;
+            foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
-                nodes.Add(skin.GetJoint(i).Joint);
+                MemoryAccessor indicesMemoryAccessor = GltfUtils.CreateIndicesMemoryAccessor(
+                    skinnedMesh.IndicesView.Slice(range.StartIndex, range.IndexCount),
+                    baseVertex
+                );
+                MemoryAccessor[] vertexMemoryAccessors = GltfUtils.SliceVertexMemoryAccessors(
+                    baseVertex,
+                    range.VertexCount,
+                    meshVertexMemoryAccessors
+                );
+
+                MemoryAccessor.VerifyVertexIndices(indicesMemoryAccessor, (uint)range.VertexCount);
+
+                gltfMesh
+                    .CreatePrimitive()
+                    .WithMaterial(materials[range.Material])
+                    .WithIndicesAccessor(PrimitiveType.TRIANGLES, indicesMemoryAccessor)
+                    .WithVertexAccessors(vertexMemoryAccessors);
+
+                baseVertex += range.VertexCount;
             }
 
-            List<SkeletonJoint> joints = new(nodes.Count);
-            for (int i = 0; i < nodes.Count; i++)
+            return gltfMesh;
+        }
+        #endregion
+
+        #region glTF Material creation
+        private static Dictionary<string, Material> CreateGltfMaterials(
+            ModelRoot root,
+            SkinnedMesh skinnedMesh,
+            IReadOnlyDictionary<string, Stream> materialTextures
+        )
+        {
+            Guard.IsNotNull(root, nameof(root));
+            Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
+            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+
+            Dictionary<string, Material> materials = new();
+            foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
-                Node jointNode = nodes[i];
+                Material material = root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(true);
 
-                // If parent is null or isn't a skin joint then the joint is a root bone
-                if (jointNode.VisualParent is null || !jointNode.VisualParent.IsSkinJoint)
+                if (materialTextures.TryGetValue(range.Material, out Stream textureStream))
+                    InitializeMaterialBaseColorChannel(root, material, textureStream);
+
+                materials.Add(material.Name, material);
+            }
+
+            return materials;
+        }
+
+        private static void InitializeMaterialBaseColorChannel(ModelRoot root, Material material, Stream textureStream)
+        {
+            Guard.IsNotNull(root, nameof(root));
+            Guard.IsNotNull(material, nameof(material));
+            Guard.IsNotNull(textureStream, nameof(textureStream));
+
+            MemoryStream textureMemoryStream = new();
+            textureStream.CopyTo(textureMemoryStream);
+
+            GltfImage image = root.UseImage(new(textureMemoryStream.ToArray()));
+            material.WithChannelTexture("BaseColor", 0, image);
+        }
+        #endregion
+
+        private static (
+            List<(Node Node, Matrix4x4 InverseBindMatrix)> Influences,
+            List<Node> JointNodes
+        ) CreateGltfSkeleton(Node skeletonNode, RigResource rig)
+        {
+            Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
+            Guard.IsNotNull(rig, nameof(rig));
+
+            Matrix4x4 flipX = Matrix4x4.CreateScale(-1f, 1f, 1f);
+
+            // We create all rig joints as nodes but only bind those which act as influences
+            // In blender, this makes the un-bound joints act as locators instead of armature joints
+            List<(Node, Matrix4x4)> influenceJointNodes = new();
+            List<Node> jointNodes = new();
+
+            foreach (Joint joint in rig.Joints)
+            {
+                bool isInfluence = rig.Influences.Any(x => x == joint.Id);
+
+                // Root
+                if (joint.ParentId is -1)
                 {
-                    Vector3 scale = jointNode.LocalTransform.Scale;
+                    Node jointNode = skeletonNode
+                        .CreateNode(joint.Name)
+                        .WithLocalTranslation(joint.LocalTranslation)
+                        .WithLocalScale(joint.LocalScale)
+                        .WithLocalRotation(joint.LocalRotation);
 
-                    joints.Add(
-                        new SkeletonJoint(
-                            (short)i,
-                            -1,
-                            jointNode.Name,
-                            jointNode.LocalTransform.Translation,
-                            scale,
-                            jointNode.LocalTransform.Rotation
-                        )
-                    );
+                    jointNodes.Add(jointNode);
+                    if (isInfluence)
+                        influenceJointNodes.Add((jointNode, joint.InverseBindTransform));
                 }
                 else
                 {
-                    short parentId = (short)nodes.IndexOf(jointNode.VisualParent);
+                    Joint parentJoint = rig.Joints.FirstOrDefault(x => x.Id == joint.ParentId);
+                    Node parentNode = jointNodes.FirstOrDefault(x => x.Name == parentJoint.Name);
+                    Node jointNode = parentNode
+                        .CreateNode(joint.Name)
+                        .WithLocalTranslation(joint.LocalTranslation)
+                        .WithLocalScale(joint.LocalScale)
+                        .WithLocalRotation(joint.LocalRotation);
 
-                    joints.Add(
-                        new SkeletonJoint(
-                            (short)i,
-                            parentId,
-                            jointNode.Name,
-                            jointNode.LocalTransform.Translation,
-                            jointNode.LocalTransform.Scale,
-                            jointNode.LocalTransform.Rotation
-                        )
-                    );
+                    jointNodes.Add(jointNode);
+                    if (isInfluence)
+                        influenceJointNodes.Add((jointNode, joint.InverseBindTransform));
                 }
             }
 
-            List<short> influences = new(joints.Count);
-            for (short i = 0; i < joints.Count; i++)
+            return (influenceJointNodes, jointNodes);
+        }
+
+        private static void CreateAnimations(
+            IReadOnlyList<Node> joints,
+            IReadOnlyList<(string name, LeagueAnimation animation)> animations
+        )
+        {
+            Guard.IsNotNull(joints, nameof(joints));
+            Guard.IsNotNull(animations, nameof(animations));
+
+            foreach (var (name, animation) in animations)
             {
-                influences.Add(i);
+                foreach (AnimationTrack track in animation.Tracks)
+                {
+                    Node joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
+
+                    if (joint is null)
+                        continue;
+
+                    if (track.Translations.Count == 0)
+                        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
+                    if (track.Translations.Count == 1)
+                        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
+                    joint.WithTranslationAnimation(name, track.Translations);
+
+                    if (track.Rotations.Count == 0)
+                        track.Rotations.Add(0.0f, Quaternion.Identity);
+                    if (track.Rotations.Count == 1)
+                        track.Rotations.Add(1.0f, Quaternion.Identity);
+                    joint.WithRotationAnimation(name, track.Rotations);
+
+                    if (track.Scales.Count == 0)
+                        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
+                    if (track.Scales.Count == 1)
+                        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
+                    joint.WithScaleAnimation(name, track.Scales);
+                }
+            }
+        }
+
+        #region glTF -> Rig Resource
+        private static (RigResource Rig, byte[] InfluenceBridgeLookup) CreateRig(Node skeletonNode, Skin skin)
+        {
+            Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
+            Guard.IsNotNull(skin, nameof(skin));
+
+            RigResourceBuilder rigBuilder = new();
+
+            // Build rig joints
+            List<Node> jointNodes = TraverseJointNodes(skeletonNode).ToList();
+            List<JointBuilder> joints = new(jointNodes.Count);
+            foreach (Node jointNode in jointNodes)
+                CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, skeletonNode);
+
+            // Build rig
+            RigResource rig = rigBuilder.Build();
+
+            // We need to map the vertex joint ids to the influences in the built rig
+            byte[] influenceBridgeLookup = new byte[skin.JointsCount];
+            for (int i = 0; i < skin.JointsCount; i++)
+            {
+                // Get the influence node
+                Node jointNode = skin.GetJoint(i).Joint;
+
+                // Find the rig joint and throw if it doesn't exist
+                Joint influenceJoint = rig.Joints.FirstOrDefault(x => x.Name == jointNode.Name);
+                if (influenceJoint is null)
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find joint for node: {jointNode.Name}");
+
+                // Find the id of the influence mapping in the rig which matches the joint
+                int influenceId = rig.Influences.IndexOf(influenceJoint.Id);
+                if (influenceId is -1)
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"Failed to find influence id for joint: {influenceJoint.Name}"
+                    );
+
+                influenceBridgeLookup[i] = (byte)influenceId;
             }
 
-            return new(joints, influences);
+            return (rig, influenceBridgeLookup);
         }
+
+        private static JointBuilder CreateRigJointFromGltfNode(
+            RigResourceBuilder rigBuilder,
+            List<JointBuilder> joints,
+            Node jointNode,
+            Node skeletonNode
+        )
+        {
+            // This is to prevent duplicate joints since we're creating them recursively
+            if (joints.Find(x => x.Name == jointNode.Name) is JointBuilder existingJoint)
+                return existingJoint;
+
+            Matrix4x4.Invert(jointNode.WorldMatrix, out Matrix4x4 inverseBindTransform);
+
+            if (jointNode.VisualParent is null || jointNode.VisualParent == skeletonNode)
+            {
+                JointBuilder joint = rigBuilder
+                    .CreateJoint(jointNode.Name)
+                    .WithInfluence(jointNode.IsSkinJoint)
+                    .WithLocalTransform(jointNode.LocalMatrix)
+                    .WithInverseBindTransform(inverseBindTransform);
+
+                joints.Add(joint);
+
+                return joint;
+            }
+            else
+            {
+                // Find joint parent and create create it recursively if it doesn't exist yet
+                JointBuilder parent = joints.Find(x => x.Name == jointNode.VisualParent.Name);
+                parent ??= CreateRigJointFromGltfNode(rigBuilder, joints, jointNode.VisualParent, skeletonNode);
+
+                JointBuilder joint = parent
+                    .CreateJoint(jointNode.Name)
+                    .WithInfluence(jointNode.IsSkinJoint)
+                    .WithLocalTransform(jointNode.LocalMatrix)
+                    .WithInverseBindTransform(inverseBindTransform);
+
+                joints.Add(joint);
+
+                return joint;
+            }
+        }
+
+        private static IEnumerable<Node> TraverseJointNodes(Node node)
+        {
+            IEnumerable<Node> jointNodes = node.VisualChildren.Where(
+                node => node.Skin is null && node.Mesh is null && node.Camera is null
+            );
+            foreach (Node joint in jointNodes)
+            {
+                yield return joint;
+
+                foreach (Node jointChild in TraverseJointNodes(joint))
+                    yield return jointChild;
+            }
+        }
+        #endregion
     }
 }

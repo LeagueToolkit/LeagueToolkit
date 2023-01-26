@@ -9,12 +9,12 @@ using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.SkeletonFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
+using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
@@ -26,6 +26,9 @@ using System.Net.Http;
 using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
+using RigResource = LeagueToolkit.Core.Animation.RigResource;
+using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
+using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -33,10 +36,50 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileMapgeoToGltf();
+            ProfileGltfToRiggedMesh();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
+        }
+
+        static void ProfileGltfToRiggedMesh()
+        {
+            List<(string name, LeagueAnimation animation)> animations = new();
+            foreach (string animationFile in Directory.EnumerateFiles("animations"))
+            {
+                LeagueAnimation animation = new(animationFile);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
+            using SkinnedMesh originalSkinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
+            RigResource originalRig = new(File.OpenRead("akali.skl"));
+
+            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(
+                originalRig,
+                new Dictionary<string, Stream>(),
+                animations
+            );
+
+            {
+                using Stream stream = File.OpenWrite("akali.glb");
+                originalGltf.WriteGLB(stream);
+            }
+
+            {
+                ModelRoot blenderExported = ModelRoot.Load("akali_modelFlipX_exported.glb");
+            }
+
+            var (skinnedMesh, skeleton) = originalGltf.ToRiggedMesh();
+
+            skinnedMesh
+                .ToGltf(skeleton, new Dictionary<string, Stream>(), animations)
+                .WriteGLB(File.OpenWrite("akali_fromgltf.glb"));
+        }
+
+        static void ProfileRigResource()
+        {
+            RigResource skeleton = new(File.OpenRead("Brand.skl"));
         }
 
         static void ProfileMapgeoToGltf()
@@ -66,7 +109,7 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            Texture texture = Texture.Load(File.OpenRead("3.dds"));
+            LeagueTexture texture = LeagueTexture.Load(File.OpenRead("3.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
@@ -78,24 +121,17 @@ namespace LeagueToolkit.Sandbox
         static void ProfileSkinnedMesh()
         {
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
-            Skeleton skeleton = new("akali.skl");
+            RigResource skeleton = new(File.OpenRead("akali.skl"));
 
-            List<(string name, Animation animation)> animations = new();
+            List<(string name, LeagueAnimation animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
             {
-                Animation animation = new(animationFile);
+                LeagueAnimation animation = new(animationFile);
 
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
 
-            skinnedMesh
-                .ToGltf(
-                    new Dictionary<string, ReadOnlyMemory<byte>>()
-                    {
-                        { "Akali_Base_Body_Mat", File.ReadAllBytes("akali_base_tx_cm.dds") }
-                    }
-                )
-                .WriteGLB(File.OpenWrite("akali.glb"));
+            skinnedMesh.ToGltf(new Dictionary<string, Stream>()).WriteGLB(File.OpenWrite("akali.glb"));
         }
 
 #if DEBUG

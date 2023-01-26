@@ -78,7 +78,7 @@ namespace LeagueToolkit.Helpers.Extensions
             return Encoding.ASCII.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
         }
 
-        public static string ReadZeroTerminatedString(this BinaryReader reader)
+        public static string ReadNullTerminatedString(this BinaryReader reader)
         {
             string returnString = "";
 

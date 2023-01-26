@@ -1,11 +1,7 @@
-﻿using LeagueToolkit.IO.SkeletonFile;
+﻿using LeagueToolkit.Core.Animation;
 using LeagueToolkit.IO.WadFile;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueToolkit.Helpers
 {
@@ -91,7 +87,15 @@ namespace LeagueToolkit.Helpers
             {
                 return LeagueFileType.LuaObj;
             }
-            else if (magicData[0] == 'P' && magicData[1] == 'r' && magicData[2] == 'e' && magicData[3] == 'L' && magicData[4] == 'o' && magicData[5] == 'a' && magicData[6] == 'd')
+            else if (
+                magicData[0] == 'P'
+                && magicData[1] == 'r'
+                && magicData[2] == 'e'
+                && magicData[3] == 'L'
+                && magicData[4] == 'o'
+                && magicData[5] == 'a'
+                && magicData[6] == 'd'
+            )
             {
                 return LeagueFileType.Preload;
             }
@@ -111,16 +115,18 @@ namespace LeagueToolkit.Helpers
             {
                 return LeagueFileType.JpegImage;
             }
-            else if (BitConverter.ToInt32(magicData, 4) == Skeleton.FORMAT_TOKEN)
+            else if (BitConverter.ToInt32(magicData, 4) == RigResource.FORMAT_TOKEN)
             {
                 return LeagueFileType.Skeleton;
-            } else if (magicData[0] == 'T' && magicData[1] == 'E' && magicData[2] == 'X' && magicData[3] == '\0')
+            }
+            else if (magicData[0] == 'T' && magicData[1] == 'E' && magicData[2] == 'X' && magicData[3] == '\0')
             {
                 return LeagueFileType.TexImage;
             }
 
             return LeagueFileType.Unknown;
         }
+
         public static LeagueFileType GetExtensionType(Stream stream, int headerSizeHint = 8)
         {
             byte[] header = new byte[headerSizeHint];
@@ -131,6 +137,7 @@ namespace LeagueToolkit.Helpers
 
             return GetExtensionType(header);
         }
+
         public static LeagueFileType GetExtensionType(string extension)
         {
             if (string.IsNullOrEmpty(extension))
@@ -146,31 +153,51 @@ namespace LeagueToolkit.Helpers
 
                 switch (extension)
                 {
-                    case "anm": return LeagueFileType.Animation;
-                    case "bin": return LeagueFileType.PropertyBin;
-                    case "bnk": return LeagueFileType.WwiseBank;
-                    case "dds": return LeagueFileType.DdsImage;
-                    case "luaobj": return LeagueFileType.LuaObj;
-                    case "mapgeo": return LeagueFileType.MapGeometry;
-                    case "png": return LeagueFileType.PngImage;
-                    case "preload": return LeagueFileType.Preload;
-                    case "scb": return LeagueFileType.StaticObjectBinary;
-                    case "sco": return LeagueFileType.StaticObjectAscii;
-                    case "skl": return LeagueFileType.Skeleton;
-                    case "skn": return LeagueFileType.SimpleSkin;
-                    case "wgeo": return LeagueFileType.WorldGeometry;
-                    case "wpk": return LeagueFileType.WwisePackage;
-                    case "jpg": return LeagueFileType.JpegImage;
-                    case "rst": return LeagueFileType.RiotStringTable;
-                    case "tex": return LeagueFileType.TexImage;
-                    default: return LeagueFileType.Unknown;
+                    case "anm":
+                        return LeagueFileType.Animation;
+                    case "bin":
+                        return LeagueFileType.PropertyBin;
+                    case "bnk":
+                        return LeagueFileType.WwiseBank;
+                    case "dds":
+                        return LeagueFileType.DdsImage;
+                    case "luaobj":
+                        return LeagueFileType.LuaObj;
+                    case "mapgeo":
+                        return LeagueFileType.MapGeometry;
+                    case "png":
+                        return LeagueFileType.PngImage;
+                    case "preload":
+                        return LeagueFileType.Preload;
+                    case "scb":
+                        return LeagueFileType.StaticObjectBinary;
+                    case "sco":
+                        return LeagueFileType.StaticObjectAscii;
+                    case "skl":
+                        return LeagueFileType.Skeleton;
+                    case "skn":
+                        return LeagueFileType.SimpleSkin;
+                    case "wgeo":
+                        return LeagueFileType.WorldGeometry;
+                    case "wpk":
+                        return LeagueFileType.WwisePackage;
+                    case "jpg":
+                        return LeagueFileType.JpegImage;
+                    case "rst":
+                        return LeagueFileType.RiotStringTable;
+                    case "tex":
+                        return LeagueFileType.TexImage;
+                    default:
+                        return LeagueFileType.Unknown;
                 }
             }
         }
+
         public static string GetExtension(byte[] fileData)
         {
             return GetExtension(GetExtensionType(fileData));
         }
+
         public static string GetExtension(LeagueFileType extensionType)
         {
             switch (extensionType)
@@ -217,6 +244,7 @@ namespace LeagueToolkit.Helpers
                     return "";
             }
         }
+
         public static WadEntryType GetExtensionWadCompressionType(string extension)
         {
             if (string.IsNullOrEmpty(extension))
@@ -259,6 +287,7 @@ namespace LeagueToolkit.Helpers
         {
             return radian * (180 / (float)Math.PI);
         }
+
         public static float ToRadians(float degrees)
         {
             return degrees * ((float)Math.PI / 180);
