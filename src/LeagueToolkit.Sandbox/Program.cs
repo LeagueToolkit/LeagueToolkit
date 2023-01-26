@@ -57,7 +57,7 @@ namespace LeagueToolkit.Sandbox
 
             ModelRoot originalGltf = originalSkinnedMesh.ToGltf(
                 originalRig,
-                new Dictionary<string, ReadOnlyMemory<byte>>(),
+                new Dictionary<string, Stream>(),
                 animations
             );
 
@@ -73,7 +73,7 @@ namespace LeagueToolkit.Sandbox
             var (skinnedMesh, skeleton) = originalGltf.ToRiggedMesh();
 
             skinnedMesh
-                .ToGltf(skeleton, new Dictionary<string, ReadOnlyMemory<byte>>(), animations)
+                .ToGltf(skeleton, new Dictionary<string, Stream>(), animations)
                 .WriteGLB(File.OpenWrite("akali_fromgltf.glb"));
         }
 
@@ -131,14 +131,7 @@ namespace LeagueToolkit.Sandbox
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
 
-            skinnedMesh
-                .ToGltf(
-                    new Dictionary<string, ReadOnlyMemory<byte>>()
-                    {
-                        { "Akali_Base_Body_Mat", File.ReadAllBytes("akali_base_tx_cm.dds") }
-                    }
-                )
-                .WriteGLB(File.OpenWrite("akali.glb"));
+            skinnedMesh.ToGltf(new Dictionary<string, Stream>()).WriteGLB(File.OpenWrite("akali.glb"));
         }
 
 #if DEBUG
