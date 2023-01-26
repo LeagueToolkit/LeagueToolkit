@@ -7,7 +7,6 @@ using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.Extensions.Utils;
 using LeagueToolkit.IO.MapGeometryFile;
 using SharpGLTF.Animations;
@@ -24,7 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
-using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
+using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 using GltfImage = SharpGLTF.Schema2.Image;
 
 namespace LeagueToolkit.IO.SimpleSkinFile

@@ -4,7 +4,6 @@ using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
-using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.PropertyBin;
@@ -28,7 +27,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
-using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
+using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 
 namespace LeagueToolkit.Sandbox
 {

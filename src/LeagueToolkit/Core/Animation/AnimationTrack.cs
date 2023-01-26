@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.AnimationFile
+namespace LeagueToolkit.Core.Animation
 {
     public class AnimationTrack
     {

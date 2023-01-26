@@ -1,16 +1,16 @@
-﻿using LeagueToolkit.Core.Animation;
-using LeagueToolkit.Core.Primitives;
+﻿using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.AnimationFile
+namespace LeagueToolkit.Core.Animation
 {
     public class Animation
     {
@@ -25,34 +25,33 @@ namespace LeagueToolkit.IO.AnimationFile
 
         public Animation(Stream stream)
         {
-            using (BinaryReader br = new BinaryReader(stream))
-            {
-                string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
-                uint version = br.ReadUInt32();
+            using BinaryReader br = new(stream);
 
-                if (magic == "r3d2canm")
+            string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+            uint version = br.ReadUInt32();
+
+            if (magic == "r3d2canm")
+            {
+                ReadCompressed(br);
+            }
+            else if (magic == "r3d2anmd")
+            {
+                if (version == 5)
                 {
-                    ReadCompressed(br);
+                    ReadV5(br);
                 }
-                else if (magic == "r3d2anmd")
+                else if (version == 4)
                 {
-                    if (version == 5)
-                    {
-                        ReadV5(br);
-                    }
-                    else if (version == 4)
-                    {
-                        ReadV4(br);
-                    }
-                    else
-                    {
-                        ReadLegacy(br);
-                    }
+                    ReadV4(br);
                 }
                 else
                 {
-                    throw new InvalidFileSignatureException();
+                    ReadLegacy(br);
                 }
+            }
+            else
+            {
+                throw new InvalidFileSignatureException();
             }
         }
 
@@ -67,7 +66,8 @@ namespace LeagueToolkit.IO.AnimationFile
             int jumpCacheCount = br.ReadInt32();
 
             float duration = br.ReadSingle();
-            this.FrameDuration = 1 / br.ReadSingle();
+            float fps = br.ReadSingle();
+            this.FrameDuration = 1 / fps;
 
             TransformQuantizationProperties rotationQuantizationProperties = new(br);
             TransformQuantizationProperties translationQuantizationProperties = new(br);
@@ -172,18 +172,36 @@ namespace LeagueToolkit.IO.AnimationFile
                 track.Rotations = rotations[jointHash];
             }
 
+            // jumpCaches data size = 24|48 * jointCount * jumpCacheCount
+
             // Read jump caches
-            //br.BaseStream.Seek(jumpCachesOffset + 12, SeekOrigin.Begin);
-            //for(int i = 0; i < jumpCacheCount; i++)
-            //{
-            //    int count = 1332;
-            //
-            //    this._jumpCaches.Add(new List<ushort>());
-            //    for(int j = 0; j < count; j++)
-            //    {
-            //        this._jumpCaches[i].Add(br.ReadUInt16());
-            //    }
-            //}
+            JumpFrameFormat jumpFrameFormat = frameCount < 0x10001 ? JumpFrameFormat.U16 : JumpFrameFormat.U32;
+
+            br.BaseStream.Seek(jumpCachesOffset + 12, SeekOrigin.Begin);
+            for (int jumpCacheId = 0; jumpCacheId < jumpCacheCount; jumpCacheId++)
+            {
+                JumpFrame[] jumpFrames = new JumpFrame[jointCount];
+
+                for (int jointId = 0; jointId < jointCount; jointId++)
+                {
+                    JumpFrame jumpFrame = new();
+
+                    if (jumpFrameFormat == JumpFrameFormat.U16)
+                    {
+                        ReadJumpFramesU16(jumpFrame.RotationKeys, br);
+                        ReadJumpFramesU16(jumpFrame.TranslationKeys, br);
+                        ReadJumpFramesU16(jumpFrame.ScaleKeys, br);
+                    }
+                    else
+                    {
+                        ReadJumpFramesU32(jumpFrame.RotationKeys, br);
+                        ReadJumpFramesU32(jumpFrame.TranslationKeys, br);
+                        ReadJumpFramesU32(jumpFrame.ScaleKeys, br);
+                    }
+
+                    jumpFrames[jointId] = jumpFrame;
+                }
+            }
 
             DequantizeAnimationChannels(
                 rotationQuantizationProperties,
@@ -391,9 +409,9 @@ namespace LeagueToolkit.IO.AnimationFile
             ushort cY = (ushort)(data[2] | data[3] << 8);
             ushort cZ = (ushort)(data[4] | data[5] << 8);
 
-            uncompressed.X *= (cX / 65535.0f);
-            uncompressed.Y *= (cY / 65535.0f);
-            uncompressed.Z *= (cZ / 65535.0f);
+            uncompressed.X *= cX / 65535.0f;
+            uncompressed.Y *= cY / 65535.0f;
+            uncompressed.Z *= cZ / 65535.0f;
 
             uncompressed += min;
 
@@ -402,7 +420,19 @@ namespace LeagueToolkit.IO.AnimationFile
 
         private float DecompressFrameTime(ushort compressedTime, float animationLength)
         {
-            return (compressedTime / 65535.0f) * animationLength;
+            return compressedTime / 65535.0f * animationLength;
+        }
+
+        private static void ReadJumpFramesU16(Span<int> frames, BinaryReader br)
+        {
+            for (int j = 0; j < 4; j++)
+                frames[j] = br.ReadUInt16();
+        }
+
+        private static void ReadJumpFramesU32(Span<int> frames, BinaryReader br)
+        {
+            for (int j = 0; j < 4; j++)
+                frames[j] = br.ReadInt32();
         }
 
         // ------------ DEQUANTIZATION ------------ \\
@@ -481,6 +511,32 @@ namespace LeagueToolkit.IO.AnimationFile
             Rotation = 0,
             Translation = 1,
             Scale = 2
+        }
+
+        private enum JumpFrameFormat
+        {
+            U16,
+            U32
+        }
+
+        [DebuggerDisplay("{GetDebuggerDisplay(), nq}")]
+        private struct JumpFrame
+        {
+            public int[] RotationKeys;
+            public int[] TranslationKeys;
+            public int[] ScaleKeys;
+
+            public JumpFrame()
+            {
+                this.RotationKeys = new int[4];
+                this.TranslationKeys = new int[4];
+                this.ScaleKeys = new int[4];
+            }
+
+            private string GetDebuggerDisplay()
+            {
+                return $"R:[{string.Join(',', this.RotationKeys)}] T:[{string.Join(',', this.TranslationKeys)}] S:[{string.Join(',', this.ScaleKeys)}]";
+            }
         }
     }
 }
