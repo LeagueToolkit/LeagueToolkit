@@ -61,9 +61,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             modelNode.WithMesh(gltfMesh);
 
-            // Flip the asset across the X axis
-            root.ApplyBasisTransform(Matrix4x4.CreateScale(new Vector3(-1, 1, 1)));
-
             root.DefaultScene = scene;
             return root;
         }
