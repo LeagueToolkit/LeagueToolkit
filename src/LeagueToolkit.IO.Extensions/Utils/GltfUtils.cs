@@ -78,21 +78,6 @@ namespace LeagueToolkit.IO.Extensions.Utils
                 .Select(x => new MemoryAccessor(x.Data, x.Attribute.Slice(baseVertex, vertexCount)))
                 .ToArray();
 
-        private static void WriteAttributeData(
-            Span<byte> buffer,
-            int offset,
-            ElementFormat format,
-            ReadOnlySpan<byte> data
-        )
-        {
-            if (format is ElementFormat.BGRA_Packed8888)
-                WriteAttributeBgraU8(buffer, offset, data);
-            else if (format is ElementFormat.ZYXW_Packed8888)
-                WriteAttributeZyxwU8(buffer, offset, data);
-            else
-                data.CopyTo(buffer[offset..]);
-        }
-
         private static void WriteMemoryAccessorVector2(MemoryAccessor gltfAccessor, VertexElementAccessor accessor)
         {
             VertexElementArray<Vector2> accessorArray = accessor.AsVector2Array();
@@ -131,22 +116,6 @@ namespace LeagueToolkit.IO.Extensions.Utils
             Vector4Array gltfArray = gltfAccessor.AsVector4Array();
 
             gltfArray.Fill(accessorArray.Select(x => new Vector4(x.x, x.y, x.z, x.w)));
-        }
-
-        private static void WriteAttributeBgraU8(Span<byte> buffer, int offset, ReadOnlySpan<byte> data)
-        {
-            buffer[offset + 0] = data[2];
-            buffer[offset + 1] = data[1];
-            buffer[offset + 2] = data[0];
-            buffer[offset + 3] = data[3];
-        }
-
-        private static void WriteAttributeZyxwU8(Span<byte> buffer, int offset, ReadOnlySpan<byte> data)
-        {
-            buffer[offset + 0] = data[2];
-            buffer[offset + 1] = data[1];
-            buffer[offset + 2] = data[0];
-            buffer[offset + 3] = data[3];
         }
 
         internal static void SanitizeVertexMemoryAccessors(MemoryAccessor[] memoryAccessors)
