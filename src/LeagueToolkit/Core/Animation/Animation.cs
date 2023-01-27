@@ -129,7 +129,7 @@ namespace LeagueToolkit.Core.Animation
             this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
             br.Read(this._jumpCaches.Span);
 
-            Evaluate(0.4f);
+            Evaluate(this.FrameDuration * 1);
         }
 
         private void ReadV4(BinaryReader br)
@@ -324,21 +324,186 @@ namespace LeagueToolkit.Core.Animation
             }
         }
 
-        public void Evaluate(float time)
+        public unsafe void Evaluate(float time)
         {
-            float clampedEvaluationTime = Math.Min(this.Duration, time);
+            time = Math.Min(this.Duration, time);
+
+            ushort compressedEvaluationTime = CompressTime(time, this.Duration);
 
             // Check if we need to reset hot frames
             // Jump cache is split by duration
-            float evaluationDelta = clampedEvaluationTime - this._evaluator.LastEvaluationTime;
+            float evaluationDelta = time - this._evaluator.LastEvaluationTime;
             if (
                 this._evaluator.LastEvaluationTime < 0.0f
-                || this._evaluator.LastEvaluationTime > clampedEvaluationTime
+                || this._evaluator.LastEvaluationTime > time
                 || evaluationDelta > this.Duration / this._jumpCacheCount
             )
             {
                 // Initialize starting hot frame
-                InitializeHotFrameEvaluator(clampedEvaluationTime);
+                InitializeHotFrameEvaluator(time);
+            }
+
+            for (int i = this._evaluator.Cursor; i < this._frames.Length; i++)
+            {
+                CompressedFrame frame = this._frames.Span[i];
+                ushort jointId = frame.GetJointId();
+                CompressedTransformType transformType = frame.GetTransformType();
+
+                // We need to update the curve only if the evaluation requires new data
+                if (transformType == CompressedTransformType.Rotation)
+                {
+                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.KeyTime)
+                        break;
+
+                    FetchRotationFrame(jointId, frame.KeyTime, new Span<ushort>(frame.Value, 4));
+                }
+                else if (transformType == CompressedTransformType.Translation)
+                {
+                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].TranslationP2.KeyTime)
+                        break;
+
+                    FetchTranslationFrame(jointId, frame.KeyTime, new Span<ushort>(frame.Value, 3));
+                }
+                else if (transformType == CompressedTransformType.Scale)
+                {
+                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].ScaleP2.KeyTime)
+                        break;
+
+                    FetchScaleFrame(jointId, frame.KeyTime, new Span<ushort>(frame.Value, 3));
+                }
+
+                this._evaluator.Cursor++;
+            }
+        }
+
+        private void FetchRotationFrame(int jointId, ushort time, ReadOnlySpan<ushort> compressedValue)
+        {
+            JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+            Span<QuaternionHotFrame> frames =
+                stackalloc QuaternionHotFrame[4] {
+                    hotFrame.RotationP0,
+                    hotFrame.RotationP1,
+                    hotFrame.RotationP2,
+                    hotFrame.RotationP3
+                };
+
+            InsertQuaternionFrameIntoCurve(frames, time, compressedValue);
+
+            this._evaluator.HotFrames[jointId] = hotFrame with
+            {
+                RotationP0 = frames[0],
+                RotationP1 = frames[1],
+                RotationP2 = frames[2],
+                RotationP3 = frames[3]
+            };
+        }
+
+        private void FetchTranslationFrame(int jointId, ushort time, ReadOnlySpan<ushort> compressedValue)
+        {
+            JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+            Span<VectorHotFrame> frames =
+                stackalloc VectorHotFrame[4] {
+                    hotFrame.TranslationP0,
+                    hotFrame.TranslationP1,
+                    hotFrame.TranslationP2,
+                    hotFrame.TranslationP3
+                };
+
+            InsertVectorFrameIntoCurve(frames, time, compressedValue, this._translationMin, this._translationMax);
+
+            this._evaluator.HotFrames[jointId] = hotFrame with
+            {
+                TranslationP0 = frames[0],
+                TranslationP1 = frames[1],
+                TranslationP2 = frames[2],
+                TranslationP3 = frames[3]
+            };
+        }
+
+        private void FetchScaleFrame(int jointId, ushort time, ReadOnlySpan<ushort> compressedValue)
+        {
+            JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+            Span<VectorHotFrame> frames =
+                stackalloc VectorHotFrame[4] { hotFrame.ScaleP0, hotFrame.ScaleP1, hotFrame.ScaleP2, hotFrame.ScaleP3 };
+
+            InsertVectorFrameIntoCurve(frames, time, compressedValue, this._scaleMin, this._scaleMax);
+
+            this._evaluator.HotFrames[jointId] = hotFrame with
+            {
+                ScaleP0 = frames[0],
+                ScaleP1 = frames[1],
+                ScaleP2 = frames[2],
+                ScaleP3 = frames[3]
+            };
+        }
+
+        private static void InsertQuaternionFrameIntoCurve(
+            Span<QuaternionHotFrame> frames,
+            ushort time,
+            ReadOnlySpan<ushort> compressedValue
+        )
+        {
+            // Set the new frame
+            frames[0].KeyTime = time;
+            frames[0].Value = QuantizedQuaternion.Decompress(compressedValue);
+
+            ushort nextTime = time;
+            int cp1 = 0; // I have no idea what the fuck these do lol
+            int cp2 = 1; // Logically they always end up being equal
+            for (int i = 0; ; i++)
+            {
+                Quaternion currentValue = frames[i].Value;
+
+                frames[i] = frames[i + 1];
+                frames[i + 1] = new(nextTime, currentValue);
+
+                cp1 = i + 1;
+                if (i == 2)
+                    break;
+
+                if (cp1 == cp2)
+                    cp2 = i + 2;
+
+                nextTime = time;
+            }
+        }
+
+        private static void InsertVectorFrameIntoCurve(
+            Span<VectorHotFrame> frames,
+            ushort time,
+            ReadOnlySpan<ushort> compressedValue,
+            Vector3 min,
+            Vector3 max
+        )
+        {
+            // Set the new frame
+            frames[0].KeyTime = time;
+            frames[0].Value = DecompressVector3(compressedValue, min, max);
+
+            // We always need at least 3 points to sample from catmull rom
+            // _____________________________________
+            // | t0, v0 | t1, v1 | t2, v2 | t3, v3 |
+            // _____________________________________
+            // | 1 , v0 | 2 , v1 | 3 , v2 | 4 , v3 |
+            //
+            ushort nextTime = time;
+            int cp1 = 0; // I have no idea what the fuck these do lol
+            int cp2 = 1; // Logically they always end up being equal
+            for (int i = 0; ; i++)
+            {
+                Vector3 currentValue = frames[i].Value;
+
+                frames[i] = frames[i + 1];
+                frames[i + 1] = new(nextTime, currentValue);
+
+                cp1 = i + 1;
+                if (i == 2)
+                    break;
+
+                if (cp1 == cp2)
+                    cp2 = i + 2;
+
+                nextTime = time;
             }
         }
 
@@ -385,6 +550,8 @@ namespace LeagueToolkit.Core.Animation
                     this._jumpCaches.Slice(jumpCacheId * jumpCacheSize, jumpCacheSize).Span
                 );
             }
+
+            this._evaluator.Cursor++;
         }
 
         private static Vector3 DecompressVector3(Vector3 min, Vector3 max, ReadOnlySpan<byte> data)
@@ -416,10 +583,12 @@ namespace LeagueToolkit.Core.Animation
             return uncompressed;
         }
 
-        private float DecompressFrameTime(ushort compressedTime, float animationLength)
+        private static float DecompressTime(ushort compressedTime, float duration)
         {
-            return compressedTime / 65535.0f * animationLength;
+            return compressedTime / 65535.0f * duration;
         }
+
+        private static ushort CompressTime(float time, float duration) => (ushort)(time / duration * ushort.MaxValue);
 
         private static void ReadJumpFramesU16(Span<int> frames, BinaryReader br)
         {
