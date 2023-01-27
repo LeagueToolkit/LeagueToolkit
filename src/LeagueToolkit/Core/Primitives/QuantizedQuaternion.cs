@@ -57,13 +57,11 @@ namespace LeagueToolkit.Core.Primitives
             }
         }
 
-        public static Quaternion Decompress(ReadOnlySpan<byte> data)
+        public static Quaternion Decompress(ReadOnlySpan<byte> data) => Decompress(data.Cast<byte, ushort>());
+
+        public static Quaternion Decompress(ReadOnlySpan<ushort> data)
         {
-            ulong bits =
-                0
-                | (ulong)(ushort)(data[0] | (data[1] << 8))
-                | (ulong)(ushort)(data[2] | (data[3] << 8)) << 16
-                | (ulong)(ushort)(data[4] | (data[5] << 8)) << 32;
+            ulong bits = (ulong)(data[0]) | (ulong)data[1] << 16 | (ulong)data[2] << 32;
             ushort maxIndex = (ushort)(bits >> 45 & 0x0003u);
             ushort v_a = (ushort)(bits >> 30 & 0x7FFFu);
             ushort v_b = (ushort)(bits >> 15 & 0x7FFFu);
