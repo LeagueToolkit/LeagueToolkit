@@ -173,7 +173,7 @@ namespace LeagueToolkit.Core.Animation
             List<Quaternion> rotations = new();
             for (int i = 0; i < rotationsCount; i++)
             {
-                rotations.Add(br.ReadQuaternion());
+                rotations.Add(Quaternion.Normalize(br.ReadQuaternion()));
             }
 
             br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
