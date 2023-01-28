@@ -129,7 +129,9 @@ namespace LeagueToolkit.Core.Animation
             this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
             br.Read(this._jumpCaches.Span);
 
+            Evaluate(this.FrameDuration * 0);
             Evaluate(this.FrameDuration * 1);
+            Evaluate(this.FrameDuration * 2);
         }
 
         private void ReadV4(BinaryReader br)
@@ -355,25 +357,27 @@ namespace LeagueToolkit.Core.Animation
                     if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.KeyTime)
                         break;
 
-                    FetchRotationFrame(jointId, frame.KeyTime, new Span<ushort>(frame.Value, 4));
+                    FetchRotationFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 4));
                 }
                 else if (transformType == CompressedTransformType.Translation)
                 {
                     if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].TranslationP2.KeyTime)
                         break;
 
-                    FetchTranslationFrame(jointId, frame.KeyTime, new Span<ushort>(frame.Value, 3));
+                    FetchTranslationFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 3));
                 }
                 else if (transformType == CompressedTransformType.Scale)
                 {
                     if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].ScaleP2.KeyTime)
                         break;
 
-                    FetchScaleFrame(jointId, frame.KeyTime, new Span<ushort>(frame.Value, 3));
+                    FetchScaleFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 3));
                 }
 
                 this._evaluator.Cursor++;
             }
+
+            this._evaluator.LastEvaluationTime = time;
         }
 
         private void FetchRotationFrame(int jointId, ushort time, ReadOnlySpan<ushort> compressedValue)
@@ -507,7 +511,7 @@ namespace LeagueToolkit.Core.Animation
             }
         }
 
-        private void InitializeHotFrameEvaluator(float evaluationTime)
+        private unsafe void InitializeHotFrameEvaluator(float evaluationTime)
         {
             // Get cache id
             int jumpCacheId = (int)(this._jumpCacheCount * (this._evaluator.LastEvaluationTime / this.Duration));
@@ -515,6 +519,7 @@ namespace LeagueToolkit.Core.Animation
             // Reset cursor
             this._evaluator.Cursor = 0;
 
+            Span<int> frameKeys = stackalloc int[4];
             if (this._frames.Length < 0x10001)
             {
                 int jumpCacheSize = 24 * this._joints.Length;
@@ -526,18 +531,29 @@ namespace LeagueToolkit.Core.Animation
                 {
                     JumpFrameU16 jumpFrame = jumpFrames[jointId];
 
-                    jumpFrame.FetchRotations(jointId, this._frames.Span, ref this._evaluator);
-                    jumpFrame.FetchTranslations(
+                    // Initialize rotations
+                    for (int i = 0; i < 4; i++)
+                        frameKeys[i] = jumpFrame.RotationKeys[i];
+                    this._evaluator.InitializeRotationJointHotFrames(jointId, frameKeys, this._frames.Span);
+
+                    // Initialize translations
+                    for (int i = 0; i < 4; i++)
+                        frameKeys[i] = jumpFrame.TranslationKeys[i];
+                    this._evaluator.InitializeTranslationJointHotFrames(
                         jointId,
+                        frameKeys,
                         this._frames.Span,
-                        ref this._evaluator,
                         this._translationMin,
                         this._translationMax
                     );
-                    jumpFrame.FetchScales(
+
+                    // Initialize scales
+                    for (int i = 0; i < 4; i++)
+                        frameKeys[i] = jumpFrame.ScaleKeys[i];
+                    this._evaluator.InitializeScaleJointHotFrames(
                         jointId,
+                        frameKeys,
                         this._frames.Span,
-                        ref this._evaluator,
                         this._scaleMin,
                         this._scaleMax
                     );
@@ -554,7 +570,7 @@ namespace LeagueToolkit.Core.Animation
             this._evaluator.Cursor++;
         }
 
-        private static Vector3 DecompressVector3(Vector3 min, Vector3 max, ReadOnlySpan<byte> data)
+        internal static Vector3 DecompressVector3(Vector3 min, Vector3 max, ReadOnlySpan<byte> data)
         {
             Vector3 uncompressed = max - min;
             ushort cX = (ushort)(data[0] | data[1] << 8);
@@ -570,7 +586,7 @@ namespace LeagueToolkit.Core.Animation
             return uncompressed;
         }
 
-        private static Vector3 DecompressVector3(ReadOnlySpan<ushort> value, Vector3 min, Vector3 max)
+        internal static Vector3 DecompressVector3(ReadOnlySpan<ushort> value, Vector3 min, Vector3 max)
         {
             Vector3 uncompressed = max - min;
 
@@ -583,24 +599,10 @@ namespace LeagueToolkit.Core.Animation
             return uncompressed;
         }
 
-        private static float DecompressTime(ushort compressedTime, float duration)
-        {
-            return compressedTime / 65535.0f * duration;
-        }
+        internal static float DecompressTime(ushort compressedTime, float duration) =>
+            compressedTime / ushort.MaxValue * duration;
 
-        private static ushort CompressTime(float time, float duration) => (ushort)(time / duration * ushort.MaxValue);
-
-        private static void ReadJumpFramesU16(Span<int> frames, BinaryReader br)
-        {
-            for (int j = 0; j < 4; j++)
-                frames[j] = br.ReadUInt16();
-        }
-
-        private static void ReadJumpFramesU32(Span<int> frames, BinaryReader br)
-        {
-            for (int j = 0; j < 4; j++)
-                frames[j] = br.ReadInt32();
-        }
+        internal static ushort CompressTime(float time, float duration) => (ushort)(time / duration * ushort.MaxValue);
 
         private struct TransformQuantizationProperties
         {
@@ -611,149 +613,6 @@ namespace LeagueToolkit.Core.Animation
             {
                 this.ErrorMargin = br.ReadSingle();
                 this.DiscontinuityThreshold = br.ReadSingle();
-            }
-        }
-
-        private enum JumpFrameFormat
-        {
-            U16,
-            U32
-        }
-
-        [DebuggerDisplay("{GetDebuggerDisplay(), nq}")]
-        private unsafe struct JumpFrameU16
-        {
-            public fixed ushort RotationKeys[4];
-            public fixed ushort TranslationKeys[4];
-            public fixed ushort ScaleKeys[4];
-
-            public void FetchRotations(
-                int jointId,
-                ReadOnlySpan<CompressedFrame> frames,
-                ref HotFrameEvaluator evaluator
-            )
-            {
-                Span<QuaternionHotFrame> hotFrames = stackalloc QuaternionHotFrame[4];
-                fixed (ushort* rotationKeys = this.RotationKeys)
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        CompressedFrame frame = frames[rotationKeys[i]];
-
-                        evaluator.Cursor = Math.Max(evaluator.Cursor, rotationKeys[i]);
-
-                        ReadOnlySpan<ushort> value = new Span<ushort>(frame.Value, 3);
-                        Quaternion rotation = QuantizedQuaternion.Decompress(value);
-
-                        hotFrames[i] = new(frame.KeyTime, rotation);
-                    }
-                }
-
-                // TODO: Re-order rotations by their dot product so they occur along the shortest path
-                JointHotFrame jointHotFrame = evaluator.HotFrames[jointId];
-
-                jointHotFrame.RotationP0 = hotFrames[0];
-                jointHotFrame.RotationP1 = hotFrames[1];
-                jointHotFrame.RotationP2 = hotFrames[2];
-                jointHotFrame.RotationP3 = hotFrames[3];
-
-                evaluator.HotFrames[jointId] = jointHotFrame;
-            }
-
-            public void FetchTranslations(
-                int jointId,
-                ReadOnlySpan<CompressedFrame> frames,
-                ref HotFrameEvaluator evaluator,
-                Vector3 min,
-                Vector3 max
-            )
-            {
-                Span<VectorHotFrame> hotFrames = stackalloc VectorHotFrame[4];
-                fixed (ushort* translationKeys = this.TranslationKeys)
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        CompressedFrame frame = frames[translationKeys[i]];
-
-                        evaluator.Cursor = Math.Max(evaluator.Cursor, translationKeys[i]);
-
-                        ReadOnlySpan<ushort> compressedValue = new Span<ushort>(frame.Value, 3);
-                        hotFrames[i] = new(frame.KeyTime, DecompressVector3(compressedValue, min, max));
-                    }
-                }
-
-                JointHotFrame jointHotFrame = evaluator.HotFrames[jointId];
-
-                jointHotFrame.TranslationP0 = hotFrames[0];
-                jointHotFrame.TranslationP1 = hotFrames[1];
-                jointHotFrame.TranslationP2 = hotFrames[2];
-                jointHotFrame.TranslationP3 = hotFrames[3];
-
-                evaluator.HotFrames[jointId] = jointHotFrame;
-            }
-
-            public void FetchScales(
-                int jointId,
-                ReadOnlySpan<CompressedFrame> frames,
-                ref HotFrameEvaluator evaluator,
-                Vector3 min,
-                Vector3 max
-            )
-            {
-                Span<VectorHotFrame> hotFrames = stackalloc VectorHotFrame[4];
-                fixed (ushort* scaleKeys = this.ScaleKeys)
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        CompressedFrame frame = frames[scaleKeys[i]];
-
-                        evaluator.Cursor = Math.Max(evaluator.Cursor, scaleKeys[i]);
-
-                        ReadOnlySpan<ushort> compressedValue = new Span<ushort>(frame.Value, 3);
-                        hotFrames[i] = new(frame.KeyTime, DecompressVector3(compressedValue, min, max));
-                    }
-                }
-
-                JointHotFrame jointHotFrame = evaluator.HotFrames[jointId];
-
-                jointHotFrame.ScaleP0 = hotFrames[0];
-                jointHotFrame.ScaleP1 = hotFrames[1];
-                jointHotFrame.ScaleP2 = hotFrames[2];
-                jointHotFrame.ScaleP3 = hotFrames[3];
-
-                evaluator.HotFrames[jointId] = jointHotFrame;
-            }
-
-            private string GetDebuggerDisplay()
-            {
-                fixed (ushort* rotationKeys = this.TranslationKeys)
-                fixed (ushort* translationKeys = this.TranslationKeys)
-                fixed (ushort* scaleKeys = this.ScaleKeys)
-                {
-                    return $"R:[{string.Join(',', rotationKeys[0], rotationKeys[1], rotationKeys[2], rotationKeys[3])}] "
-                        + $"T:[{string.Join(',', translationKeys[0], translationKeys[1], translationKeys[2], translationKeys[3])}] "
-                        + $"S:[{string.Join(',', scaleKeys[0], scaleKeys[1], scaleKeys[2], scaleKeys[3])}]";
-                }
-            }
-        }
-
-        [DebuggerDisplay("{GetDebuggerDisplay(), nq}")]
-        private unsafe struct JumpFrameU32
-        {
-            public fixed int RotationKeys[4];
-            public fixed int TranslationKeys[4];
-            public fixed int ScaleKeys[4];
-
-            private string GetDebuggerDisplay()
-            {
-                fixed (int* rotationKeys = this.RotationKeys)
-                fixed (int* translationKeys = this.TranslationKeys)
-                fixed (int* scaleKeys = this.ScaleKeys)
-                {
-                    return $"R:[{string.Join(',', rotationKeys[0], rotationKeys[1], rotationKeys[2], rotationKeys[3])}] "
-                        + $"T:[{string.Join(',', translationKeys[0], translationKeys[1], translationKeys[2], translationKeys[3])}] "
-                        + $"S:[{string.Join(',', scaleKeys[0], scaleKeys[1], scaleKeys[2], scaleKeys[3])}]";
-                }
             }
         }
 
@@ -786,78 +645,10 @@ namespace LeagueToolkit.Core.Animation
         UseCentripetalCatmullRom = 1 << 2,
     }
 
-    [DebuggerDisplay("{GetJointId()} | {GetTransformType()}")]
-    internal unsafe struct CompressedFrame
-    {
-        public readonly ushort KeyTime;
-        public readonly ushort JointId;
-        public fixed ushort Value[3];
-
-        public ushort GetJointId() => (ushort)(this.JointId & 0x3FFF);
-
-        public CompressedTransformType GetTransformType() => (CompressedTransformType)(this.JointId >> 14);
-    }
-
     internal enum CompressedTransformType : byte
     {
         Rotation = 0,
         Translation = 1,
         Scale = 2
-    }
-
-    internal struct HotFrameEvaluator
-    {
-        public float LastEvaluationTime { get; set; }
-        public int Cursor { get; set; }
-        public JointHotFrame[] HotFrames { get; set; }
-
-        public HotFrameEvaluator(int jointCount)
-        {
-            this.HotFrames = new JointHotFrame[jointCount];
-        }
-    }
-
-    internal struct JointHotFrame
-    {
-        public QuaternionHotFrame RotationP0;
-        public QuaternionHotFrame RotationP1;
-        public QuaternionHotFrame RotationP2;
-        public QuaternionHotFrame RotationP3;
-
-        public VectorHotFrame TranslationP0;
-        public VectorHotFrame TranslationP1;
-        public VectorHotFrame TranslationP2;
-        public VectorHotFrame TranslationP3;
-
-        public VectorHotFrame ScaleP0;
-        public VectorHotFrame ScaleP1;
-        public VectorHotFrame ScaleP2;
-        public VectorHotFrame ScaleP3;
-    }
-
-    [DebuggerDisplay("Time: {KeyTime} Value: {Value}")]
-    internal struct QuaternionHotFrame
-    {
-        public ushort KeyTime;
-        public Quaternion Value;
-
-        public QuaternionHotFrame(ushort keyTime, Quaternion value)
-        {
-            this.KeyTime = keyTime;
-            this.Value = value;
-        }
-    }
-
-    [DebuggerDisplay("Time: {KeyTime} Value: {Value}")]
-    internal struct VectorHotFrame
-    {
-        public ushort KeyTime;
-        public Vector3 Value;
-
-        public VectorHotFrame(ushort keyTime, Vector3 value)
-        {
-            this.KeyTime = keyTime;
-            this.Value = value;
-        }
     }
 }
