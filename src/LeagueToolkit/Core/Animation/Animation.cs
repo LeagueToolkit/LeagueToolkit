@@ -783,7 +783,7 @@ namespace LeagueToolkit.Core.Animation
     {
         Unk1 = 1 << 0,
         Unk2 = 1 << 1,
-        DoSomeWeirdInterpolationShit = 1 << 2,
+        UseCentripetalCatmullRom = 1 << 2,
     }
 
     [DebuggerDisplay("{GetJointId()} | {GetTransformType()}")]
