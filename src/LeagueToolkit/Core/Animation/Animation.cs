@@ -88,9 +88,9 @@ namespace LeagueToolkit.Core.Animation
             float fps = br.ReadSingle();
             this.FrameDuration = 1 / fps;
 
-            TransformQuantizationProperties rotationQuantizationProperties = new(br);
-            TransformQuantizationProperties translationQuantizationProperties = new(br);
-            TransformQuantizationProperties scaleQuantizationProperties = new(br);
+            TransformOptimizationSettings rotationOptimization = TransformOptimizationSettings.Read(br);
+            TransformOptimizationSettings translationOptimization = TransformOptimizationSettings.Read(br);
+            TransformOptimizationSettings scaleOptimization = TransformOptimizationSettings.Read(br);
 
             this._translationMin = br.ReadVector3();
             this._translationMax = br.ReadVector3();
@@ -441,6 +441,8 @@ namespace LeagueToolkit.Core.Animation
             };
         }
 
+        // We might be able to do decimation here ?
+        // https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
         private static void InsertFrameIntoQuaternionCurve(
             Span<QuaternionHotFrame> frames,
             ushort time,
@@ -589,18 +591,6 @@ namespace LeagueToolkit.Core.Animation
 
         internal static ushort CompressTime(float time, float duration) => (ushort)(time / duration * ushort.MaxValue);
 
-        private struct TransformQuantizationProperties
-        {
-            internal float ErrorMargin { get; private set; }
-            internal float DiscontinuityThreshold { get; private set; }
-
-            internal TransformQuantizationProperties(BinaryReader br)
-            {
-                this.ErrorMargin = br.ReadSingle();
-                this.DiscontinuityThreshold = br.ReadSingle();
-            }
-        }
-
         private void Dispose(bool disposing)
         {
             if (this.IsDisposed)
@@ -627,6 +617,8 @@ namespace LeagueToolkit.Core.Animation
     {
         Unk1 = 1 << 0,
         Unk2 = 1 << 1,
+
+        // When set, the game uses centripetal knot parametrization, otherwise uniform ?
         UseCentripetalCatmullRom = 1 << 2,
     }
 
