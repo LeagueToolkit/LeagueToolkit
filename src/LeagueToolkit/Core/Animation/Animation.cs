@@ -351,24 +351,24 @@ namespace LeagueToolkit.Core.Animation
                 ushort jointId = frame.GetJointId();
                 CompressedTransformType transformType = frame.GetTransformType();
 
-                // We need to update the curve only if the evaluation requires new data
+                // We need to update the curves only if the evaluation requires new data
                 if (transformType == CompressedTransformType.Rotation)
                 {
-                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.KeyTime)
+                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.Time)
                         break;
 
                     FetchRotationFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 4));
                 }
                 else if (transformType == CompressedTransformType.Translation)
                 {
-                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].TranslationP2.KeyTime)
+                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].TranslationP2.Time)
                         break;
 
                     FetchTranslationFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 3));
                 }
                 else if (transformType == CompressedTransformType.Scale)
                 {
-                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].ScaleP2.KeyTime)
+                    if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].ScaleP2.Time)
                         break;
 
                     FetchScaleFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 3));
@@ -391,7 +391,7 @@ namespace LeagueToolkit.Core.Animation
                     hotFrame.RotationP3
                 };
 
-            InsertQuaternionFrameIntoCurve(frames, time, compressedValue);
+            InsertFrameIntoQuaternionCurve(frames, time, compressedValue);
 
             this._evaluator.HotFrames[jointId] = hotFrame with
             {
@@ -413,7 +413,7 @@ namespace LeagueToolkit.Core.Animation
                     hotFrame.TranslationP3
                 };
 
-            InsertVectorFrameIntoCurve(frames, time, compressedValue, this._translationMin, this._translationMax);
+            InsertFrameIntoVectorCurve(frames, time, compressedValue, this._translationMin, this._translationMax);
 
             this._evaluator.HotFrames[jointId] = hotFrame with
             {
@@ -430,7 +430,7 @@ namespace LeagueToolkit.Core.Animation
             Span<VectorHotFrame> frames =
                 stackalloc VectorHotFrame[4] { hotFrame.ScaleP0, hotFrame.ScaleP1, hotFrame.ScaleP2, hotFrame.ScaleP3 };
 
-            InsertVectorFrameIntoCurve(frames, time, compressedValue, this._scaleMin, this._scaleMax);
+            InsertFrameIntoVectorCurve(frames, time, compressedValue, this._scaleMin, this._scaleMax);
 
             this._evaluator.HotFrames[jointId] = hotFrame with
             {
@@ -441,38 +441,34 @@ namespace LeagueToolkit.Core.Animation
             };
         }
 
-        private static void InsertQuaternionFrameIntoCurve(
+        private static void InsertFrameIntoQuaternionCurve(
             Span<QuaternionHotFrame> frames,
             ushort time,
             ReadOnlySpan<ushort> compressedValue
         )
         {
-            // Set the new frame
-            frames[0].KeyTime = time;
+            // Discard last control point of the curve
+            frames[0].Time = time;
             frames[0].Value = QuantizedQuaternion.Decompress(compressedValue);
 
-            ushort nextTime = time;
-            int cp1 = 0; // I have no idea what the fuck these do lol
-            int cp2 = 1; // Logically they always end up being equal
-            for (int i = 0; ; i++)
+            // Move new control point to the start of the curve
+            for (int i = 0; i < 3; i++)
             {
-                Quaternion currentValue = frames[i].Value;
+                Quaternion value = frames[i].Value;
 
                 frames[i] = frames[i + 1];
-                frames[i + 1] = new(nextTime, currentValue);
-
-                cp1 = i + 1;
-                if (i == 2)
-                    break;
-
-                if (cp1 == cp2)
-                    cp2 = i + 2;
-
-                nextTime = time;
+                frames[i + 1] = new(time, value);
             }
+
+            //if (Quaternion.Dot(frames[1].Value, frames[0].Value) < 0)
+            //    frames[1].Value = -frames[1].Value;
+            //if (Quaternion.Dot(frames[2].Value, frames[0].Value) < 0)
+            //    frames[2].Value = -frames[2].Value;
+            //if (Quaternion.Dot(frames[3].Value, frames[0].Value) < 0)
+            //    frames[3].Value = -frames[3].Value;
         }
 
-        private static void InsertVectorFrameIntoCurve(
+        private static void InsertFrameIntoVectorCurve(
             Span<VectorHotFrame> frames,
             ushort time,
             ReadOnlySpan<ushort> compressedValue,
@@ -480,8 +476,8 @@ namespace LeagueToolkit.Core.Animation
             Vector3 max
         )
         {
-            // Set the new frame
-            frames[0].KeyTime = time;
+            // Discard last control point of the curve
+            frames[0].Time = time;
             frames[0].Value = DecompressVector3(compressedValue, min, max);
 
             // We always need at least 3 points to sample from catmull rom
@@ -490,24 +486,13 @@ namespace LeagueToolkit.Core.Animation
             // _____________________________________
             // | 1 , v0 | 2 , v1 | 3 , v2 | 4 , v3 |
             //
-            ushort nextTime = time;
-            int cp1 = 0; // I have no idea what the fuck these do lol
-            int cp2 = 1; // Logically they always end up being equal
-            for (int i = 0; ; i++)
+            // Move new control point to the start of the curve
+            for (int i = 0; i < 3; i++)
             {
-                Vector3 currentValue = frames[i].Value;
+                Vector3 value = frames[i].Value;
 
                 frames[i] = frames[i + 1];
-                frames[i + 1] = new(nextTime, currentValue);
-
-                cp1 = i + 1;
-                if (i == 2)
-                    break;
-
-                if (cp1 == cp2)
-                    cp2 = i + 2;
-
-                nextTime = time;
+                frames[i + 1] = new(time, value);
             }
         }
 

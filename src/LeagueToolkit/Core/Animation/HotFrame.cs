@@ -35,7 +35,13 @@ internal struct HotFrameEvaluator
             hotFrames[i] = new(frame.Time, rotation);
         }
 
-        // TODO: Re-order rotations by their dot product so they occur along the shortest path
+        //if (Quaternion.Dot(hotFrames[1].Value, hotFrames[0].Value) < 0)
+        //    hotFrames[1].Value = -hotFrames[1].Value;
+        //if (Quaternion.Dot(hotFrames[2].Value, hotFrames[0].Value) < 0)
+        //    hotFrames[2].Value = -hotFrames[2].Value;
+        //if (Quaternion.Dot(hotFrames[3].Value, hotFrames[0].Value) < 0)
+        //    hotFrames[3].Value = -hotFrames[3].Value;
+
         this.HotFrames[jointId] = this.HotFrames[jointId] with
         {
             RotationP0 = hotFrames[0],
@@ -120,28 +126,28 @@ internal struct JointHotFrame
     public VectorHotFrame ScaleP3;
 }
 
-[DebuggerDisplay("Time: {KeyTime} Value: {Value}")]
+[DebuggerDisplay("T: {Time} {Value}")]
 internal struct QuaternionHotFrame
 {
-    public ushort KeyTime;
+    public ushort Time;
     public Quaternion Value;
 
     public QuaternionHotFrame(ushort keyTime, Quaternion value)
     {
-        this.KeyTime = keyTime;
+        this.Time = keyTime;
         this.Value = value;
     }
 }
 
-[DebuggerDisplay("Time: {KeyTime} Value: {Value}")]
+[DebuggerDisplay("T: {Time} {Value}")]
 internal struct VectorHotFrame
 {
-    public ushort KeyTime;
+    public ushort Time;
     public Vector3 Value;
 
     public VectorHotFrame(ushort keyTime, Vector3 value)
     {
-        this.KeyTime = keyTime;
+        this.Time = keyTime;
         this.Value = value;
     }
 }
