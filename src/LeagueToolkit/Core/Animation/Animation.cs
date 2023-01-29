@@ -282,16 +282,14 @@ namespace LeagueToolkit.Core.Animation
             for (int t = 0; t < trackCount; t++)
             {
                 AnimationTrack track = this.Tracks[t];
-                float currentTime = 0;
                 for (int f = 0; f < framesPerTrack; f++)
                 {
                     (int translationIndex, int scaleIndex, int rotationIndex) = frames[f * trackCount + t];
+                    float currentTime = this.FrameDuration * f;
 
                     track.Translations.Add(currentTime, vectors[translationIndex]);
                     track.Scales.Add(currentTime, vectors[scaleIndex]);
                     track.Rotations.Add(currentTime, rotations[rotationIndex]);
-
-                    currentTime += this.FrameDuration;
                 }
             }
         }
@@ -555,22 +553,6 @@ namespace LeagueToolkit.Core.Animation
             }
 
             this._evaluator.Cursor++;
-        }
-
-        internal static Vector3 DecompressVector3(Vector3 min, Vector3 max, ReadOnlySpan<byte> data)
-        {
-            Vector3 uncompressed = max - min;
-            ushort cX = (ushort)(data[0] | data[1] << 8);
-            ushort cY = (ushort)(data[2] | data[3] << 8);
-            ushort cZ = (ushort)(data[4] | data[5] << 8);
-
-            uncompressed.X *= cX / 65535.0f;
-            uncompressed.Y *= cY / 65535.0f;
-            uncompressed.Z *= cZ / 65535.0f;
-
-            uncompressed += min;
-
-            return uncompressed;
         }
 
         internal static Vector3 DecompressVector3(ReadOnlySpan<ushort> value, Vector3 min, Vector3 max)
