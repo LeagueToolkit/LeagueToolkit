@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System;
 using System.IO;
@@ -12,8 +13,7 @@ namespace LeagueToolkit.Core.Environment
     {
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public float XScale { get; private set; }
-        public float ZScale { get; private set; }
+        public Vector2 Bounds { get; private set; }
         public float LightScale { get; set; }
         public float FullbrightIntensity { get; set; }
 
@@ -21,14 +21,13 @@ namespace LeagueToolkit.Core.Environment
 
         public bool IsDisposed { get; private set; }
 
-        public LightGrid(int width, int height, float xScale, float zScale, MemoryOwner<byte> gridData)
+        public LightGrid(int width, int height, Vector2 bounds, MemoryOwner<byte> gridData)
         {
             Guard.HasSizeEqualTo(gridData.Span, 24 * width * height, nameof(gridData));
 
             this.Width = width;
             this.Height = height;
-            this.XScale = xScale;
-            this.ZScale = zScale;
+            this.Bounds = bounds;
             this._gridData = gridData;
         }
 
@@ -45,8 +44,7 @@ namespace LeagueToolkit.Core.Environment
             uint gridOffset = br.ReadUInt32();
             this.Width = br.ReadInt32();
             this.Height = br.ReadInt32();
-            this.XScale = br.ReadSingle();
-            this.ZScale = br.ReadSingle();
+            this.Bounds = br.ReadVector2();
             this.LightScale = br.ReadSingle();
             this.FullbrightIntensity = br.ReadSingle();
 
@@ -66,8 +64,7 @@ namespace LeagueToolkit.Core.Environment
             bw.Write((uint)32);
             bw.Write(this.Width);
             bw.Write(this.Height);
-            bw.Write(this.XScale);
-            bw.Write(this.ZScale);
+            bw.WriteVector2(this.Bounds);
             bw.Write(this.LightScale);
             bw.Write(this.FullbrightIntensity);
             bw.Write(this._gridData.Span);
