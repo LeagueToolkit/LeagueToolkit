@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
+using LeagueToolkit.IO.LightGrid;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -36,7 +37,12 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileGltfToRiggedMesh();
+            LightGrid grid = new("lightgrid.aram_exploration_2022.dat");
+
+            for (int i = 0; i < 256 * 256; i++)
+            {
+                grid.GetCellColor(128 * 128);
+            }
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
