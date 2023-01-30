@@ -6,7 +6,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.LightGrid
+namespace LeagueToolkit.Core.Environment
 {
     public sealed class LightGrid : IDisposable
     {
@@ -14,6 +14,8 @@ namespace LeagueToolkit.IO.LightGrid
         public int Height { get; private set; }
         public float XScale { get; private set; }
         public float ZScale { get; private set; }
+        public float Unk1 { get; set; }
+        public float Unk2 { get; set; }
 
         private readonly MemoryOwner<byte> _gridData;
 
@@ -45,8 +47,8 @@ namespace LeagueToolkit.IO.LightGrid
             this.Height = br.ReadInt32();
             this.XScale = br.ReadSingle();
             this.ZScale = br.ReadSingle();
-            float unk1 = br.ReadSingle();
-            float unk2 = br.ReadSingle();
+            this.Unk1 = br.ReadSingle();
+            this.Unk2 = br.ReadSingle();
 
             br.BaseStream.Seek(gridOffset, SeekOrigin.Begin);
             this._gridData = MemoryOwner<byte>.Allocate(24 * this.Width * this.Height);
@@ -54,21 +56,21 @@ namespace LeagueToolkit.IO.LightGrid
             br.Read(this._gridData.Span);
         }
 
-        public void Write(string fileLocation)
-        {
-            Write(File.Create(fileLocation));
-        }
+        public void Write(string fileLocation) => Write(File.Create(fileLocation));
 
-        public void Write(Stream stream, bool leaveOpen = false)
+        public void Write(Stream stream)
         {
-            using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
+            using BinaryWriter bw = new(stream, Encoding.UTF8, true);
 
             bw.Write((uint)3);
-            bw.Write((uint)76);
+            bw.Write((uint)32);
             bw.Write(this.Width);
             bw.Write(this.Height);
             bw.Write(this.XScale);
             bw.Write(this.ZScale);
+            bw.Write(this.Unk1);
+            bw.Write(this.Unk2);
+            bw.Write(this._gridData.Span);
         }
 
         public LightGridCell GetCellColor(int cell)
@@ -77,7 +79,7 @@ namespace LeagueToolkit.IO.LightGrid
 
             for (int i = 0; i < 6; i++)
             {
-                int offset = (24 * cell) + (i * 4);
+                int offset = 24 * cell + i * 4;
                 colors[i] = Color.Read(this._gridData.Span[offset..], ColorFormat.BgraU8) with { A = 1.0f };
             }
 
