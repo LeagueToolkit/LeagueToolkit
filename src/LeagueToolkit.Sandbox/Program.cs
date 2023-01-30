@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
-using LeagueToolkit.IO.LightGrid;
+using LeagueToolkit.Core.Environment;
 
 namespace LeagueToolkit.Sandbox
 {

@@ -14,8 +14,8 @@ namespace LeagueToolkit.Core.Environment
         public int Height { get; private set; }
         public float XScale { get; private set; }
         public float ZScale { get; private set; }
-        public float Unk1 { get; set; }
-        public float Unk2 { get; set; }
+        public float LightScale { get; set; }
+        public float FullbrightIntensity { get; set; }
 
         private readonly MemoryOwner<byte> _gridData;
 
@@ -47,8 +47,8 @@ namespace LeagueToolkit.Core.Environment
             this.Height = br.ReadInt32();
             this.XScale = br.ReadSingle();
             this.ZScale = br.ReadSingle();
-            this.Unk1 = br.ReadSingle();
-            this.Unk2 = br.ReadSingle();
+            this.LightScale = br.ReadSingle();
+            this.FullbrightIntensity = br.ReadSingle();
 
             br.BaseStream.Seek(gridOffset, SeekOrigin.Begin);
             this._gridData = MemoryOwner<byte>.Allocate(24 * this.Width * this.Height);
@@ -68,8 +68,8 @@ namespace LeagueToolkit.Core.Environment
             bw.Write(this.Height);
             bw.Write(this.XScale);
             bw.Write(this.ZScale);
-            bw.Write(this.Unk1);
-            bw.Write(this.Unk2);
+            bw.Write(this.LightScale);
+            bw.Write(this.FullbrightIntensity);
             bw.Write(this._gridData.Span);
         }
 
