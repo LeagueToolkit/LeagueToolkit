@@ -76,7 +76,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             this SkinnedMesh skinnedMesh,
             RigResource rig,
             IReadOnlyDictionary<string, Stream> materialTextures,
-            IReadOnlyList<(string name, LeagueAnimation animation)> animations
+            IReadOnlyList<(string name, IAnimationAsset animation)> animations
         )
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
@@ -423,7 +423,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static void CreateAnimations(
             IReadOnlyList<Node> joints,
-            IReadOnlyList<(string name, LeagueAnimation animation)> animations
+            IReadOnlyList<(string name, IAnimationAsset animation)> animations
         )
         {
             Guard.IsNotNull(joints, nameof(joints));
@@ -431,31 +431,31 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             foreach (var (name, animation) in animations)
             {
-                foreach (AnimationTrack track in animation.Tracks)
-                {
-                    Node joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
-
-                    if (joint is null)
-                        continue;
-
-                    if (track.Translations.Count == 0)
-                        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                    if (track.Translations.Count == 1)
-                        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                    joint.WithTranslationAnimation(name, track.Translations);
-
-                    if (track.Rotations.Count == 0)
-                        track.Rotations.Add(0.0f, Quaternion.Identity);
-                    if (track.Rotations.Count == 1)
-                        track.Rotations.Add(1.0f, Quaternion.Identity);
-                    joint.WithRotationAnimation(name, track.Rotations);
-
-                    if (track.Scales.Count == 0)
-                        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                    if (track.Scales.Count == 1)
-                        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                    joint.WithScaleAnimation(name, track.Scales);
-                }
+                //foreach (AnimationTrack track in animation.Tracks)
+                //{
+                //    Node joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
+                //
+                //    if (joint is null)
+                //        continue;
+                //
+                //    if (track.Translations.Count == 0)
+                //        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
+                //    if (track.Translations.Count == 1)
+                //        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
+                //    joint.WithTranslationAnimation(name, track.Translations);
+                //
+                //    if (track.Rotations.Count == 0)
+                //        track.Rotations.Add(0.0f, Quaternion.Identity);
+                //    if (track.Rotations.Count == 1)
+                //        track.Rotations.Add(1.0f, Quaternion.Identity);
+                //    joint.WithRotationAnimation(name, track.Rotations);
+                //
+                //    if (track.Scales.Count == 0)
+                //        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
+                //    if (track.Scales.Count == 1)
+                //        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
+                //    joint.WithScaleAnimation(name, track.Scales);
+                //}
             }
         }
 

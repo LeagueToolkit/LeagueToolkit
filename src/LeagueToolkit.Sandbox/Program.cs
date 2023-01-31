@@ -28,6 +28,7 @@ using System.Threading.Tasks;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
+using LeagueToolkit.Core.Animation;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -43,10 +44,11 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileGltfToRiggedMesh()
         {
-            List<(string name, LeagueAnimation animation)> animations = new();
+            List<(string name, IAnimationAsset animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
             {
-                LeagueAnimation animation = new(animationFile);
+                using FileStream stream = File.OpenRead(animationFile);
+                IAnimationAsset animation = AnimationAsset.Load(stream);
 
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
@@ -122,10 +124,11 @@ namespace LeagueToolkit.Sandbox
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             RigResource skeleton = new(File.OpenRead("akali.skl"));
 
-            List<(string name, LeagueAnimation animation)> animations = new();
+            List<(string name, IAnimationAsset animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
             {
-                LeagueAnimation animation = new(animationFile);
+                using FileStream stream = File.OpenRead(animationFile);
+                IAnimationAsset animation = AnimationAsset.Load(stream);
 
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }

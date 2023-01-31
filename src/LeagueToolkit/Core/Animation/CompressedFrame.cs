@@ -13,3 +13,10 @@ internal unsafe struct CompressedFrame
 
     public CompressedTransformType GetTransformType() => (CompressedTransformType)(this.JointId >> 14);
 }
+
+internal enum CompressedTransformType : byte
+{
+    Rotation = 0,
+    Translation = 1,
+    Scale = 2
+}
