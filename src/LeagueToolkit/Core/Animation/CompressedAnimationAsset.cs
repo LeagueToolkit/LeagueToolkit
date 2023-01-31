@@ -15,8 +15,6 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     public float Duration { get; private set; }
     public float Fps { get; private set; }
 
-    public List<AnimationTrack> Tracks { get; private set; } = new();
-
     private Vector3 _translationMin;
     private Vector3 _translationMax;
 
@@ -26,8 +24,8 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     private int _jumpCacheCount;
 
     private MemoryOwner<CompressedFrame> _frames;
-    private MemoryOwner<uint> _joints;
     private MemoryOwner<byte> _jumpCaches;
+    private MemoryOwner<uint> _joints;
 
     private HotFrameEvaluator _evaluator;
 
@@ -108,13 +106,68 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
         br.Read(this._jumpCaches.Span);
 
-        Evaluate(0.4f);
-        Evaluate(1 / this.Fps * 0);
-        Evaluate(1 / this.Fps * 1);
-        Evaluate(1 / this.Fps * 2);
+        Vector3 q1 = SampleTrackTranslation(128386177, 0.4f);
     }
 
-    public unsafe void Evaluate(float time)
+    public Quaternion SampleTrackRotation(uint jointHash, float time)
+    {
+        time = Math.Clamp(time, 0.0f, this.Duration);
+        ushort compressedTime = Animation.CompressTime(time, this.Duration);
+
+        Evaluate(time);
+
+        int jointId = MemoryExtensions.IndexOf(this._joints.Span, jointHash);
+        if (jointId is -1)
+            ThrowHelper.ThrowArgumentException(nameof(jointHash), $"Invalid joint hash: {jointHash}");
+
+        JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+
+        float delta = hotFrame.RotationP2.Time - hotFrame.RotationP1.Time;
+        float amount = (compressedTime - hotFrame.RotationP1.Time) / delta;
+        float scaleIn = delta / (hotFrame.RotationP2.Time - hotFrame.RotationP0.Time);
+        float scaleOut = delta / (hotFrame.RotationP3.Time - hotFrame.RotationP1.Time);
+
+        return Interpolators.Quaternion.InterpolateCatmull(
+            amount,
+            scaleIn,
+            scaleOut,
+            hotFrame.RotationP0.Value,
+            hotFrame.RotationP1.Value,
+            hotFrame.RotationP2.Value,
+            hotFrame.RotationP3.Value
+        );
+    }
+
+    public Vector3 SampleTrackTranslation(uint jointHash, float time)
+    {
+        time = Math.Clamp(time, 0.0f, this.Duration);
+        ushort compressedTime = Animation.CompressTime(time, this.Duration);
+
+        Evaluate(time);
+
+        int jointId = MemoryExtensions.IndexOf(this._joints.Span, jointHash);
+        if (jointId is -1)
+            ThrowHelper.ThrowArgumentException(nameof(jointHash), $"Invalid joint hash: {jointHash}");
+
+        JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+
+        float delta = hotFrame.TranslationP2.Time - hotFrame.TranslationP1.Time;
+        float amount = (compressedTime - hotFrame.TranslationP1.Time) / delta;
+        float scaleIn = delta / (hotFrame.TranslationP2.Time - hotFrame.TranslationP0.Time);
+        float scaleOut = delta / (hotFrame.TranslationP3.Time - hotFrame.TranslationP1.Time);
+
+        return Interpolators.Vector3.InterpolateCatmull(
+            amount,
+            scaleIn,
+            scaleOut,
+            hotFrame.TranslationP0.Value,
+            hotFrame.TranslationP1.Value,
+            hotFrame.TranslationP2.Value,
+            hotFrame.TranslationP3.Value
+        );
+    }
+
+    private unsafe void Evaluate(float time)
     {
         time = Math.Clamp(time, 0.0f, this.Duration);
 
@@ -140,7 +193,6 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
             CompressedTransformType transformType = frame.GetTransformType();
 
             // We need to update the curves only if the evaluation requires new data
-            //
             if (transformType == CompressedTransformType.Rotation)
             {
                 if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.Time)
@@ -371,5 +423,5 @@ internal enum CompressedAnimationFlags
     Unk1 = 1 << 0,
     Unk2 = 1 << 1,
 
-    UseContinuousHermite = 1 << 2,
+    UseCurveParametrization = 1 << 2,
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 
 namespace LeagueToolkit.Core.Animation;
 
@@ -11,6 +12,8 @@ public interface IAnimationAsset : IDisposable
     /// Gets a value indicating whether the asset has been disposed of
     /// </summary>
     bool IsDisposed { get; }
+
+    Quaternion SampleTrackRotation(uint jointHash, float time);
 }
 
 public static class AnimationAsset

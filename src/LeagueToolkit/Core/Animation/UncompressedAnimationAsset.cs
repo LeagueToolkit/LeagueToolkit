@@ -50,13 +50,14 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int frameCount = br.ReadInt32();
         float frameDuration = br.ReadSingle();
 
-        int tracksOffset = br.ReadInt32();
+        int jointNameHashesOffset = br.ReadInt32();
         int assetNameOffset = br.ReadInt32();
         int timeOffset = br.ReadInt32();
         int vectorsOffset = br.ReadInt32();
         int rotationsOffset = br.ReadInt32();
         int framesOffset = br.ReadInt32();
 
+        // V4 stores joint hashes in frames so we don't check that offset
         if (vectorsOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain a vector palette");
         if (rotationsOffset <= 0)
@@ -123,14 +124,14 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int framesPerTrack = br.ReadInt32();
         float frameDuration = br.ReadSingle();
 
-        int jointHashesOffset = br.ReadInt32();
+        int jointNameHashesOffset = br.ReadInt32();
         int assetNameOffset = br.ReadInt32();
         int timeOffset = br.ReadInt32();
         int vectorsOffset = br.ReadInt32();
         int rotationsOffset = br.ReadInt32();
         int framesOffset = br.ReadInt32();
 
-        if (jointHashesOffset <= 0)
+        if (jointNameHashesOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain any joint data");
         if (vectorsOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain a vector palette");
@@ -139,9 +140,9 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         if (framesOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain any frame data");
 
-        int jointHashesCount = (framesOffset - jointHashesOffset) / sizeof(uint);
+        int jointHashesCount = (framesOffset - jointNameHashesOffset) / sizeof(uint);
         int vectorsCount = (rotationsOffset - vectorsOffset) / 12;
-        int rotationsCount = (jointHashesOffset - rotationsOffset) / 6;
+        int rotationsCount = (jointNameHashesOffset - rotationsOffset) / 6;
 
         List<uint> jointHashes = new(jointHashesCount);
         List<Vector3> vectors = new(vectorsCount);
@@ -149,7 +150,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         var frames = new List<(ushort, ushort, ushort)>(framesPerTrack * trackCount);
 
         // Read Joint Hashes
-        br.BaseStream.Seek(jointHashesOffset + 12, SeekOrigin.Begin);
+        br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
         for (int i = 0; i < jointHashesCount; i++)
         {
             jointHashes.Add(br.ReadUInt32());
@@ -206,6 +207,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int trackCount = br.ReadInt32();
         int frameCount = br.ReadInt32();
         this.Fps = br.ReadInt32();
+        this.Duration = frameCount / this.Fps;
 
         float frameDuration = 1.0f / this.Fps;
 
@@ -244,4 +246,6 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
 
         this.IsDisposed = true;
     }
+
+    public Quaternion SampleTrackRotation(uint jointHash, float time) => throw new NotImplementedException();
 }

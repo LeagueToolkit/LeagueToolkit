@@ -9,6 +9,7 @@ namespace LeagueToolkit.Core.Primitives
     public static class QuantizedQuaternion
     {
         private const double SQRT_2 = 1.41421356237;
+        private const double ONE_OVER_SQRT_2 = 0.70710678118;
 
         public static void Compress(Quaternion quat, Span<byte> compressed)
         {
@@ -67,9 +68,9 @@ namespace LeagueToolkit.Core.Primitives
             ushort v_b = (ushort)(bits >> 15 & 0x7FFFu);
             ushort v_c = (ushort)(bits & 0x7FFFu);
 
-            float a = (float)(v_a / 32767.0 * SQRT_2 - 1.0 / SQRT_2);
-            float b = (float)(v_b / 32767.0 * SQRT_2 - 1.0 / SQRT_2);
-            float c = (float)(v_c / 32767.0 * SQRT_2 - 1.0 / SQRT_2);
+            float a = (float)(v_a / 32767.0 * SQRT_2 - ONE_OVER_SQRT_2);
+            float b = (float)(v_b / 32767.0 * SQRT_2 - ONE_OVER_SQRT_2);
+            float c = (float)(v_c / 32767.0 * SQRT_2 - ONE_OVER_SQRT_2);
             float sub = Math.Max(0, 1 - (a * a + b * b + c * c));
             float d = (float)Math.Sqrt(sub);
 
