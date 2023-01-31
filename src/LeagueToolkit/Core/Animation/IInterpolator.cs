@@ -9,5 +9,6 @@ namespace LeagueToolkit.Core.Animation;
 
 public interface IInterpolator<T>
 {
+    public T InterpolateLinear(T p0, T p1, float amount);
     public T InterpolateCatmull(float time, float tau20, float tau31, T p0, T p1, T p2, T p3);
 }
