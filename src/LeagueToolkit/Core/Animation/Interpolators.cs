@@ -8,6 +8,12 @@ public static class Interpolators
     public static readonly IInterpolator<Quaternion> Quaternion = new QuaternionInterpolator();
 }
 
+public interface IInterpolator<T>
+{
+    public T InterpolateLinear(T p0, T p1, float amount);
+    public T InterpolateCatmull(float time, float tau20, float tau31, T p0, T p1, T p2, T p3);
+}
+
 internal struct Vector3Interpolator : IInterpolator<Vector3>
 {
     public Vector3 InterpolateLinear(Vector3 p0, Vector3 p1, float amount) => Vector3.Lerp(p0, p1, amount);
