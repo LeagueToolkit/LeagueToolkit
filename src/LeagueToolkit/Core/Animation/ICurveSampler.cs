@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LeagueToolkit.Core.Math
+namespace LeagueToolkit.Core.Animation
 {
     public interface ICurveSampler<T>
     {

@@ -350,6 +350,7 @@ namespace LeagueToolkit.Core.Animation
                 CompressedTransformType transformType = frame.GetTransformType();
 
                 // We need to update the curves only if the evaluation requires new data
+                //
                 if (transformType == CompressedTransformType.Rotation)
                 {
                     if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.Time)
@@ -389,7 +390,17 @@ namespace LeagueToolkit.Core.Animation
                     hotFrame.RotationP3
                 };
 
-            InsertFrameIntoQuaternionCurve(frames, time, compressedValue);
+            frames[0].Time = time;
+            frames[0].Value = QuantizedQuaternion.Decompress(compressedValue);
+
+            //frames[0..1].Reverse();
+            frames[1..4].Reverse();
+            frames[0..4].Reverse();
+
+            // Rotate along shortest path
+            for (int i = 1; i < 3; i++)
+                if (Quaternion.Dot(frames[i].Value, frames[0].Value) < 0.0f)
+                    frames[i].Value *= -1;
 
             this._evaluator.HotFrames[jointId] = hotFrame with
             {
@@ -411,7 +422,12 @@ namespace LeagueToolkit.Core.Animation
                     hotFrame.TranslationP3
                 };
 
-            InsertFrameIntoVectorCurve(frames, time, compressedValue, this._translationMin, this._translationMax);
+            frames[0].Time = time;
+            frames[0].Value = DecompressVector3(compressedValue, this._translationMin, this._translationMax);
+
+            //frames[0..1].Reverse();
+            frames[1..4].Reverse();
+            frames[0..4].Reverse();
 
             this._evaluator.HotFrames[jointId] = hotFrame with
             {
@@ -428,7 +444,12 @@ namespace LeagueToolkit.Core.Animation
             Span<VectorHotFrame> frames =
                 stackalloc VectorHotFrame[4] { hotFrame.ScaleP0, hotFrame.ScaleP1, hotFrame.ScaleP2, hotFrame.ScaleP3 };
 
-            InsertFrameIntoVectorCurve(frames, time, compressedValue, this._scaleMin, this._scaleMax);
+            frames[0].Time = time;
+            frames[0].Value = DecompressVector3(compressedValue, this._scaleMin, this._scaleMax);
+
+            //frames[0..1].Reverse();
+            frames[1..4].Reverse();
+            frames[0..4].Reverse();
 
             this._evaluator.HotFrames[jointId] = hotFrame with
             {
@@ -437,63 +458,6 @@ namespace LeagueToolkit.Core.Animation
                 ScaleP2 = frames[2],
                 ScaleP3 = frames[3]
             };
-        }
-
-        // We might be able to do decimation here ?
-        // https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
-        private static void InsertFrameIntoQuaternionCurve(
-            Span<QuaternionHotFrame> frames,
-            ushort time,
-            ReadOnlySpan<ushort> compressedValue
-        )
-        {
-            // Discard last control point of the curve
-            frames[0].Time = time;
-            frames[0].Value = QuantizedQuaternion.Decompress(compressedValue);
-
-            // Move new control point to the start of the curve
-            for (int i = 0; i < 3; i++)
-            {
-                Quaternion value = frames[i].Value;
-
-                frames[i] = frames[i + 1];
-                frames[i + 1] = new(time, value);
-            }
-
-            //if (Quaternion.Dot(frames[1].Value, frames[0].Value) < 0)
-            //    frames[1].Value = -frames[1].Value;
-            //if (Quaternion.Dot(frames[2].Value, frames[0].Value) < 0)
-            //    frames[2].Value = -frames[2].Value;
-            //if (Quaternion.Dot(frames[3].Value, frames[0].Value) < 0)
-            //    frames[3].Value = -frames[3].Value;
-        }
-
-        private static void InsertFrameIntoVectorCurve(
-            Span<VectorHotFrame> frames,
-            ushort time,
-            ReadOnlySpan<ushort> compressedValue,
-            Vector3 min,
-            Vector3 max
-        )
-        {
-            // Discard last control point of the curve
-            frames[0].Time = time;
-            frames[0].Value = DecompressVector3(compressedValue, min, max);
-
-            // We always need at least 3 points to sample from catmull rom
-            // _____________________________________
-            // | t0, v0 | t1, v1 | t2, v2 | t3, v3 |
-            // _____________________________________
-            // | 1 , v0 | 2 , v1 | 3 , v2 | 4 , v3 |
-            //
-            // Move new control point to the start of the curve
-            for (int i = 0; i < 3; i++)
-            {
-                Vector3 value = frames[i].Value;
-
-                frames[i] = frames[i + 1];
-                frames[i + 1] = new(time, value);
-            }
         }
 
         private unsafe void InitializeHotFrameEvaluator(float evaluationTime)
@@ -600,8 +564,7 @@ namespace LeagueToolkit.Core.Animation
         Unk1 = 1 << 0,
         Unk2 = 1 << 1,
 
-        // When set, the game uses centripetal knot parametrization, otherwise uniform ?
-        UseCentripetalCatmullRom = 1 << 2,
+        UseContinuousHermite = 1 << 2,
     }
 
     internal enum CompressedTransformType : byte
