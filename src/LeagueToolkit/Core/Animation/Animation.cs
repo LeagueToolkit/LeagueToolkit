@@ -129,6 +129,7 @@ namespace LeagueToolkit.Core.Animation
             this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
             br.Read(this._jumpCaches.Span);
 
+            Evaluate(0.4f);
             Evaluate(this.FrameDuration * 0);
             Evaluate(this.FrameDuration * 1);
             Evaluate(this.FrameDuration * 2);
@@ -326,7 +327,7 @@ namespace LeagueToolkit.Core.Animation
 
         public unsafe void Evaluate(float time)
         {
-            time = Math.Min(this.Duration, time);
+            time = Math.Clamp(time, 0.0f, this.Duration);
 
             ushort compressedEvaluationTime = CompressTime(time, this.Duration);
 
@@ -463,17 +464,22 @@ namespace LeagueToolkit.Core.Animation
         private unsafe void InitializeHotFrameEvaluator(float evaluationTime)
         {
             // Get cache id
-            int jumpCacheId = (int)(this._jumpCacheCount * (this._evaluator.LastEvaluationTime / this.Duration));
+            int jumpCacheId = (int)(this._jumpCacheCount * (evaluationTime / this.Duration));
+            jumpCacheId = Math.Max(jumpCacheId, this._jumpCacheCount - 1);
 
             // Reset cursor
             this._evaluator.Cursor = 0;
 
-            Span<int> frameKeys = stackalloc int[4];
+            Span<int> rotationFrameKeys = stackalloc int[4];
+            Span<int> translationFrameKeys = stackalloc int[4];
+            Span<int> scaleFrameKeys = stackalloc int[4];
+
             if (this._frames.Length < 0x10001)
             {
+                // Frame IDs are 16-bit
                 int jumpCacheSize = 24 * this._joints.Length;
                 ReadOnlySpan<JumpFrameU16> jumpFrames = MemoryMarshal.Cast<byte, JumpFrameU16>(
-                    this._jumpCaches.Slice(jumpCacheId * jumpCacheSize, jumpCacheSize).Span
+                    this._jumpCaches.Span.Slice(jumpCacheId * jumpCacheSize, jumpCacheSize)
                 );
 
                 for (int jointId = 0; jointId < this._joints.Length; jointId++)
@@ -482,41 +488,71 @@ namespace LeagueToolkit.Core.Animation
 
                     // Initialize rotations
                     for (int i = 0; i < 4; i++)
-                        frameKeys[i] = jumpFrame.RotationKeys[i];
-                    this._evaluator.InitializeRotationJointHotFrames(jointId, frameKeys, this._frames.Span);
+                        rotationFrameKeys[i] = jumpFrame.RotationKeys[i];
 
                     // Initialize translations
                     for (int i = 0; i < 4; i++)
-                        frameKeys[i] = jumpFrame.TranslationKeys[i];
-                    this._evaluator.InitializeTranslationJointHotFrames(
-                        jointId,
-                        frameKeys,
-                        this._frames.Span,
-                        this._translationMin,
-                        this._translationMax
-                    );
+                        translationFrameKeys[i] = jumpFrame.TranslationKeys[i];
 
                     // Initialize scales
                     for (int i = 0; i < 4; i++)
-                        frameKeys[i] = jumpFrame.ScaleKeys[i];
-                    this._evaluator.InitializeScaleJointHotFrames(
-                        jointId,
-                        frameKeys,
-                        this._frames.Span,
-                        this._scaleMin,
-                        this._scaleMax
-                    );
+                        scaleFrameKeys[i] = jumpFrame.ScaleKeys[i];
+
+                    InitializeJointHotFrame(jointId, rotationFrameKeys, translationFrameKeys, scaleFrameKeys);
                 }
             }
             else
             {
+                // Frame IDs are 32-bit
                 int jumpCacheSize = 48 * this._joints.Length;
                 ReadOnlySpan<JumpFrameU32> jumpFrames = MemoryMarshal.Cast<byte, JumpFrameU32>(
-                    this._jumpCaches.Slice(jumpCacheId * jumpCacheSize, jumpCacheSize).Span
+                    this._jumpCaches.Span.Slice(jumpCacheId * jumpCacheSize, jumpCacheSize)
                 );
+
+                for (int jointId = 0; jointId < this._joints.Length; jointId++)
+                {
+                    JumpFrameU32 jumpFrame = jumpFrames[jointId];
+
+                    // Initialize rotations
+                    new Span<int>(jumpFrame.RotationKeys, 4).CopyTo(rotationFrameKeys);
+
+                    // Initialize translations
+                    new Span<int>(jumpFrame.TranslationKeys, 4).CopyTo(translationFrameKeys);
+
+                    // Initialize scales
+                    new Span<int>(jumpFrame.ScaleKeys, 4).CopyTo(scaleFrameKeys);
+
+                    InitializeJointHotFrame(jointId, rotationFrameKeys, translationFrameKeys, scaleFrameKeys);
+                }
             }
 
             this._evaluator.Cursor++;
+        }
+
+        private void InitializeJointHotFrame(
+            int jointId,
+            ReadOnlySpan<int> rotationFrameKeys,
+            ReadOnlySpan<int> translationFrameKeys,
+            ReadOnlySpan<int> scaleFrameKeys
+        )
+        {
+            this._evaluator.InitializeRotationJointHotFrames(jointId, rotationFrameKeys, this._frames.Span);
+
+            this._evaluator.InitializeTranslationJointHotFrames(
+                jointId,
+                translationFrameKeys,
+                this._frames.Span,
+                this._translationMin,
+                this._translationMax
+            );
+
+            this._evaluator.InitializeScaleJointHotFrames(
+                jointId,
+                scaleFrameKeys,
+                this._frames.Span,
+                this._scaleMin,
+                this._scaleMax
+            );
         }
 
         internal static Vector3 DecompressVector3(ReadOnlySpan<ushort> value, Vector3 min, Vector3 max)
