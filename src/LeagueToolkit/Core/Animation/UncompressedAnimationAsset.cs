@@ -58,11 +58,11 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int framesOffset = br.ReadInt32();
 
         if (vectorsOffset <= 0)
-            throw new Exception("Animation does not contain Vector data");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain a vector palette");
         if (rotationsOffset <= 0)
-            throw new Exception("Animation does not contain Rotation data");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain a quaternion palette");
         if (framesOffset <= 0)
-            throw new Exception("Animation does not contain Frame data");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain any frame data");
 
         int vectorsCount = (rotationsOffset - vectorsOffset) / 12;
         int rotationsCount = (framesOffset - rotationsOffset) / 16;
@@ -131,13 +131,13 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int framesOffset = br.ReadInt32();
 
         if (jointHashesOffset <= 0)
-            throw new Exception("Animation does not contain Joint hashes");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain any joint data");
         if (vectorsOffset <= 0)
-            throw new Exception("Animation does not contain Vector data");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain a vector palette");
         if (rotationsOffset <= 0)
-            throw new Exception("Animation does not contain Rotation data");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain a quaternion palette");
         if (framesOffset <= 0)
-            throw new Exception("Animation does not contain Frame data");
+            ThrowHelper.ThrowInvalidDataException("Animation does not contain any frame data");
 
         int jointHashesCount = (framesOffset - jointHashesOffset) / sizeof(uint);
         int vectorsCount = (rotationsOffset - vectorsOffset) / 12;
