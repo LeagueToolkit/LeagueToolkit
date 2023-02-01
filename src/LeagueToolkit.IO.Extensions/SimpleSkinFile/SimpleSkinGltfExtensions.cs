@@ -45,17 +45,17 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
-            IReadOnlyDictionary<string, Stream> materialTextures
+            IEnumerable<(string Material, Stream Texture)> textures
         )
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+            Guard.IsNotNull(textures, nameof(textures));
 
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("SkinnedMesh");
             Node modelNode = scene.CreateNode("model");
 
-            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, materialTextures);
+            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, textures);
             Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, false, materials);
 
             modelNode.WithMesh(gltfMesh);
@@ -75,20 +75,20 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
             RigResource rig,
-            IReadOnlyDictionary<string, Stream> materialTextures,
-            IReadOnlyList<(string name, IAnimationAsset animation)> animations
+            IEnumerable<(string Material, Stream Texture)> textures,
+            IEnumerable<(string Name, IAnimationAsset Animation)> animations
         )
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
             Guard.IsNotNull(rig, nameof(rig));
-            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+            Guard.IsNotNull(textures, nameof(textures));
             Guard.IsNotNull(animations, nameof(animations));
 
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("SkinnedMesh");
             Node modelNode = scene.CreateNode("model");
 
-            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, materialTextures);
+            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, textures);
             Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, true, materials);
             var (influenceNodes, jointNodes) = CreateGltfSkeleton(modelNode, rig);
 
@@ -335,19 +335,22 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         private static Dictionary<string, Material> CreateGltfMaterials(
             ModelRoot root,
             SkinnedMesh skinnedMesh,
-            IReadOnlyDictionary<string, Stream> materialTextures
+            IEnumerable<(string Material, Stream Texture)> textures
         )
         {
             Guard.IsNotNull(root, nameof(root));
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+            Guard.IsNotNull(textures, nameof(textures));
+
+            Dictionary<string, Stream> textureLookup =
+                new(textures.Select(x => new KeyValuePair<string, Stream>(x.Material, x.Texture)));
 
             Dictionary<string, Material> materials = new();
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
                 Material material = root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(true);
 
-                if (materialTextures.TryGetValue(range.Material, out Stream textureStream))
+                if (textureLookup.TryGetValue(range.Material, out Stream textureStream))
                     InitializeMaterialBaseColorChannel(root, material, textureStream);
 
                 materials.Add(material.Name, material);
@@ -422,8 +425,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
 
         private static void CreateAnimations(
-            IReadOnlyList<Node> joints,
-            IReadOnlyList<(string name, IAnimationAsset animation)> animations
+            IEnumerable<Node> joints,
+            IEnumerable<(string Name, IAnimationAsset Animation)> animations
         )
         {
             Guard.IsNotNull(joints, nameof(joints));

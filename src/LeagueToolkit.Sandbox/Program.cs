@@ -56,11 +56,7 @@ namespace LeagueToolkit.Sandbox
             using SkinnedMesh originalSkinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             RigResource originalRig = new(File.OpenRead("akali.skl"));
 
-            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(
-                originalRig,
-                new Dictionary<string, Stream>(),
-                animations
-            );
+            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(originalRig, new List<(string, Stream)>(), animations);
 
             {
                 using Stream stream = File.OpenWrite("akali.glb");
@@ -100,13 +96,13 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            LeagueTexture texture = LeagueTexture.Load(File.OpenRead("3.dds"));
+            LeagueTexture texture = LeagueTexture.Load(File.OpenRead("grasstint_srx_infernal.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
             Image<Rgba32> image = mipmap.ToImage();
 
-            image.SaveAsPng("3.dds.png");
+            image.SaveAsPng("grasstint_srx_infernal.dds.png");
         }
 
         static void ProfileSkinnedMesh()
@@ -123,7 +119,7 @@ namespace LeagueToolkit.Sandbox
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
 
-            skinnedMesh.ToGltf(new Dictionary<string, Stream>()).WriteGLB(File.OpenWrite("akali.glb"));
+            skinnedMesh.ToGltf(new List<(string, Stream)>()).WriteGLB(File.OpenWrite("akali.glb"));
         }
 
 #if DEBUG
