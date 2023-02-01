@@ -198,23 +198,24 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
 
         float frameDuration = 1.0f / this.Fps;
 
+        ThrowHelper.ThrowNotSupportedException("Reading legacy animations is not supported");
         // TODO
-        for (int i = 0; i < trackCount; i++)
-        {
-            string trackName = br.ReadPaddedString(32);
-            uint flags = br.ReadUInt32();
-
-            AnimationTrack track = new(Elf.HashLower(trackName));
-
-            for (int j = 0; j < frameCount; j++)
-            {
-                float frameTime = frameDuration * j;
-
-                track.Rotations.Add(frameTime, br.ReadQuaternion());
-                track.Translations.Add(frameTime, br.ReadVector3());
-                track.Scales.Add(frameTime, new Vector3(1, 1, 1));
-            }
-        }
+        //for (int i = 0; i < trackCount; i++)
+        //{
+        //    string trackName = br.ReadPaddedString(32);
+        //    uint flags = br.ReadUInt32();
+        //
+        //    AnimationTrack track = new(Elf.HashLower(trackName));
+        //
+        //    for (int j = 0; j < frameCount; j++)
+        //    {
+        //        float frameTime = frameDuration * j;
+        //
+        //        track.Rotations.Add(frameTime, br.ReadQuaternion());
+        //        track.Translations.Add(frameTime, br.ReadVector3());
+        //        track.Scales.Add(frameTime, new Vector3(1, 1, 1));
+        //    }
+        //}
     }
 
     public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
