@@ -13,7 +13,7 @@ public interface IAnimationAsset : IDisposable
     /// </summary>
     bool IsDisposed { get; }
 
-    Quaternion SampleTrackRotation(uint jointHash, float time);
+    void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose);
 }
 
 public static class AnimationAsset

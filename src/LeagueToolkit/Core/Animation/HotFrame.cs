@@ -122,6 +122,60 @@ internal struct JointHotFrame
     public VectorHotFrame ScaleP1;
     public VectorHotFrame ScaleP2;
     public VectorHotFrame ScaleP3;
+
+    public Quaternion GetRotationAt(ushort time)
+    {
+        float t_d = this.RotationP2.Time - this.RotationP1.Time;
+        float amount = (time - this.RotationP1.Time) / t_d;
+        float scaleIn = t_d / (this.RotationP2.Time - this.RotationP0.Time);
+        float scaleOut = t_d / (this.RotationP3.Time - this.RotationP1.Time);
+
+        return Interpolators.Quaternion.InterpolateCatmull(
+            amount,
+            scaleIn,
+            scaleOut,
+            this.RotationP0.Value,
+            this.RotationP1.Value,
+            this.RotationP2.Value,
+            this.RotationP3.Value
+        );
+    }
+
+    public Vector3 GetTranslationAt(ushort time)
+    {
+        float t_d = this.TranslationP2.Time - this.TranslationP1.Time;
+        float amount = (time - this.TranslationP1.Time) / t_d;
+        float scaleIn = t_d / (this.TranslationP2.Time - this.TranslationP0.Time);
+        float scaleOut = t_d / (this.TranslationP3.Time - this.TranslationP1.Time);
+
+        return Interpolators.Vector3.InterpolateCatmull(
+            amount,
+            scaleIn,
+            scaleOut,
+            this.TranslationP0.Value,
+            this.TranslationP1.Value,
+            this.TranslationP2.Value,
+            this.TranslationP3.Value
+        );
+    }
+
+    public Vector3 GetScaleAt(ushort time)
+    {
+        float t_d = this.ScaleP2.Time - this.ScaleP1.Time;
+        float amount = (time - this.ScaleP1.Time) / t_d;
+        float scaleIn = t_d / (this.ScaleP2.Time - this.ScaleP0.Time);
+        float scaleOut = t_d / (this.ScaleP3.Time - this.ScaleP1.Time);
+
+        return Interpolators.Vector3.InterpolateCatmull(
+            amount,
+            scaleIn,
+            scaleOut,
+            this.ScaleP0.Value,
+            this.ScaleP1.Value,
+            this.ScaleP2.Value,
+            this.ScaleP3.Value
+        );
+    }
 }
 
 [DebuggerDisplay("{GetDebuggerDisplay()}")]

@@ -216,6 +216,11 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         }
     }
 
+    public void Evaluate(
+        float time,
+        IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose
+    ) { }
+
     public void Dispose()
     {
         Dispose(true);

@@ -4,6 +4,7 @@ using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -106,100 +107,30 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
         br.Read(this._jumpCaches.Span);
 
-        List<Vector3> translations = new List<Vector3>();
-        for (int i = 0; i < this.Fps * this.Duration; i++)
+        //Dictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose = new();
+        //for (int frame = 1; frame < this.Duration * this.Fps; frame++)
+        //{
+        //    Evaluate(frame * (1 / this.Fps), pose);
+        //}
+    }
+
+    public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
+    {
+        Evaluate(time);
+
+        ushort compressedTime = Animation.CompressTime(time, this.Duration);
+        for (int jointId = 0; jointId < this._joints.Length; jointId++)
         {
-            translations.Add(SampleTrackTranslation(128386177, (1 / this.Fps) * i));
+            uint jointHash = this._joints.Span[jointId];
+            JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+
+            Quaternion rotation = hotFrame.GetRotationAt(compressedTime);
+            Vector3 translation = hotFrame.GetTranslationAt(compressedTime);
+            Vector3 scale = hotFrame.GetScaleAt(compressedTime);
+
+            if (!pose.TryAdd(jointHash, (rotation, translation, scale)))
+                pose[jointHash] = (rotation, translation, scale);
         }
-    }
-
-    public Quaternion SampleTrackRotation(uint jointHash, float time)
-    {
-        time = Math.Clamp(time, 0.0f, this.Duration);
-        ushort compressedTime = Animation.CompressTime(time, this.Duration);
-
-        Evaluate(time);
-
-        int jointId = MemoryExtensions.IndexOf(this._joints.Span, jointHash);
-        if (jointId is -1)
-            ThrowHelper.ThrowArgumentException(nameof(jointHash), $"Invalid joint hash: {jointHash}");
-
-        JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
-
-        float delta = hotFrame.RotationP2.Time - hotFrame.RotationP1.Time;
-        float amount = (compressedTime - hotFrame.RotationP1.Time) / delta;
-        float scaleIn = delta / (hotFrame.RotationP2.Time - hotFrame.RotationP0.Time);
-        float scaleOut = delta / (hotFrame.RotationP3.Time - hotFrame.RotationP1.Time);
-
-        return Interpolators.Quaternion.InterpolateCatmull(
-            amount,
-            scaleIn,
-            scaleOut,
-            hotFrame.RotationP0.Value,
-            hotFrame.RotationP1.Value,
-            hotFrame.RotationP2.Value,
-            hotFrame.RotationP3.Value
-        );
-    }
-
-    public Vector3 SampleTrackTranslation(uint jointHash, float time)
-    {
-        time = Math.Clamp(time, 0.0f, this.Duration);
-        ushort compressedTime = Animation.CompressTime(time, this.Duration);
-
-        Evaluate(time);
-
-        int jointId = MemoryExtensions.IndexOf(this._joints.Span, jointHash);
-        if (jointId is -1)
-            ThrowHelper.ThrowArgumentException(nameof(jointHash), $"Invalid joint hash: {jointHash}");
-
-        JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
-
-        float delta = hotFrame.TranslationP2.Time - hotFrame.TranslationP1.Time;
-        float amount = (compressedTime - hotFrame.TranslationP1.Time) / (delta + Interpolators.SLERP_EPSILON);
-        float scaleIn =
-            delta / (hotFrame.TranslationP2.Time - hotFrame.TranslationP0.Time + Interpolators.SLERP_EPSILON);
-        float scaleOut =
-            delta / (hotFrame.TranslationP3.Time - hotFrame.TranslationP1.Time + Interpolators.SLERP_EPSILON);
-
-        return Interpolators.Vector3.InterpolateCatmull(
-            amount,
-            scaleIn,
-            scaleOut,
-            hotFrame.TranslationP0.Value,
-            hotFrame.TranslationP1.Value,
-            hotFrame.TranslationP2.Value,
-            hotFrame.TranslationP3.Value
-        );
-    }
-
-    public Vector3 SampleTrackScale(uint jointHash, float time)
-    {
-        time = Math.Clamp(time, 0.0f, this.Duration);
-        ushort compressedTime = Animation.CompressTime(time, this.Duration);
-
-        Evaluate(time);
-
-        int jointId = MemoryExtensions.IndexOf(this._joints.Span, jointHash);
-        if (jointId is -1)
-            ThrowHelper.ThrowArgumentException(nameof(jointHash), $"Invalid joint hash: {jointHash}");
-
-        JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
-
-        float delta = hotFrame.ScaleP2.Time - hotFrame.ScaleP1.Time;
-        float amount = (compressedTime - hotFrame.ScaleP1.Time) / delta;
-        float scaleIn = delta / (hotFrame.ScaleP2.Time - hotFrame.ScaleP0.Time);
-        float scaleOut = delta / (hotFrame.ScaleP3.Time - hotFrame.ScaleP1.Time);
-
-        return Interpolators.Vector3.InterpolateCatmull(
-            amount,
-            scaleIn,
-            scaleOut,
-            hotFrame.ScaleP0.Value,
-            hotFrame.ScaleP1.Value,
-            hotFrame.ScaleP2.Value,
-            hotFrame.ScaleP3.Value
-        );
     }
 
     private unsafe void Evaluate(float time)
