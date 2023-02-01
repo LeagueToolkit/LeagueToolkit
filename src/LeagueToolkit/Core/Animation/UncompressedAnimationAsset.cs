@@ -12,6 +12,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
     public float Duration { get; private set; }
     public float Fps { get; private set; }
 
+    private int _frameCount;
     private Vector3[] _vectorPalette;
     private Quaternion[] _quatPalette;
     private Dictionary<uint, UncompressedFrame[]> _jointFrames;
@@ -49,7 +50,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         uint flags = br.ReadUInt32();
 
         int trackCount = br.ReadInt32();
-        int frameCount = br.ReadInt32();
+        this._frameCount = br.ReadInt32();
         float frameDuration = br.ReadSingle();
 
         int jointNameHashesOffset = br.ReadInt32();
@@ -85,14 +86,14 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         this._jointFrames = new(trackCount);
 
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        for (int frameId = 0; frameId < frameCount; frameId++)
+        for (int frameId = 0; frameId < this._frameCount; frameId++)
             for (int trackId = 0; trackId < trackCount; trackId++)
             {
                 // Try to get the frame buffer for the given joint, create it if it doesn't exist
                 uint jointHash = br.ReadUInt32();
                 if (!this._jointFrames.TryGetValue(jointHash, out UncompressedFrame[] jointFrames))
                 {
-                    jointFrames = new UncompressedFrame[frameCount];
+                    jointFrames = new UncompressedFrame[this._frameCount];
                     this._jointFrames[jointHash] = jointFrames;
                 }
 
@@ -115,7 +116,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         uint flags = br.ReadUInt32();
 
         int trackCount = br.ReadInt32();
-        int frameCount = br.ReadInt32();
+        this._frameCount = br.ReadInt32();
         float frameDuration = br.ReadSingle();
 
         int jointNameHashesOffset = br.ReadInt32();
@@ -166,14 +167,14 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         this._jointFrames = new(trackCount);
 
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        for (int frameId = 0; frameId < frameCount; frameId++)
+        for (int frameId = 0; frameId < this._frameCount; frameId++)
             for (int trackId = 0; trackId < trackCount; trackId++)
             {
                 // Try to get the frame buffer for the given joint, create it if it doesn't exist
                 uint jointHash = jointHashes[trackId];
                 if (!this._jointFrames.TryGetValue(jointHash, out UncompressedFrame[] jointFrames))
                 {
-                    jointFrames = new UncompressedFrame[frameCount];
+                    jointFrames = new UncompressedFrame[this._frameCount];
                     this._jointFrames[jointHash] = jointFrames;
                 }
 
@@ -216,10 +217,82 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         }
     }
 
-    public void Evaluate(
-        float time,
+    public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
+    {
+        float frameDuration = 1 / this.Fps;
+        int maxFrame = this._frameCount - 1;
+        int evaluationFrame = Math.Min(maxFrame, (int)(time / frameDuration));
+        int nextFrame = Math.Min(maxFrame, evaluationFrame + 1);
+
+        float evaluationFrameTime = evaluationFrame * frameDuration;
+        float interpolationDuration = (nextFrame * frameDuration) - evaluationFrameTime;
+
+        // Prevent divison by zero, we don't need to interpolate
+        if (interpolationDuration is 0.0f)
+        {
+            Evaluate(evaluationFrame, pose);
+            return;
+        }
+
+        float amount = (time - evaluationFrameTime) / interpolationDuration;
+        if (amount is not 0.0f)
+            EvaluateWithInterpolation(evaluationFrame, nextFrame, amount, pose);
+        else
+            Evaluate(evaluationFrame, pose);
+    }
+
+    private void EvaluateWithInterpolation(
+        int evaluationFrameId,
+        int nextFrameId,
+        float amount,
         IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose
-    ) { }
+    )
+    {
+        foreach (var (jointHash, frames) in this._jointFrames)
+        {
+            UncompressedFrame evaluationFrame = frames[evaluationFrameId];
+            UncompressedFrame nextFrame = frames[nextFrameId];
+
+            Quaternion rotation = Quaternion.Lerp(
+                this._quatPalette[evaluationFrame.RotationId],
+                this._quatPalette[nextFrame.RotationId],
+                amount
+            );
+
+            Vector3 translation = Vector3.Lerp(
+                this._vectorPalette[evaluationFrame.TranslationId],
+                this._vectorPalette[nextFrame.TranslationId],
+                amount
+            );
+
+            Vector3 scale = Vector3.Lerp(
+                this._vectorPalette[evaluationFrame.ScaleId],
+                this._vectorPalette[nextFrame.ScaleId],
+                amount
+            );
+
+            if (!pose.TryAdd(jointHash, (rotation, translation, scale)))
+                pose[jointHash] = (rotation, translation, scale);
+        }
+    }
+
+    private void Evaluate(
+        int frameId,
+        IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose
+    )
+    {
+        foreach (var (jointHash, frames) in this._jointFrames)
+        {
+            UncompressedFrame frame = frames[frameId];
+
+            Quaternion rotation = this._quatPalette[frame.RotationId];
+            Vector3 translation = this._vectorPalette[frame.TranslationId];
+            Vector3 scale = this._vectorPalette[frame.ScaleId];
+
+            if (!pose.TryAdd(jointHash, (rotation, translation, scale)))
+                pose[jointHash] = (rotation, translation, scale);
+        }
+    }
 
     public void Dispose()
     {
@@ -236,6 +309,4 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
 
         this.IsDisposed = true;
     }
-
-    public Quaternion SampleTrackRotation(uint jointHash, float time) => throw new NotImplementedException();
 }
