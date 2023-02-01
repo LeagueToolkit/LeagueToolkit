@@ -4,13 +4,15 @@ namespace LeagueToolkit.Core.Animation;
 
 public static class Animation
 {
+    private const float ONE_OVER_USHORT_MAX = 0.000015259022f;
+
     internal static Vector3 DecompressVector3(ReadOnlySpan<ushort> value, Vector3 min, Vector3 max)
     {
         Vector3 uncompressed = max - min;
 
-        uncompressed.X *= value[0] / 65535.0f;
-        uncompressed.Y *= value[1] / 65535.0f;
-        uncompressed.Z *= value[2] / 65535.0f;
+        uncompressed.X *= value[0] * ONE_OVER_USHORT_MAX;
+        uncompressed.Y *= value[1] * ONE_OVER_USHORT_MAX;
+        uncompressed.Z *= value[2] * ONE_OVER_USHORT_MAX;
 
         uncompressed += min;
 

@@ -106,7 +106,11 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
         br.Read(this._jumpCaches.Span);
 
-        Vector3 q1 = SampleTrackTranslation(128386177, 0.4f);
+        List<Vector3> translations = new List<Vector3>();
+        for (int i = 0; i < this.Fps * this.Duration; i++)
+        {
+            translations.Add(SampleTrackTranslation(128386177, (1 / this.Fps) * i));
+        }
     }
 
     public Quaternion SampleTrackRotation(uint jointHash, float time)
@@ -152,9 +156,11 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
 
         float delta = hotFrame.TranslationP2.Time - hotFrame.TranslationP1.Time;
-        float amount = (compressedTime - hotFrame.TranslationP1.Time) / delta;
-        float scaleIn = delta / (hotFrame.TranslationP2.Time - hotFrame.TranslationP0.Time);
-        float scaleOut = delta / (hotFrame.TranslationP3.Time - hotFrame.TranslationP1.Time);
+        float amount = (compressedTime - hotFrame.TranslationP1.Time) / (delta + Interpolators.SLERP_EPSILON);
+        float scaleIn =
+            delta / (hotFrame.TranslationP2.Time - hotFrame.TranslationP0.Time + Interpolators.SLERP_EPSILON);
+        float scaleOut =
+            delta / (hotFrame.TranslationP3.Time - hotFrame.TranslationP1.Time + Interpolators.SLERP_EPSILON);
 
         return Interpolators.Vector3.InterpolateCatmull(
             amount,
@@ -164,6 +170,35 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
             hotFrame.TranslationP1.Value,
             hotFrame.TranslationP2.Value,
             hotFrame.TranslationP3.Value
+        );
+    }
+
+    public Vector3 SampleTrackScale(uint jointHash, float time)
+    {
+        time = Math.Clamp(time, 0.0f, this.Duration);
+        ushort compressedTime = Animation.CompressTime(time, this.Duration);
+
+        Evaluate(time);
+
+        int jointId = MemoryExtensions.IndexOf(this._joints.Span, jointHash);
+        if (jointId is -1)
+            ThrowHelper.ThrowArgumentException(nameof(jointHash), $"Invalid joint hash: {jointHash}");
+
+        JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+
+        float delta = hotFrame.ScaleP2.Time - hotFrame.ScaleP1.Time;
+        float amount = (compressedTime - hotFrame.ScaleP1.Time) / delta;
+        float scaleIn = delta / (hotFrame.ScaleP2.Time - hotFrame.ScaleP0.Time);
+        float scaleOut = delta / (hotFrame.ScaleP3.Time - hotFrame.ScaleP1.Time);
+
+        return Interpolators.Vector3.InterpolateCatmull(
+            amount,
+            scaleIn,
+            scaleOut,
+            hotFrame.ScaleP0.Value,
+            hotFrame.ScaleP1.Value,
+            hotFrame.ScaleP2.Value,
+            hotFrame.ScaleP3.Value
         );
     }
 
@@ -186,9 +221,9 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
             InitializeHotFrameEvaluator(time);
         }
 
-        for (int i = this._evaluator.Cursor; i < this._frames.Length; i++)
+        while (this._evaluator.Cursor < this._frames.Length)
         {
-            CompressedFrame frame = this._frames.Span[i];
+            CompressedFrame frame = this._frames.Span[this._evaluator.Cursor];
             ushort jointId = frame.GetJointId();
             CompressedTransformType transformType = frame.GetTransformType();
 
@@ -198,7 +233,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
                 if (compressedEvaluationTime < this._evaluator.HotFrames[jointId].RotationP2.Time)
                     break;
 
-                FetchRotationFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 4));
+                FetchRotationFrame(jointId, frame.Time, new Span<ushort>(frame.Value, 3));
             }
             else if (transformType == CompressedTransformType.Translation)
             {
@@ -418,6 +453,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     }
 }
 
+[Flags]
 internal enum CompressedAnimationFlags
 {
     Unk1 = 1 << 0,
