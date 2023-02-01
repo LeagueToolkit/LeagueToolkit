@@ -1,9 +1,7 @@
-﻿using System.IO;
-
-namespace LeagueToolkit.Core.Animation;
+﻿namespace LeagueToolkit.Core.Animation;
 
 /// <summary>
-/// Represents the optimization settings used for a specific joint transform property
+/// Represents the optimization settings for a joint transform component
 /// </summary>
 public readonly struct TransformOptimizationSettings
 {

@@ -123,7 +123,8 @@ internal struct JointHotFrame
     public VectorHotFrame ScaleP2;
     public VectorHotFrame ScaleP3;
 
-    public Quaternion GetRotationAt(ushort time)
+    #region Parametrized Catmull Rom
+    public Quaternion SampleRotationParametrized(ushort time)
     {
         float t_d = this.RotationP2.Time - this.RotationP1.Time;
         float amount = (time - this.RotationP1.Time) / t_d;
@@ -141,7 +142,7 @@ internal struct JointHotFrame
         );
     }
 
-    public Vector3 GetTranslationAt(ushort time)
+    public Vector3 SampleTranslationParametrized(ushort time)
     {
         float t_d = this.TranslationP2.Time - this.TranslationP1.Time;
         float amount = (time - this.TranslationP1.Time) / t_d;
@@ -159,7 +160,7 @@ internal struct JointHotFrame
         );
     }
 
-    public Vector3 GetScaleAt(ushort time)
+    public Vector3 SampleScaleParametrized(ushort time)
     {
         float t_d = this.ScaleP2.Time - this.ScaleP1.Time;
         float amount = (time - this.ScaleP1.Time) / t_d;
@@ -176,6 +177,57 @@ internal struct JointHotFrame
             this.ScaleP3.Value
         );
     }
+    #endregion
+
+    #region Uniform Catmull Rom
+    public Quaternion SampleRotationUniform(ushort time)
+    {
+        float t_d = this.RotationP2.Time - this.RotationP1.Time;
+        float amount = (time - this.RotationP1.Time) / t_d;
+
+        return Interpolators.Quaternion.InterpolateCatmull(
+            amount,
+            0.5f,
+            0.5f,
+            this.RotationP0.Value,
+            this.RotationP1.Value,
+            this.RotationP2.Value,
+            this.RotationP3.Value
+        );
+    }
+
+    public Vector3 SampleTranslationUniform(ushort time)
+    {
+        float t_d = this.TranslationP2.Time - this.TranslationP1.Time;
+        float amount = (time - this.TranslationP1.Time) / t_d;
+
+        return Interpolators.Vector3.InterpolateCatmull(
+            amount,
+            0.5f,
+            0.5f,
+            this.TranslationP0.Value,
+            this.TranslationP1.Value,
+            this.TranslationP2.Value,
+            this.TranslationP3.Value
+        );
+    }
+
+    public Vector3 SampleScaleUniform(ushort time)
+    {
+        float t_d = this.ScaleP2.Time - this.ScaleP1.Time;
+        float amount = (time - this.ScaleP1.Time) / t_d;
+
+        return Interpolators.Vector3.InterpolateCatmull(
+            amount,
+            0.5f,
+            0.5f,
+            this.ScaleP0.Value,
+            this.ScaleP1.Value,
+            this.ScaleP2.Value,
+            this.ScaleP3.Value
+        );
+    }
+    #endregion
 }
 
 [DebuggerDisplay("{GetDebuggerDisplay()}")]

@@ -13,6 +13,8 @@ namespace LeagueToolkit.Core.Animation;
 
 public sealed class CompressedAnimationAsset : IAnimationAsset
 {
+    public CompressedAnimationFlags Flags { get; private set; }
+
     public float Duration { get; private set; }
     public float Fps { get; private set; }
 
@@ -57,7 +59,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     {
         uint resourceSize = br.ReadUInt32();
         uint formatToken = br.ReadUInt32();
-        CompressedAnimationFlags flags = (CompressedAnimationFlags)br.ReadUInt32(); // 7 ?
+        this.Flags = (CompressedAnimationFlags)br.ReadUInt32();
 
         int jointCount = br.ReadInt32();
         int frameCount = br.ReadInt32();
@@ -77,7 +79,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         this._scaleMax = br.ReadVector3();
 
         int framesOffset = br.ReadInt32();
-        int jumpCachesOffset = br.ReadInt32(); // 5328
+        int jumpCachesOffset = br.ReadInt32();
         int jointNameHashesOffset = br.ReadInt32();
 
         if (framesOffset <= 0)
@@ -119,17 +121,37 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         Evaluate(time);
 
         ushort compressedTime = Animation.CompressTime(time, this.Duration);
-        for (int jointId = 0; jointId < this._joints.Length; jointId++)
+
+        // If this flag is set, league uses scaled tangents
+        if (this.Flags.HasFlag(CompressedAnimationFlags.UseCurveParametrization))
         {
-            uint jointHash = this._joints.Span[jointId];
-            JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+            for (int jointId = 0; jointId < this._joints.Length; jointId++)
+            {
+                uint jointHash = this._joints.Span[jointId];
+                JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
 
-            Quaternion rotation = hotFrame.GetRotationAt(compressedTime);
-            Vector3 translation = hotFrame.GetTranslationAt(compressedTime);
-            Vector3 scale = hotFrame.GetScaleAt(compressedTime);
+                Quaternion rotation = hotFrame.SampleRotationParametrized(compressedTime);
+                Vector3 translation = hotFrame.SampleTranslationParametrized(compressedTime);
+                Vector3 scale = hotFrame.SampleScaleParametrized(compressedTime);
 
-            if (!pose.TryAdd(jointHash, (rotation, translation, scale)))
-                pose[jointHash] = (rotation, translation, scale);
+                if (!pose.TryAdd(jointHash, (rotation, translation, scale)))
+                    pose[jointHash] = (rotation, translation, scale);
+            }
+        }
+        else
+        {
+            for (int jointId = 0; jointId < this._joints.Length; jointId++)
+            {
+                uint jointHash = this._joints.Span[jointId];
+                JointHotFrame hotFrame = this._evaluator.HotFrames[jointId];
+
+                Quaternion rotation = hotFrame.SampleRotationUniform(compressedTime);
+                Vector3 translation = hotFrame.SampleTranslationUniform(compressedTime);
+                Vector3 scale = hotFrame.SampleScaleUniform(compressedTime);
+
+                if (!pose.TryAdd(jointHash, (rotation, translation, scale)))
+                    pose[jointHash] = (rotation, translation, scale);
+            }
         }
     }
 
@@ -385,7 +407,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
 }
 
 [Flags]
-internal enum CompressedAnimationFlags
+public enum CompressedAnimationFlags : uint
 {
     Unk1 = 1 << 0,
     Unk2 = 1 << 1,
