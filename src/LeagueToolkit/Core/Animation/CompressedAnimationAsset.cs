@@ -108,12 +108,6 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         br.BaseStream.Seek(jumpCachesOffset + 12, SeekOrigin.Begin);
         this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
         br.Read(this._jumpCaches.Span);
-
-        //Dictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose = new();
-        //for (int frame = 1; frame < this.Duration * this.Fps; frame++)
-        //{
-        //    Evaluate(frame * (1 / this.Fps), pose);
-        //}
     }
 
     public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
