@@ -429,33 +429,65 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.IsNotNull(joints, nameof(joints));
             Guard.IsNotNull(animations, nameof(animations));
 
+            Dictionary<uint, Node> nodesByHash =
+                new(joints.Select(x => new KeyValuePair<uint, Node>(Elf.HashLower(x.Name), x)));
+
             foreach (var (name, animation) in animations)
             {
-                //foreach (AnimationTrack track in animation.Tracks)
-                //{
-                //    Node joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
-                //
-                //    if (joint is null)
-                //        continue;
-                //
-                //    if (track.Translations.Count == 0)
-                //        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                //    if (track.Translations.Count == 1)
-                //        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                //    joint.WithTranslationAnimation(name, track.Translations);
-                //
-                //    if (track.Rotations.Count == 0)
-                //        track.Rotations.Add(0.0f, Quaternion.Identity);
-                //    if (track.Rotations.Count == 1)
-                //        track.Rotations.Add(1.0f, Quaternion.Identity);
-                //    joint.WithRotationAnimation(name, track.Rotations);
-                //
-                //    if (track.Scales.Count == 0)
-                //        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                //    if (track.Scales.Count == 1)
-                //        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                //    joint.WithScaleAnimation(name, track.Scales);
-                //}
+                CreateGltfAnimation(name, animation, nodesByHash);
+            }
+        }
+
+        private static void CreateGltfAnimation(
+            string animationName,
+            IAnimationAsset animation,
+            IReadOnlyDictionary<uint, Node> nodesByHash
+        )
+        {
+            Dictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose = new();
+
+            int frameCount = (int)(animation.Fps * animation.Duration);
+            Dictionary<uint, (float, Quaternion)[]> jointRotations = new(frameCount);
+            Dictionary<uint, (float, Vector3)[]> jointTranslations = new(frameCount);
+            Dictionary<uint, (float, Vector3)[]> jointScales = new(frameCount);
+
+            // Populate samplers
+            foreach (var (jointHash, _) in nodesByHash)
+            {
+                jointRotations.Add(jointHash, new (float, Quaternion)[frameCount]);
+                jointTranslations.Add(jointHash, new (float, Vector3)[frameCount]);
+                jointScales.Add(jointHash, new (float, Vector3)[frameCount]);
+            }
+
+            // Re-sample the animation in linear time
+            float frameDuration = 1 / animation.Fps;
+            for (int frameId = 0; frameId < frameCount; frameId++)
+            {
+                float frameTime = frameId * frameDuration;
+
+                // Evaluate the pose for the current frame
+                animation.Evaluate(frameTime, pose);
+
+                foreach (var (jointHash, transform) in pose)
+                {
+                    if (jointRotations.TryGetValue(jointHash, out var rotations))
+                        rotations[frameId] = (frameTime, transform.Rotation);
+
+                    if (jointTranslations.TryGetValue(jointHash, out var translations))
+                        translations[frameId] = (frameTime, transform.Translation);
+
+                    if (jointScales.TryGetValue(jointHash, out var scales))
+                        scales[frameId] = (frameTime, transform.Scale);
+                }
+            }
+
+            // Create samplers for joints
+            foreach (var (jointHash, jointNode) in nodesByHash)
+            {
+                jointNode
+                    .WithRotationAnimation(animationName, jointRotations[jointHash])
+                    .WithTranslationAnimation(animationName, jointTranslations[jointHash])
+                    .WithScaleAnimation(animationName, jointScales[jointHash]);
             }
         }
 

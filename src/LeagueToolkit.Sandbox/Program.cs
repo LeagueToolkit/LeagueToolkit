@@ -66,16 +66,6 @@ namespace LeagueToolkit.Sandbox
                 using Stream stream = File.OpenWrite("akali.glb");
                 originalGltf.WriteGLB(stream);
             }
-
-            {
-                ModelRoot blenderExported = ModelRoot.Load("akali_modelFlipX_exported.glb");
-            }
-
-            var (skinnedMesh, skeleton) = originalGltf.ToRiggedMesh();
-
-            skinnedMesh
-                .ToGltf(skeleton, new Dictionary<string, Stream>(), animations)
-                .WriteGLB(File.OpenWrite("akali_fromgltf.glb"));
         }
 
         static void ProfileRigResource()

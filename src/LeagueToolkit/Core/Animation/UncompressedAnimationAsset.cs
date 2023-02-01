@@ -53,6 +53,9 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         this._frameCount = br.ReadInt32();
         float frameDuration = br.ReadSingle();
 
+        this.Fps = 1 / frameDuration;
+        this.Duration = this._frameCount * frameDuration;
+
         int jointNameHashesOffset = br.ReadInt32();
         int assetNameOffset = br.ReadInt32();
         int timeOffset = br.ReadInt32();
@@ -118,6 +121,9 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int trackCount = br.ReadInt32();
         this._frameCount = br.ReadInt32();
         float frameDuration = br.ReadSingle();
+
+        this.Fps = 1 / frameDuration;
+        this.Duration = this._frameCount * frameDuration;
 
         int jointNameHashesOffset = br.ReadInt32();
         int assetNameOffset = br.ReadInt32();
