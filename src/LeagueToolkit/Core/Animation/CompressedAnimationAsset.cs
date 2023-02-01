@@ -401,11 +401,14 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         this.IsDisposed = true;
     }
 
-    private void ThrowIfDisposed() =>
-        ThrowHelper.ThrowObjectDisposedException(
-            nameof(CompressedAnimationAsset),
-            "Cannot use a disposed animation asset"
-        );
+    private void ThrowIfDisposed()
+    {
+        if (this.IsDisposed)
+            ThrowHelper.ThrowObjectDisposedException(
+                nameof(CompressedAnimationAsset),
+                "Cannot use a disposed animation asset"
+            );
+    }
 }
 
 [Flags]
