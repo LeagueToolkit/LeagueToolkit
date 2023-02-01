@@ -4,8 +4,6 @@ namespace LeagueToolkit.Core.Animation;
 
 public static class Interpolators
 {
-    public const float SLERP_EPSILON = 0.000001f;
-
     public static readonly IInterpolator<Vector3> Vector3 = new Vector3Interpolator();
     public static readonly IInterpolator<Quaternion> Quaternion = new QuaternionInterpolator();
 }

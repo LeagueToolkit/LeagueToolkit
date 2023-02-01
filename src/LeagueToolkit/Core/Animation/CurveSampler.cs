@@ -2,6 +2,8 @@
 
 public static class CurveSampler
 {
+    private const float SLERP_EPSILON = 0.000001f;
+
     public static (float m0, float m1, float m2, float m3) CreateCatmullRomWeights(
         float amount,
         float easeIn, /* tau20 */
@@ -33,9 +35,9 @@ public static class CurveSampler
     )
     {
         float t_d = time2 - time1;
-        float amount = (time - time1) / t_d;
-        float scaleIn = t_d / (time2 - time0);
-        float scaleOut = t_d / (time3 - time1);
+        float amount = (time - time1) / (t_d + SLERP_EPSILON);
+        float scaleIn = t_d / (time2 - time0 + SLERP_EPSILON);
+        float scaleOut = t_d / (time3 - time1 + SLERP_EPSILON);
 
         return (amount, scaleIn, scaleOut);
     }
