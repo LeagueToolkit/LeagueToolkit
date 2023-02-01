@@ -1,10 +1,5 @@
 ﻿namespace LeagueToolkit.Core.Animation;
 
-public interface ICurveSampler<T>
-{
-    public T Sample(float time);
-}
-
 public static class CurveSampler
 {
     public static (float m0, float m1, float m2, float m3) CreateCatmullRomWeights(
@@ -13,8 +8,8 @@ public static class CurveSampler
         float easeOut /* tau31 */
     )
     {
-        float t_sq = amount * amount;
-        float t_cu = t_sq * amount;
+        //float t_sq = amount * amount;
+        //float t_cu = t_sq * amount;
 
         float m0 = (((2.0f - amount) * amount) - 1.0f) * (amount * easeIn);
         float m1 = ((((2.0f - easeOut) * amount) + (easeOut - 3.0f)) * (amount * amount)) + 1.0f;
@@ -27,5 +22,21 @@ public static class CurveSampler
         //float m3 = (-easeOut * t_sq) + (easeOut * t_cu);
 
         return (m0, m1, m2, m3);
+    }
+
+    public static (float amount, float scaleIn, float scaleOut) CreateCatmullRomKeyframeWeights(
+        ushort time,
+        float time0,
+        float time1,
+        float time2,
+        float time3
+    )
+    {
+        float t_d = time2 - time1;
+        float amount = (time - time1) / t_d;
+        float scaleIn = t_d / (time2 - time0);
+        float scaleOut = t_d / (time3 - time1);
+
+        return (amount, scaleIn, scaleOut);
     }
 }

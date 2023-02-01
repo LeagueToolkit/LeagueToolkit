@@ -126,10 +126,13 @@ internal struct JointHotFrame
     #region Parametrized Catmull Rom
     public Quaternion SampleRotationParametrized(ushort time)
     {
-        float t_d = this.RotationP2.Time - this.RotationP1.Time;
-        float amount = (time - this.RotationP1.Time) / t_d;
-        float scaleIn = t_d / (this.RotationP2.Time - this.RotationP0.Time);
-        float scaleOut = t_d / (this.RotationP3.Time - this.RotationP1.Time);
+        var (amount, scaleIn, scaleOut) = CurveSampler.CreateCatmullRomKeyframeWeights(
+            time,
+            this.RotationP0.Time,
+            this.RotationP1.Time,
+            this.RotationP2.Time,
+            this.RotationP3.Time
+        );
 
         return Interpolators.Quaternion.InterpolateCatmull(
             amount,
@@ -144,10 +147,13 @@ internal struct JointHotFrame
 
     public Vector3 SampleTranslationParametrized(ushort time)
     {
-        float t_d = this.TranslationP2.Time - this.TranslationP1.Time;
-        float amount = (time - this.TranslationP1.Time) / t_d;
-        float scaleIn = t_d / (this.TranslationP2.Time - this.TranslationP0.Time);
-        float scaleOut = t_d / (this.TranslationP3.Time - this.TranslationP1.Time);
+        var (amount, scaleIn, scaleOut) = CurveSampler.CreateCatmullRomKeyframeWeights(
+            time,
+            this.TranslationP0.Time,
+            this.TranslationP1.Time,
+            this.TranslationP2.Time,
+            this.TranslationP3.Time
+        );
 
         return Interpolators.Vector3.InterpolateCatmull(
             amount,
@@ -162,10 +168,13 @@ internal struct JointHotFrame
 
     public Vector3 SampleScaleParametrized(ushort time)
     {
-        float t_d = this.ScaleP2.Time - this.ScaleP1.Time;
-        float amount = (time - this.ScaleP1.Time) / t_d;
-        float scaleIn = t_d / (this.ScaleP2.Time - this.ScaleP0.Time);
-        float scaleOut = t_d / (this.ScaleP3.Time - this.ScaleP1.Time);
+        var (amount, scaleIn, scaleOut) = CurveSampler.CreateCatmullRomKeyframeWeights(
+            time,
+            this.ScaleP0.Time,
+            this.ScaleP1.Time,
+            this.ScaleP2.Time,
+            this.ScaleP3.Time
+        );
 
         return Interpolators.Vector3.InterpolateCatmull(
             amount,
