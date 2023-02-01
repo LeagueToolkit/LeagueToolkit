@@ -12,7 +12,9 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
     public float Duration { get; private set; }
     public float Fps { get; private set; }
 
-    public List<AnimationTrack> Tracks { get; private set; } = new();
+    private Vector3[] _vectorPalette;
+    private Quaternion[] _quatPalette;
+    private Dictionary<uint, UncompressedFrame[]> _jointFrames;
 
     /// <inheritdoc/>
     public bool IsDisposed { get; private set; }
@@ -53,64 +55,56 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         int jointNameHashesOffset = br.ReadInt32();
         int assetNameOffset = br.ReadInt32();
         int timeOffset = br.ReadInt32();
-        int vectorsOffset = br.ReadInt32();
-        int rotationsOffset = br.ReadInt32();
+        int vectorPaletteOffset = br.ReadInt32();
+        int quatPaletteOffset = br.ReadInt32();
         int framesOffset = br.ReadInt32();
 
         // V4 stores joint hashes in frames so we don't check that offset
-        if (vectorsOffset <= 0)
+        if (vectorPaletteOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain a vector palette");
-        if (rotationsOffset <= 0)
+        if (quatPaletteOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain a quaternion palette");
         if (framesOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain any frame data");
 
-        int vectorsCount = (rotationsOffset - vectorsOffset) / 12;
-        int rotationsCount = (framesOffset - rotationsOffset) / 16;
-
-        br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
-        List<Vector3> vectors = new();
+        // Read vector palette
+        br.BaseStream.Seek(vectorPaletteOffset + 12, SeekOrigin.Begin);
+        int vectorsCount = (quatPaletteOffset - vectorPaletteOffset) / 12;
+        this._vectorPalette = new Vector3[vectorsCount];
         for (int i = 0; i < vectorsCount; i++)
-        {
-            vectors.Add(br.ReadVector3());
-        }
+            this._vectorPalette[i] = br.ReadVector3();
 
-        br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
-        List<Quaternion> rotations = new();
+        // Read quat palette
+        br.BaseStream.Seek(quatPaletteOffset + 12, SeekOrigin.Begin);
+        int rotationsCount = (framesOffset - quatPaletteOffset) / 16;
+        this._quatPalette = new Quaternion[rotationsCount];
         for (int i = 0; i < rotationsCount; i++)
-        {
-            rotations.Add(Quaternion.Normalize(br.ReadQuaternion()));
-        }
+            this._quatPalette[i] = Quaternion.Normalize(br.ReadQuaternion());
+
+        // Read frames
+        this._jointFrames = new(trackCount);
 
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        List<(uint, ushort, ushort, ushort)> frames = new(frameCount * trackCount);
-        for (int i = 0; i < frameCount * trackCount; i++)
-        {
-            frames.Add((br.ReadUInt32(), br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
-            br.ReadUInt16(); // padding
-        }
-
-        foreach ((uint jointHash, ushort translationIndex, ushort scaleIndex, ushort rotationIndex) in frames)
-        {
-            if (!this.Tracks.Any(x => x.JointHash == jointHash))
+        for (int frameId = 0; frameId < frameCount; frameId++)
+            for (int trackId = 0; trackId < trackCount; trackId++)
             {
-                this.Tracks.Add(new AnimationTrack(jointHash));
+                // Try to get the frame buffer for the given joint, create it if it doesn't exist
+                uint jointHash = br.ReadUInt32();
+                if (!this._jointFrames.TryGetValue(jointHash, out UncompressedFrame[] jointFrames))
+                {
+                    jointFrames = new UncompressedFrame[frameCount];
+                    this._jointFrames[jointHash] = jointFrames;
+                }
+
+                jointFrames[frameId] = new()
+                {
+                    TranslationId = br.ReadUInt16(),
+                    ScaleId = br.ReadUInt16(),
+                    RotationId = br.ReadUInt16()
+                };
+
+                br.ReadUInt16(); // padding
             }
-
-            AnimationTrack track = this.Tracks.First(x => x.JointHash == jointHash);
-
-            int trackFrameTranslationIndex = track.Translations.Count;
-            int trackFrameScaleIndex = track.Scales.Count;
-            int trackFrameRotationIndex = track.Rotations.Count;
-
-            Vector3 translation = vectors[translationIndex];
-            Vector3 scale = vectors[scaleIndex];
-            Quaternion rotation = rotations[rotationIndex];
-
-            track.Translations.Add(frameDuration * trackFrameTranslationIndex, translation);
-            track.Scales.Add(frameDuration * trackFrameScaleIndex, scale);
-            track.Rotations.Add(frameDuration * trackFrameRotationIndex, rotation);
-        }
     }
 
     private void ReadV5(BinaryReader br)
@@ -121,83 +115,75 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         uint flags = br.ReadUInt32();
 
         int trackCount = br.ReadInt32();
-        int framesPerTrack = br.ReadInt32();
+        int frameCount = br.ReadInt32();
         float frameDuration = br.ReadSingle();
 
         int jointNameHashesOffset = br.ReadInt32();
         int assetNameOffset = br.ReadInt32();
         int timeOffset = br.ReadInt32();
-        int vectorsOffset = br.ReadInt32();
-        int rotationsOffset = br.ReadInt32();
+        int vectorPaletteOffset = br.ReadInt32();
+        int quatPaletteOffset = br.ReadInt32();
         int framesOffset = br.ReadInt32();
 
         if (jointNameHashesOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain any joint data");
-        if (vectorsOffset <= 0)
+        if (vectorPaletteOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain a vector palette");
-        if (rotationsOffset <= 0)
+        if (quatPaletteOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain a quaternion palette");
         if (framesOffset <= 0)
             ThrowHelper.ThrowInvalidDataException("Animation does not contain any frame data");
 
-        int jointHashesCount = (framesOffset - jointNameHashesOffset) / sizeof(uint);
-        int vectorsCount = (rotationsOffset - vectorsOffset) / 12;
-        int rotationsCount = (jointNameHashesOffset - rotationsOffset) / 6;
-
-        List<uint> jointHashes = new(jointHashesCount);
-        List<Vector3> vectors = new(vectorsCount);
-        List<Quaternion> rotations = new(rotationsCount);
-        var frames = new List<(ushort, ushort, ushort)>(framesPerTrack * trackCount);
-
         // Read Joint Hashes
+        int jointHashesCount = (framesOffset - jointNameHashesOffset) / sizeof(uint);
+        uint[] jointHashes = new uint[jointHashesCount];
+
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
         for (int i = 0; i < jointHashesCount; i++)
-        {
-            jointHashes.Add(br.ReadUInt32());
-        }
+            jointHashes[i] = br.ReadUInt32();
 
         // Read Vectors
-        br.BaseStream.Seek(vectorsOffset + 12, SeekOrigin.Begin);
-        for (int i = 0; i < vectorsCount; i++)
-        {
-            vectors.Add(br.ReadVector3());
-        }
+        int vectorCount = (quatPaletteOffset - vectorPaletteOffset) / 12;
+        this._vectorPalette = new Vector3[vectorCount];
+
+        br.BaseStream.Seek(vectorPaletteOffset + 12, SeekOrigin.Begin);
+        for (int i = 0; i < vectorCount; i++)
+            this._vectorPalette[i] = br.ReadVector3();
 
         // Read Rotations
         Span<byte> quantizedRotation = stackalloc byte[6];
-        br.BaseStream.Seek(rotationsOffset + 12, SeekOrigin.Begin);
-        for (int i = 0; i < rotationsCount; i++)
+        int quatCount = (jointNameHashesOffset - quatPaletteOffset) / 6;
+        this._quatPalette = new Quaternion[quatCount];
+
+        br.BaseStream.Seek(quatPaletteOffset + 12, SeekOrigin.Begin);
+        for (int i = 0; i < quatCount; i++)
         {
             br.Read(quantizedRotation);
-            rotations.Add(Quaternion.Normalize(QuantizedQuaternion.Decompress(quantizedRotation)));
+            this._quatPalette[i] = Quaternion.Normalize(QuantizedQuaternion.Decompress(quantizedRotation));
         }
 
-        // Read Frames
+        // Read frames
+        this._jointFrames = new(trackCount);
+
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
-        for (int i = 0; i < framesPerTrack * trackCount; i++)
-        {
-            frames.Add((br.ReadUInt16(), br.ReadUInt16(), br.ReadUInt16()));
-        }
-
-        // Create tracks
-        for (int i = 0; i < trackCount; i++)
-        {
-            this.Tracks.Add(new AnimationTrack(jointHashes[i]));
-        }
-
-        for (int t = 0; t < trackCount; t++)
-        {
-            AnimationTrack track = this.Tracks[t];
-            for (int f = 0; f < framesPerTrack; f++)
+        for (int frameId = 0; frameId < frameCount; frameId++)
+            for (int trackId = 0; trackId < trackCount; trackId++)
             {
-                (int translationIndex, int scaleIndex, int rotationIndex) = frames[f * trackCount + t];
-                float currentTime = frameDuration * f;
+                // Try to get the frame buffer for the given joint, create it if it doesn't exist
+                uint jointHash = jointHashes[trackId];
+                if (!this._jointFrames.TryGetValue(jointHash, out UncompressedFrame[] jointFrames))
+                {
+                    jointFrames = new UncompressedFrame[frameCount];
+                    this._jointFrames[jointHash] = jointFrames;
+                }
 
-                track.Translations.Add(currentTime, vectors[translationIndex]);
-                track.Scales.Add(currentTime, vectors[scaleIndex]);
-                track.Rotations.Add(currentTime, rotations[rotationIndex]);
+                jointFrames[frameId] = new()
+                {
+                    TranslationId = br.ReadUInt16(),
+                    ScaleId = br.ReadUInt16(),
+                    RotationId = br.ReadUInt16()
+                };
             }
-        }
     }
 
     private void ReadLegacy(BinaryReader br)
@@ -211,6 +197,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
 
         float frameDuration = 1.0f / this.Fps;
 
+        // TODO
         for (int i = 0; i < trackCount; i++)
         {
             string trackName = br.ReadPaddedString(32);
@@ -226,8 +213,6 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
                 track.Translations.Add(frameTime, br.ReadVector3());
                 track.Scales.Add(frameTime, new Vector3(1, 1, 1));
             }
-
-            this.Tracks.Add(track);
         }
     }
 
