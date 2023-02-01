@@ -112,6 +112,8 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
 
     public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
     {
+        ThrowIfDisposed();
+
         Evaluate(time);
 
         ushort compressedTime = Animation.CompressTime(time, this.Duration);
@@ -398,6 +400,12 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
 
         this.IsDisposed = true;
     }
+
+    private void ThrowIfDisposed() =>
+        ThrowHelper.ThrowObjectDisposedException(
+            nameof(CompressedAnimationAsset),
+            "Cannot use a disposed animation asset"
+        );
 }
 
 [Flags]

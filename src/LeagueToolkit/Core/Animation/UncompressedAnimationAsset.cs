@@ -226,6 +226,8 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
 
     public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
     {
+        ThrowIfDisposed();
+
         float frameDuration = 1 / this.Fps;
         int maxFrame = this._frameCount - 1;
         int evaluationFrame = Math.Min(maxFrame, (int)(time / frameDuration));
@@ -316,4 +318,10 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
 
         this.IsDisposed = true;
     }
+
+    private void ThrowIfDisposed() =>
+        ThrowHelper.ThrowObjectDisposedException(
+            nameof(UncompressedAnimationAsset),
+            "Cannot use a disposed animation asset"
+        );
 }
