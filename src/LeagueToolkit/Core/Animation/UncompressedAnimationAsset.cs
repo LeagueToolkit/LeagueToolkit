@@ -319,9 +319,12 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         this.IsDisposed = true;
     }
 
-    private void ThrowIfDisposed() =>
-        ThrowHelper.ThrowObjectDisposedException(
-            nameof(UncompressedAnimationAsset),
-            "Cannot use a disposed animation asset"
-        );
+    private void ThrowIfDisposed()
+    {
+        if (this.IsDisposed)
+            ThrowHelper.ThrowObjectDisposedException(
+                nameof(UncompressedAnimationAsset),
+                "Cannot use a disposed animation asset"
+            );
+    }
 }
