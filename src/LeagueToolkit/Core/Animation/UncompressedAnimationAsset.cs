@@ -7,9 +7,15 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Animation;
 
+/// <summary>
+/// Represents an uncompressed animation asset
+/// </summary>
 public sealed class UncompressedAnimationAsset : IAnimationAsset
 {
+    /// <inheritdoc/>
     public float Duration { get; private set; }
+
+    /// <inheritdoc/>
     public float Fps { get; private set; }
 
     private int _frameCount;
@@ -224,6 +230,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         //}
     }
 
+    /// <inheritdoc/>
     public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
     {
         ThrowIfDisposed();

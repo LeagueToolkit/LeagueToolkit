@@ -11,11 +11,20 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Animation;
 
+/// <summary>
+/// Represents a compressed animation asset
+/// </summary>
 public sealed class CompressedAnimationAsset : IAnimationAsset
 {
+    /// <summary>
+    /// Gets the flags
+    /// </summary>
     public CompressedAnimationFlags Flags { get; private set; }
 
+    /// <inheritdoc/>
     public float Duration { get; private set; }
+
+    /// <inheritdoc/>
     public float Fps { get; private set; }
 
     private Vector3 _translationMin;
@@ -35,11 +44,9 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     /// <inheritdoc/>
     public bool IsDisposed { get; private set; }
 
-    public CompressedAnimationAsset(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-
     public CompressedAnimationAsset(Stream stream)
     {
-        using BinaryReader br = new(stream, Encoding.UTF8, false);
+        using BinaryReader br = new(stream, Encoding.UTF8, true);
 
         string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
         uint version = br.ReadUInt32();
@@ -110,6 +117,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         br.Read(this._jumpCaches.Span);
     }
 
+    /// <inheritdoc/>
     public void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose)
     {
         ThrowIfDisposed();
@@ -119,7 +127,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         ushort compressedTime = Animation.CompressTime(time, this.Duration);
 
         // If this flag is set, league uses scaled tangents
-        if (this.Flags.HasFlag(CompressedAnimationFlags.UseCurveParametrization))
+        if (this.Flags.HasFlag(CompressedAnimationFlags.UseKeyframeParametrization))
         {
             for (int jointId = 0; jointId < this._joints.Length; jointId++)
             {
@@ -417,5 +425,5 @@ public enum CompressedAnimationFlags : uint
     Unk1 = 1 << 0,
     Unk2 = 1 << 1,
 
-    UseCurveParametrization = 1 << 2,
+    UseKeyframeParametrization = 1 << 2,
 }

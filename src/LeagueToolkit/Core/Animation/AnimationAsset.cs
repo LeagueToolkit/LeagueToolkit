@@ -5,7 +5,14 @@ namespace LeagueToolkit.Core.Animation;
 
 public interface IAnimationAsset : IDisposable
 {
+    /// <summary>
+    /// Gets the duration of the animation in seconds
+    /// </summary>
     float Duration { get; }
+
+    /// <summary>
+    /// Gets the FPS of the animation
+    /// </summary>
     float Fps { get; }
 
     /// <summary>
@@ -13,6 +20,11 @@ public interface IAnimationAsset : IDisposable
     /// </summary>
     bool IsDisposed { get; }
 
+    /// <summary>
+    /// Evaluates the <see cref="IAnimationAsset"/> at the specified time
+    /// </summary>
+    /// <param name="time">The time to evaluate the animation at; clamped between 0 and <see cref="Duration"/></param>
+    /// <param name="pose">The evaluated joint pose transforms</param>
     void Evaluate(float time, IDictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose);
 }
 
