@@ -1,33 +1,33 @@
 ﻿namespace LeagueToolkit.Core.Animation;
 
 /// <summary>
-/// Represents the optimization settings for a joint transform component
+/// Represents the optimization settings of a transform component
 /// </summary>
-public readonly struct TransformOptimizationSettings
+public readonly struct ErrorMetric
 {
     /// <summary>
     /// The maximum allowed error
     /// </summary>
-    public float ErrorMargin { get; }
+    public float Margin { get; }
 
     /// <summary>
     /// The distance at which the error is measured
     /// </summary>
     public float DiscontinuityThreshold { get; }
 
-    public TransformOptimizationSettings()
+    public ErrorMetric()
     {
-        this.ErrorMargin = 2f;
+        this.Margin = 2f;
         this.DiscontinuityThreshold = 10f;
     }
 
-    public TransformOptimizationSettings(float errorMargin, float discontinuityThreshold)
+    public ErrorMetric(float margin, float discontinuityThreshold)
     {
-        this.ErrorMargin = errorMargin;
+        this.Margin = margin;
         this.DiscontinuityThreshold = discontinuityThreshold;
     }
 
-    internal static TransformOptimizationSettings Read(BinaryReader br)
+    internal static ErrorMetric Read(BinaryReader br)
     {
         float errorMargin = br.ReadSingle();
         float discontinuityThreshold = br.ReadSingle();

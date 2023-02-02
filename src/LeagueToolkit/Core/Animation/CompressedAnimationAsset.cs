@@ -27,6 +27,21 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     /// <inheritdoc/>
     public float Fps { get; private set; }
 
+    /// <summary>
+    /// Gets the rotation <see cref="ErrorMetric"/>
+    /// </summary>
+    public ErrorMetric RotationErrorMetric { get; private set; }
+
+    /// <summary>
+    /// Gets the translation <see cref="ErrorMetric"/>
+    /// </summary>
+    public ErrorMetric TranslationErrorMetric { get; private set; }
+
+    /// <summary>
+    /// Gets the scale <see cref="ErrorMetric"/>
+    /// </summary>
+    public ErrorMetric ScaleErrorMetric { get; private set; }
+
     private Vector3 _translationMin;
     private Vector3 _translationMax;
 
@@ -75,9 +90,9 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         this.Duration = br.ReadSingle();
         this.Fps = br.ReadSingle();
 
-        TransformOptimizationSettings rotationOptimization = TransformOptimizationSettings.Read(br);
-        TransformOptimizationSettings translationOptimization = TransformOptimizationSettings.Read(br);
-        TransformOptimizationSettings scaleOptimization = TransformOptimizationSettings.Read(br);
+        this.RotationErrorMetric = ErrorMetric.Read(br);
+        this.TranslationErrorMetric = ErrorMetric.Read(br);
+        this.ScaleErrorMetric = ErrorMetric.Read(br);
 
         this._translationMin = br.ReadVector3();
         this._translationMax = br.ReadVector3();
