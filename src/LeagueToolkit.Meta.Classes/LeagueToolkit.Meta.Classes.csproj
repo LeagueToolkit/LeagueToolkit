@@ -8,7 +8,7 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <Version>13.1.489.3737</Version>
+    <Version>13.3.490.3613</Version>
     <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
