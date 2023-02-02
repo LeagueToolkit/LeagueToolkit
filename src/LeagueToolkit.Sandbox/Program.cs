@@ -37,12 +37,7 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            LightGrid grid = new("lightgrid.aram_exploration_2022.dat");
-
-            for (int i = 0; i < 256 * 256; i++)
-            {
-                grid.GetCellColor(128 * 128);
-            }
+            ProfileGltfToRiggedMesh();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
@@ -65,8 +60,28 @@ namespace LeagueToolkit.Sandbox
             ModelRoot originalGltf = originalSkinnedMesh.ToGltf(originalRig, new List<(string, Stream)>(), animations);
 
             {
-                using Stream stream = File.OpenWrite("akali.glb");
+                using Stream stream = File.Create("akali.glb");
                 originalGltf.WriteGLB(stream);
+            }
+
+            {
+                ModelRoot convertedGltf = ModelRoot.Load("akali.glb");
+
+                var (convertedMesh, convertedRig) = convertedGltf.ToRiggedMesh();
+
+                convertedMesh.WriteSimpleSkin(
+                    @"X:\lol\mods\AkaliGltf\Akali.wad.client\assets\characters\akali\skins\base\akali.skn"
+                );
+
+                {
+                    using FileStream rigStream = File.Create(
+                        @"X:\lol\mods\AkaliGltf\Akali.wad.client\assets\characters\akali\skins\base\akali.skl"
+                    );
+                    convertedRig.Write(rigStream);
+                }
+
+                using FileStream stream = File.Create("akali_fromgltf.glb");
+                convertedMesh.ToGltf(convertedRig, new List<(string, Stream)>(), animations).WriteGLB(stream);
             }
         }
 

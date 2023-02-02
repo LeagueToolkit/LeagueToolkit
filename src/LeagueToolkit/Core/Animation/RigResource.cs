@@ -316,11 +316,11 @@ namespace LeagueToolkit.Core.Animation
 
             // Write Name
             long nameOffset = bw.BaseStream.Position;
-            bw.WriteNullTerminatedString(this.Name);
+            bw.WriteNullTerminatedString(this.Name ?? string.Empty);
 
             // Write Asset Name
             long assetNameOffset = bw.BaseStream.Position;
-            bw.WriteNullTerminatedString(this.AssetName);
+            bw.WriteNullTerminatedString(this.AssetName ?? string.Empty);
 
             // Write Name offset to header
             bw.BaseStream.Seek(nameOffsetOffset, SeekOrigin.Begin);
