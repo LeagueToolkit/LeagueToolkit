@@ -5,6 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>11</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
@@ -19,6 +20,7 @@
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Version>4.0.0-beta.4</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <!-- package references -->

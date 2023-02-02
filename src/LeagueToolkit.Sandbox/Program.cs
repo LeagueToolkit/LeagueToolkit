@@ -4,7 +4,6 @@ using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
-using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.PropertyBin;
@@ -28,7 +27,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
-using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
+using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
+using LeagueToolkit.Core.Animation;
 using LeagueToolkit.Core.Environment;
 
 namespace LeagueToolkit.Sandbox
@@ -50,10 +50,11 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileGltfToRiggedMesh()
         {
-            List<(string name, LeagueAnimation animation)> animations = new();
+            List<(string name, IAnimationAsset animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
             {
-                LeagueAnimation animation = new(animationFile);
+                using FileStream stream = File.OpenRead(animationFile);
+                IAnimationAsset animation = AnimationAsset.Load(stream);
 
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
@@ -61,26 +62,12 @@ namespace LeagueToolkit.Sandbox
             using SkinnedMesh originalSkinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             RigResource originalRig = new(File.OpenRead("akali.skl"));
 
-            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(
-                originalRig,
-                new Dictionary<string, Stream>(),
-                animations
-            );
+            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(originalRig, new List<(string, Stream)>(), animations);
 
             {
                 using Stream stream = File.OpenWrite("akali.glb");
                 originalGltf.WriteGLB(stream);
             }
-
-            {
-                ModelRoot blenderExported = ModelRoot.Load("akali_modelFlipX_exported.glb");
-            }
-
-            var (skinnedMesh, skeleton) = originalGltf.ToRiggedMesh();
-
-            skinnedMesh
-                .ToGltf(skeleton, new Dictionary<string, Stream>(), animations)
-                .WriteGLB(File.OpenWrite("akali_fromgltf.glb"));
         }
 
         static void ProfileRigResource()
@@ -115,13 +102,13 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileTexture()
         {
-            LeagueTexture texture = LeagueTexture.Load(File.OpenRead("3.dds"));
+            LeagueTexture texture = LeagueTexture.Load(File.OpenRead("grasstint_srx_infernal.dds"));
 
             ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
 
             Image<Rgba32> image = mipmap.ToImage();
 
-            image.SaveAsPng("3.dds.png");
+            image.SaveAsPng("grasstint_srx_infernal.dds.png");
         }
 
         static void ProfileSkinnedMesh()
@@ -129,15 +116,16 @@ namespace LeagueToolkit.Sandbox
             using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
             RigResource skeleton = new(File.OpenRead("akali.skl"));
 
-            List<(string name, LeagueAnimation animation)> animations = new();
+            List<(string name, IAnimationAsset animation)> animations = new();
             foreach (string animationFile in Directory.EnumerateFiles("animations"))
             {
-                LeagueAnimation animation = new(animationFile);
+                using FileStream stream = File.OpenRead(animationFile);
+                IAnimationAsset animation = AnimationAsset.Load(stream);
 
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
 
-            skinnedMesh.ToGltf(new Dictionary<string, Stream>()).WriteGLB(File.OpenWrite("akali.glb"));
+            skinnedMesh.ToGltf(new List<(string, Stream)>()).WriteGLB(File.OpenWrite("akali.glb"));
         }
 
 #if DEBUG

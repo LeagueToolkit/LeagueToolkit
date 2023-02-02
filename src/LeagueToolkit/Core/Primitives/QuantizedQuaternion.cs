@@ -9,6 +9,7 @@ namespace LeagueToolkit.Core.Primitives
     public static class QuantizedQuaternion
     {
         private const double SQRT_2 = 1.41421356237;
+        private const double ONE_OVER_SQRT_2 = 0.70710678118;
 
         public static void Compress(Quaternion quat, Span<byte> compressed)
         {
@@ -57,21 +58,19 @@ namespace LeagueToolkit.Core.Primitives
             }
         }
 
-        public static Quaternion Decompress(ReadOnlySpan<byte> data)
+        public static Quaternion Decompress(ReadOnlySpan<byte> data) => Decompress(data.Cast<byte, ushort>());
+
+        public static Quaternion Decompress(ReadOnlySpan<ushort> data)
         {
-            ulong bits =
-                0
-                | (ulong)(ushort)(data[0] | (data[1] << 8))
-                | (ulong)(ushort)(data[2] | (data[3] << 8)) << 16
-                | (ulong)(ushort)(data[4] | (data[5] << 8)) << 32;
+            ulong bits = (ulong)(data[0]) | (ulong)data[1] << 16 | (ulong)data[2] << 32;
             ushort maxIndex = (ushort)(bits >> 45 & 0x0003u);
             ushort v_a = (ushort)(bits >> 30 & 0x7FFFu);
             ushort v_b = (ushort)(bits >> 15 & 0x7FFFu);
             ushort v_c = (ushort)(bits & 0x7FFFu);
 
-            float a = (float)(v_a / 32767.0 * SQRT_2 - 1.0 / SQRT_2);
-            float b = (float)(v_b / 32767.0 * SQRT_2 - 1.0 / SQRT_2);
-            float c = (float)(v_c / 32767.0 * SQRT_2 - 1.0 / SQRT_2);
+            float a = (float)(v_a / 32767.0 * SQRT_2 - ONE_OVER_SQRT_2);
+            float b = (float)(v_b / 32767.0 * SQRT_2 - ONE_OVER_SQRT_2);
+            float c = (float)(v_c / 32767.0 * SQRT_2 - ONE_OVER_SQRT_2);
             float sub = Math.Max(0, 1 - (a * a + b * b + c * c));
             float d = (float)Math.Sqrt(sub);
 

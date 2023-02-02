@@ -7,7 +7,6 @@ using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.IO.AnimationFile;
 using LeagueToolkit.IO.Extensions.Utils;
 using LeagueToolkit.IO.MapGeometryFile;
 using SharpGLTF.Animations;
@@ -24,7 +23,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
-using LeagueAnimation = LeagueToolkit.IO.AnimationFile.Animation;
+using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 using GltfImage = SharpGLTF.Schema2.Image;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
@@ -46,17 +45,17 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
-            IReadOnlyDictionary<string, Stream> materialTextures
+            IEnumerable<(string Material, Stream Texture)> textures
         )
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+            Guard.IsNotNull(textures, nameof(textures));
 
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("SkinnedMesh");
             Node modelNode = scene.CreateNode("model");
 
-            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, materialTextures);
+            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, textures);
             Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, false, materials);
 
             modelNode.WithMesh(gltfMesh);
@@ -76,20 +75,20 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         public static ModelRoot ToGltf(
             this SkinnedMesh skinnedMesh,
             RigResource rig,
-            IReadOnlyDictionary<string, Stream> materialTextures,
-            IReadOnlyList<(string name, LeagueAnimation animation)> animations
+            IEnumerable<(string Material, Stream Texture)> textures,
+            IEnumerable<(string Name, IAnimationAsset Animation)> animations
         )
         {
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
             Guard.IsNotNull(rig, nameof(rig));
-            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+            Guard.IsNotNull(textures, nameof(textures));
             Guard.IsNotNull(animations, nameof(animations));
 
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("SkinnedMesh");
             Node modelNode = scene.CreateNode("model");
 
-            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, materialTextures);
+            Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, textures);
             Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, true, materials);
             var (influenceNodes, jointNodes) = CreateGltfSkeleton(modelNode, rig);
 
@@ -336,19 +335,22 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         private static Dictionary<string, Material> CreateGltfMaterials(
             ModelRoot root,
             SkinnedMesh skinnedMesh,
-            IReadOnlyDictionary<string, Stream> materialTextures
+            IEnumerable<(string Material, Stream Texture)> textures
         )
         {
             Guard.IsNotNull(root, nameof(root));
             Guard.IsNotNull(skinnedMesh, nameof(skinnedMesh));
-            Guard.IsNotNull(materialTextures, nameof(materialTextures));
+            Guard.IsNotNull(textures, nameof(textures));
+
+            Dictionary<string, Stream> textureLookup =
+                new(textures.Select(x => new KeyValuePair<string, Stream>(x.Material, x.Texture)));
 
             Dictionary<string, Material> materials = new();
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
                 Material material = root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(true);
 
-                if (materialTextures.TryGetValue(range.Material, out Stream textureStream))
+                if (textureLookup.TryGetValue(range.Material, out Stream textureStream))
                     InitializeMaterialBaseColorChannel(root, material, textureStream);
 
                 materials.Add(material.Name, material);
@@ -423,40 +425,72 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
 
         private static void CreateAnimations(
-            IReadOnlyList<Node> joints,
-            IReadOnlyList<(string name, LeagueAnimation animation)> animations
+            IEnumerable<Node> joints,
+            IEnumerable<(string Name, IAnimationAsset Animation)> animations
         )
         {
             Guard.IsNotNull(joints, nameof(joints));
             Guard.IsNotNull(animations, nameof(animations));
 
+            Dictionary<uint, Node> nodesByHash =
+                new(joints.Select(x => new KeyValuePair<uint, Node>(Elf.HashLower(x.Name), x)));
+
             foreach (var (name, animation) in animations)
             {
-                foreach (AnimationTrack track in animation.Tracks)
+                CreateGltfAnimation(name, animation, nodesByHash);
+            }
+        }
+
+        private static void CreateGltfAnimation(
+            string animationName,
+            IAnimationAsset animation,
+            IReadOnlyDictionary<uint, Node> nodesByHash
+        )
+        {
+            Dictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose = new();
+
+            int frameCount = (int)(animation.Fps * animation.Duration);
+            Dictionary<uint, (float, Quaternion)[]> jointRotations = new(frameCount);
+            Dictionary<uint, (float, Vector3)[]> jointTranslations = new(frameCount);
+            Dictionary<uint, (float, Vector3)[]> jointScales = new(frameCount);
+
+            // Populate samplers
+            foreach (var (jointHash, _) in nodesByHash)
+            {
+                jointRotations.Add(jointHash, new (float, Quaternion)[frameCount]);
+                jointTranslations.Add(jointHash, new (float, Vector3)[frameCount]);
+                jointScales.Add(jointHash, new (float, Vector3)[frameCount]);
+            }
+
+            // Re-sample the animation in linear time
+            float frameDuration = 1 / animation.Fps;
+            for (int frameId = 0; frameId < frameCount; frameId++)
+            {
+                float frameTime = frameId * frameDuration;
+
+                // Evaluate the pose for the current frame
+                animation.Evaluate(frameTime, pose);
+
+                foreach (var (jointHash, transform) in pose)
                 {
-                    Node joint = joints.FirstOrDefault(x => Elf.HashLower(x.Name) == track.JointHash);
+                    if (jointRotations.TryGetValue(jointHash, out var rotations))
+                        rotations[frameId] = (frameTime, transform.Rotation);
 
-                    if (joint is null)
-                        continue;
+                    if (jointTranslations.TryGetValue(jointHash, out var translations))
+                        translations[frameId] = (frameTime, transform.Translation);
 
-                    if (track.Translations.Count == 0)
-                        track.Translations.Add(0.0f, new Vector3(0, 0, 0));
-                    if (track.Translations.Count == 1)
-                        track.Translations.Add(1.0f, new Vector3(0, 0, 0));
-                    joint.WithTranslationAnimation(name, track.Translations);
-
-                    if (track.Rotations.Count == 0)
-                        track.Rotations.Add(0.0f, Quaternion.Identity);
-                    if (track.Rotations.Count == 1)
-                        track.Rotations.Add(1.0f, Quaternion.Identity);
-                    joint.WithRotationAnimation(name, track.Rotations);
-
-                    if (track.Scales.Count == 0)
-                        track.Scales.Add(0.0f, new Vector3(1, 1, 1));
-                    if (track.Scales.Count == 1)
-                        track.Scales.Add(1.0f, new Vector3(1, 1, 1));
-                    joint.WithScaleAnimation(name, track.Scales);
+                    if (jointScales.TryGetValue(jointHash, out var scales))
+                        scales[frameId] = (frameTime, transform.Scale);
                 }
+            }
+
+            // Create samplers for joints
+            foreach (var (jointHash, jointNode) in nodesByHash)
+            {
+                jointNode
+                    .WithRotationAnimation(animationName, jointRotations[jointHash])
+                    .WithTranslationAnimation(animationName, jointTranslations[jointHash])
+                    .WithScaleAnimation(animationName, jointScales[jointHash]);
             }
         }
 
