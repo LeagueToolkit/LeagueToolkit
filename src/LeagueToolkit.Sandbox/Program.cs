@@ -43,6 +43,20 @@ namespace LeagueToolkit.Sandbox
             //ProfileMetaSerialization();
         }
 
+        static void ProfileGltfToRiggedMesh2()
+        {
+            ModelRoot convertedGltf = ModelRoot.Load("Test2.glb");
+
+            var (convertedMesh, convertedRig) = convertedGltf.ToRiggedMesh();
+
+            convertedMesh.WriteSimpleSkin(@"Test2.skn");
+
+            {
+                using FileStream rigStream = File.Create(@"Test2.skl");
+                convertedRig.Write(rigStream);
+            }
+        }
+
         static void ProfileGltfToRiggedMesh()
         {
             List<(string name, IAnimationAsset animation)> animations = new();

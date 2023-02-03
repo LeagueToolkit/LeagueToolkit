@@ -116,7 +116,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Skin skin = root.LogicalSkins[0];
 
             // Create rig
-            var (rig, influenceBridgeLookup) = CreateRig(skin.VisualParents.FirstOrDefault(), skin);
+
+            var (rig, influenceBridgeLookup) = CreateRig(skin);
 
             SkinnedMeshRange[] ranges = CreateSkinnedMeshRanges(mesh.Primitives);
             MemoryOwner<ushort> indexBufferOwner = CreateSkinnedMeshIndexBuffer(mesh.Primitives);
@@ -495,18 +496,19 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
 
         #region glTF -> Rig Resource
-        private static (RigResource Rig, byte[] InfluenceBridgeLookup) CreateRig(Node skeletonNode, Skin skin)
+        private static (RigResource Rig, byte[] InfluenceBridgeLookup) CreateRig(Skin skin)
         {
-            Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
             Guard.IsNotNull(skin, nameof(skin));
+
+            Node rootNode = GltfUtils.FindRootNode(skin.VisualParents.FirstOrDefault());
 
             RigResourceBuilder rigBuilder = new();
 
             // Build rig joints
-            List<Node> jointNodes = TraverseJointNodes(skeletonNode).ToList();
+            List<Node> jointNodes = TraverseJointNodes(rootNode).ToList();
             List<JointBuilder> joints = new(jointNodes.Count);
             foreach (Node jointNode in jointNodes)
-                CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, skeletonNode);
+                CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, rootNode);
 
             // Build rig
             RigResource rig = rigBuilder.Build();
