@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using ZstdSharp;
+using ZstdNet;
 
 namespace LeagueToolkit.IO.ReleaseManifestFile
 {
@@ -21,6 +21,7 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
         private readonly ReleaseManifestBody _body;
 
         public ReleaseManifest(string fileLocation) : this(File.OpenRead(fileLocation)) { }
+
         public ReleaseManifest(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
@@ -69,6 +70,7 @@ namespace LeagueToolkit.IO.ReleaseManifestFile
         }
 
         public void Write(string fileLocation) => Write(File.Create(fileLocation));
+
         public void Write(Stream stream, bool leaveOpen = false)
         {
             byte[] magic = Encoding.ASCII.GetBytes("RMAN");

@@ -1,5 +1,5 @@
 ﻿using LeagueToolkit.Core.Animation;
-using LeagueToolkit.IO.WadFile;
+using LeagueToolkit.Core.Wad;
 using System;
 using System.IO;
 
@@ -245,11 +245,11 @@ namespace LeagueToolkit.Helpers
             }
         }
 
-        public static WadEntryType GetExtensionWadCompressionType(string extension)
+        public static WadChunkCompression GetExtensionWadCompressionType(string extension)
         {
             if (string.IsNullOrEmpty(extension))
             {
-                return WadEntryType.Uncompressed;
+                return WadChunkCompression.None;
             }
             else
             {
@@ -260,11 +260,11 @@ namespace LeagueToolkit.Helpers
 
                 if (extension.Contains("glsl"))
                 {
-                    return WadEntryType.Uncompressed;
+                    return WadChunkCompression.None;
                 }
                 if (extension.Contains("dx9"))
                 {
-                    return WadEntryType.Uncompressed;
+                    return WadChunkCompression.None;
                 }
 
                 switch (extension)
@@ -276,9 +276,9 @@ namespace LeagueToolkit.Helpers
                     case "gfx":
                     case "png":
                     case "preload":
-                        return WadEntryType.Uncompressed;
+                        return WadChunkCompression.None;
                     default:
-                        return WadEntryType.ZStandardCompressed;
+                        return WadChunkCompression.Zstd;
                 }
             }
         }

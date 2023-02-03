@@ -30,6 +30,7 @@ using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 using LeagueToolkit.Core.Animation;
 using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Wad;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -37,10 +38,15 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileGltfToRiggedMesh();
+            ProfileWad();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
+        }
+
+        static void ProfileWad()
+        {
+            WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
         }
 
         static void ProfileGltfToRiggedMesh2()
