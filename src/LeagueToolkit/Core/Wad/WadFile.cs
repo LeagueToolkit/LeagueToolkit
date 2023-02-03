@@ -67,14 +67,14 @@ namespace LeagueToolkit.Core.Wad
             }
         }
 
-        private MemoryOwner<byte> LoadChunk(ulong pathHash)
+        public MemoryOwner<byte> LoadChunk(ulong pathHash)
         {
             WadChunk chunk = FindChunk(pathHash);
 
             return LoadChunk(chunk);
         }
 
-        private MemoryOwner<byte> LoadChunk(WadChunk chunk)
+        public MemoryOwner<byte> LoadChunk(WadChunk chunk)
         {
             MemoryOwner<byte> chunkDataOwner = MemoryOwner<byte>.Allocate(chunk.CompressedSize);
             this._stream.Read(chunkDataOwner.Span);
@@ -82,7 +82,7 @@ namespace LeagueToolkit.Core.Wad
             return chunkDataOwner;
         }
 
-        private Stream OpenChunk(ulong pathHash)
+        public Stream OpenChunk(ulong pathHash)
         {
             WadChunk chunk = FindChunk(pathHash);
             MemoryOwner<byte> chunkData = LoadChunk(chunk);
@@ -91,7 +91,9 @@ namespace LeagueToolkit.Core.Wad
             {
                 WadChunkCompression.None => chunkData.AsStream(),
                 WadChunkCompression.GZip => new GZipStream(chunkData.AsStream(), CompressionMode.Decompress),
-                WadChunkCompression.Satellite => throw new NotImplementedException(),
+                WadChunkCompression.Satellite
+                    => throw new NotImplementedException("Opening satellite chunks is not supported"),
+                // zstd handles frames for us so we can ignore chunks
                 WadChunkCompression.Zstd
                 or WadChunkCompression.ZstdChunked
                     => new ZstdNet.DecompressionStream(chunkData.AsStream()),

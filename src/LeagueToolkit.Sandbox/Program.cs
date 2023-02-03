@@ -46,7 +46,7 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileWad()
         {
-            WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
+            WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Maps\Shipping\Map11.wad.client");
         }
 
         static void ProfileGltfToRiggedMesh2()
