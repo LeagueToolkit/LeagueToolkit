@@ -166,5 +166,18 @@ namespace LeagueToolkit.IO.Extensions.Utils
                 ElementName.Tangent => new("TANGENT", 0, vertexCount, 0, DimensionType.VEC4, EncodingType.FLOAT),
                 _ => throw new NotImplementedException($"Cannot map element: {element} to a glTF vertex attribute")
             };
+
+        internal static Node FindRootNode(Node node)
+        {
+            Guard.IsNotNull(node, nameof(node));
+
+            while (true)
+            {
+                if (node.VisualParent is null)
+                    return node;
+
+                node = node.VisualParent;
+            }
+        }
     }
 }
