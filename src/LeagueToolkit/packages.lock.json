@@ -48,13 +48,19 @@
           "System.Text.Encoding.CodePages": "5.0.0"
         }
       },
+      "Standart.Hash.xxHash": {
+        "type": "Direct",
+        "requested": "[4.0.5, )",
+        "resolved": "4.0.5",
+        "contentHash": "2QC9zDPFT/SOnP7iFdK3AwakEcJ7D3zDoU7IwIAOyEhY4WQ2GQBvLqZ29/R1BSujPNtGHMITmVW1d+VjvLg6lg=="
+      },
       "XXHash3.NET": {
         "type": "Direct",
-        "requested": "[1.2.2, )",
-        "resolved": "1.2.2",
-        "contentHash": "/JFi9foLqJoxuS60X+/zV29W347NAEenkgbEnvJupwkKohlQB9T5ce4LhgGT785G2+yKZJVgNyJ9T3VhwVH0cA==",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "1iFJ0SZyiWVAj5BHFlNeKbLVTDmYDwNbtq2yMOFAID5BjwDu+hBbpk+VKiNZc7/jcamkkh7M6mD9q+gINHYAIA==",
         "dependencies": {
-          "System.Memory": "4.5.4"
+          "CommunityToolkit.Diagnostics": "8.0.0"
         }
       },
       "ZstdNet": {
