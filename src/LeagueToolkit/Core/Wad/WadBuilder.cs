@@ -5,8 +5,18 @@ using XXHash3NET;
 
 namespace LeagueToolkit.Core.Wad;
 
+/// <summary>
+/// Provides an interface for building a <see cref="WadFile"/>
+/// </summary>
 public static class WadBuilder
 {
+    /// <summary>
+    /// Creates a new <see cref="WadFile"/> by "baking" it using the specified parameters
+    /// </summary>
+    /// <param name="files">The files to add to the <see cref="WadFile"/></param>
+    /// <param name="rootDirectory">The root directory of the files to add</param>
+    /// <param name="output">The path to the created <see cref="WadFile"/></param>
+    /// <param name="settings">The settings to use for the baking process</param>
     public static void BakeFiles(
         IEnumerable<string> files,
         string rootDirectory,
