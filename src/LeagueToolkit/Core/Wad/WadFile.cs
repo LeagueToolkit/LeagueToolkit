@@ -16,7 +16,7 @@ public sealed class WadFile : IDisposable
 
     private readonly FileStream _stream;
 
-    public bool IsDiposed { get; private set; }
+    public bool IsDisposed { get; private set; }
 
     internal WadFile(IEnumerable<WadChunk> chunks)
     {
@@ -150,7 +150,7 @@ public sealed class WadFile : IDisposable
 
     private void Dispose(bool disposing)
     {
-        if (this.IsDiposed)
+        if (this.IsDisposed)
             return;
 
         if (disposing)
@@ -158,7 +158,7 @@ public sealed class WadFile : IDisposable
             this._stream?.Dispose();
         }
 
-        this.IsDiposed = true;
+        this.IsDisposed = true;
     }
 
     public void Dispose()

@@ -5,16 +5,18 @@ using XXHash3NET;
 
 namespace LeagueToolkit.Core.Wad;
 
-public static class WadBaker
+public static class WadBuilder
 {
     public static void BakeFiles(
-        string rootDirectory,
         IEnumerable<string> files,
+        string rootDirectory,
         string output,
         WadBakeSettings settings
     )
     {
         Guard.IsNotNull(files, nameof(files));
+        Guard.IsNotNull(rootDirectory, nameof(rootDirectory));
+        Guard.IsNotNullOrEmpty(output, nameof(output));
 
         BakeDirectory(
             new()
@@ -27,78 +29,72 @@ public static class WadBaker
         );
     }
 
-    private static void BakeDirectory(WadBakeContext context)
+    private static void BakeDirectory(WadBuildContext context)
     {
         // Write the descriptor template
         using FileStream bakedWadStream = File.Create(context.Output);
+        bakedWadStream.Seek(WadFile.HEADER_SIZE_V3 + (WadChunk.TOC_SIZE_V3 * context.Files.Length), SeekOrigin.Begin);
 
-        Span<byte> wadDescriptorTemplate =
-            stackalloc byte[WadFile.HEADER_SIZE_V3 + (WadChunk.TOC_SIZE_V3 * context.Files.Length)];
-
-        wadDescriptorTemplate.Clear();
-        bakedWadStream.Write(wadDescriptorTemplate);
-
+        // Create chunks
         foreach (string filePath in context.Files)
-        {
-            using FileStream fileStream = File.OpenRead(filePath);
-            WadChunkCompression chunkCompression = WadUtils.GetExtensionCompression(Path.GetExtension(fileStream.Name));
-            using Stream compressedFileStream = CreateChunkStream(fileStream, chunkCompression);
-
-            ulong streamChecksum = CreateChunkChecksum(compressedFileStream);
-            var (dataOffset, isDuplicated) = context.ChecksumOffsetLookup.TryGetValue(
-                streamChecksum,
-                out long existingChunkOffset
-            ) switch
-            {
-                true => (existingChunkOffset, true),
-                false => (bakedWadStream.Position, false)
-            };
-
-            // Write chunk data if it's not a duplicate
-            int uncompressedSize = (int)fileStream.Length;
-            int compressedSize = (int)compressedFileStream.Length;
-            if (isDuplicated is false)
-            {
-                using MemoryOwner<byte> chunkDataOwner = MemoryOwner<byte>.Allocate(compressedSize);
-
-                compressedFileStream.Read(chunkDataOwner.Span);
-                bakedWadStream.Write(chunkDataOwner.Span);
-            }
-
-            // Create chunk
-            string chunkPath = Path.GetRelativePath(context.RootDirectory, filePath)
-                .Replace(Path.DirectorySeparatorChar, '/')
-                .ToLower();
-
-            WadChunk chunk =
-                new(
-                    XXHash64.Compute(chunkPath),
-                    dataOffset,
-                    compressedSize,
-                    uncompressedSize,
-                    chunkCompression,
-                    isDuplicated,
-                    0,
-                    0,
-                    streamChecksum
-                );
-
-            if (isDuplicated is false)
-                context.ChecksumOffsetLookup.Add(streamChecksum, dataOffset);
-
-            context.Chunks.Add(chunk);
-        }
+            CreateChunk(filePath, bakedWadStream, context);
 
         // Seek to start and write actual descriptor
         bakedWadStream.Seek(0, SeekOrigin.Begin);
-
         WadFile bakedWad = new(context.Chunks);
         bakedWad.WriteDescriptor(bakedWadStream);
     }
 
-    private static WadChunk CreateChunk()
+    private static void CreateChunk(string filePath, Stream bakedWadStream, WadBuildContext context)
     {
-        return default;
+        using FileStream fileStream = File.OpenRead(filePath);
+        WadChunkCompression chunkCompression = WadUtils.GetExtensionCompression(Path.GetExtension(fileStream.Name));
+        using Stream compressedFileStream = CreateChunkStream(fileStream, chunkCompression);
+
+        // Get the stream checksum and check for duplication
+        ulong streamChecksum = CreateChunkChecksum(compressedFileStream);
+        var (dataOffset, isDuplicated) = context.ChecksumOffsetLookup.TryGetValue(
+            streamChecksum,
+            out long existingChunkOffset
+        ) switch
+        {
+            true => (existingChunkOffset, true),
+            false => (bakedWadStream.Position, false)
+        };
+
+        // Write chunk data if it's not a duplicate
+        int uncompressedSize = (int)fileStream.Length;
+        int compressedSize = (int)compressedFileStream.Length;
+        if (isDuplicated is false)
+        {
+            using MemoryOwner<byte> chunkDataOwner = MemoryOwner<byte>.Allocate(compressedSize);
+
+            compressedFileStream.Read(chunkDataOwner.Span);
+            bakedWadStream.Write(chunkDataOwner.Span);
+        }
+
+        // Create chunk
+        string chunkPath = Path.GetRelativePath(context.RootDirectory, filePath)
+            .Replace(Path.DirectorySeparatorChar, '/')
+            .ToLower();
+
+        WadChunk chunk =
+            new(
+                XXHash64.Compute(chunkPath),
+                dataOffset,
+                compressedSize,
+                uncompressedSize,
+                chunkCompression,
+                isDuplicated,
+                0,
+                0,
+                streamChecksum
+            );
+
+        if (isDuplicated is false)
+            context.ChecksumOffsetLookup.Add(streamChecksum, dataOffset);
+
+        context.Chunks.Add(chunk);
     }
 
     private static Stream CreateChunkStream(FileStream fileStream, WadChunkCompression chunkCompression)
@@ -129,7 +125,7 @@ public static class WadBaker
     }
 }
 
-internal sealed class WadBakeContext
+internal sealed class WadBuildContext
 {
     public string RootDirectory { get; init; }
     public string[] Files { get; init; }

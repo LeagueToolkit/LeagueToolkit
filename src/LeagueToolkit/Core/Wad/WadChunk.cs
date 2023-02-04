@@ -53,7 +53,7 @@ public readonly struct WadChunk
 
         byte type_subChunkCount = br.ReadByte();
         int subChunkCount = type_subChunkCount >> 4;
-        WadChunkCompression dataType = (WadChunkCompression)(type_subChunkCount & 0xF);
+        WadChunkCompression chunkCompression = (WadChunkCompression)(type_subChunkCount & 0xF);
 
         bool isDuplicated = br.ReadBoolean();
         ushort startSubChunk = br.ReadUInt16();
@@ -76,7 +76,7 @@ public readonly struct WadChunk
             dataOffset,
             compressedSize,
             uncompressedSize,
-            dataType,
+            chunkCompression,
             isDuplicated,
             subChunkCount,
             startSubChunk,

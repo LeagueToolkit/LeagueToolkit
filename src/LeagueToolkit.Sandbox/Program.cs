@@ -62,9 +62,9 @@ namespace LeagueToolkit.Sandbox
                 "*.*",
                 SearchOption.AllDirectories
             );
-            WadBaker.BakeFiles(
-                "X:\\sandbox\\lol\\wadbaketest",
+            WadBuilder.BakeFiles(
                 files,
+                "X:\\sandbox\\lol\\wadbaketest",
                 "X:\\sandbox\\lol\\testwad.wad.client",
                 new() { DetectDuplicateChunkData = true }
             );
