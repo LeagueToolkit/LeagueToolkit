@@ -40,7 +40,7 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileWad();
+            LoadBlenderConverted();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
@@ -63,16 +63,40 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileGltfToRiggedMesh2()
         {
-            ModelRoot convertedGltf = ModelRoot.Load("Test2.glb");
+            ModelRoot convertedGltf = ModelRoot.Load("neeko_skin22.pie_c_12_20.blender.glb");
 
             var (convertedMesh, convertedRig) = convertedGltf.ToRiggedMesh();
 
-            convertedMesh.WriteSimpleSkin(@"Test2.skn");
+            convertedMesh.WriteSimpleSkin(@"neeko_skin22.pie_c_12_20.blender.glb.skn");
 
             {
-                using FileStream rigStream = File.Create(@"Test2.skl");
+                using FileStream rigStream = File.Create(@"neeko_skin22.pie_c_12_20.blender.glb.skl");
                 convertedRig.Write(rigStream);
             }
+        }
+
+        static void LoadBlenderConverted()
+        {
+            List<(string name, IAnimationAsset animation)> animations = new();
+            foreach (
+                string animationFile in Directory.EnumerateFiles(
+                    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\animations"
+                )
+            )
+            {
+                using FileStream stream = File.OpenRead(animationFile);
+                IAnimationAsset animation = AnimationAsset.Load(stream);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
+            SkinnedMesh skn = SkinnedMesh.ReadFromSimpleSkin("neeko_skin22.pie_c_12_20.blender.glb.skn");
+
+            using FileStream rigStream = File.OpenRead("neeko_skin22.pie_c_12_20.blender.glb.skl");
+            RigResource rig = new(rigStream);
+
+            skn.ToGltf(rig, new List<(string, Stream)>(), animations)
+                .Save("neeko_skin22.pie_c_12_20.blender.glb.skn.glb");
         }
 
         static void ProfileGltfToRiggedMesh()

@@ -455,14 +455,6 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Dictionary<uint, (float, Vector3)[]> jointTranslations = new(frameCount);
             Dictionary<uint, (float, Vector3)[]> jointScales = new(frameCount);
 
-            // Populate samplers
-            foreach (var (jointHash, _) in nodesByHash)
-            {
-                jointRotations.Add(jointHash, new (float, Quaternion)[frameCount]);
-                jointTranslations.Add(jointHash, new (float, Vector3)[frameCount]);
-                jointScales.Add(jointHash, new (float, Vector3)[frameCount]);
-            }
-
             // Re-sample the animation in linear time
             float frameDuration = 1 / animation.Fps;
             for (int frameId = 0; frameId < frameCount; frameId++)
@@ -474,24 +466,31 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
                 foreach (var (jointHash, transform) in pose)
                 {
-                    if (jointRotations.TryGetValue(jointHash, out var rotations))
-                        rotations[frameId] = (frameTime, transform.Rotation);
+                    if (!jointRotations.ContainsKey(jointHash))
+                        jointRotations.Add(jointHash, new (float, Quaternion)[frameCount]);
+                    jointRotations[jointHash][frameId] = (frameTime, transform.Rotation);
 
-                    if (jointTranslations.TryGetValue(jointHash, out var translations))
-                        translations[frameId] = (frameTime, transform.Translation);
+                    if (!jointTranslations.ContainsKey(jointHash))
+                        jointTranslations.Add(jointHash, new (float, Vector3)[frameCount]);
+                    jointTranslations[jointHash][frameId] = (frameTime, transform.Translation);
 
-                    if (jointScales.TryGetValue(jointHash, out var scales))
-                        scales[frameId] = (frameTime, transform.Scale);
+                    if (!jointScales.ContainsKey(jointHash))
+                        jointScales.Add(jointHash, new (float, Vector3)[frameCount]);
+                    jointScales[jointHash][frameId] = (frameTime, transform.Scale);
                 }
             }
 
             // Create samplers for joints
             foreach (var (jointHash, jointNode) in nodesByHash)
             {
-                jointNode
-                    .WithRotationAnimation(animationName, jointRotations[jointHash])
-                    .WithTranslationAnimation(animationName, jointTranslations[jointHash])
-                    .WithScaleAnimation(animationName, jointScales[jointHash]);
+                if (jointRotations.TryGetValue(jointHash, out var rotationFrames))
+                    jointNode.WithRotationAnimation(animationName, rotationFrames);
+
+                if (jointTranslations.TryGetValue(jointHash, out var translationFrames))
+                    jointNode.WithTranslationAnimation(animationName, translationFrames);
+
+                if (jointScales.TryGetValue(jointHash, out var scaleFrames))
+                    jointNode.WithScaleAnimation(animationName, scaleFrames);
             }
         }
 
