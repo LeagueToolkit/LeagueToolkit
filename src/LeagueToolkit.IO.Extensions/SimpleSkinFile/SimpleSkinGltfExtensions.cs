@@ -8,33 +8,17 @@ using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.IO.Extensions.Utils;
-using LeagueToolkit.IO.MapGeometryFile;
-using SharpGLTF.Animations;
-using SharpGLTF.Geometry;
-using SharpGLTF.Geometry.VertexTypes;
-using SharpGLTF.Materials;
 using SharpGLTF.Memory;
-using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
-using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography;
-using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 using GltfImage = SharpGLTF.Schema2.Image;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
 {
-    using VERTEX = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexEmpty>;
-    using VERTEX_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexEmpty>;
-    using VERTEX_SKINNED = VertexBuilder<VertexPositionNormal, VertexTexture1, VertexJoints4>;
-    using VERTEX_SKINNED_COLOR = VertexBuilder<VertexPositionNormal, VertexColor1Texture1, VertexJoints4>;
-    using VERTEX_SKINNED_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexJoints4>;
-    using VERTEX_TANGENT = VertexBuilder<VertexPositionNormalTangent, VertexColor1Texture1, VertexEmpty>;
-
     public static class SimpleSkinGltfExtensions
     {
         /// <summary>
@@ -53,12 +37,12 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("SkinnedMesh");
-            Node modelNode = scene.CreateNode("model");
+            Node meshNode = scene.CreateNode("skinned_mesh");
 
             Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, textures);
-            Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, false, materials);
+            Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, null, materials);
 
-            modelNode.WithMesh(gltfMesh);
+            meshNode.WithMesh(gltfMesh);
 
             root.DefaultScene = scene;
             return root;
@@ -86,17 +70,18 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene("SkinnedMesh");
-            Node modelNode = scene.CreateNode("model");
+            Node meshNode = scene.CreateNode("skinned_mesh");
 
             Dictionary<string, Material> materials = CreateGltfMaterials(root, skinnedMesh, textures);
-            Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, true, materials);
-            var (influenceNodes, jointNodes) = CreateGltfSkeleton(modelNode, rig);
+            var (jointNodes, influenceLookup) = CreateGltfSkeleton(rig, meshNode);
+
+            Mesh gltfMesh = CreateGltfMesh(root, skinnedMesh, influenceLookup, materials);
 
             // Add mesh to scene
-            modelNode.WithSkinnedMesh(gltfMesh, influenceNodes.ToArray());
+            meshNode.WithSkinnedMesh(gltfMesh, jointNodes.ToArray());
 
             // Create animations
-            CreateAnimations(jointNodes, animations);
+            CreateAnimations(jointNodes.Select(x => x.Item1), animations);
 
             root.DefaultScene = scene;
             return root;
@@ -116,12 +101,12 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Skin skin = root.LogicalSkins[0];
 
             // Create rig
-
-            var (rig, influenceBridgeLookup) = CreateRig(skin);
+            bool[] isJointInfluenceLookup = CreateIsJointInfluenceLookup(mesh, skin);
+            var (rig, influenceLookup) = CreateRig(skin, isJointInfluenceLookup);
 
             SkinnedMeshRange[] ranges = CreateSkinnedMeshRanges(mesh.Primitives);
             MemoryOwner<ushort> indexBufferOwner = CreateSkinnedMeshIndexBuffer(mesh.Primitives);
-            VertexBuffer vertexBuffer = CreateSkinnedMeshVertexBuffer(mesh, ranges, influenceBridgeLookup);
+            VertexBuffer vertexBuffer = CreateSkinnedMeshVertexBuffer(mesh, ranges, influenceLookup);
 
             SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
 
@@ -129,6 +114,35 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
 
         #region Skinned Mesh creation
+        private static bool[] CreateIsJointInfluenceLookup(Mesh gltfMesh, Skin skin)
+        {
+            // We want to collect info about which joints are actually influences
+            bool[] isJointInfluenceLookup = new bool[skin.JointsCount];
+
+            foreach (MeshPrimitive primitive in gltfMesh.Primitives)
+            {
+                IList<Vector4> jointsArray = primitive.VertexAccessors["JOINTS_0"].AsVector4Array();
+                IList<Vector4> weightsArray = primitive.VertexAccessors["WEIGHTS_0"].AsVector4Array();
+
+                for (int i = 0; i < jointsArray.Count; i++)
+                {
+                    Vector4 joints = jointsArray[i];
+                    Vector4 weights = weightsArray[i];
+
+                    if (weights.X > 0.0f)
+                        isJointInfluenceLookup[(byte)joints.X] = true;
+                    if (weights.Y > 0.0f)
+                        isJointInfluenceLookup[(byte)joints.Y] = true;
+                    if (weights.Z > 0.0f)
+                        isJointInfluenceLookup[(byte)joints.Z] = true;
+                    if (weights.W > 0.0f)
+                        isJointInfluenceLookup[(byte)joints.W] = true;
+                }
+            }
+
+            return isJointInfluenceLookup;
+        }
+
         private static SkinnedMeshRange[] CreateSkinnedMeshRanges(IReadOnlyList<MeshPrimitive> primitives)
         {
             int indexOffset = 0;
@@ -180,12 +194,12 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         private static VertexBuffer CreateSkinnedMeshVertexBuffer(
             Mesh gltfMesh,
             SkinnedMeshRange[] ranges,
-            byte[] influenceBridgeLookup
+            byte[] influenceLookup
         )
         {
             Guard.IsNotNull(gltfMesh, nameof(gltfMesh));
             Guard.IsNotNull(ranges, nameof(ranges));
-            Guard.IsNotNull(influenceBridgeLookup, nameof(influenceBridgeLookup));
+            Guard.IsNotNull(influenceLookup, nameof(influenceLookup));
 
             int vertexCount = ranges.Sum(range => range.VertexCount);
             VertexBufferDescription vertexBufferDescription = CreateVertexBufferDescription(gltfMesh);
@@ -222,10 +236,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                         vertexId,
                         ElementName.BlendIndex,
                         (
-                            vertexWeights.X > 0f ? influenceBridgeLookup[(short)vertexJoints.X] : (byte)0,
-                            vertexWeights.Y > 0f ? influenceBridgeLookup[(short)vertexJoints.Y] : (byte)0,
-                            vertexWeights.Z > 0f ? influenceBridgeLookup[(short)vertexJoints.Z] : (byte)0,
-                            vertexWeights.W > 0f ? influenceBridgeLookup[(short)vertexJoints.W] : (byte)0
+                            vertexWeights.X > 0f ? influenceLookup[(short)vertexJoints.X] : (byte)0,
+                            vertexWeights.Y > 0f ? influenceLookup[(short)vertexJoints.Y] : (byte)0,
+                            vertexWeights.Z > 0f ? influenceLookup[(short)vertexJoints.Z] : (byte)0,
+                            vertexWeights.W > 0f ? influenceLookup[(short)vertexJoints.W] : (byte)0
                         )
                     );
                     vertexBufferWriter.WriteVector4(vertexId, ElementName.BlendWeight, vertexWeights);
@@ -286,7 +300,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         private static Mesh CreateGltfMesh(
             ModelRoot root,
             SkinnedMesh skinnedMesh,
-            bool isSkinned,
+            byte[] influenceLookup,
             IReadOnlyDictionary<string, Material> materials
         )
         {
@@ -298,11 +312,14 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             MemoryAccessor[] meshVertexMemoryAccessors = GltfUtils
                 .CreateVertexMemoryAccessors(skinnedMesh.VerticesView)
-                .Where(x => isSkinned || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_0")))
+                .Where(x => influenceLookup is not null || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_0")))
                 .ToArray();
 
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
             GltfUtils.SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
+
+            if (influenceLookup is not null)
+                SanitizeVertexSkinningAttributes(meshVertexMemoryAccessors, influenceLookup);
 
             int baseVertex = 0;
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
@@ -329,6 +346,36 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             }
 
             return gltfMesh;
+        }
+
+        private static void SanitizeVertexSkinningAttributes(
+            IEnumerable<MemoryAccessor> memoryAccessors,
+            IReadOnlyList<byte> influenceLookup
+        )
+        {
+            MemoryAccessor jointsAccessor = memoryAccessors.FirstOrDefault(x => x.Attribute.Name is "JOINTS_0");
+            if (jointsAccessor is null)
+                ThrowHelper.ThrowInvalidOperationException("Failed to find JOINTS_0 memory accessor");
+
+            MemoryAccessor weightsAccessor = memoryAccessors.FirstOrDefault(x => x.Attribute.Name is "WEIGHTS_0");
+            if (weightsAccessor is null)
+                ThrowHelper.ThrowInvalidOperationException("Failed to find WEIGHTS_0 memory accessor");
+
+            Vector4Array jointsArray = jointsAccessor.AsVector4Array();
+            Vector4Array weightsArray = weightsAccessor.AsVector4Array();
+
+            for (int i = 0; i < jointsArray.Count; i++)
+            {
+                Vector4 joints = jointsArray[i];
+                Vector4 weights = weightsArray[i];
+
+                jointsArray[i] = new(
+                    weights.X > 0.0f ? influenceLookup[(byte)joints.X] : joints.X,
+                    weights.Y > 0.0f ? influenceLookup[(byte)joints.Y] : joints.Y,
+                    weights.Z > 0.0f ? influenceLookup[(byte)joints.Z] : joints.Z,
+                    weights.W > 0.0f ? influenceLookup[(byte)joints.W] : joints.W
+                );
+            }
         }
         #endregion
 
@@ -374,57 +421,80 @@ namespace LeagueToolkit.IO.SimpleSkinFile
         }
         #endregion
 
-        private static (
-            List<(Node Node, Matrix4x4 InverseBindMatrix)> Influences,
-            List<Node> JointNodes
-        ) CreateGltfSkeleton(Node skeletonNode, RigResource rig)
+        #region glTF Skeleton creation
+        private static (List<(Node, Matrix4x4)>, byte[]) CreateGltfSkeleton(RigResource rig, Node skeletonRoot)
         {
-            Guard.IsNotNull(skeletonNode, nameof(skeletonNode));
             Guard.IsNotNull(rig, nameof(rig));
+            Guard.IsNotNull(skeletonRoot, nameof(skeletonRoot));
 
-            Matrix4x4 flipX = Matrix4x4.CreateScale(-1f, 1f, 1f);
-
-            // We create all rig joints as nodes but only bind those which act as influences
-            // In blender, this makes the un-bound joints act as locators instead of armature joints
-            List<(Node, Matrix4x4)> influenceJointNodes = new();
-            List<Node> jointNodes = new();
-
+            List<(Node, Matrix4x4)> jointNodes = new();
             foreach (Joint joint in rig.Joints)
+                CreateGltfSkeletonJoint(joint, skeletonRoot, rig, jointNodes);
+
+            byte[] influenceLookup = new byte[rig.Influences.Count];
+            for (int i = 0; i < rig.Joints.Count; i++)
             {
-                bool isInfluence = rig.Influences.Any(x => x == joint.Id);
+                Joint joint = rig.Joints[i];
 
-                // Root
-                if (joint.ParentId is -1)
-                {
-                    Node jointNode = skeletonNode
-                        .CreateNode(joint.Name)
-                        .WithLocalTranslation(joint.LocalTranslation)
-                        .WithLocalScale(joint.LocalScale)
-                        .WithLocalRotation(joint.LocalRotation);
+                // Check if the joint is an influence
+                int influenceId = rig.Influences.IndexOf(joint.Id);
+                if (influenceId is -1)
+                    continue;
 
-                    jointNodes.Add(jointNode);
-                    if (isInfluence)
-                        influenceJointNodes.Add((jointNode, joint.InverseBindTransform));
-                }
-                else
-                {
-                    Joint parentJoint = rig.Joints.FirstOrDefault(x => x.Id == joint.ParentId);
-                    Node parentNode = jointNodes.FirstOrDefault(x => x.Name == parentJoint.Name);
-                    Node jointNode = parentNode
-                        .CreateNode(joint.Name)
-                        .WithLocalTranslation(joint.LocalTranslation)
-                        .WithLocalScale(joint.LocalScale)
-                        .WithLocalRotation(joint.LocalRotation);
+                // Get the joint node index
+                int nodeId = jointNodes.FindIndex(((Node Node, Matrix4x4 _) x) => x.Node.Name == joint.Name);
+                if (nodeId > byte.MaxValue)
+                    ThrowHelper.ThrowInvalidOperationException("Cannot have more than 256 influences");
 
-                    jointNodes.Add(jointNode);
-                    if (isInfluence)
-                        influenceJointNodes.Add((jointNode, joint.InverseBindTransform));
-                }
+                influenceLookup[influenceId] = (byte)nodeId;
             }
 
-            return (influenceJointNodes, jointNodes);
+            return (jointNodes, influenceLookup);
         }
 
+        private static Node CreateGltfSkeletonJoint(
+            Joint joint,
+            Node skeletonRoot,
+            RigResource rig,
+            List<(Node JointNode, Matrix4x4 InverseBindTransform)> jointNodes
+        )
+        {
+            if (skeletonRoot.FindNode(x => x.Name == joint.Name) is Node existingJoint)
+                return existingJoint;
+
+            // Root
+            if (joint.ParentId is -1)
+            {
+                Node jointNode = skeletonRoot
+                    .CreateNode(joint.Name)
+                    .WithLocalTranslation(joint.LocalTranslation)
+                    .WithLocalScale(joint.LocalScale)
+                    .WithLocalRotation(joint.LocalRotation);
+
+                jointNodes.Add((jointNode, joint.InverseBindTransform));
+
+                return jointNode;
+            }
+            else
+            {
+                Joint parentJoint = rig.Joints.FirstOrDefault(x => x.Id == joint.ParentId);
+                Node parentNode = jointNodes.FirstOrDefault(x => x.JointNode.Name == parentJoint.Name).JointNode;
+                parentNode ??= CreateGltfSkeletonJoint(parentJoint, skeletonRoot, rig, jointNodes);
+
+                Node jointNode = parentNode
+                    .CreateNode(joint.Name)
+                    .WithLocalTranslation(joint.LocalTranslation)
+                    .WithLocalScale(joint.LocalScale)
+                    .WithLocalRotation(joint.LocalRotation);
+
+                jointNodes.Add((jointNode, joint.InverseBindTransform));
+
+                return jointNode;
+            }
+        }
+        #endregion
+
+        #region glTF Animation creation
         private static void CreateAnimations(
             IEnumerable<Node> joints,
             IEnumerable<(string Name, IAnimationAsset Animation)> animations
@@ -493,48 +563,53 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     jointNode.WithScaleAnimation(animationName, scaleFrames);
             }
         }
+        #endregion
 
         #region glTF -> Rig Resource
-        private static (RigResource Rig, byte[] InfluenceBridgeLookup) CreateRig(Skin skin)
+        private static (RigResource Rig, byte[] InfluenceLookup) CreateRig(
+            Skin skin,
+            IReadOnlyList<bool> isJointInfluenceLookup
+        )
         {
             Guard.IsNotNull(skin, nameof(skin));
+            Guard.IsNotNull(isJointInfluenceLookup, nameof(isJointInfluenceLookup));
 
             Node rootNode = GltfUtils.FindRootNode(skin.VisualParents.FirstOrDefault());
 
             RigResourceBuilder rigBuilder = new();
 
             // Build rig joints
-            List<Node> jointNodes = TraverseJointNodes(rootNode).ToList();
-            List<JointBuilder> joints = new(jointNodes.Count);
-            foreach (Node jointNode in jointNodes)
-                CreateRigJointFromGltfNode(rigBuilder, joints, jointNode, rootNode);
+            (Node Joint, Matrix4x4)[] jointNodes = Enumerable
+                .Range(0, skin.JointsCount)
+                .Select(skin.GetJoint)
+                .ToArray();
+            List<JointBuilder> joints = new(jointNodes.Length);
+
+            for (int i = 0; i < jointNodes.Length; i++)
+            {
+                JointBuilder joint = CreateRigJointFromGltfNode(rigBuilder, joints, jointNodes[i].Joint, rootNode);
+
+                joint.WithInfluence(isJointInfluenceLookup[i]);
+            }
 
             // Build rig
             RigResource rig = rigBuilder.Build();
 
             // We need to map the vertex joint ids to the influences in the built rig
-            byte[] influenceBridgeLookup = new byte[skin.JointsCount];
-            for (int i = 0; i < skin.JointsCount; i++)
+            byte[] influenceLookup = new byte[skin.JointsCount];
+            for (int i = 0; i < rig.Influences.Count; i++)
             {
-                // Get the influence node
-                Node jointNode = skin.GetJoint(i).Joint;
+                short influenceJointId = rig.Influences[i];
+                Joint influenceJoint = rig.Joints[influenceJointId];
 
-                // Find the rig joint and throw if it doesn't exist
-                Joint influenceJoint = rig.Joints.FirstOrDefault(x => x.Name == jointNode.Name);
-                if (influenceJoint is null)
-                    ThrowHelper.ThrowInvalidOperationException($"Failed to find joint for node: {jointNode.Name}");
+                int reverseLookupId = Array.FindIndex(jointNodes, x => x.Joint.Name == influenceJoint.Name);
+                if (reverseLookupId is -1)
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find node for joint: {influenceJoint.Name}");
 
-                // Find the id of the influence mapping in the rig which matches the joint
-                int influenceId = rig.Influences.IndexOf(influenceJoint.Id);
-                if (influenceId is -1)
-                    ThrowHelper.ThrowInvalidOperationException(
-                        $"Failed to find influence id for joint: {influenceJoint.Name}"
-                    );
-
-                influenceBridgeLookup[i] = (byte)influenceId;
+                influenceLookup[reverseLookupId] = (byte)i;
             }
 
-            return (rig, influenceBridgeLookup);
+            return (rig, influenceLookup);
         }
 
         private static JointBuilder CreateRigJointFromGltfNode(

@@ -40,10 +40,34 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            LoadBlenderConverted();
+            ProfileRiggedMeshToGltf(
+                @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skn",
+                @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skl",
+                "original.glb",
+                new List<(string, IAnimationAsset)>()
+            );
+            ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
 
-            //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
-            //ProfileMetaSerialization();
+            List<(string name, IAnimationAsset animation)> animations = new();
+            foreach (
+                string animationFile in Directory.EnumerateFiles(
+                    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\animations"
+                )
+            )
+            {
+                using FileStream stream = File.OpenRead(animationFile);
+                IAnimationAsset animation = AnimationAsset.Load(stream);
+
+                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
+            }
+
+            ProfileRiggedMeshToGltf("original.skn", "original.skl", "original.converted.glb", animations);
+
+            ProfileGltfToRiggedMesh(
+                "fromblender.glb",
+                "neeko_skin22.pie_c_12_20.fromblender.skn",
+                "neeko_skin22.pie_c_12_20.fromblender.skl"
+            );
         }
 
         static void ProfileWad()
@@ -61,84 +85,30 @@ namespace LeagueToolkit.Sandbox
             );
         }
 
-        static void ProfileGltfToRiggedMesh2()
+        static void ProfileGltfToRiggedMesh(string gltfPath, string sknPath, string sklPath)
         {
-            ModelRoot convertedGltf = ModelRoot.Load("neeko_skin22.pie_c_12_20.blender.glb");
+            ModelRoot gltf = ModelRoot.Load(gltfPath);
 
-            var (convertedMesh, convertedRig) = convertedGltf.ToRiggedMesh();
+            var (convertedMesh, convertedRig) = gltf.ToRiggedMesh();
 
-            convertedMesh.WriteSimpleSkin(@"neeko_skin22.pie_c_12_20.blender.glb.skn");
-
-            {
-                using FileStream rigStream = File.Create(@"neeko_skin22.pie_c_12_20.blender.glb.skl");
-                convertedRig.Write(rigStream);
-            }
+            convertedMesh.WriteSimpleSkin(sknPath);
+            using FileStream rigStream = File.Create(sklPath);
+            convertedRig.Write(rigStream);
         }
 
-        static void LoadBlenderConverted()
+        static void ProfileRiggedMeshToGltf(
+            string sknPath,
+            string sklPath,
+            string gltfPath,
+            IEnumerable<(string, IAnimationAsset)> animations
+        )
         {
-            List<(string name, IAnimationAsset animation)> animations = new();
-            foreach (
-                string animationFile in Directory.EnumerateFiles(
-                    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\animations"
-                )
-            )
-            {
-                using FileStream stream = File.OpenRead(animationFile);
-                IAnimationAsset animation = AnimationAsset.Load(stream);
+            SkinnedMesh skn = SkinnedMesh.ReadFromSimpleSkin(sknPath);
 
-                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
-            }
-
-            SkinnedMesh skn = SkinnedMesh.ReadFromSimpleSkin("neeko_skin22.pie_c_12_20.blender.glb.skn");
-
-            using FileStream rigStream = File.OpenRead("neeko_skin22.pie_c_12_20.blender.glb.skl");
+            using FileStream rigStream = File.OpenRead(sklPath);
             RigResource rig = new(rigStream);
 
-            skn.ToGltf(rig, new List<(string, Stream)>(), animations)
-                .Save("neeko_skin22.pie_c_12_20.blender.glb.skn.glb");
-        }
-
-        static void ProfileGltfToRiggedMesh()
-        {
-            List<(string name, IAnimationAsset animation)> animations = new();
-            foreach (string animationFile in Directory.EnumerateFiles("animations"))
-            {
-                using FileStream stream = File.OpenRead(animationFile);
-                IAnimationAsset animation = AnimationAsset.Load(stream);
-
-                animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
-            }
-
-            using SkinnedMesh originalSkinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
-            RigResource originalRig = new(File.OpenRead("akali.skl"));
-
-            ModelRoot originalGltf = originalSkinnedMesh.ToGltf(originalRig, new List<(string, Stream)>(), animations);
-
-            {
-                using Stream stream = File.Create("akali.glb");
-                originalGltf.WriteGLB(stream);
-            }
-
-            {
-                ModelRoot convertedGltf = ModelRoot.Load("akali.glb");
-
-                var (convertedMesh, convertedRig) = convertedGltf.ToRiggedMesh();
-
-                convertedMesh.WriteSimpleSkin(
-                    @"X:\lol\mods\AkaliGltf\Akali.wad.client\assets\characters\akali\skins\base\akali.skn"
-                );
-
-                {
-                    using FileStream rigStream = File.Create(
-                        @"X:\lol\mods\AkaliGltf\Akali.wad.client\assets\characters\akali\skins\base\akali.skl"
-                    );
-                    convertedRig.Write(rigStream);
-                }
-
-                using FileStream stream = File.Create("akali_fromgltf.glb");
-                convertedMesh.ToGltf(convertedRig, new List<(string, Stream)>(), animations).WriteGLB(stream);
-            }
+            skn.ToGltf(rig, new List<(string, Stream)>(), animations).Save(gltfPath);
         }
 
         static void ProfileRigResource()
@@ -274,7 +244,11 @@ namespace LeagueToolkit.Sandbox
                     .WithGeometry(
                         mesh.Submeshes.Select(
                             submesh =>
-                                new MeshPrimitiveBuilder(submesh.Material, submesh.StartIndex, submesh.IndexCount)
+                                new MeshPrimitiveBuilder(
+                                    MapGeometrySubmesh.MISSING_MATERIAL,
+                                    submesh.StartIndex,
+                                    submesh.IndexCount
+                                )
                         ),
                         vertexBuffer,
                         indexBuffer
