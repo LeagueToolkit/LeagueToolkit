@@ -298,7 +298,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             MemoryAccessor[] meshVertexMemoryAccessors = GltfUtils
                 .CreateVertexMemoryAccessors(skinnedMesh.VerticesView)
-                .Where(x => isSkinned || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_)")))
+                .Where(x => isSkinned || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_0")))
                 .ToArray();
 
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
