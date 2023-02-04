@@ -1,18 +1,52 @@
-﻿namespace LeagueToolkit.Core.Wad;
+﻿using XXHash3NET;
 
+namespace LeagueToolkit.Core.Wad;
+
+/// <summary>
+/// Represents a file entry in a <see cref="WadFile"/>
+/// </summary>
 public readonly struct WadChunk
 {
     internal const int TOC_SIZE_V3 = 32;
 
+    /// <summary>
+    /// Gets the lowercase path of the chunk hashed using <see cref="XXHash64"/>
+    /// </summary>
     public ulong PathHash { get; }
 
+    /// <summary>
+    /// Gets the offset to the data of the chunk
+    /// </summary>
     public long DataOffset { get; }
+
+    /// <summary>
+    /// Gets the compressed size of the chunk
+    /// </summary>
     public int CompressedSize { get; }
+
+    /// <summary>
+    /// Gets the uncompressed size of the chunk
+    /// </summary>
     public int UncompressedSize { get; }
-    public WadChunkCompression CompressionType { get; }
+
+    /// <summary>
+    /// Gets the compression of the chunk data
+    /// </summary>
+    public WadChunkCompression Compression { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the data of this chunk is duplicated
+    /// </summary>
     public bool IsDuplicated { get; }
 
+    /// <summary>
+    /// Gets the sub-chunk count
+    /// </summary>
     public int SubChunkCount { get; }
+
+    /// <summary>
+    /// Gets the start sub-chunk index
+    /// </summary>
     public int StartSubChunk { get; }
 
     private readonly ulong _checksum;
@@ -22,7 +56,7 @@ public readonly struct WadChunk
         long dataOffset,
         int compressedSize,
         int uncompressedSize,
-        WadChunkCompression compressionType,
+        WadChunkCompression compression,
         bool isDuplicated,
         int subChunkCount,
         int startSubChunk,
@@ -34,7 +68,7 @@ public readonly struct WadChunk
         this.DataOffset = dataOffset;
         this.CompressedSize = compressedSize;
         this.UncompressedSize = uncompressedSize;
-        this.CompressionType = compressionType;
+        this.Compression = compression;
         this.IsDuplicated = isDuplicated;
 
         this.SubChunkCount = subChunkCount;
@@ -90,18 +124,40 @@ public readonly struct WadChunk
         bw.Write((uint)this.DataOffset);
         bw.Write(this.CompressedSize);
         bw.Write(this.UncompressedSize);
-        bw.Write((byte)this.CompressionType);
+        bw.Write((byte)this.Compression);
         bw.Write(this.IsDuplicated);
         bw.Write((ushort)0);
         bw.Write(this._checksum);
     }
 }
 
+/// <summary>
+/// Represents the compression type used for the data of a <see cref="WadChunk"/>
+/// </summary>
 public enum WadChunkCompression : byte
 {
+    /// <summary>
+    /// No compression
+    /// </summary>
     None,
+
+    /// <summary>
+    /// GZip compression
+    /// </summary>
     GZip,
+
+    /// <summary>
+    /// The data of this chunk contains a string file redirect
+    /// </summary>
     Satellite,
+
+    /// <summary>
+    /// ZStandard compression
+    /// </summary>
     Zstd,
+
+    /// <summary>
+    /// Chunked ZStandard compression using sub-chunks
+    /// </summary>
     ZstdChunked
 }

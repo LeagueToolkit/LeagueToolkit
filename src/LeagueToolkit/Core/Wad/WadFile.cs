@@ -175,7 +175,7 @@ public sealed class WadFile : IDisposable
     {
         MemoryOwner<byte> chunkData = LoadChunk(chunk);
 
-        return chunk.CompressionType switch
+        return chunk.Compression switch
         {
             WadChunkCompression.None => chunkData.AsStream(),
             WadChunkCompression.GZip => new GZipStream(chunkData.AsStream(), CompressionMode.Decompress),
@@ -185,7 +185,7 @@ public sealed class WadFile : IDisposable
             WadChunkCompression.Zstd
             or WadChunkCompression.ZstdChunked
                 => new ZstdNet.DecompressionStream(chunkData.AsStream()),
-            _ => throw new InvalidOperationException($"Invalid chunk compression type: {chunk.CompressionType}")
+            _ => throw new InvalidOperationException($"Invalid chunk compression type: {chunk.Compression}")
         };
     }
 
