@@ -131,7 +131,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             foreach (MapGeometrySubmesh range in mesh.Submeshes)
             {
                 MemoryAccessor indicesMemoryAccessor = GltfUtils.CreateIndicesMemoryAccessor(
-                    mesh.Indices,
+                    mesh.Indices.Slice(range.StartIndex, range.IndexCount),
                     range.MinVertex
                 );
                 MemoryAccessor[] vertexMemoryAccessors = GltfUtils.SliceVertexMemoryAccessors(
