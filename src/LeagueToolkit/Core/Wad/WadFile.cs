@@ -104,6 +104,8 @@ public sealed class WadFile : IDisposable
     public MemoryOwner<byte> LoadChunk(WadChunk chunk)
     {
         MemoryOwner<byte> chunkDataOwner = MemoryOwner<byte>.Allocate(chunk.CompressedSize);
+
+        this._stream.Seek(chunk.DataOffset, SeekOrigin.Begin);
         this._stream.Read(chunkDataOwner.Span);
 
         return chunkDataOwner;

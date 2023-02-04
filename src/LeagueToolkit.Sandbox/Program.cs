@@ -48,7 +48,14 @@ namespace LeagueToolkit.Sandbox
 
         static void ProfileWad()
         {
-            WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Maps\Shipping\Map11.wad.client");
+            {
+                WadFile wad = new("X:\\sandbox\\lol\\testwad.wad.client");
+                Stream chunkStream = wad.OpenChunk("assets/characters/neeko/skins/base/neeko_base_tx_cm.dds");
+
+                using FileStream testStream = File.Create("X:\\sandbox\\lol\\neeko_base_tx_cm.dds");
+
+                chunkStream.CopyTo(testStream);
+            }
 
             IEnumerable<string> files = Directory.EnumerateFiles(
                 @"X:\sandbox\lol\wadbaketest",
