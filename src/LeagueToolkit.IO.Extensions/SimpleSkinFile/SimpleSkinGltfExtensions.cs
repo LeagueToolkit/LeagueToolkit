@@ -587,7 +587,13 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             for (int i = 0; i < jointNodes.Length; i++)
             {
-                JointBuilder joint = CreateRigJointFromGltfNode(rigBuilder, joints, jointNodes[i].Joint, rootNode);
+                JointBuilder joint = CreateRigJointFromGltfNode(
+                    rigBuilder,
+                    joints,
+                    jointNodes[i].Joint,
+                    jointNodes,
+                    rootNode
+                );
 
                 joint.WithInfluence(isJointInfluenceLookup[i]);
             }
@@ -616,6 +622,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             RigResourceBuilder rigBuilder,
             List<JointBuilder> joints,
             Node jointNode,
+            IReadOnlyList<(Node Joint, Matrix4x4 InverseBindTransform)> jointNodes,
             Node skeletonNode
         )
         {
@@ -623,7 +630,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             if (joints.Find(x => x.Name == jointNode.Name) is JointBuilder existingJoint)
                 return existingJoint;
 
-            Matrix4x4.Invert(jointNode.WorldMatrix, out Matrix4x4 inverseBindTransform);
+            Matrix4x4 inverseBindTransform = jointNodes.First(x => x.Joint == jointNode).InverseBindTransform;
 
             if (jointNode.VisualParent is null || jointNode.VisualParent == skeletonNode)
             {
@@ -641,7 +648,13 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             {
                 // Find joint parent and create create it recursively if it doesn't exist yet
                 JointBuilder parent = joints.Find(x => x.Name == jointNode.VisualParent.Name);
-                parent ??= CreateRigJointFromGltfNode(rigBuilder, joints, jointNode.VisualParent, skeletonNode);
+                parent ??= CreateRigJointFromGltfNode(
+                    rigBuilder,
+                    joints,
+                    jointNode.VisualParent,
+                    jointNodes,
+                    skeletonNode
+                );
 
                 JointBuilder joint = parent
                     .CreateJoint(jointNode.Name)

@@ -33,6 +33,7 @@ using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Wad;
 using System.Text;
 using System.Drawing;
+using LeagueToolkit.Hashing;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -48,6 +49,14 @@ namespace LeagueToolkit.Sandbox
             );
             ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
 
+            //ProfileRiggedMeshToGltf(
+            //    @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
+            //    @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
+            //    "renekton_skin26.glb",
+            //    new List<(string, IAnimationAsset)>()
+            //);
+            //ProfileGltfToRiggedMesh("renekton_skin26.glb", "renekton_skin26.glb.skn", "renekton_skin26.glb.skl");
+
             List<(string name, IAnimationAsset animation)> animations = new();
             foreach (
                 string animationFile in Directory.EnumerateFiles(
@@ -61,12 +70,17 @@ namespace LeagueToolkit.Sandbox
                 animations.Add((Path.GetFileNameWithoutExtension(animationFile), animation));
             }
 
-            ProfileRiggedMeshToGltf("original.skn", "original.skl", "original.converted.glb", animations);
-
             ProfileGltfToRiggedMesh(
                 "fromblender.glb",
                 "neeko_skin22.pie_c_12_20.fromblender.skn",
                 "neeko_skin22.pie_c_12_20.fromblender.skl"
+            );
+
+            ProfileRiggedMeshToGltf(
+                "neeko_skin22.pie_c_12_20.fromblender.skn",
+                "neeko_skin22.pie_c_12_20.fromblender.skl",
+                "neeko_skin22.pie_c_12_20.fromblender.skn.glb",
+                animations
             );
         }
 
@@ -107,6 +121,8 @@ namespace LeagueToolkit.Sandbox
 
             using FileStream rigStream = File.OpenRead(sklPath);
             RigResource rig = new(rigStream);
+
+            var xd = rig.Joints.OrderBy(x => Elf.HashLower(x.Name)).Select(x => (Elf.HashLower(x.Name), x));
 
             skn.ToGltf(rig, new List<(string, Stream)>(), animations).Save(gltfPath);
         }
