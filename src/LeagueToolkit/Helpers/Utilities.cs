@@ -244,59 +244,6 @@ namespace LeagueToolkit.Helpers
                     return "";
             }
         }
-
-        public static WadChunkCompression GetExtensionWadCompressionType(string extension)
-        {
-            if (string.IsNullOrEmpty(extension))
-            {
-                return WadChunkCompression.None;
-            }
-            else
-            {
-                if (extension[0] == '.')
-                {
-                    extension = extension.Remove(0, 1);
-                }
-
-                if (extension.Contains("glsl"))
-                {
-                    return WadChunkCompression.None;
-                }
-                if (extension.Contains("dx9"))
-                {
-                    return WadChunkCompression.None;
-                }
-
-                switch (extension)
-                {
-                    case "wpk":
-                    case "bnk":
-                    case "troybin":
-                    case "inibin":
-                    case "gfx":
-                    case "png":
-                    case "preload":
-                        return WadChunkCompression.None;
-                    default:
-                        return WadChunkCompression.Zstd;
-                }
-            }
-        }
-
-        public static float ToDegrees(float radian)
-        {
-            return radian * (180 / (float)Math.PI);
-        }
-
-        public static float ToRadians(float degrees)
-        {
-            return degrees * ((float)Math.PI / 180);
-        }
-
-        public static float Clamp(float value, float min, float max)
-        {
-            return Math.Max(min, Math.Min(max, value));
-        }
     }
 
     public enum LeagueFileType

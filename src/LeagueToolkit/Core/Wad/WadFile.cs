@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
-using Standart.Hash.xxHash;
 using System.IO.Compression;
 using System.Text;
+using XXHash3NET;
 
 namespace LeagueToolkit.Core.Wad;
 
@@ -17,6 +17,11 @@ public sealed class WadFile : IDisposable
     private readonly FileStream _stream;
 
     public bool IsDiposed { get; private set; }
+
+    internal WadFile(IEnumerable<WadChunk> chunks)
+    {
+        this._chunks = new(chunks.Select(x => new KeyValuePair<ulong, WadChunk>(x.PathHash, x)));
+    }
 
     public WadFile(string path)
     {
@@ -66,7 +71,28 @@ public sealed class WadFile : IDisposable
         }
     }
 
-    public MemoryOwner<byte> LoadChunk(string path) => LoadChunk(xxHash64.ComputeHash(path.ToLower()));
+    internal void WriteDescriptor(Stream stream)
+    {
+        using BinaryWriter bw = new(stream, Encoding.UTF8, true);
+
+        bw.Write("RW"u8);
+        bw.Write((byte)3); // major
+        bw.Write((byte)1); // minor
+
+        Span<byte> signature = stackalloc byte[256];
+        signature.Clear();
+
+        bw.Write(signature);
+        bw.Write((ulong)0);
+
+        bw.Write(this._chunks.Count);
+        foreach (WadChunk chunk in this._chunks.Values.OrderBy(x => x.PathHash))
+        {
+            chunk.Write(bw);
+        }
+    }
+
+    public MemoryOwner<byte> LoadChunk(string path) => LoadChunk(XXHash64.Compute(path.ToLower()));
 
     public MemoryOwner<byte> LoadChunk(ulong pathHash)
     {
@@ -83,7 +109,7 @@ public sealed class WadFile : IDisposable
         return chunkDataOwner;
     }
 
-    public Stream OpenChunk(string path) => OpenChunk(xxHash64.ComputeHash(path.ToLower()));
+    public Stream OpenChunk(string path) => OpenChunk(XXHash64.Compute(path.ToLower()));
 
     public Stream OpenChunk(ulong pathHash)
     {
@@ -110,7 +136,7 @@ public sealed class WadFile : IDisposable
         };
     }
 
-    public WadChunk FindChunk(string path) => FindChunk(xxHash64.ComputeHash(path.ToLower()));
+    public WadChunk FindChunk(string path) => FindChunk(XXHash64.Compute(path.ToLower()));
 
     public WadChunk FindChunk(ulong pathHash)
     {
@@ -127,7 +153,7 @@ public sealed class WadFile : IDisposable
 
         if (disposing)
         {
-            this._stream.Dispose();
+            this._stream?.Dispose();
         }
 
         this.IsDiposed = true;

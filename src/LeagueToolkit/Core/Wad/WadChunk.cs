@@ -15,6 +15,8 @@ public readonly struct WadChunk
     public int SubChunkCount { get; }
     public int StartSubChunk { get; }
 
+    private readonly ulong _checksum;
+
     internal WadChunk(
         ulong pathHash,
         long dataOffset,
@@ -23,7 +25,8 @@ public readonly struct WadChunk
         WadChunkCompression compressionType,
         bool isDuplicated,
         int subChunkCount,
-        int startSubChunk
+        int startSubChunk,
+        ulong checksum
     )
     {
         this.PathHash = pathHash;
@@ -36,6 +39,8 @@ public readonly struct WadChunk
 
         this.SubChunkCount = subChunkCount;
         this.StartSubChunk = startSubChunk;
+
+        this._checksum = checksum;
     }
 
     internal static WadChunk Read(BinaryReader br, byte major)
@@ -52,14 +57,11 @@ public readonly struct WadChunk
 
         bool isDuplicated = br.ReadBoolean();
         ushort startSubChunk = br.ReadUInt16();
-
-        if (major >= 2)
+        ulong checksum = major switch
         {
-            // We don't care about checksum, so skip it to prevent useless micro-allocations
-            // If (major == 3 && minor >= 1) checksumType = XXHash3
-            // Else checksumType = SHA256
-            br.BaseStream.Seek(8, SeekOrigin.Current);
-        }
+            >= 2 => br.ReadUInt64(),
+            _ => 0
+        };
 
         //if (this.Type == WadEntryType.FileRedirection)
         //{
@@ -77,8 +79,21 @@ public readonly struct WadChunk
             dataType,
             isDuplicated,
             subChunkCount,
-            startSubChunk
+            startSubChunk,
+            checksum
         );
+    }
+
+    internal void Write(BinaryWriter bw)
+    {
+        bw.Write(this.PathHash);
+        bw.Write((uint)this.DataOffset);
+        bw.Write(this.CompressedSize);
+        bw.Write(this.UncompressedSize);
+        bw.Write((byte)this.CompressionType);
+        bw.Write(this.IsDuplicated);
+        bw.Write((ushort)0);
+        bw.Write(this._checksum);
     }
 }
 

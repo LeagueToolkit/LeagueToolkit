@@ -31,6 +31,8 @@ using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 using LeagueToolkit.Core.Animation;
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Wad;
+using System.Text;
+using System.Drawing;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -47,6 +49,18 @@ namespace LeagueToolkit.Sandbox
         static void ProfileWad()
         {
             WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Maps\Shipping\Map11.wad.client");
+
+            IEnumerable<string> files = Directory.EnumerateFiles(
+                @"X:\sandbox\lol\wadbaketest",
+                "*.*",
+                SearchOption.AllDirectories
+            );
+            WadBaker.BakeFiles(
+                "X:\\sandbox\\lol\\wadbaketest",
+                files,
+                "X:\\sandbox\\lol\\testwad.wad.client",
+                new() { DetectDuplicateChunkData = true }
+            );
         }
 
         static void ProfileGltfToRiggedMesh2()
