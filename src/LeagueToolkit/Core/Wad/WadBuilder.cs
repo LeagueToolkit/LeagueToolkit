@@ -18,7 +18,7 @@ public static class WadBuilder
         Guard.IsNotNull(rootDirectory, nameof(rootDirectory));
         Guard.IsNotNullOrEmpty(output, nameof(output));
 
-        BakeDirectory(
+        BakeFiles(
             new()
             {
                 RootDirectory = rootDirectory,
@@ -29,7 +29,7 @@ public static class WadBuilder
         );
     }
 
-    private static void BakeDirectory(WadBuildContext context)
+    private static void BakeFiles(WadBuildContext context)
     {
         // Write the descriptor template
         using FileStream bakedWadStream = File.Create(context.Output);
