@@ -50,18 +50,18 @@
       },
       "XXHash3.NET": {
         "type": "Direct",
-        "requested": "[1.2.2, )",
-        "resolved": "1.2.2",
-        "contentHash": "/JFi9foLqJoxuS60X+/zV29W347NAEenkgbEnvJupwkKohlQB9T5ce4LhgGT785G2+yKZJVgNyJ9T3VhwVH0cA==",
+        "requested": "[2.1.0, )",
+        "resolved": "2.1.0",
+        "contentHash": "lLCpCFIb7Uwun3TaMcb8W2RMmMXATjwwNOD97Cmo3iXhnlrhSfGfWVOEFwRn6Ngcc3qTexPaIVDOgmPRe1mSmw==",
         "dependencies": {
-          "System.Memory": "4.5.4"
+          "CommunityToolkit.Diagnostics": "8.0.0"
         }
       },
-      "ZstdSharp.Port": {
+      "ZstdNet": {
         "type": "Direct",
-        "requested": "[0.6.1, )",
-        "resolved": "0.6.1",
-        "contentHash": "KZjt1x8ioy16iuFIBbNq7Sv9nAXU4k5DVSPB4cP69qaAnEeO/ru7MwfvAXHTfFKJTipOgHtvolL+QMRiYGGxkw=="
+        "requested": "[1.4.5, )",
+        "resolved": "1.4.5",
+        "contentHash": "fi9aP1QY3ZenIMUW1pxdSjku6lYAUjScrwfXSXT1qyKtTdLxOIzeBMe+w/hQm0vMsvQnjcFInByMrIT7AlXUHA=="
       },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "Transitive",

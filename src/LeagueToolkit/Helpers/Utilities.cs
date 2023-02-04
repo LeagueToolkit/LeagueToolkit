@@ -1,5 +1,5 @@
 ﻿using LeagueToolkit.Core.Animation;
-using LeagueToolkit.IO.WadFile;
+using LeagueToolkit.Core.Wad;
 using System;
 using System.IO;
 
@@ -243,59 +243,6 @@ namespace LeagueToolkit.Helpers
                 default:
                     return "";
             }
-        }
-
-        public static WadEntryType GetExtensionWadCompressionType(string extension)
-        {
-            if (string.IsNullOrEmpty(extension))
-            {
-                return WadEntryType.Uncompressed;
-            }
-            else
-            {
-                if (extension[0] == '.')
-                {
-                    extension = extension.Remove(0, 1);
-                }
-
-                if (extension.Contains("glsl"))
-                {
-                    return WadEntryType.Uncompressed;
-                }
-                if (extension.Contains("dx9"))
-                {
-                    return WadEntryType.Uncompressed;
-                }
-
-                switch (extension)
-                {
-                    case "wpk":
-                    case "bnk":
-                    case "troybin":
-                    case "inibin":
-                    case "gfx":
-                    case "png":
-                    case "preload":
-                        return WadEntryType.Uncompressed;
-                    default:
-                        return WadEntryType.ZStandardCompressed;
-                }
-            }
-        }
-
-        public static float ToDegrees(float radian)
-        {
-            return radian * (180 / (float)Math.PI);
-        }
-
-        public static float ToRadians(float degrees)
-        {
-            return degrees * ((float)Math.PI / 180);
-        }
-
-        public static float Clamp(float value, float min, float max)
-        {
-            return Math.Max(min, Math.Min(max, value));
         }
     }
 

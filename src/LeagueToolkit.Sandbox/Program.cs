@@ -30,6 +30,9 @@ using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
 using LeagueToolkit.Core.Animation;
 using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Wad;
+using System.Text;
+using System.Drawing;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -37,10 +40,25 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileGltfToRiggedMesh();
+            ProfileWad();
 
             //ProfileMapgeo("ioniabase.mapgeo", "ioniabase_rewritten.mapgeo");
             //ProfileMetaSerialization();
+        }
+
+        static void ProfileWad()
+        {
+            IEnumerable<string> files = Directory.EnumerateFiles(
+                @"X:\sandbox\lol\wadbaketest",
+                "*.*",
+                SearchOption.AllDirectories
+            );
+            WadBuilder.BakeFiles(
+                files,
+                "X:\\sandbox\\lol\\wadbaketest",
+                "X:\\sandbox\\lol\\testwad.wad.client",
+                new() { DetectDuplicateChunkData = true }
+            );
         }
 
         static void ProfileGltfToRiggedMesh2()
