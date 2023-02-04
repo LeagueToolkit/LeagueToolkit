@@ -7,15 +7,27 @@ using XXHash3NET;
 
 namespace LeagueToolkit.Core.Wad;
 
+/// <summary>
+/// Represents a WAD archive
+/// </summary>
+/// <remarks>
+/// Use <see cref="WadBuilder"/> to build WAD files
+/// </remarks>
 public sealed class WadFile : IDisposable
 {
     internal const int HEADER_SIZE_V3 = 272;
 
+    /// <summary>
+    /// Gets the chunks
+    /// </summary>
     public IReadOnlyDictionary<ulong, WadChunk> Chunks => this._chunks;
     private readonly Dictionary<ulong, WadChunk> _chunks;
 
     private readonly FileStream _stream;
 
+    /// <summary>
+    /// Gets a value indicating whether the archive has been disposed of
+    /// </summary>
     public bool IsDisposed { get; private set; }
 
     internal WadFile(IEnumerable<WadChunk> chunks)
@@ -23,10 +35,19 @@ public sealed class WadFile : IDisposable
         this._chunks = new(chunks.Select(x => new KeyValuePair<ulong, WadChunk>(x.PathHash, x)));
     }
 
-    public WadFile(string path)
+    /// <summary>
+    /// Creates a new <see cref="WadFile"/> object using the specified parameters
+    /// </summary>
+    /// <param name="path">The path of the <see cref="WadFile"/></param>
+    public WadFile(string path) : this(File.OpenRead(path)) { }
+
+    /// <summary>
+    /// Creates a new <see cref="WadFile"/> object using the specified parameters
+    /// </summary>
+    /// <param name="stream">The stream to read the <see cref="WadFile"/> from</param>
+    public WadFile(FileStream stream)
     {
-        // Open wad stream and store it for later
-        this._stream = File.OpenRead(path);
+        this._stream = stream;
         using BinaryReader br = new(this._stream, Encoding.UTF8, true);
 
         string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
@@ -92,8 +113,18 @@ public sealed class WadFile : IDisposable
         }
     }
 
+    /// <summary>
+    /// Loads the raw data of the specified chunk into memory
+    /// </summary>
+    /// <param name="path">The path of the chunk to load</param>
+    /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded chunk data</returns>
     public MemoryOwner<byte> LoadChunk(string path) => LoadChunk(XXHash64.Compute(path.ToLower()));
 
+    /// <summary>
+    /// Loads the raw data of the specified chunk into memory
+    /// </summary>
+    /// <param name="pathHash">The path hash of the chunk to load</param>
+    /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded chunk data</returns>
     public MemoryOwner<byte> LoadChunk(ulong pathHash)
     {
         WadChunk chunk = FindChunk(pathHash);
@@ -101,6 +132,11 @@ public sealed class WadFile : IDisposable
         return LoadChunk(chunk);
     }
 
+    /// <summary>
+    /// Loads the raw data of the specified chunk into memory
+    /// </summary>
+    /// <param name="chunk">The chunk to load</param>
+    /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded chunk data</returns>
     public MemoryOwner<byte> LoadChunk(WadChunk chunk)
     {
         MemoryOwner<byte> chunkDataOwner = MemoryOwner<byte>.Allocate(chunk.CompressedSize);
@@ -111,8 +147,18 @@ public sealed class WadFile : IDisposable
         return chunkDataOwner;
     }
 
+    /// <summary>
+    /// Opens a decompression stream for the specified chunk
+    /// </summary>
+    /// <param name="path">The path of the chunk to open a stream for</param>
+    /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
     public Stream OpenChunk(string path) => OpenChunk(XXHash64.Compute(path.ToLower()));
 
+    /// <summary>
+    /// Opens a decompression stream for the specified chunk
+    /// </summary>
+    /// <param name="pathHash">The path hash of the chunk to open a stream for</param>
+    /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
     public Stream OpenChunk(ulong pathHash)
     {
         WadChunk chunk = FindChunk(pathHash);
@@ -120,6 +166,11 @@ public sealed class WadFile : IDisposable
         return OpenChunk(chunk);
     }
 
+    /// <summary>
+    /// Opens a decompression stream for the specified chunk
+    /// </summary>
+    /// <param name="chunk">The chunk to open a stream for</param>
+    /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
     public Stream OpenChunk(WadChunk chunk)
     {
         MemoryOwner<byte> chunkData = LoadChunk(chunk);
@@ -138,8 +189,18 @@ public sealed class WadFile : IDisposable
         };
     }
 
+    /// <summary>
+    /// Searches for a chunk with the specified path
+    /// </summary>
+    /// <param name="path">The path of the <see cref="WadChunk"/></param>
+    /// <returns>The found chunk</returns>
     public WadChunk FindChunk(string path) => FindChunk(XXHash64.Compute(path.ToLower()));
 
+    /// <summary>
+    /// Searches for a chunk with the specified path hash
+    /// </summary>
+    /// <param name="pathHash">The lowercase path of the <see cref="WadChunk"/> hashed using <see cref="XXHash64"/></param>
+    /// <returns>The found chunk</returns>
     public WadChunk FindChunk(ulong pathHash)
     {
         if (!this._chunks.TryGetValue(pathHash, out WadChunk chunk))
@@ -161,6 +222,9 @@ public sealed class WadFile : IDisposable
         this.IsDisposed = true;
     }
 
+    /// <summary>
+    /// Disposes the <see cref="WadFile"/> object and the wrapped <see cref="Stream"/> instance
+    /// </summary>
     public void Dispose()
     {
         Dispose(true);
