@@ -10,6 +10,7 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
+    <Version>4.0.0-beta.8</Version>
     <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/LeagueToolkit/LeagueToolkit</PackageProjectUrl>
@@ -19,7 +20,6 @@
     <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>4.0.0-beta.8</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
