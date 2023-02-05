@@ -79,6 +79,8 @@
               "Clean",
               "Compile",
               "Pack",
+              "PublishToNuget",
+              "Release",
               "Restore",
               "Test"
             ]
@@ -97,6 +99,8 @@
               "Clean",
               "Compile",
               "Pack",
+              "PublishToNuget",
+              "Release",
               "Restore",
               "Test"
             ]

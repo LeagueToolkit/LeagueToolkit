@@ -1,5 +1,8 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.Build.Construction;
 using Nuke.Common;
 using Nuke.Common.CI;
@@ -10,9 +13,14 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.Git;
+using Nuke.Common.Tools.GitHub;
+using Nuke.Common.Tools.GitReleaseManager;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.MinVer;
 using Nuke.Common.Utilities.Collections;
+using Octokit;
+using Serilog;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -27,7 +35,8 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     OnPullRequestBranches = new[] { "main" },
     OnPushTags = new[] { "main" },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
-    InvokedTargets = new[] { nameof(Pack) }
+    InvokedTargets = new[] { nameof(Clean) },
+    OnPushIncludePaths = new[] { "src/**", "!src/build/**" }
 )]
 class Build : NukeBuild
 {
@@ -55,7 +64,7 @@ class Build : NukeBuild
     [GitRepository]
     readonly GitRepository GitRepository;
 
-    AbsolutePath SourceDirectory => RootDirectory / "src";
+    GitHubActions GitHubActions => GitHubActions.Instance;
 
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
 
@@ -110,9 +119,11 @@ class Build : NukeBuild
     Target Pack =>
         _ =>
             _.DependsOn(Test)
+                .Requires(() => Configuration.Equals(Configuration.Release))
                 .Produces(ArtifactsDirectory / "*.nupkg")
                 .Executes(() =>
                 {
+                    Log.Information(string.Join(',', GitRepository.Tags));
                     DotNetPack(
                         s =>
                             s.SetProject(Solution)
@@ -125,4 +136,78 @@ class Build : NukeBuild
                                 .SetFileVersion(MinVer.FileVersion)
                     );
                 });
+
+    Target Release =>
+        _ =>
+            _.DependsOn(Pack)
+                .Description("Release")
+                .Requires(() => Configuration.Equals(Configuration.Release))
+                .OnlyWhenStatic(() => GitRepository.IsOnMainBranch())
+                .Triggers(PublishToNuget)
+                .Executes(async () =>
+                {
+                    GitHubTasks.GitHubClient = new(new ProductHeaderValue(nameof(NukeBuild)))
+                    {
+                        Credentials = new Credentials(GitHubActions.Token)
+                    };
+
+                    NewRelease newRelease =
+                        new(MinVer.Version)
+                        {
+                            TargetCommitish = GitHubActions.Sha,
+                            Draft = true,
+                            Name = MinVer.Version,
+                            Prerelease = !string.IsNullOrEmpty(MinVer.MinVerPreRelease)
+                        };
+
+                    string owner = GitRepository.GetGitHubOwner();
+                    string name = GitRepository.GetGitHubName();
+
+                    Release createdRelease = await GitHubTasks.GitHubClient.Repository.Release.Create(
+                        owner,
+                        name,
+                        newRelease
+                    );
+
+                    GlobFiles(ArtifactsDirectory, "*.nupkg")
+                        .Where(x => !x.Contains("LeagueToolkit.Meta.Classes"))
+                        .ForEach(async x => await UploadReleaseAssetToGithub(createdRelease, x));
+
+                    await GitHubTasks.GitHubClient.Repository.Release.Edit(
+                        owner,
+                        name,
+                        createdRelease.Id,
+                        new ReleaseUpdate { Draft = false }
+                    );
+                });
+
+    Target PublishToNuget =>
+        _ =>
+            _.Description("Publish to Nuget")
+                .Requires(() => Configuration.Equals(Configuration.Release))
+                .OnlyWhenStatic(() => GitRepository.IsOnMainBranch())
+                .Executes(() =>
+                {
+                    GlobFiles(ArtifactsDirectory, "*.nupkg")
+                        .Where(x => !x.Contains("LeagueToolkit.Meta.Classes"))
+                        .ForEach(x =>
+                        {
+                            DotNetNuGetPush(s => s.SetTargetPath(x).SetApiKey(NuGetApiKey).EnableSkipDuplicate());
+                        });
+                });
+
+    private static async Task UploadReleaseAssetToGithub(Release release, string asset)
+    {
+        string assetFileName = Path.GetFileName(asset);
+
+        ReleaseAssetUpload assetUpload =
+            new()
+            {
+                FileName = assetFileName,
+                ContentType = "application/octet-stream",
+                RawData = File.OpenRead(asset),
+            };
+
+        await GitHubTasks.GitHubClient.Repository.Release.UploadAsset(release, assetUpload);
+    }
 }
