@@ -36,7 +36,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     OnPullRequestBranches = new[] { "main" },
     OnPushTags = new[] { "main" },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
-    InvokedTargets = new[] { nameof(Clean) },
+    InvokedTargets = new[] { nameof(Release) },
     OnPushIncludePaths = new[] { "src/**", "!src/build/**" }
 )]
 class Build : NukeBuild
