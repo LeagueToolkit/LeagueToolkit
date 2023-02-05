@@ -3,7 +3,7 @@
   <!-- project settings -->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>9</LangVersion>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
@@ -15,11 +15,18 @@
     <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Crauzer</Authors>
+    <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
+    <Description>Pre-generated C# meta classes</Description>
   </PropertyGroup>
 
   <!-- project references -->
   <ItemGroup>
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
+  </ItemGroup>
+
+  <!-- package icon -->
+  <ItemGroup>
+    <None Include="../../resources/LT_Logo_Transparent_256.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
 </Project>
