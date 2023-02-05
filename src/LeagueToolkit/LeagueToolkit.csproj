@@ -1,25 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../CommonNuget.props" />
 
   <!-- project settings -->
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>11</LangVersion>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Authors>Crauzer</Authors>
-    <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
+    <Version>4.0.0-beta.8</Version>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>4.0.0-beta.8</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -36,15 +28,10 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="XXHash3.NET" Version="2.1.0" />
     <PackageReference Include="ZstdNet" Version="1.4.5" />
-</ItemGroup>
+  </ItemGroup>
 
   <ItemGroup>
     <FlatSharpSchema Include="IO\ReleaseManifestFile\ReleaseManifest*.fbs" />
-  </ItemGroup>
-
-  <!-- package icon -->
-  <ItemGroup>
-    <None Include="../../resources/LT_Logo_Transparent_256.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>

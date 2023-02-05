@@ -1,22 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <!-- project settings -->
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>11</LangVersion>
-  </PropertyGroup>
+  <Import Project="../CommonNuget.props" />
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
     <Version>4.0.0-beta.8</Version>
-    <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Authors>Crauzer</Authors>
-    <PackageIcon>fantome.png</PackageIcon>
-    <Description>Library for Parsing and Editing file formats from League of Legends</Description>
+    <Description>Extension package that provides various glTF conversions</Description>
   </PropertyGroup>
 
   <!-- package references -->
@@ -30,10 +18,6 @@
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
   </ItemGroup>
 
-  <!-- package icon -->
-  <ItemGroup>
-    <None Include="fantome.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
   <ItemGroup>
     <Reference Include="BCnEncoder">
       <HintPath>..\LeagueToolkit\BCnEncoder.dll</HintPath>

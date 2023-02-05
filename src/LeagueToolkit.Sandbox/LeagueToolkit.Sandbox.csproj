@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../Common.props" />
 
   <!-- project settings -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <!-- project references -->
@@ -12,6 +12,7 @@
     <ProjectReference Include="..\LeagueToolkit.Meta.Classes\LeagueToolkit.Meta.Classes.csproj" />
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <Reference Include="BCnEncoder">
       <HintPath>..\LeagueToolkit\BCnEncoder.dll</HintPath>

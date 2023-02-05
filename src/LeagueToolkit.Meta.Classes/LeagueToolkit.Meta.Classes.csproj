@@ -1,20 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <!-- project settings -->
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>9</LangVersion>
-  </PropertyGroup>
+  <Import Project="../CommonNuget.props" />
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
     <Version>13.3.490.3613</Version>
-    <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Authors>Crauzer</Authors>
+    <Description>Pre-generated C# meta classes</Description>
   </PropertyGroup>
 
   <!-- project references -->
