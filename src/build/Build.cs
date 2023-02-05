@@ -123,7 +123,6 @@ class Build : NukeBuild
                 .Produces(ArtifactsDirectory / "*.nupkg")
                 .Executes(() =>
                 {
-                    Log.Information(string.Join(',', GitRepository.Tags));
                     DotNetPack(
                         s =>
                             s.SetProject(Solution)
