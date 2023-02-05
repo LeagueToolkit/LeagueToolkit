@@ -1,6 +1,4 @@
-﻿// TODO: Move this into a separate library
-#if DEBUG
-using LeagueToolkit.Hashing;
+﻿using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta.Attributes;
@@ -798,4 +796,3 @@ namespace LeagueToolkit.Meta.Dump
             JsonSerializer.Deserialize<MetaDump>(dump, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
     }
 }
-#endif
