@@ -13,12 +13,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.IO.Extensions
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Tests", "LeagueToolkit.Tests\LeagueToolkit.Tests.csproj", "{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{DE52499D-FD8B-41A5-89C3-C2714948C9F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE52499D-FD8B-41A5-89C3-C2714948C9F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE52499D-FD8B-41A5-89C3-C2714948C9F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7C8408C-8674-485E-94DA-8D67EC03FF6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
