@@ -1,6 +1,6 @@
 ﻿namespace LeagueToolkit.IO.PropertyBin
 {
-    internal sealed class BinUtilities
+    public sealed class BinUtilities
     {
         private const int COMPLEX_TYPE_FLAG = 128;
         private const byte FIRST_COMPLEX_TYPE = (byte)BinPropertyType.Container;

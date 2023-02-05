@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.IO.Extensions
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeagueToolkit.Tests", "LeagueToolkit.Tests\LeagueToolkit.Tests.csproj", "{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeagueToolkit.Meta.Dump", "LeagueToolkit.Meta.Dump\LeagueToolkit.Meta.Dump.csproj", "{F658EBCF-091E-42B8-A2D2-6038239E8A04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33F551EF-BAA0-4EBE-9B2B-A2A816DA5987}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F658EBCF-091E-42B8-A2D2-6038239E8A04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F658EBCF-091E-42B8-A2D2-6038239E8A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F658EBCF-091E-42B8-A2D2-6038239E8A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F658EBCF-091E-42B8-A2D2-6038239E8A04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

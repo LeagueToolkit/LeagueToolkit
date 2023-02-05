@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../CommonNuget.props" />
+
+  <!-- information about the assembly/project/package -->
+  <PropertyGroup>
+    <Version>4.0.0-beta.8</Version>
+    <Description>Extension package that allows generating C# meta classes from a json file</Description>
+  </PropertyGroup>
+
+  <!-- package references -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" />
+  </ItemGroup>
+
+  <!-- project references -->
+  <ItemGroup>
+    <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
+  </ItemGroup>
+
+</Project>
