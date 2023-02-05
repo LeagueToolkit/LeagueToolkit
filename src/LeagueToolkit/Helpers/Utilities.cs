@@ -1,7 +1,5 @@
 ﻿using LeagueToolkit.Core.Animation;
-using LeagueToolkit.Core.Wad;
-using System;
-using System.IO;
+using System.Buffers.Binary;
 
 namespace LeagueToolkit.Helpers
 {
@@ -20,8 +18,10 @@ namespace LeagueToolkit.Helpers
 
             return new string(c);
         }
-
-        public static LeagueFileType GetExtensionType(byte[] magicData)
+        
+        // TODO: We can use "SequenceEqual" together with "u8" string literal
+        // to simplify this whole function
+        public static LeagueFileType GetExtensionType(ReadOnlySpan<byte> magicData)
         {
             if (magicData.Length < 4)
             {
@@ -115,7 +115,7 @@ namespace LeagueToolkit.Helpers
             {
                 return LeagueFileType.JpegImage;
             }
-            else if (BitConverter.ToInt32(magicData, 4) == RigResource.FORMAT_TOKEN)
+            else if (magicData.Length >= 8 && BinaryPrimitives.ReadInt32LittleEndian(magicData[4..]) == RigResource.FORMAT_TOKEN)
             {
                 return LeagueFileType.Skeleton;
             }
