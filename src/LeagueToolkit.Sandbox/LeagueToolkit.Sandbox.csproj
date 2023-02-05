@@ -4,6 +4,7 @@
   <!-- project settings -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <!-- project references -->

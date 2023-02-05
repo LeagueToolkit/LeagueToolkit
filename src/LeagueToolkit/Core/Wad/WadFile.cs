@@ -47,6 +47,8 @@ public sealed class WadFile : IDisposable
     /// <param name="stream">The stream to read the <see cref="WadFile"/> from</param>
     public WadFile(FileStream stream)
     {
+        Guard.IsNotNull(stream, nameof(stream));
+
         this._stream = stream;
         using BinaryReader br = new(this._stream, Encoding.UTF8, true);
 
@@ -217,7 +219,12 @@ public sealed class WadFile : IDisposable
     /// </summary>
     /// <param name="path">The path of the <see cref="WadChunk"/></param>
     /// <returns>The found chunk</returns>
-    public WadChunk FindChunk(string path) => FindChunk(XXHash64.Compute(path.ToLower()));
+    public WadChunk FindChunk(string path)
+    {
+        Guard.IsNotNullOrEmpty(path, nameof(path));
+
+        return FindChunk(XXHash64.Compute(path.ToLower()));
+    }
 
     /// <summary>
     /// Searches for a chunk with the specified path hash

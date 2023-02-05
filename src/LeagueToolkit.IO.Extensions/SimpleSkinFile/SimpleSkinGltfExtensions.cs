@@ -503,19 +503,18 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.IsNotNull(joints, nameof(joints));
             Guard.IsNotNull(animations, nameof(animations));
 
-            Dictionary<uint, Node> nodesByHash =
-                new(joints.Select(x => new KeyValuePair<uint, Node>(Elf.HashLower(x.Name), x)));
+            IReadOnlyList<Node> jointNodes = joints.ToArray();
 
             foreach (var (name, animation) in animations)
             {
-                CreateGltfAnimation(name, animation, nodesByHash);
+                CreateGltfAnimation(name, animation, jointNodes);
             }
         }
 
         private static void CreateGltfAnimation(
             string animationName,
             IAnimationAsset animation,
-            IReadOnlyDictionary<uint, Node> nodesByHash
+            IReadOnlyList<Node> jointNodes
         )
         {
             Dictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose = new();
@@ -551,8 +550,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             }
 
             // Create samplers for joints
-            foreach (var (jointHash, jointNode) in nodesByHash)
+            foreach (Node jointNode in jointNodes)
             {
+                uint jointHash = Elf.HashLower(jointNode.Name);
+
                 if (jointRotations.TryGetValue(jointHash, out var rotationFrames))
                     jointNode.WithRotationAnimation(animationName, rotationFrames);
 
