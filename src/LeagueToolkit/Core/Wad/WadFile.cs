@@ -118,19 +118,14 @@ public sealed class WadFile : IDisposable
     /// </summary>
     /// <param name="path">The path of the chunk to load</param>
     /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded chunk data</returns>
-    public MemoryOwner<byte> LoadChunk(string path) => LoadChunk(XXHash64.Compute(path.ToLower()));
+    public MemoryOwner<byte> LoadChunk(string path) => LoadChunk(FindChunk(path));
 
     /// <summary>
     /// Loads the raw data of the specified chunk into memory
     /// </summary>
     /// <param name="pathHash">The path hash of the chunk to load</param>
     /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded chunk data</returns>
-    public MemoryOwner<byte> LoadChunk(ulong pathHash)
-    {
-        WadChunk chunk = FindChunk(pathHash);
-
-        return LoadChunk(chunk);
-    }
+    public MemoryOwner<byte> LoadChunk(ulong pathHash) => LoadChunk(FindChunk(pathHash));
 
     /// <summary>
     /// Loads the raw data of the specified chunk into memory
@@ -148,23 +143,51 @@ public sealed class WadFile : IDisposable
     }
 
     /// <summary>
+    /// Loads the decompressed data of the specified chunk into memory
+    /// </summary>
+    /// <param name="path">The path of the chunk to load</param>
+    /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded decompresed chunk data</returns>
+    public MemoryOwner<byte> LoadChunkDecompressed(string path) => LoadChunkDecompressed(FindChunk(path));
+
+    /// <summary>
+    /// Loads the decompressed data of the specified chunk into memory
+    /// </summary>
+    /// <param name="pathHash">The path hash of the chunk to load</param>
+    /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded decompresed chunk data</returns>
+    public MemoryOwner<byte> LoadChunkDecompressed(ulong pathHash) => LoadChunkDecompressed(FindChunk(pathHash));
+
+    /// <summary>
+    /// Loads the decompressed data of the specified chunk into memory
+    /// </summary>
+    /// <param name="chunk">The chunk to load</param>
+    /// <returns>A <see cref="MemoryOwner{T}"/> object with the loaded decompresed chunk data</returns>
+    public MemoryOwner<byte> LoadChunkDecompressed(WadChunk chunk)
+    {
+        using Stream decompressionStream = OpenChunk(chunk);
+        MemoryOwner<byte> decompressedChunk = MemoryOwner<byte>.Allocate(chunk.UncompressedSize);
+
+        int decompressedBytes = decompressionStream.Read(decompressedChunk.Span);
+        if (decompressedBytes != chunk.UncompressedSize)
+            ThrowHelper.ThrowInvalidDataException(
+                $"Failed to decompress chunk data. decompressed: {decompressedBytes}; actual: {chunk.UncompressedSize}"
+            );
+
+        return decompressedChunk;
+    }
+
+    /// <summary>
     /// Opens a decompression stream for the specified chunk
     /// </summary>
     /// <param name="path">The path of the chunk to open a stream for</param>
     /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
-    public Stream OpenChunk(string path) => OpenChunk(XXHash64.Compute(path.ToLower()));
+    public Stream OpenChunk(string path) => OpenChunk(FindChunk(path));
 
     /// <summary>
     /// Opens a decompression stream for the specified chunk
     /// </summary>
     /// <param name="pathHash">The path hash of the chunk to open a stream for</param>
     /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
-    public Stream OpenChunk(ulong pathHash)
-    {
-        WadChunk chunk = FindChunk(pathHash);
-
-        return OpenChunk(chunk);
-    }
+    public Stream OpenChunk(ulong pathHash) => OpenChunk(FindChunk(pathHash));
 
     /// <summary>
     /// Opens a decompression stream for the specified chunk

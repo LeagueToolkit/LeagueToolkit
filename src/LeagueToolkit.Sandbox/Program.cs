@@ -34,6 +34,7 @@ using LeagueToolkit.Core.Wad;
 using System.Text;
 using System.Drawing;
 using LeagueToolkit.Hashing;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace LeagueToolkit.Sandbox
 {
@@ -41,6 +42,8 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
+            ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
+
             //ProfileRiggedMeshToGltf(
             //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skn",
             //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skl",
@@ -84,7 +87,20 @@ namespace LeagueToolkit.Sandbox
             );
         }
 
-        static void ProfileWad()
+        static void ProfileWadFile(string path)
+        {
+            using WadFile wad = new(path);
+
+            using MemoryOwner<byte> chunkData = wad.LoadChunkDecompressed(
+                "assets/characters/belveth/skins/base/belveth_base_main_tx.belveth.dds"
+            );
+
+            using FileStream chunkFile = File.Create("X:/sandbox/lol/belveth_base_main_tx.belveth.dds");
+
+            chunkFile.Write(chunkData.Span);
+        }
+
+        static void ProfileWadBuilder()
         {
             IEnumerable<string> files = Directory.EnumerateFiles(
                 @"X:\sandbox\lol\wadbaketest",
