@@ -90,6 +90,8 @@ class Build : NukeBuild
                             s.SetProjectFile(Solution)
                                 .SetConfiguration(Configuration)
                                 .SetVersion(MinVer.Version)
+                                .SetAssemblyVersion(MinVer.AssemblyVersion)
+                                .SetFileVersion(MinVer.FileVersion)
                                 .EnableNoRestore()
                     );
                 });
@@ -119,6 +121,8 @@ class Build : NukeBuild
                                 .EnableNoRestore()
                                 .EnableNoBuild()
                                 .SetVersion(MinVer.Version)
+                                .SetAssemblyVersion(MinVer.AssemblyVersion)
+                                .SetFileVersion(MinVer.FileVersion)
                     );
                 });
 }
