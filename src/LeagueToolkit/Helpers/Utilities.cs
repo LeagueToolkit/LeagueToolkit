@@ -1,8 +1,5 @@
 ﻿using LeagueToolkit.Core.Animation;
-using LeagueToolkit.Core.Wad;
-using System;
 using System.Buffers.Binary;
-using System.IO;
 
 namespace LeagueToolkit.Helpers
 {
@@ -24,7 +21,7 @@ namespace LeagueToolkit.Helpers
         
         // TODO: We can use "SequenceEqual" together with "u8" string literal
         // to simplify this whole function
-        public static LeagueFileType GetExtensionType(Span<byte> magicData)
+        public static LeagueFileType GetExtensionType(ReadOnlySpan<byte> magicData)
         {
             if (magicData.Length < 4)
             {
