@@ -16,6 +16,7 @@ using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
+using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
     "build",
@@ -24,6 +25,7 @@ using static Nuke.Common.IO.PathConstruction;
     FetchDepth = 0,
     OnPushBranches = new[] { "main" },
     OnPullRequestBranches = new[] { "main" },
+    OnPushTags = new[] { "main" },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
     InvokedTargets = new[] { nameof(Pack) }
 )]
@@ -63,7 +65,7 @@ class Build : NukeBuild
                 .Before(Restore)
                 .Executes(() =>
                 {
-                    DotNetTasks.DotNetClean(s => s.SetProject(Solution));
+                    DotNetClean(s => s.SetProject(Solution));
 
                     EnsureCleanDirectory(ArtifactsDirectory);
                 });
@@ -74,7 +76,7 @@ class Build : NukeBuild
                 .DependsOn(Clean)
                 .Executes(() =>
                 {
-                    DotNetTasks.DotNetRestore(s => s.SetProjectFile(Solution));
+                    DotNetRestore(s => s.SetProjectFile(Solution));
                 });
 
     Target Compile =>
@@ -83,7 +85,7 @@ class Build : NukeBuild
                 .DependsOn(Restore)
                 .Executes(() =>
                 {
-                    DotNetTasks.DotNetBuild(
+                    DotNetBuild(
                         s =>
                             s.SetProjectFile(Solution)
                                 .SetConfiguration(Configuration)
@@ -97,7 +99,7 @@ class Build : NukeBuild
             _.DependsOn(Compile)
                 .Executes(() =>
                 {
-                    DotNetTasks.DotNetTest(
+                    DotNetTest(
                         s =>
                             s.SetProjectFile(Solution).SetConfiguration(Configuration).EnableNoRestore().EnableNoBuild()
                     );
@@ -109,7 +111,7 @@ class Build : NukeBuild
                 .Produces(ArtifactsDirectory / "*.nupkg")
                 .Executes(() =>
                 {
-                    DotNetTasks.DotNetPack(
+                    DotNetPack(
                         s =>
                             s.SetProject(Solution)
                                 .SetOutputDirectory(ArtifactsDirectory)
