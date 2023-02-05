@@ -21,7 +21,9 @@ namespace LeagueToolkit.Helpers
 
             return new string(c);
         }
-
+        
+        // TODO: We can use "SequenceEqual" together with "u8" string literal
+        // to simplify this whole function
         public static LeagueFileType GetExtensionType(Span<byte> magicData)
         {
             if (magicData.Length < 4)
