@@ -3,7 +3,6 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <Version>4.0.0-beta.8</Version>
     <Description>Extension package that allows generating C# meta classes from a json file</Description>
   </PropertyGroup>
 
