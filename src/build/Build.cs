@@ -12,6 +12,7 @@ using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.Discord;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.Git;
 using Nuke.Common.Tools.GitHub;
@@ -191,7 +192,13 @@ class Build : NukeBuild
                         .Where(x => !x.Contains("LeagueToolkit.Meta.Classes"))
                         .ForEach(x =>
                         {
-                            DotNetNuGetPush(s => s.SetTargetPath(x).SetApiKey(NuGetApiKey).EnableSkipDuplicate());
+                            DotNetNuGetPush(
+                                s =>
+                                    s.SetTargetPath(x)
+                                        .SetSource("https://api.nuget.org/v3/index.json")
+                                        .SetApiKey(NuGetApiKey)
+                                        .EnableSkipDuplicate()
+                            );
                         });
                 });
 
