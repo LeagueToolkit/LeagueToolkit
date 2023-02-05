@@ -11,8 +11,8 @@
     <Version>13.3.490.3613</Version>
     <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/LoL-Fantome/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LoL-Fantome/LeagueToolkit.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/LeagueToolkit/LeagueToolkit</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LeagueToolkit/LeagueToolkit.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Authors>Crauzer</Authors>
     <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
