@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MinVer" Version="4.3.0" />
     <PackageReference Include="Nuke.Common" Version="6.3.0" />
   </ItemGroup>
 

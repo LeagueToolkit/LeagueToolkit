@@ -3,17 +3,30 @@ using System.Linq;
 using Microsoft.Build.Construction;
 using Nuke.Common;
 using Nuke.Common.CI;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Tools.MinVer;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 
+[GitHubActions(
+    "build",
+    GitHubActionsImage.WindowsLatest,
+    EnableGitHubToken = true,
+    FetchDepth = 0,
+    OnPushBranches = new[] { "main" },
+    OnPullRequestBranches = new[] { "main" },
+    ImportSecrets = new[] { nameof(NuGetApiKey) },
+    InvokedTargets = new[] { nameof(Pack) }
+)]
 class Build : NukeBuild
 {
     /// Support plugins are available for:
@@ -22,13 +35,20 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.Compile);
+    public static int Main() => Execute<Build>(x => x.Pack);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Solution]
+    [Parameter]
+    [Secret]
+    readonly string NuGetApiKey;
+
+    [Solution(GenerateProjects = true)]
     readonly Solution Solution;
+
+    [MinVer]
+    readonly MinVer MinVer;
 
     [GitRepository]
     readonly GitRepository GitRepository;
@@ -39,28 +59,36 @@ class Build : NukeBuild
 
     Target Clean =>
         _ =>
-            _.Before(Restore)
+            _.Description("Clean")
+                .Before(Restore)
                 .Executes(() =>
                 {
-                    SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(DeleteDirectory);
+                    DotNetTasks.DotNetClean(s => s.SetProject(Solution));
 
                     EnsureCleanDirectory(ArtifactsDirectory);
                 });
 
     Target Restore =>
         _ =>
-            _.Executes(() =>
-            {
-                DotNetTasks.DotNetRestore(s => s.SetProjectFile(Solution));
-            });
+            _.Description("Restore")
+                .DependsOn(Clean)
+                .Executes(() =>
+                {
+                    DotNetTasks.DotNetRestore(s => s.SetProjectFile(Solution));
+                });
 
     Target Compile =>
         _ =>
-            _.DependsOn(Restore)
+            _.Description("Build")
+                .DependsOn(Restore)
                 .Executes(() =>
                 {
                     DotNetTasks.DotNetBuild(
-                        s => s.SetProjectFile(Solution).SetConfiguration(Configuration).EnableNoRestore()
+                        s =>
+                            s.SetProjectFile(Solution)
+                                .SetConfiguration(Configuration)
+                                .SetVersion(MinVer.Version)
+                                .EnableNoRestore()
                     );
                 });
 
@@ -77,17 +105,18 @@ class Build : NukeBuild
 
     Target Pack =>
         _ =>
-            _.DependsOn(Compile)
+            _.DependsOn(Test)
+                .Produces(ArtifactsDirectory / "*.nupkg")
                 .Executes(() =>
                 {
                     DotNetTasks.DotNetPack(
                         s =>
                             s.SetProject(Solution)
                                 .SetOutputDirectory(ArtifactsDirectory)
-                                .SetIncludeSymbols(true)
                                 .SetConfiguration(Configuration)
                                 .EnableNoRestore()
                                 .EnableNoBuild()
+                                .SetVersion(MinVer.Version)
                     );
                 });
 }
