@@ -184,7 +184,7 @@ public sealed class WadFile : IDisposable
             // zstd handles frames for us so we can ignore chunks
             WadChunkCompression.Zstd
             or WadChunkCompression.ZstdChunked
-                => new ZstdNet.DecompressionStream(chunkData.AsStream()),
+                => new ZstdSharp.DecompressionStream(chunkData.AsStream()),
             _ => throw new InvalidOperationException($"Invalid chunk compression type: {chunk.Compression}")
         };
     }

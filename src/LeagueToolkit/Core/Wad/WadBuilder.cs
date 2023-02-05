@@ -116,7 +116,7 @@ public static class WadBuilder
         using Stream compressionStream = chunkCompression switch
         {
             WadChunkCompression.GZip => new GZipStream(compressedStream, CompressionMode.Compress),
-            WadChunkCompression.Zstd => new ZstdNet.CompressionStream(compressedStream),
+            WadChunkCompression.Zstd => new ZstdSharp.CompressionStream(compressedStream),
             _ => throw new InvalidOperationException($"Invalid chunk compression: {chunkCompression}")
         };
 

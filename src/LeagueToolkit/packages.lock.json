@@ -57,11 +57,11 @@
           "CommunityToolkit.Diagnostics": "8.0.0"
         }
       },
-      "ZstdNet": {
+      "ZstdSharp.Port": {
         "type": "Direct",
-        "requested": "[1.4.5, )",
-        "resolved": "1.4.5",
-        "contentHash": "fi9aP1QY3ZenIMUW1pxdSjku6lYAUjScrwfXSXT1qyKtTdLxOIzeBMe+w/hQm0vMsvQnjcFInByMrIT7AlXUHA=="
+        "requested": "[0.6.7, )",
+        "resolved": "0.6.7",
+        "contentHash": "h29Aow/VACXrMEAIbDC0gQmVMqccVL1LmcwW7X3iimI4wDJsPIHbV11Kf/W6ZakfcYAO1bp7eds/cwb6rysi5Q=="
       },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "Transitive",
