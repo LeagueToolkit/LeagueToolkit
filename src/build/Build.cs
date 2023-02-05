@@ -35,7 +35,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     PublishArtifacts = true,
     FetchDepth = 0,
     OnPullRequestBranches = new[] { "main" },
-    OnPushTags = new[] { "main" },
+    OnPushTags = new[] { "[0-9]+.[0-9]+.[0-9]+", "[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+", "[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+" },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
     InvokedTargets = new[] { nameof(Release) }
 )]
