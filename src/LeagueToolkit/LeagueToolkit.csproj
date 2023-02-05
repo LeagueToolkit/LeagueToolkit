@@ -19,7 +19,7 @@
     <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>4.0.0-beta.7</Version>
+    <Version>4.0.0-beta.8</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

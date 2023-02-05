@@ -41,21 +41,21 @@ namespace LeagueToolkit.Sandbox
     {
         static void Main(string[] args)
         {
-            ProfileRiggedMeshToGltf(
-                @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skn",
-                @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skl",
-                "original.glb",
-                new List<(string, IAnimationAsset)>()
-            );
-            ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
-
             //ProfileRiggedMeshToGltf(
-            //    @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
-            //    @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
-            //    "renekton_skin26.glb",
+            //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skn",
+            //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skl",
+            //    "original.glb",
             //    new List<(string, IAnimationAsset)>()
             //);
-            //ProfileGltfToRiggedMesh("renekton_skin26.glb", "renekton_skin26.glb.skn", "renekton_skin26.glb.skl");
+            //ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
+
+            ProfileRiggedMeshToGltf(
+                @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
+                @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
+                "renekton_skin26.glb",
+                new List<(string, IAnimationAsset)>()
+            );
+            ProfileGltfToRiggedMesh("renekton_skin26.glb", "renekton_skin26.glb.skn", "renekton_skin26.glb.skl");
 
             List<(string name, IAnimationAsset animation)> animations = new();
             foreach (
