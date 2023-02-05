@@ -180,19 +180,14 @@ public sealed class WadFile : IDisposable
     /// </summary>
     /// <param name="path">The path of the chunk to open a stream for</param>
     /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
-    public Stream OpenChunk(string path) => OpenChunk(XXHash64.Compute(path.ToLower()));
+    public Stream OpenChunk(string path) => OpenChunk(FindChunk(path));
 
     /// <summary>
     /// Opens a decompression stream for the specified chunk
     /// </summary>
     /// <param name="pathHash">The path hash of the chunk to open a stream for</param>
     /// <returns>A <see cref="Stream"/> object that can be used to decompress the data using <see cref="Stream.CopyTo(Stream)"/></returns>
-    public Stream OpenChunk(ulong pathHash)
-    {
-        WadChunk chunk = FindChunk(pathHash);
-
-        return OpenChunk(chunk);
-    }
+    public Stream OpenChunk(ulong pathHash) => OpenChunk(FindChunk(pathHash));
 
     /// <summary>
     /// Opens a decompression stream for the specified chunk
