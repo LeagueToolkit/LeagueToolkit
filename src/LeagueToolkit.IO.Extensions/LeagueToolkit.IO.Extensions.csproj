@@ -1,21 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <!-- project settings -->
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>11</LangVersion>
-  </PropertyGroup>
+  <Import Project="../CommonNuget.props" />
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
     <Version>4.0.0-beta.8</Version>
-    <Copyright>Copyright © $([System.DateTime]::Today.ToString(yyyy))</Copyright>
-    <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/LeagueToolkit/LeagueToolkit</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/LeagueToolkit/LeagueToolkit.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Authors>Crauzer</Authors>
-    <PackageIcon>LT_Logo_Transparent_256.png</PackageIcon>
     <Description>Extension package that provides various glTF conversions</Description>
   </PropertyGroup>
 
@@ -28,11 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\LeagueToolkit.Meta.Classes\LeagueToolkit.Meta.Classes.csproj" />
     <ProjectReference Include="..\LeagueToolkit\LeagueToolkit.csproj" />
-  </ItemGroup>
-
-  <!-- package icon -->
-  <ItemGroup>
-    <None Include="../../resources/LT_Logo_Transparent_256.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
