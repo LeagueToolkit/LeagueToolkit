@@ -18,7 +18,7 @@ jobs:
       BUILD_CONFIG: "Release"
       LEAGUE_TOOLKIT_PROJECT: "LeagueToolkit"
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     defaults:
       run:
@@ -38,7 +38,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3.0.3
         with:
-          dotnet-version: 7.x
+          dotnet-version: 6.x
 
       - name: Install dependencies
         run: dotnet restore
