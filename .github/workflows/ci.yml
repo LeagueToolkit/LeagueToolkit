@@ -9,22 +9,17 @@
 #
 #     - To trigger manual generation invoke:
 #
-#         nuke --generate-configuration GitHubActions_build --host GitHubActions
+#         nuke --generate-configuration GitHubActions_ci --host GitHubActions
 #
 # </auto-generated>
 # ------------------------------------------------------------------------------
 
-name: build
+name: ci
 
 on:
   push:
-    branches:
-      - main
     tags:
       - main
-    paths:
-      - 'src/**'
-      - '!src/build/**'
   pull_request:
     branches:
       - main

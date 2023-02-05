@@ -28,16 +28,16 @@ using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
-    "build",
+    "ci",
     GitHubActionsImage.WindowsLatest,
     EnableGitHubToken = true,
+    AutoGenerate = true,
+    PublishArtifacts = true,
     FetchDepth = 0,
-    OnPushBranches = new[] { "main" },
     OnPullRequestBranches = new[] { "main" },
     OnPushTags = new[] { "main" },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
-    InvokedTargets = new[] { nameof(Release) },
-    OnPushIncludePaths = new[] { "src/**", "!src/build/**" }
+    InvokedTargets = new[] { nameof(Release) }
 )]
 class Build : NukeBuild
 {
