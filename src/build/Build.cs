@@ -177,7 +177,6 @@ class Build : NukeBuild
                     );
 
                     GlobFiles(ArtifactsDirectory, "*.nupkg")
-                        .Where(x => !x.Contains("LeagueToolkit.Meta.Classes"))
                         .ForEach(async x => await UploadReleaseAssetToGithub(createdRelease, x));
 
                     await GitHubTasks.GitHubClient.Repository.Release.Edit(
@@ -196,7 +195,6 @@ class Build : NukeBuild
                 .Executes(() =>
                 {
                     GlobFiles(ArtifactsDirectory, "*.nupkg")
-                        .Where(x => !x.Contains("LeagueToolkit.Meta.Classes"))
                         .ForEach(x =>
                         {
                             DotNetNuGetPush(
