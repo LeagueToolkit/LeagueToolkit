@@ -52,25 +52,23 @@ class Program
         //);
         //ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
 
+        List<(string, IAnimationAsset)> animations = LoadAnimations(
+                @"X:\lol\game\assets\characters\renekton\skins\skin26\animations"
+            )
+            .ToList();
+
         ProfileRiggedMeshToGltf(
             @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
             @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
             "renekton_skin26.glb",
-            LoadAnimations(@"X:\lol\game\assets\characters\renekton\skins\skin26\animations")
-        );
-        ProfileGltfToRiggedMesh("renekton_skin26.glb", "renekton_skin26.glb.skn", "renekton_skin26.glb.skl");
-
-        ProfileGltfToRiggedMesh(
-            "fromblender.glb",
-            "neeko_skin22.pie_c_12_20.fromblender.skn",
-            "neeko_skin22.pie_c_12_20.fromblender.skl"
+            animations
         );
 
         ProfileRiggedMeshToGltf(
-            "neeko_skin22.pie_c_12_20.fromblender.skn",
-            "neeko_skin22.pie_c_12_20.fromblender.skl",
-            "neeko_skin22.pie_c_12_20.fromblender.skn.glb",
-            LoadAnimations(@"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\animations")
+            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
+            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
+            "renekton_skin26_second.glb",
+            animations
         );
     }
 
@@ -124,8 +122,6 @@ class Program
 
         using FileStream rigStream = File.OpenRead(sklPath);
         RigResource rig = new(rigStream);
-
-        var xd = rig.Joints.OrderBy(x => Elf.HashLower(x.Name)).Select(x => (Elf.HashLower(x.Name), x));
 
         skn.ToGltf(rig, new List<(string, Stream)>(), animations).Save(gltfPath);
     }
