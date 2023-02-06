@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Construction;
+using NuGet.Versioning;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
@@ -148,7 +149,7 @@ class Build : NukeBuild
             _.DependsOn(Pack)
                 .Description("Release")
                 .Requires(() => Configuration.Equals(Configuration.Release))
-                .OnlyWhenStatic(() => GitRepository.IsOnMainBranch())
+                .OnlyWhenStatic(() => GitRepository.Tags.Any())
                 .Triggers(PublishToNuget)
                 .Executes(async () =>
                 {
@@ -191,7 +192,7 @@ class Build : NukeBuild
         _ =>
             _.Description("Publish to Nuget")
                 .Requires(() => Configuration.Equals(Configuration.Release))
-                .OnlyWhenStatic(() => GitRepository.IsOnMainBranch())
+                .OnlyWhenStatic(() => GitRepository.Tags.Any())
                 .Executes(() =>
                 {
                     GlobFiles(ArtifactsDirectory, "*.nupkg")
