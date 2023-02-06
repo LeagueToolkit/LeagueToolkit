@@ -7,6 +7,7 @@ using Microsoft.Build.Construction;
 using Nuke.Common;
 using Nuke.Common.CI;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.CI.GitHubActions.Configuration;
 using Nuke.Common.Execution;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
@@ -35,7 +36,12 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     PublishArtifacts = true,
     FetchDepth = 0,
     OnPullRequestBranches = new[] { "main" },
-    OnPushTags = new[] { "[0-9]+.[0-9]+.[0-9]+", "[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+", "[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+" },
+    OnPushTags = new[]
+    {
+        "\"[0-9]+.[0-9]+.[0-9]+\"",
+        "\"[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+\"",
+        "\"[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+\""
+    },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
     InvokedTargets = new[] { nameof(Release) }
 )]
