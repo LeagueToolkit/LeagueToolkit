@@ -313,7 +313,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     {
         // Get cache id
         int jumpCacheId = (int)(this._jumpCacheCount * (evaluationTime / this.Duration));
-        jumpCacheId = Math.Max(jumpCacheId, this._jumpCacheCount - 1);
+        jumpCacheId = Math.Min(jumpCacheId, this._jumpCacheCount - 1);
 
         // Reset cursor
         this._evaluator.Cursor = 0;
