@@ -11,7 +11,7 @@ public sealed class BinTreeString : BinTreeProperty
     public BinTreeString(uint nameHash, string value) : base(nameHash) => this.Value = value;
 
     internal BinTreeString(BinaryReader br, uint nameHash) : base(nameHash) =>
-        this.Value = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
+        this.Value = Encoding.UTF8.GetString(br.ReadBytes(br.ReadUInt16()));
 
     protected override void WriteContent(BinaryWriter bw)
     {

@@ -46,7 +46,7 @@ public class BinTreeStruct : BinTreeProperty, IBinTreeParent
 
         bw.Write((ushort)this.Properties.Count);
         foreach (BinTreeProperty property in this.Properties)
-            property.Write(bw, true);
+            property.Write(bw, writeHeader: true);
     }
 
     public void AddProperty(BinTreeProperty property)
@@ -69,7 +69,7 @@ public class BinTreeStruct : BinTreeProperty, IBinTreeParent
             _ => (includeHeader ? HEADER_SIZE : 0) + 4 + 4 + GetContentSize()
         };
 
-    private int GetContentSize() => 2 + this.Properties.Sum(x => x.GetSize(true));
+    private int GetContentSize() => 2 + this.Properties.Sum(x => x.GetSize(includeHeader: true));
 
     public override bool Equals(BinTreeProperty other)
     {

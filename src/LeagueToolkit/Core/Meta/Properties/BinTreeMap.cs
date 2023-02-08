@@ -82,8 +82,8 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent, IDictionary<Bi
 
         foreach (var (key, value) in this._map)
         {
-            key.Write(bw, false);
-            value.Write(bw, false);
+            key.Write(bw, writeHeader: false);
+            value.Write(bw, writeHeader: false);
         }
     }
 
