@@ -1,14 +1,14 @@
 ﻿namespace LeagueToolkit.Core.Meta.Properties;
 
-public sealed class BinTreeWadEntryLink : BinTreeProperty
+public sealed class BinTreeWadChunkLink : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.WadChunkLink;
 
     public ulong Value { get; set; }
 
-    public BinTreeWadEntryLink(uint nameHash, ulong value) : base(nameHash) => this.Value = value;
+    public BinTreeWadChunkLink(uint nameHash, ulong value) : base(nameHash) => this.Value = value;
 
-    internal BinTreeWadEntryLink(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadUInt64();
+    internal BinTreeWadChunkLink(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadUInt64();
 
     protected override void WriteContent(BinaryWriter bw) => bw.Write(this.Value);
 
@@ -17,7 +17,7 @@ public sealed class BinTreeWadEntryLink : BinTreeProperty
     public override bool Equals(BinTreeProperty other) =>
         other switch
         {
-            BinTreeWadEntryLink property => this.NameHash == property.NameHash && this.Value == property.Value,
+            BinTreeWadChunkLink property => this.NameHash == property.NameHash && this.Value == property.Value,
             _ => false
         };
 }

@@ -279,23 +279,23 @@ namespace LeagueToolkit.Meta
             else if (valueType == typeof(bool?))
                 return new BinTreeBool(nameHash, (bool)value);
             else if (valueType == typeof(sbyte?))
-                return new BinTreeSByte(nameHash, (sbyte)value);
+                return new BinTreeI8(nameHash, (sbyte)value);
             else if (valueType == typeof(byte?))
-                return new BinTreeByte(nameHash, (byte)value);
+                return new BinTreeU8(nameHash, (byte)value);
             else if (valueType == typeof(short?))
-                return new BinTreeInt16(nameHash, (short)value);
+                return new BinTreeI16(nameHash, (short)value);
             else if (valueType == typeof(ushort?))
-                return new BinTreeUInt16(nameHash, (ushort)value);
+                return new BinTreeU16(nameHash, (ushort)value);
             else if (valueType == typeof(int?))
-                return new BinTreeInt32(nameHash, (int)value);
+                return new BinTreeI32(nameHash, (int)value);
             else if (valueType == typeof(uint?))
-                return new BinTreeUInt32(nameHash, (uint)value);
+                return new BinTreeU32(nameHash, (uint)value);
             else if (valueType == typeof(long?))
-                return new BinTreeInt64(nameHash, (long)value);
+                return new BinTreeI64(nameHash, (long)value);
             else if (valueType == typeof(ulong?))
-                return new BinTreeUInt64(nameHash, (ulong)value);
+                return new BinTreeU64(nameHash, (ulong)value);
             else if (valueType == typeof(float?))
-                return new BinTreeFloat(nameHash, (float)value);
+                return new BinTreeF32(nameHash, (float)value);
             else if (valueType == typeof(Vector2?))
                 return new BinTreeVector2(nameHash, (Vector2)value);
             else if (valueType == typeof(Vector3?))
@@ -311,7 +311,7 @@ namespace LeagueToolkit.Meta
             else if (valueType == typeof(MetaHash?))
                 return new BinTreeHash(nameHash, (MetaHash)value);
             else if (valueType == typeof(MetaWadEntryLink?))
-                return new BinTreeWadEntryLink(nameHash, (MetaWadEntryLink)value);
+                return new BinTreeWadChunkLink(nameHash, (MetaWadEntryLink)value);
             else if (valueType == typeof(MetaObjectLink?))
                 return new BinTreeObjectLink(nameHash, (MetaObjectLink)value);
             else if (valueType == typeof(MetaBitBool?))
@@ -597,15 +597,15 @@ namespace LeagueToolkit.Meta
             {
                 BinTreeNone _ => null,
                 BinTreeBool property => property.Value,
-                BinTreeSByte property => property.Value,
-                BinTreeByte property => property.Value,
-                BinTreeInt16 property => property.Value,
-                BinTreeUInt16 property => property.Value,
-                BinTreeInt32 property => property.Value,
-                BinTreeUInt32 property => property.Value,
-                BinTreeInt64 property => property.Value,
-                BinTreeUInt64 property => property.Value,
-                BinTreeFloat property => property.Value,
+                BinTreeI8 property => property.Value,
+                BinTreeU8 property => property.Value,
+                BinTreeI16 property => property.Value,
+                BinTreeU16 property => property.Value,
+                BinTreeI32 property => property.Value,
+                BinTreeU32 property => property.Value,
+                BinTreeI64 property => property.Value,
+                BinTreeU64 property => property.Value,
+                BinTreeF32 property => property.Value,
                 BinTreeVector2 property => property.Value,
                 BinTreeVector3 property => property.Value,
                 BinTreeVector4 property => property.Value,
@@ -613,7 +613,7 @@ namespace LeagueToolkit.Meta
                 BinTreeColor property => property.Value,
                 BinTreeString property => property.Value,
                 BinTreeHash property => new MetaHash(property.Value),
-                BinTreeWadEntryLink property => new MetaWadEntryLink(property.Value),
+                BinTreeWadChunkLink property => new MetaWadEntryLink(property.Value),
                 BinTreeObjectLink property => new MetaObjectLink(property.Value),
                 BinTreeBitBool property => new MetaBitBool(property.Value),
                 _ => null

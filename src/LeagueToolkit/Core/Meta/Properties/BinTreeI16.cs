@@ -1,13 +1,13 @@
 ﻿namespace LeagueToolkit.Core.Meta.Properties;
 
-public sealed class BinTreeInt16 : BinTreeProperty
+public sealed class BinTreeI16 : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.I16;
     public short Value { get; set; }
 
-    public BinTreeInt16(uint nameHash, short value) : base(nameHash) => this.Value = value;
+    public BinTreeI16(uint nameHash, short value) : base(nameHash) => this.Value = value;
 
-    internal BinTreeInt16(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadInt16();
+    internal BinTreeI16(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadInt16();
 
     protected override void WriteContent(BinaryWriter bw) => bw.Write(this.Value);
 
@@ -16,9 +16,9 @@ public sealed class BinTreeInt16 : BinTreeProperty
     public override bool Equals(BinTreeProperty other) =>
         other switch
         {
-            BinTreeInt16 property => this.NameHash == property.NameHash && this.Value == property.Value,
+            BinTreeI16 property => this.NameHash == property.NameHash && this.Value == property.Value,
             _ => false
         };
 
-    public static implicit operator short(BinTreeInt16 property) => property.Value;
+    public static implicit operator short(BinTreeI16 property) => property.Value;
 }

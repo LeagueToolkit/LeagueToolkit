@@ -28,12 +28,6 @@ public sealed class BinTree
     public IReadOnlyList<BinTreeObject> Objects => this._objects;
     private readonly List<BinTreeObject> _objects = new();
 
-    public IReadOnlyList<BinTreePatchObject> PatchObjects => this._patchObjects;
-    private readonly List<BinTreePatchObject> _patchObjects = new();
-    private uint _patchObjectCount;
-
-    public uint Version { get; }
-
     public BinTree(string path) : this(File.OpenRead(path)) { }
 
     /// <summary>
@@ -65,12 +59,12 @@ public sealed class BinTree
                 throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
         }
 
-        this.Version = br.ReadUInt32();
-        if (this.Version is not (1 or 2 or 3))
+        uint version = br.ReadUInt32();
+        if (version is not (1 or 2 or 3))
             throw new UnsupportedFileVersionException();
 
         // Read dependencies
-        if (this.Version >= 2)
+        if (version >= 2)
         {
             uint dependencyCount = br.ReadUInt32();
             for (int i = 0; i < dependencyCount; i++)
@@ -105,14 +99,14 @@ public sealed class BinTree
         }
 
         // Read override section
-        if (this.Version >= 3 && this.IsOverride)
+        if (version >= 3 && this.IsOverride)
             ReadPatchSection(br);
     }
 
     private void ReadPatchSection(BinaryReader br)
     {
-        this._patchObjectCount = br.ReadUInt32();
-        for (int i = 0; i < this._patchObjectCount; i++)
+        uint dataOverrideCount = br.ReadUInt32();
+        for (int i = 0; i < dataOverrideCount; i++)
         {
             uint pathHash = br.ReadUInt32();
             uint size = br.ReadUInt32();
@@ -155,11 +149,11 @@ public sealed class BinTree
 
         if (this.IsOverride)
         {
-            bw.Write(this._patchObjectCount);
-            foreach (BinTreePatchObject patchObject in this._patchObjects)
-            {
-                patchObject.Write(bw);
-            }
+            //bw.Write(this._patchObjectCount);
+            //foreach (BinTreePatchObject patchObject in this._patchObjects)
+            //{
+            //    patchObject.Write(bw);
+            //}
         }
     }
 

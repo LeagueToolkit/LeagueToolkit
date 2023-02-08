@@ -1,13 +1,13 @@
 ﻿namespace LeagueToolkit.Core.Meta.Properties;
 
-public sealed class BinTreeFloat : BinTreeProperty
+public sealed class BinTreeF32 : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.F32;
     public float Value { get; set; }
 
-    public BinTreeFloat(uint nameHash, float value) : base(nameHash) => this.Value = value;
+    public BinTreeF32(uint nameHash, float value) : base(nameHash) => this.Value = value;
 
-    internal BinTreeFloat(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadSingle();
+    internal BinTreeF32(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadSingle();
 
     protected override void WriteContent(BinaryWriter bw) => bw.Write(this.Value);
 
@@ -16,9 +16,9 @@ public sealed class BinTreeFloat : BinTreeProperty
     public override bool Equals(BinTreeProperty other) =>
         other switch
         {
-            BinTreeFloat property => this.NameHash == property.NameHash && this.Value == property.Value,
+            BinTreeF32 property => this.NameHash == property.NameHash && this.Value == property.Value,
             _ => false
         };
 
-    public static implicit operator float(BinTreeFloat property) => property.Value;
+    public static implicit operator float(BinTreeF32 property) => property.Value;
 }

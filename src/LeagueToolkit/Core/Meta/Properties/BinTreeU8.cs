@@ -1,13 +1,13 @@
 ﻿namespace LeagueToolkit.Core.Meta.Properties;
 
-public sealed class BinTreeByte : BinTreeProperty
+public sealed class BinTreeU8 : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.U8;
     public byte Value { get; set; }
 
-    public BinTreeByte(uint nameHash, byte value) : base(nameHash) => this.Value = value;
+    public BinTreeU8(uint nameHash, byte value) : base(nameHash) => this.Value = value;
 
-    internal BinTreeByte(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadByte();
+    internal BinTreeU8(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadByte();
 
     protected override void WriteContent(BinaryWriter bw) => bw.Write(this.Value);
 
@@ -16,9 +16,9 @@ public sealed class BinTreeByte : BinTreeProperty
     public override bool Equals(BinTreeProperty other) =>
         other switch
         {
-            BinTreeByte property => this.NameHash == property.NameHash && this.Value == property.Value,
+            BinTreeU8 property => this.NameHash == property.NameHash && this.Value == property.Value,
             _ => false
         };
 
-    public static implicit operator byte(BinTreeByte property) => property.Value;
+    public static implicit operator byte(BinTreeU8 property) => property.Value;
 }
