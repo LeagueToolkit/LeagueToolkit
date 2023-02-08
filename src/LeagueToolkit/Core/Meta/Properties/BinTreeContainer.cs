@@ -25,15 +25,15 @@ public class BinTreeContainer : BinTreeProperty, IBinTreeParent
     {
         this.ElementType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         uint size = br.ReadUInt32();
-        long contentPosition = br.BaseStream.Position;
+        long contentOffset = br.BaseStream.Position;
 
         uint valueCount = br.ReadUInt32();
         for (int i = 0; i < valueCount; i++)
             this._elements.Add(ReadPropertyContent(0, this.ElementType, br, useLegacyType));
 
-        if (br.BaseStream.Position != contentPosition + size)
+        if (br.BaseStream.Position != contentOffset + size)
             ThrowHelper.ThrowInvalidDataException(
-                $"Invalid size: {br.BaseStream.Position - contentPosition}, expected {size}"
+                $"Invalid size: {br.BaseStream.Position - contentOffset}, expected {size}"
             );
     }
 

@@ -33,15 +33,15 @@ public class BinTreeStruct : BinTreeProperty, IBinTreeParent
             return; // Skip
 
         uint size = br.ReadUInt32();
-        long contentPosition = br.BaseStream.Position;
+        long contentOffset = br.BaseStream.Position;
 
         ushort propertyCount = br.ReadUInt16();
         for (int i = 0; i < propertyCount; i++)
             this._properties.Add(Read(br, useLegacyType));
 
-        if (br.BaseStream.Position != contentPosition + size)
+        if (br.BaseStream.Position != contentOffset + size)
             ThrowHelper.ThrowInvalidDataException(
-                $"Invalid size: {br.BaseStream.Position - contentPosition}, expected {size}"
+                $"Invalid size: {br.BaseStream.Position - contentOffset}, expected {size}"
             );
     }
 

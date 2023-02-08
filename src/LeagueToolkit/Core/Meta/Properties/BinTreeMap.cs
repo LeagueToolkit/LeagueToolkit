@@ -62,12 +62,18 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent, IDictionary<Bi
         this.KeyType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         this.ValueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         uint size = br.ReadUInt32();
-        uint valueCount = br.ReadUInt32();
+        long contentOffset = br.BaseStream.Position;
 
+        uint valueCount = br.ReadUInt32();
         for (int i = 0; i < valueCount; i++)
             this._map.Add(
                 ReadPropertyContent(0, this.KeyType, br, useLegacyType),
                 ReadPropertyContent(0, this.ValueType, br, useLegacyType)
+            );
+
+        if (br.BaseStream.Position != contentOffset + size)
+            ThrowHelper.ThrowInvalidDataException(
+                $"Invalid size: {br.BaseStream.Position - contentOffset}, expected {size}"
             );
     }
 
