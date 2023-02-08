@@ -38,7 +38,7 @@ namespace LeagueToolkit.Core.Meta
         {
             bw.Write(PathHash);
             bw.Write(property.GetSize(false) + name.Length + 3); // size of entry
-            bw.Write((byte)BinUtilities.PackType(property.Type));
+            bw.Write((byte)property.Type);
             bw.Write((ushort)name.Length);
             bw.Write(Encoding.ASCII.GetBytes(name));
             property.Write(bw, false);

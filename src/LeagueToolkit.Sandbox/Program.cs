@@ -42,7 +42,14 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileBin(@"X:\lol\game\data\maps\mapgeometry\map11\base.materials.bin");
+        BinTree og = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
+
+        og.Write(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin", 3);
+
+        BinTree notog = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin");
+
+        ProfileMapgeoToGltf();
+        ProfileBin(@"apheliosui.bin");
 
         //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
 
@@ -72,6 +79,30 @@ class Program
             "renekton_skin26_second.glb",
             animations
         );
+    }
+
+    static void ExtractWad(string wadPath, string extractTo)
+    {
+        Dictionary<ulong, string> hashtable = new();
+        foreach (string line in File.ReadLines(@"X:\lol\tools\Obsidian\GAME_HASHTABLE.txt"))
+        {
+            string[] split = line.Split(' ', StringSplitOptions.TrimEntries);
+
+            hashtable.Add(Convert.ToUInt64(split[0], 16), split[1]);
+        }
+
+        using WadFile wad = new(wadPath);
+
+        foreach (var (chunkHash, chunk) in wad.Chunks)
+        {
+            if (hashtable.TryGetValue(chunkHash, out string chunkPath))
+            {
+                using FileStream chunkFileStream = File.Create(Path.Join(extractTo, chunkPath));
+                using Stream chunkStream = wad.OpenChunk(chunk);
+
+                chunkStream.CopyTo(chunkFileStream);
+            }
+        }
     }
 
     static void ProfileBin(string path)
@@ -140,8 +171,8 @@ class Program
 
     static void ProfileMapgeoToGltf()
     {
-        BinTree materialsBin = new("ioniabase.materials.bin");
-        using MapGeometry mgeo = new("ioniabase.mapgeo");
+        BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
+        using MapGeometry mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -153,14 +184,14 @@ class Program
                     metaEnvironment,
                     new()
                     {
-                        GameDataPath = "X:/lol/game",
+                        GameDataPath = @"X:\lol\game_old",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
-                        TextureQuality = MapGeometryGltfTextureQuality.Low
+                        TextureQuality = MapGeometryGltfTextureQuality.High
                     }
                 )
             )
-            .SaveGLB("ioniabase.glb");
+            .SaveGLB("map19.glb");
     }
 
     static void ProfileTexture()

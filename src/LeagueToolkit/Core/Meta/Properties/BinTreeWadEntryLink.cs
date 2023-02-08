@@ -2,7 +2,7 @@
 
 public sealed class BinTreeWadEntryLink : BinTreeProperty
 {
-    public override BinPropertyType Type => BinPropertyType.WadEntryLink;
+    public override BinPropertyType Type => BinPropertyType.WadChunkLink;
 
     public ulong Value { get; set; }
 

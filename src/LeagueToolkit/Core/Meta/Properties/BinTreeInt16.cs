@@ -2,7 +2,7 @@
 
 public sealed class BinTreeInt16 : BinTreeProperty
 {
-    public override BinPropertyType Type => BinPropertyType.Int16;
+    public override BinPropertyType Type => BinPropertyType.I16;
     public short Value { get; set; }
 
     public BinTreeInt16(uint nameHash, short value) : base(nameHash) => this.Value = value;

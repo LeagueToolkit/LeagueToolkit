@@ -2,7 +2,7 @@
 
 public sealed class BinTreeUInt32 : BinTreeProperty
 {
-    public override BinPropertyType Type => BinPropertyType.UInt32;
+    public override BinPropertyType Type => BinPropertyType.U32;
     public uint Value { get; set; }
 
     public BinTreeUInt32(uint nameHash, uint value) : base(nameHash) => this.Value = value;

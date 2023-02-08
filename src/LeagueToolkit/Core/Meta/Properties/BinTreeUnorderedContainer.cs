@@ -10,7 +10,8 @@ public sealed class BinTreeUnorderedContainer : BinTreeContainer
         IEnumerable<BinTreeProperty> properties
     ) : base(nameHash, propertiesType, properties) { }
 
-    internal BinTreeUnorderedContainer(BinaryReader br, uint nameHash) : base(br, nameHash) { }
+    internal BinTreeUnorderedContainer(BinaryReader br, uint nameHash, bool useLegacyType = false)
+        : base(br, nameHash, useLegacyType) { }
 
     public override bool Equals(BinTreeProperty other)
     {

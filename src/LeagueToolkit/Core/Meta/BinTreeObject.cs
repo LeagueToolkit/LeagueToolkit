@@ -54,7 +54,7 @@ public sealed class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
         this._properties = properties.ToList();
     }
 
-    internal static BinTreeObject Read(uint classHash, BinaryReader br)
+    internal static BinTreeObject Read(uint classHash, BinaryReader br, bool useLegacyType = false)
     {
         uint size = br.ReadUInt32();
         uint pathHash = br.ReadUInt32();
@@ -68,7 +68,7 @@ public sealed class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
         IEnumerable<BinTreeProperty> ReadProperties()
         {
             for (int i = 0; i < propertyCount; i++)
-                yield return BinTreeProperty.Read(br, null);
+                yield return BinTreeProperty.Read(br, useLegacyType);
         }
     }
 

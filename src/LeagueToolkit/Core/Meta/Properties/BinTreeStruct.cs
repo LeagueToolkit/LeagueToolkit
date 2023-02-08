@@ -24,7 +24,7 @@ public class BinTreeStruct : BinTreeProperty, IBinTreeParent
         this._properties = properties.ToList();
     }
 
-    internal BinTreeStruct(BinaryReader br, uint nameHash) : base(nameHash)
+    internal BinTreeStruct(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
     {
         this.ClassHash = br.ReadUInt32();
         if (this.ClassHash is 0)
@@ -33,7 +33,7 @@ public class BinTreeStruct : BinTreeProperty, IBinTreeParent
         uint size = br.ReadUInt32();
         ushort propertyCount = br.ReadUInt16();
         for (int i = 0; i < propertyCount; i++)
-            this._properties.Add(Read(br));
+            this._properties.Add(Read(br, useLegacyType));
     }
 
     protected override void WriteContent(BinaryWriter bw)

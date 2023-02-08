@@ -21,19 +21,19 @@ public class BinTreeContainer : BinTreeProperty, IBinTreeParent
             ValidateElementType(element);
     }
 
-    internal BinTreeContainer(BinaryReader br, uint nameHash) : base(nameHash)
+    internal BinTreeContainer(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
     {
-        this.ElementType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+        this.ElementType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         uint size = br.ReadUInt32();
 
         uint valueCount = br.ReadUInt32();
         for (int i = 0; i < valueCount; i++)
-            this._elements.Add(Read(br, this.ElementType));
+            this._elements.Add(ReadPropertyContent(0, this.ElementType, br, useLegacyType));
     }
 
     protected override void WriteContent(BinaryWriter bw)
     {
-        bw.Write((byte)BinUtilities.PackType(this.ElementType));
+        bw.Write((byte)this.ElementType);
         bw.Write(GetContentSize());
         bw.Write(this._elements.Count);
 

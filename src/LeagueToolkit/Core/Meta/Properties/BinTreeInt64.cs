@@ -2,7 +2,7 @@
 
 public sealed class BinTreeInt64 : BinTreeProperty
 {
-    public override BinPropertyType Type => BinPropertyType.Int64;
+    public override BinPropertyType Type => BinPropertyType.I64;
     public long Value { get; set; }
 
     public BinTreeInt64(uint nameHash, long value) : base(nameHash) => this.Value = value;

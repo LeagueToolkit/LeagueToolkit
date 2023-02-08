@@ -7,7 +7,8 @@ public sealed class BinTreeEmbedded : BinTreeStruct
     public BinTreeEmbedded(uint nameHash, uint metaClassHash, IEnumerable<BinTreeProperty> properties)
         : base(nameHash, metaClassHash, properties) { }
 
-    internal BinTreeEmbedded(BinaryReader br, uint nameHash) : base(br, nameHash) { }
+    internal BinTreeEmbedded(BinaryReader br, uint nameHash, bool useLegacyType = false)
+        : base(br, nameHash, useLegacyType) { }
 
     public override bool Equals(BinTreeProperty other)
     {

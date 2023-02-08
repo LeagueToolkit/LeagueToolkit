@@ -59,21 +59,24 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent, IDictionary<Bi
         }
     }
 
-    internal BinTreeMap(BinaryReader br, uint nameHash) : base(nameHash)
+    internal BinTreeMap(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
     {
-        this.KeyType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
-        this.ValueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+        this.KeyType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
+        this.ValueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         uint size = br.ReadUInt32();
         uint valueCount = br.ReadUInt32();
 
         for (int i = 0; i < valueCount; i++)
-            this._map.Add(Read(br, this.KeyType), Read(br, this.ValueType));
+            this._map.Add(
+                ReadPropertyContent(0, this.KeyType, br, useLegacyType),
+                ReadPropertyContent(0, this.ValueType, br, useLegacyType)
+            );
     }
 
     protected override void WriteContent(BinaryWriter bw)
     {
         bw.Write((byte)this.KeyType);
-        bw.Write((byte)BinUtilities.PackType(this.ValueType));
+        bw.Write((byte)this.ValueType);
         bw.Write(GetContentSize());
         bw.Write(this._map.Count);
 

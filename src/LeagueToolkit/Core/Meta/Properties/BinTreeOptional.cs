@@ -7,24 +7,24 @@ public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
 
     public BinTreeOptional(uint nameHash, BinTreeProperty value) : base(nameHash) => this.Value = value;
 
-    internal BinTreeOptional(BinaryReader br, uint nameHash) : base(nameHash)
+    internal BinTreeOptional(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
     {
-        BinPropertyType valueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+        BinPropertyType valueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         bool isSome = br.ReadBoolean();
 
         if (isSome)
-            this.Value = Read(br, valueType);
+            this.Value = ReadPropertyContent(0, valueType, br, useLegacyType);
     }
 
     protected override void WriteContent(BinaryWriter bw)
     {
-        bw.Write((byte)BinUtilities.PackType(this.Value.Type));
+        bw.Write((byte)this.Value.Type);
         bw.Write(this.Value is not null);
 
         this.Value?.Write(bw, false);
     }
 
-    //ilovefunctionalprogrammingilovefunctionalprogrammingilovefunctionalprogramming
+    //i<3functionalprogrammingi<3functionalprogrammingi<3functionalprogramming
     internal override int GetSize(bool includeHeader) =>
         (includeHeader ? 5 : 0)
         + 2

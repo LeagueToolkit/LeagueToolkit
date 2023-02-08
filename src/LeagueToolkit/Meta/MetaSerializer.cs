@@ -41,7 +41,7 @@ namespace LeagueToolkit.Meta
             Type metaClassObjectType = metaClassObject.GetType();
 
             // Assign values to the object properties
-            AssignMetaClassProperties(environment, metaClassObject, metaClassObjectType, treeObject._properties);
+            AssignMetaClassProperties(environment, metaClassObject, metaClassObjectType, treeObject.Properties);
 
             // Register the object in the environment for link resolving
             environment.RegisterObject(treeObject.PathHash, metaClassObject);
@@ -529,15 +529,15 @@ namespace LeagueToolkit.Meta
             {
                 BinPropertyType.None => true,
                 BinPropertyType.Bool => true,
-                BinPropertyType.SByte => true,
-                BinPropertyType.Byte => true,
-                BinPropertyType.Int16 => true,
-                BinPropertyType.UInt16 => true,
-                BinPropertyType.Int32 => true,
-                BinPropertyType.UInt32 => true,
-                BinPropertyType.Int64 => true,
-                BinPropertyType.UInt64 => true,
-                BinPropertyType.Float => true,
+                BinPropertyType.I8 => true,
+                BinPropertyType.U8 => true,
+                BinPropertyType.I16 => true,
+                BinPropertyType.U16 => true,
+                BinPropertyType.I32 => true,
+                BinPropertyType.U32 => true,
+                BinPropertyType.I64 => true,
+                BinPropertyType.U64 => true,
+                BinPropertyType.F32 => true,
                 BinPropertyType.Vector2 => true,
                 BinPropertyType.Vector3 => true,
                 BinPropertyType.Vector4 => true,
@@ -545,7 +545,7 @@ namespace LeagueToolkit.Meta
                 BinPropertyType.Color => true,
                 BinPropertyType.String => true,
                 BinPropertyType.Hash => true,
-                BinPropertyType.WadEntryLink => true,
+                BinPropertyType.WadChunkLink => true,
                 BinPropertyType.Container => false,
                 BinPropertyType.UnorderedContainer => false,
                 BinPropertyType.Struct => false,
@@ -563,15 +563,15 @@ namespace LeagueToolkit.Meta
             {
                 BinPropertyType.None => false,
                 BinPropertyType.Bool => false,
-                BinPropertyType.SByte => true,
-                BinPropertyType.Byte => true,
-                BinPropertyType.Int16 => true,
-                BinPropertyType.UInt16 => true,
-                BinPropertyType.Int32 => true,
-                BinPropertyType.UInt32 => true,
-                BinPropertyType.Int64 => true,
-                BinPropertyType.UInt64 => true,
-                BinPropertyType.Float => false,
+                BinPropertyType.I8 => true,
+                BinPropertyType.U8 => true,
+                BinPropertyType.I16 => true,
+                BinPropertyType.U16 => true,
+                BinPropertyType.I32 => true,
+                BinPropertyType.U32 => true,
+                BinPropertyType.I64 => true,
+                BinPropertyType.U64 => true,
+                BinPropertyType.F32 => false,
                 BinPropertyType.Vector2 => false,
                 BinPropertyType.Vector3 => false,
                 BinPropertyType.Vector4 => false,
@@ -579,7 +579,7 @@ namespace LeagueToolkit.Meta
                 BinPropertyType.Color => false,
                 BinPropertyType.String => true,
                 BinPropertyType.Hash => true,
-                BinPropertyType.WadEntryLink => false,
+                BinPropertyType.WadChunkLink => false,
                 BinPropertyType.Container => false,
                 BinPropertyType.UnorderedContainer => false,
                 BinPropertyType.Struct => false,
@@ -635,23 +635,23 @@ namespace LeagueToolkit.Meta
             if (type == typeof(bool))
                 return BinPropertyType.Bool;
             else if (type == typeof(sbyte))
-                return BinPropertyType.SByte;
+                return BinPropertyType.I8;
             else if (type == typeof(byte))
-                return BinPropertyType.Byte;
+                return BinPropertyType.U8;
             else if (type == typeof(short))
-                return BinPropertyType.Int16;
+                return BinPropertyType.I16;
             else if (type == typeof(ushort))
-                return BinPropertyType.UInt16;
+                return BinPropertyType.U16;
             else if (type == typeof(int))
-                return BinPropertyType.Int32;
+                return BinPropertyType.I32;
             else if (type == typeof(uint))
-                return BinPropertyType.UInt32;
+                return BinPropertyType.U32;
             else if (type == typeof(long))
-                return BinPropertyType.Int64;
+                return BinPropertyType.I64;
             else if (type == typeof(ulong))
-                return BinPropertyType.UInt64;
+                return BinPropertyType.U64;
             else if (type == typeof(float))
-                return BinPropertyType.Float;
+                return BinPropertyType.F32;
             else if (type == typeof(Vector2))
                 return BinPropertyType.Vector2;
             else if (type == typeof(Vector3))
@@ -667,7 +667,7 @@ namespace LeagueToolkit.Meta
             else if (type == typeof(MetaHash))
                 return BinPropertyType.Hash;
             else if (type == typeof(MetaWadEntryLink))
-                return BinPropertyType.WadEntryLink;
+                return BinPropertyType.WadChunkLink;
             else if (type == typeof(MetaObjectLink))
                 return BinPropertyType.ObjectLink;
             else if (type == typeof(MetaBitBool))

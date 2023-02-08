@@ -2,6 +2,7 @@
 using LeagueToolkit.Core.Meta.Properties;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
+using System;
 using System.Text;
 
 namespace LeagueToolkit.Core.Meta;
@@ -51,7 +52,14 @@ public sealed class BinTree
         {
             this.IsOverride = true;
 
-            ulong unknown = br.ReadUInt64();
+            uint overrideVersion = br.ReadUInt32();
+            if (overrideVersion is not 1)
+                throw new UnsupportedFileVersionException();
+
+            // It might be possible to create an override property bin
+            // and set the original file as a dependency
+            uint maybeOverrideObjectCount = br.ReadUInt32(); // this seems to be object count of override section
+
             magic = Encoding.ASCII.GetString(br.ReadBytes(4));
             if (magic is not "PROP")
                 throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
@@ -74,9 +82,27 @@ public sealed class BinTree
         uint[] objectClasses = new uint[objectCount];
         br.Read(objectClasses.AsSpan().Cast<uint, byte>());
 
-        // Read objects
-        for (int i = 0; i < objectCount; i++)
-            this._objects.Add(BinTreeObject.Read(objectClasses[i], br));
+        // This is another mega brain 5Head piece of code
+        // Since riot is a bit retarded, they created a new property type (WadChunkLink) in the middle of the fucking enum
+        // I'm too lazy to think of another hacky method to do this in a better way so here we go
+        long objectsOffset = br.BaseStream.Position;
+        try
+        {
+            // Read objects
+            for (int i = 0; i < objectCount; i++)
+                this._objects.Add(BinTreeObject.Read(objectClasses[i], br, useLegacyType: false));
+        }
+        catch (InvalidPropertyTypeException)
+        {
+            // Oopsie woopsie fucky wucky we hit a "legacy" property bin
+            // Reset position to objects start and read in "legacy" mode
+            br.BaseStream.Seek(objectsOffset, SeekOrigin.Begin);
+            this._objects.Clear();
+
+            // Read objects
+            for (int i = 0; i < objectCount; i++)
+                this._objects.Add(BinTreeObject.Read(objectClasses[i], br, useLegacyType: true));
+        }
 
         // Read override section
         if (this.Version >= 3 && this.IsOverride)
@@ -90,74 +116,34 @@ public sealed class BinTree
         {
             uint pathHash = br.ReadUInt32();
             uint size = br.ReadUInt32();
-            BinPropertyType type = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+            BinPropertyType type = (BinPropertyType)br.ReadByte();
             string objectPath = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
 
-            if (!this._patchObjects.Exists(o => o.PathHash == pathHash))
-            {
-                this._patchObjects.Add(new BinTreePatchObject(pathHash));
-            }
-
-            IBinNestedProvider currentObject = this._patchObjects.Find(o => o.PathHash == pathHash);
-
-            string[] parts = objectPath.Split('.');
-            string valueName = parts[^1];
-            foreach (string part in parts)
-            {
-                if (part == valueName)
-                    break; // don't handle the value part
-                uint nameHash = Fnv1a.HashLower(part);
-                if (
-                    currentObject.Properties.Find(
-                        ((BinTreeProperty property, string) p) => p.property.NameHash == nameHash
-                    ) == (null, null)
-                )
-                {
-                    currentObject.Properties.Add((new BinTreeNested(nameHash), part));
-                }
-
-                (BinTreeProperty property, _) = currentObject.Properties.Find(
-                    ((BinTreeProperty property, string) p) => p.property.NameHash == nameHash
-                );
-                currentObject = (IBinNestedProvider)property;
-            }
-
-            // set the actual value to the deepest BinNested
-            currentObject.Properties.Add((BinTreeProperty.Read(br, type, Fnv1a.HashLower(valueName)), valueName));
+            BinTreeProperty property = BinTreeProperty.ReadPropertyContent(0, type, br);
         }
     }
 
-    public void Write(string fileLocation) => Write(fileLocation, this.Version);
+    public void Write(string fileLocation) => Write(File.Create(fileLocation));
 
-    public void Write(string fileLocation, uint version)
-    {
-        Write(File.Create(fileLocation), version);
-    }
-
-    public void Write(Stream stream, bool leaveOpen = false) => Write(stream, this.Version, leaveOpen);
-
-    public void Write(Stream stream, uint version, bool leaveOpen = false)
+    public void Write(Stream stream, bool leaveOpen = false)
     {
         using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
 
         if (this.IsOverride)
         {
             bw.Write("PTCH"u8);
-            bw.Write(1); // unknown
+            bw.Write(1); // override version
             bw.Write(0); // unknown
         }
 
         bw.Write("PROP"u8);
-        bw.Write(version); // version
+        bw.Write(3); // version
 
-        if (version >= 2)
+        bw.Write(this.Dependencies.Count);
+        foreach (string dependency in this.Dependencies)
         {
-            bw.Write(this.Dependencies.Count);
-            foreach (string dependency in this.Dependencies)
-            {
-                bw.Write((ushort)dependency.Length);
-                bw.Write(dependency.AsSpan());
-            }
+            bw.Write((ushort)dependency.Length);
+            bw.Write(dependency.AsSpan());
         }
 
         bw.Write(this._objects.Count);
@@ -167,7 +153,7 @@ public sealed class BinTree
         foreach (BinTreeObject treeObject in this._objects)
             treeObject.Write(bw);
 
-        if (version >= 3 && this.IsOverride)
+        if (this.IsOverride)
         {
             bw.Write(this._patchObjectCount);
             foreach (BinTreePatchObject patchObject in this._patchObjects)

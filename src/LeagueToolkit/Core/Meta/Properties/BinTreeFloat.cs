@@ -2,7 +2,7 @@
 
 public sealed class BinTreeFloat : BinTreeProperty
 {
-    public override BinPropertyType Type => BinPropertyType.Float;
+    public override BinPropertyType Type => BinPropertyType.F32;
     public float Value { get; set; }
 
     public BinTreeFloat(uint nameHash, float value) : base(nameHash) => this.Value = value;

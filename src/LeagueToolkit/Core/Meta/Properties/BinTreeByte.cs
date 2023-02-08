@@ -2,7 +2,7 @@
 
 public sealed class BinTreeByte : BinTreeProperty
 {
-    public override BinPropertyType Type => BinPropertyType.Byte;
+    public override BinPropertyType Type => BinPropertyType.U8;
     public byte Value { get; set; }
 
     public BinTreeByte(uint nameHash, byte value) : base(nameHash) => this.Value = value;
