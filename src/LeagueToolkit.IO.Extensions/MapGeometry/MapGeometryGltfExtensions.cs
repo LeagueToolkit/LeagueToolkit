@@ -5,7 +5,6 @@ using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Hashing;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Toolkit;
@@ -29,6 +28,7 @@ using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
     SharpGLTF.Schema2.Node
 >;
 using LeagueToolkit.IO.Extensions.Utils;
+using LeagueToolkit.Core.Meta;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -429,7 +429,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return DEFAULT_MAP_NAME;
 
             BinTreeObject mapContainerObject = materialsBin.Objects.FirstOrDefault(
-                x => x.MetaClassHash == Fnv1a.HashLower(nameof(MapContainer))
+                x => x.ClassHash == Fnv1a.HashLower(nameof(MapContainer))
             );
             if (mapContainerObject is null)
                 throw new InvalidOperationException(

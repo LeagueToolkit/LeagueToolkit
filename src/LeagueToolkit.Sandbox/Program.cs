@@ -6,7 +6,6 @@ using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
@@ -35,6 +34,7 @@ using System.Text;
 using System.Drawing;
 using LeagueToolkit.Hashing;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Meta;
 
 namespace LeagueToolkit.Sandbox;
 
@@ -42,6 +42,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        ProfileBin(@"X:\lol\game\data\maps\mapgeometry\map11\base.materials.bin");
+
         //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
 
         //ProfileRiggedMeshToGltf(
@@ -70,6 +72,11 @@ class Program
             "renekton_skin26_second.glb",
             animations
         );
+    }
+
+    static void ProfileBin(string path)
+    {
+        BinTree bin = new(path);
     }
 
     static void ProfileWadFile(string path)

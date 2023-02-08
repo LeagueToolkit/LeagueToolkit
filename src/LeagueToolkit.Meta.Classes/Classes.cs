@@ -2,8 +2,8 @@ using System.Numerics;
 using System.Collections.Generic;
 using LeagueToolkit.Meta.Attributes;
 using LeagueToolkit.Meta;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Core.Meta;
 
 namespace LeagueToolkit.Meta.Classes
 {
@@ -14,7 +14,7 @@ namespace LeagueToolkit.Meta.Classes
             "Sources",
             BinPropertyType.UnorderedContainer,
             "Class0xf795f405",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0xf795f405> Sources { get; set; } = new();
@@ -267,7 +267,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             4003303987U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileMovementSpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -343,7 +343,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -713,7 +713,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mBoolDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -758,7 +758,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Updater",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x1650a0ab",
             BinPropertyType.None,
             BinPropertyType.None
@@ -1277,7 +1277,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mMultiplier",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -1563,7 +1563,7 @@ namespace LeagueToolkit.Meta.Classes
             "Conditions",
             BinPropertyType.Container,
             "IScriptCondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IScriptCondition> Conditions { get; set; } = new();
@@ -1705,7 +1705,7 @@ namespace LeagueToolkit.Meta.Classes
             "RankPips",
             BinPropertyType.Container,
             "Class0x946612f1",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x946612f1> RankPips { get; set; } = new();
@@ -1762,7 +1762,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "AbilityResourceBars",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x32ea23b7",
             BinPropertyType.None,
             BinPropertyType.None
@@ -1847,7 +1847,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "value",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -1942,7 +1942,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "Class0xead11772",
             BinPropertyType.String,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<string, Class0xead11772> m3373835420 { get; set; } = new();
     }
@@ -2228,7 +2228,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mSpellScript",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "LolSpellScript",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2688,7 +2688,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             373111871U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2697,7 +2697,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             389889490U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2810,7 +2810,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             1013396979U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb1a585e5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2825,7 +2825,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "DefenseModifierIcons",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8082661a",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2837,7 +2837,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "InvulnerableBorder",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb1a585e5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2858,7 +2858,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3630890735U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb1a585e5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2867,7 +2867,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             250532226U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb1a585e5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2932,7 +2932,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mOverrideSpec",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileMovementSpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -2978,7 +2978,7 @@ namespace LeagueToolkit.Meta.Classes
             "spells",
             BinPropertyType.Container,
             "Class0x6faebdfe",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x6faebdfe> Spells { get; set; } = new();
@@ -3037,7 +3037,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3105,7 +3105,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3581065293U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7d180d65",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3120,7 +3120,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "CooldownGem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x20664115",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3156,25 +3156,19 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             1860843567U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IIntGet",
             BinPropertyType.None,
             BinPropertyType.None
         )]
         public IIntGet m1860843567 { get; set; } = null;
 
-        [MetaPropertyAttribute(
-            "Team",
-            BinPropertyType.Structure,
-            "IIntGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("Team", BinPropertyType.Struct, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
         public IIntGet Team { get; set; } = null;
 
         [MetaPropertyAttribute(
             3087324413U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IIntGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3187,7 +3181,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3246,7 +3240,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             987773859U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IIntGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3261,14 +3255,14 @@ namespace LeagueToolkit.Meta.Classes
             "mConditions",
             BinPropertyType.Container,
             "IContextualCondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IContextualCondition> Conditions { get; set; } = new();
 
         [MetaPropertyAttribute(
             "mAnimationAction",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ContextualActionPlayAnimation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3295,7 +3289,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2562089269U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x15f6e07a",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3304,7 +3298,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mTriggerEventAction",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ContextualActionTriggerEvent",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3313,7 +3307,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAudioAction",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ContextualActionPlayAudio",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3341,7 +3335,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             240105767U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3865,7 +3859,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             799477447U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x2fa70ec7",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3886,7 +3880,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "targetLaserEffects",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TargetLaserComponentEffects",
             BinPropertyType.None,
             BinPropertyType.None
@@ -3925,7 +3919,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "IGameCalculation",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, IGameCalculation> CharacterCalculations { get; set; } = new();
 
@@ -3976,7 +3970,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1269826753U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x4bb004c1",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4142,7 +4136,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "evolutionData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "EvolutionDescription",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4534,7 +4528,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "DisabledTargetLaserEffects",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TargetLaserComponentEffects",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4555,7 +4549,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3591313163U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xd60f170b",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4830,7 +4824,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mVFXResourceResolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ResourceResolver",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4855,7 +4849,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             2023567013U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8314a414",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4864,7 +4858,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2278153517U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8314a414",
             BinPropertyType.None,
             BinPropertyType.None
@@ -4940,7 +4934,7 @@ namespace LeagueToolkit.Meta.Classes
             "InputParameters",
             BinPropertyType.Container,
             "IScriptValueGet",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IScriptValueGet> InputParameters { get; set; }
@@ -5251,7 +5245,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mVFXResourceResolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ResourceResolver",
             BinPropertyType.None,
             BinPropertyType.None
@@ -5524,7 +5518,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "IGameCalculation",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, IGameCalculation> ItemCalculations { get; set; } = new();
 
@@ -5979,7 +5973,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "LobbyLayout",
             BinPropertyType.Byte,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<byte, LobbyLayout> m1620461726 { get; set; } = new();
 
@@ -6271,7 +6265,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "soundEvents",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xfc2d67aa",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6627,7 +6621,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mGearData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "GearData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6685,7 +6679,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "overrideSpline",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ISplineInfo",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6837,7 +6831,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             294509948U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xd63809d8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6846,7 +6840,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "HealthMeter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "HealthBarData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6855,7 +6849,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SummonerSpellSlots",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xf2906c54",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6864,7 +6858,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             601891358U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x20664115",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6888,7 +6882,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "ParMeter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourceBarData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6897,7 +6891,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "level",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "UnitLevelUiData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6909,7 +6903,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SummonerName",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x32c5fd80",
             BinPropertyType.None,
             BinPropertyType.None
@@ -6918,7 +6912,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "StatusEffects",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "UiUnitStatusData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -7183,7 +7177,7 @@ namespace LeagueToolkit.Meta.Classes
             "mSubRequirements",
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> SubRequirements { get; set; } = new();
@@ -7279,7 +7273,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "GameModeConstant",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, GameModeConstant> Constants { get; set; } = new();
     }
@@ -7414,7 +7408,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "BoolSource",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xf795f405",
             BinPropertyType.None,
             BinPropertyType.None
@@ -7927,7 +7921,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "staticSwitch",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "DynamicMaterialStaticSwitch",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8056,7 +8050,7 @@ namespace LeagueToolkit.Meta.Classes
             "probabilityTables",
             BinPropertyType.Container,
             "VfxProbabilityTableData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<VfxProbabilityTableData> ProbabilityTables { get; set; } = new();
@@ -8089,7 +8083,7 @@ namespace LeagueToolkit.Meta.Classes
             "mChildConditions",
             BinPropertyType.Container,
             "ICharacterSubcondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICharacterSubcondition> ChildConditions { get; set; } = new();
@@ -8237,7 +8231,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8256,7 +8250,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2442370258U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xc4244dee",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8398,7 +8392,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8414,7 +8408,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Value2",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8423,7 +8417,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Value1",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8523,7 +8517,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1368350975U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xda27cf24",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8544,7 +8538,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2023567013U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8314a414",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8553,7 +8547,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2278153517U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8314a414",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8565,7 +8559,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2650495671U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xda27cf24",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8574,7 +8568,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "ChaosTeamIdentity",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x6e9187f0",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8583,7 +8577,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2945630835U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x41c73a85",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8595,7 +8589,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3528547744U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7e14fec2",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8613,7 +8607,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "OrderTeamIdentity",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x6e9187f0",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8899,7 +8893,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mAutoattackCastTimeCalculation",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -8972,7 +8966,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "indicatorType",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ILineIndicatorType",
             BinPropertyType.None,
             BinPropertyType.None
@@ -9368,7 +9362,7 @@ namespace LeagueToolkit.Meta.Classes
             "mDrivers",
             BinPropertyType.Container,
             "Class0x995ca734",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x995ca734> Drivers { get; set; } = new();
@@ -9513,7 +9507,7 @@ namespace LeagueToolkit.Meta.Classes
             2370143380U,
             BinPropertyType.UnorderedContainer,
             "Class0x8b52a39e",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0x8b52a39e> m2370143380 { get; set; } = new();
@@ -9656,7 +9650,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mOverrideHeightSolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "HeightSolverType",
             BinPropertyType.None,
             BinPropertyType.None
@@ -10052,7 +10046,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mBoolDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -10296,7 +10290,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb4745778",
             BinPropertyType.None,
             BinPropertyType.None
@@ -10311,7 +10305,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mExtension",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IconElementDataExtension",
             BinPropertyType.None,
             BinPropertyType.None
@@ -10352,7 +10346,7 @@ namespace LeagueToolkit.Meta.Classes
             "Actions",
             BinPropertyType.UnorderedContainer,
             "Class0xeb31be9b",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0xeb31be9b> Actions { get; set; } = new();
@@ -10408,7 +10402,7 @@ namespace LeagueToolkit.Meta.Classes
             "Actions",
             BinPropertyType.Container,
             "MapAction",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<MapAction> Actions { get; set; } = new();
@@ -10675,7 +10669,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -10912,7 +10906,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mChildCondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IContextualCondition",
             BinPropertyType.None,
             BinPropertyType.None
@@ -11062,7 +11056,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "dynamics",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxAnimatedFloatVariableData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -11078,7 +11072,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Filter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IOptionItemFilter",
             BinPropertyType.None,
             BinPropertyType.None
@@ -11114,7 +11108,7 @@ namespace LeagueToolkit.Meta.Classes
             372438780U,
             BinPropertyType.Container,
             "SpellPassiveData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<SpellPassiveData> m372438780 { get; set; } = new();
@@ -11249,7 +11243,7 @@ namespace LeagueToolkit.Meta.Classes
             "mCastRequirementsCaster",
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> CastRequirementsCaster { get; set; } = new();
@@ -11442,7 +11436,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mPostCastLockoutDeltaTimeData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "SpellLockDeltaTimeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -11469,7 +11463,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mTargetingTypeData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TargetingTypeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -11523,7 +11517,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mPreCastLockoutDeltaTimeData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "SpellLockDeltaTimeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -11704,7 +11698,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "IGameCalculation",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, IGameCalculation> SpellCalculations { get; set; } = new();
 
@@ -11973,7 +11967,7 @@ namespace LeagueToolkit.Meta.Classes
             "mCastRequirementsTarget",
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> CastRequirementsTarget { get; set; } = new();
@@ -12055,7 +12049,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mOverrideAttackTime",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "OverrideAttackTimeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -12127,7 +12121,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mMissileSpec",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileSpecification",
             BinPropertyType.None,
             BinPropertyType.None
@@ -12229,7 +12223,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mUseAutoattackCastTimeData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "UseAutoattackCastTimeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -12290,7 +12284,7 @@ namespace LeagueToolkit.Meta.Classes
             "probabilityTables",
             BinPropertyType.Container,
             "VfxProbabilityTableData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<VfxProbabilityTableData> ProbabilityTables { get; set; } = new();
@@ -12303,7 +12297,7 @@ namespace LeagueToolkit.Meta.Classes
             "Parts",
             BinPropertyType.Container,
             "IGameCalculationPart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IGameCalculationPart> Parts { get; set; } = new();
@@ -12443,7 +12437,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "GameModeConstant",
             BinPropertyType.String,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<string, GameModeConstant> ScriptData { get; set; } = new();
 
@@ -12567,7 +12561,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2978235750U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x63a8aef9",
             BinPropertyType.None,
             BinPropertyType.None
@@ -12604,7 +12598,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             592852805U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AnchorBase",
             BinPropertyType.None,
             BinPropertyType.None
@@ -12808,7 +12802,7 @@ namespace LeagueToolkit.Meta.Classes
             "simpleEmitterDefinitionData",
             BinPropertyType.Container,
             "VfxEmitterDefinitionData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<VfxEmitterDefinitionData> SimpleEmitterDefinitionData { get; set; } = new();
@@ -12820,7 +12814,7 @@ namespace LeagueToolkit.Meta.Classes
             "complexEmitterDefinitionData",
             BinPropertyType.Container,
             "VfxEmitterDefinitionData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<VfxEmitterDefinitionData> ComplexEmitterDefinitionData { get; set; } = new();
@@ -12931,7 +12925,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mValue",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x995ca734",
             BinPropertyType.None,
             BinPropertyType.None
@@ -12940,7 +12934,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mCondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -13003,7 +12997,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mVFXResourceResolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ResourceResolver",
             BinPropertyType.None,
             BinPropertyType.None
@@ -13044,7 +13038,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mTooltipData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TooltipInstanceBuff",
             BinPropertyType.None,
             BinPropertyType.None
@@ -13058,7 +13052,7 @@ namespace LeagueToolkit.Meta.Classes
             2276578051U,
             BinPropertyType.Container,
             "Class0x67ac9672",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x67ac9672> m2276578051 { get; set; } = new();
@@ -13235,7 +13229,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "soundEvents",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x560e6c39",
             BinPropertyType.None,
             BinPropertyType.None
@@ -13822,7 +13816,7 @@ namespace LeagueToolkit.Meta.Classes
             "Sources",
             BinPropertyType.Container,
             "Class0xaba5f12d",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xaba5f12d> Sources { get; set; } = new();
@@ -14056,7 +14050,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mBoolDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14119,7 +14113,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2872204068U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14189,7 +14183,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mFadeBehavior",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ITargeterFadeBehavior",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14481,7 +14475,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14675,7 +14669,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "BaseEventData",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, BaseEventData> EventDataMap { get; set; }
     }
@@ -14734,7 +14728,7 @@ namespace LeagueToolkit.Meta.Classes
             1048439121U,
             BinPropertyType.UnorderedContainer,
             "Class0xd41c3507",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0xd41c3507> m1048439121 { get; set; } = new();
@@ -14845,7 +14839,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "ExtraBars",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x6172a47c",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14863,7 +14857,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "TextData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "HealthBarTextData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14881,7 +14875,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "fadeData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "HealthBarFadeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -14890,7 +14884,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "TickStyle",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xbcdc9113",
             BinPropertyType.None,
             BinPropertyType.None
@@ -15001,7 +14995,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3632919643U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -15166,7 +15160,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             1252199598U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x4aa30cae",
             BinPropertyType.None,
             BinPropertyType.None
@@ -15707,7 +15701,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "Class0xe61bae9c",
             BinPropertyType.UInt32,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<uint, Class0xe61bae9c> m963712148 { get; set; } = new();
     }
@@ -15770,7 +15764,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             546903361U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16028,7 +16022,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "value",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TftUnitPropertyValue",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16105,7 +16099,7 @@ namespace LeagueToolkit.Meta.Classes
             "Sources",
             BinPropertyType.Container,
             "Class0xf795f405",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xf795f405> Sources { get; set; } = new();
@@ -16266,7 +16260,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16317,7 +16311,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mUpdaterResourceData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "UpdaterResourceData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16550,7 +16544,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Key",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16654,7 +16648,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16667,7 +16661,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mScript",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "LolSpellScript",
             BinPropertyType.None,
             BinPropertyType.None
@@ -16676,20 +16670,14 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mSpell",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "SpellDataResource",
             BinPropertyType.None,
             BinPropertyType.None
         )]
         public SpellDataResource Spell { get; set; } = null;
 
-        [MetaPropertyAttribute(
-            "mBuff",
-            BinPropertyType.Structure,
-            "BuffData",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("mBuff", BinPropertyType.Struct, "BuffData", BinPropertyType.None, BinPropertyType.None)]
         public BuffData Buff { get; set; } = null;
 
         [MetaPropertyAttribute("mScriptName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
@@ -17061,7 +17049,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "GameModeConstant",
             BinPropertyType.String,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<string, GameModeConstant> Constants { get; set; } = new();
 
@@ -17193,7 +17181,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "materialController",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "SkinnedMeshDataMaterialController",
             BinPropertyType.None,
             BinPropertyType.None
@@ -17297,7 +17285,7 @@ namespace LeagueToolkit.Meta.Classes
             "rigPoseModifierData",
             BinPropertyType.Container,
             "BaseRigPoseModifierData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<BaseRigPoseModifierData> RigPoseModifierData { get; set; } = new();
@@ -17320,7 +17308,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1639141232U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xd0217984",
             BinPropertyType.None,
             BinPropertyType.None
@@ -17335,7 +17323,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3860309421U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xd0217984",
             BinPropertyType.None,
             BinPropertyType.None
@@ -17613,7 +17601,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mSplineInfo",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ISplineInfo",
             BinPropertyType.None,
             BinPropertyType.None
@@ -17638,7 +17626,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "position",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xdb3289d",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18106,7 +18094,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "IScriptValueGet",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, IScriptValueGet> m315410229 { get; set; } = new();
 
@@ -18121,7 +18109,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2704500504U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18130,7 +18118,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             207421984U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18180,7 +18168,7 @@ namespace LeagueToolkit.Meta.Classes
             "mDrivers",
             BinPropertyType.Container,
             "Class0x995ca734",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x995ca734> Drivers { get; set; } = new();
@@ -18262,7 +18250,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "FloatSource",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xaba5f12d",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18296,7 +18284,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Location",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb7d67a62",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18506,7 +18494,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             1137231793U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18524,7 +18512,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2052123805U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18679,7 +18667,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "dynamics",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxAnimatedVector3fVariableData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18721,7 +18709,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1399064044U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x9c638700",
             BinPropertyType.None,
             BinPropertyType.None
@@ -18904,7 +18892,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "dynamics",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxAnimatedVector2fVariableData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -19087,13 +19075,7 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(1784796335U)]
     public class Class0x6a61d4af : IScriptBlock
     {
-        [MetaPropertyAttribute(
-            "value",
-            BinPropertyType.Structure,
-            "IBoolGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("value", BinPropertyType.Struct, "IBoolGet", BinPropertyType.None, BinPropertyType.None)]
         public IBoolGet Value { get; set; } = null;
     }
 
@@ -19231,7 +19213,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "UnitPortraitSection",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x5059f9b6",
             BinPropertyType.None,
             BinPropertyType.None
@@ -19324,7 +19306,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mOverrideAutoattackCastTime",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "OverrideAutoAttackCastTimeData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -19393,7 +19375,7 @@ namespace LeagueToolkit.Meta.Classes
             "Conditions",
             BinPropertyType.Container,
             "IScriptCondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IScriptCondition> Conditions { get; set; } = new();
@@ -19557,7 +19539,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Source",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xf795f405",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20012,7 +19994,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2401426590U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x21bc7b54",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20031,7 +20013,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             547046879U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xbbb1fd0a",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20109,7 +20091,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "DefaultValue",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TftUnitPropertyValue",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20164,7 +20146,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "ParBar",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourceBarData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20276,7 +20258,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20504,7 +20486,7 @@ namespace LeagueToolkit.Meta.Classes
             1246049967U,
             BinPropertyType.Container,
             "Class0x91c2a2c7",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x91c2a2c7> m1246049967 { get; set; } = new();
@@ -20629,7 +20611,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x995ca734",
             BinPropertyType.None,
             BinPropertyType.None
@@ -20736,7 +20718,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "dynamics",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxAnimatedColorVariableData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21039,7 +21021,7 @@ namespace LeagueToolkit.Meta.Classes
             "mUnitsRequirements",
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> UnitsRequirements { get; set; } = new();
@@ -21184,7 +21166,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "ColorblindPalette",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourceStateColorOptions",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21196,7 +21178,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "DefaultPalette",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourceStateColorOptions",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21630,7 +21612,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "TargetStatsMenu",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa914101a",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21639,7 +21621,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "AbilitiesData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilitiesUiData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21648,7 +21630,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "InventoryData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xf535ab5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21660,7 +21642,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "HealthMeterSkins",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8eba574f",
             BinPropertyType.None,
             BinPropertyType.None
@@ -21683,7 +21665,7 @@ namespace LeagueToolkit.Meta.Classes
             "Metrics",
             BinPropertyType.UnorderedContainer,
             "Class0x486e38ec",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0x486e38ec> Metrics { get; set; } = new();
@@ -21761,7 +21743,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Filter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IOptionItemFilter",
             BinPropertyType.None,
             BinPropertyType.None
@@ -22017,7 +21999,7 @@ namespace LeagueToolkit.Meta.Classes
             376262977U,
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> m376262977 { get; set; } = new();
@@ -22026,7 +22008,7 @@ namespace LeagueToolkit.Meta.Classes
             392062544U,
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> m392062544 { get; set; } = new();
@@ -22070,7 +22052,7 @@ namespace LeagueToolkit.Meta.Classes
             "Segments",
             BinPropertyType.Container,
             "MapPathSegment",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<MapPathSegment> Segments { get; set; } = new();
@@ -22086,7 +22068,7 @@ namespace LeagueToolkit.Meta.Classes
             "mChildConditions",
             BinPropertyType.Container,
             "IContextualConditionSpell",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IContextualConditionSpell> ChildConditions { get; set; } = new();
@@ -22433,7 +22415,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3375308673U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xec7cb61d",
             BinPropertyType.None,
             BinPropertyType.None
@@ -22927,14 +22909,14 @@ namespace LeagueToolkit.Meta.Classes
             "mTargeterDefinitions",
             BinPropertyType.Container,
             "TargeterDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<TargeterDefinition> TargeterDefinitions { get; set; } = new();
 
         [MetaPropertyAttribute(
             "mTooltipData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TooltipInstanceSpell",
             BinPropertyType.None,
             BinPropertyType.None
@@ -22967,7 +22949,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mSpawningUIDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "SpawningUIDefinition",
             BinPropertyType.None,
             BinPropertyType.None
@@ -22991,7 +22973,7 @@ namespace LeagueToolkit.Meta.Classes
             "mMissileTargeterDefinitions",
             BinPropertyType.Container,
             "MissileAttachedTargetingDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<MissileAttachedTargetingDefinition> MissileTargeterDefinitions { get; set; } = new();
@@ -23278,7 +23260,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mOrder",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TextureAndColorData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -23287,7 +23269,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mChaos",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TextureAndColorData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -23447,7 +23429,7 @@ namespace LeagueToolkit.Meta.Classes
             "mSubparts",
             BinPropertyType.Container,
             "IGameCalculationPart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IGameCalculationPart> Subparts { get; set; } = new();
@@ -23603,7 +23585,7 @@ namespace LeagueToolkit.Meta.Classes
             "Metrics",
             BinPropertyType.UnorderedContainer,
             "Class0x30176f82",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0x30176f82> Metrics { get; set; } = new();
@@ -23617,7 +23599,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             948922006U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x699533b1",
             BinPropertyType.None,
             BinPropertyType.None
@@ -23775,7 +23757,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -23880,7 +23862,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "TipStyle",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TipStyleBase",
             BinPropertyType.None,
             BinPropertyType.None
@@ -24163,7 +24145,7 @@ namespace LeagueToolkit.Meta.Classes
             "mSubparts",
             BinPropertyType.Container,
             "IGameCalculationPart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IGameCalculationPart> Subparts { get; set; } = new();
@@ -24223,7 +24205,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mTooltipData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TooltipInstanceItem",
             BinPropertyType.None,
             BinPropertyType.None
@@ -24760,7 +24742,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "value",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -24769,7 +24751,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Key",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -24822,7 +24804,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1046813078U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa2f62fa1",
             BinPropertyType.None,
             BinPropertyType.None
@@ -25157,7 +25139,7 @@ namespace LeagueToolkit.Meta.Classes
             "mReplacements",
             BinPropertyType.Container,
             "PerkReplacement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<PerkReplacement> Replacements { get; set; } = new();
@@ -25180,7 +25162,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "LayoutStyle",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "LayoutStyleBase",
             BinPropertyType.None,
             BinPropertyType.None
@@ -25403,7 +25385,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3570308558U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xbafabcc8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -25708,16 +25690,10 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(1650680536U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m1650680536 { get; set; } = false;
 
-        [MetaPropertyAttribute(
-            "Start",
-            BinPropertyType.Structure,
-            "IIntGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("Start", BinPropertyType.Struct, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
         public IIntGet Start { get; set; } = null;
 
-        [MetaPropertyAttribute("End", BinPropertyType.Structure, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
+        [MetaPropertyAttribute("End", BinPropertyType.Struct, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
         public IIntGet End { get; set; } = null;
 
         [MetaPropertyAttribute(
@@ -25731,7 +25707,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3343129103U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IIntGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -25916,7 +25892,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "BaseEventData",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, BaseEventData> EventDataMap { get; set; } = new();
     }
@@ -26016,7 +25992,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2311154625U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26048,7 +26024,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1774353339U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x618b992b",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26059,7 +26035,7 @@ namespace LeagueToolkit.Meta.Classes
             "Entries",
             BinPropertyType.UnorderedContainer,
             "Class0x5de83b03",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0x5de83b03> Entries { get; set; } = new();
@@ -26070,7 +26046,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Source",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xf795f405",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26111,7 +26087,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SkinFilter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "SkinFilterData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26171,7 +26147,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Updater",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xec2d115",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26436,7 +26412,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26578,7 +26554,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mValueA",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26587,7 +26563,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mValueB",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -26917,7 +26893,7 @@ namespace LeagueToolkit.Meta.Classes
             "mDrivers",
             BinPropertyType.Container,
             "Class0x7a851cd8",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x7a851cd8> Drivers { get; set; } = new();
@@ -27109,7 +27085,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             236579167U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IStringGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -27179,7 +27155,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mCheatMenuUIData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "CheatMenuUIData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -27537,7 +27513,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mSubpart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -27590,7 +27566,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Filter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IOptionItemFilter",
             BinPropertyType.None,
             BinPropertyType.None
@@ -27875,7 +27851,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             1854058873U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -28229,7 +28205,7 @@ namespace LeagueToolkit.Meta.Classes
             2276578051U,
             BinPropertyType.Container,
             "Class0x67ac9672",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x67ac9672> m2276578051 { get; set; } = new();
@@ -28332,7 +28308,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "secondaryResourceHudDisplayData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ISecondaryResourceDisplayData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -28424,7 +28400,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -28775,7 +28751,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthUVOffset",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector2",
             BinPropertyType.None,
             BinPropertyType.None
@@ -28832,7 +28808,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexScaleBirthScale",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexTypeFloat",
             BinPropertyType.None,
             BinPropertyType.None
@@ -28847,7 +28823,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "textureMult",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb097c1bd",
             BinPropertyType.None,
             BinPropertyType.None
@@ -28981,7 +28957,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "reflectionDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxReflectionDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29017,7 +28993,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1341973282U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb13097f0",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29062,7 +29038,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "emissionSurfaceDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxEmissionSurfaceData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29122,7 +29098,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexParticleLifetime",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueFloat",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29161,7 +29137,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexRate",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueFloat",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29170,7 +29146,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthRotationalVelocity0",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector3",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29206,7 +29182,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "primitive",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxPrimitiveBase",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29230,7 +29206,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "FlexInstanceScale",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexTypeFloat",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29260,7 +29236,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "paletteDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxPaletteDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29311,7 +29287,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthVelocity",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector3",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29320,7 +29296,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "childParticleSetDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxChildParticleSetDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29365,7 +29341,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "fieldCollectionDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxFieldCollectionDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29419,7 +29395,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthUVScrollRateMult",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector2",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29446,7 +29422,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3106518078U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x9b19f2b5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29470,7 +29446,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3154256932U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7f70a2b2",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29479,7 +29455,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "distortionDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxDistortionDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29500,7 +29476,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthUVScrollRate",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector2",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29509,7 +29485,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "softParticleParams",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxSoftParticleDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29527,7 +29503,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "alphaErosionDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VfxAlphaErosionDefinitionData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29539,7 +29515,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "IVfxMaterialDriver",
             BinPropertyType.String,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<string, IVfxMaterialDriver> MaterialDrivers { get; set; } = new();
 
@@ -29638,7 +29614,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3764468121U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8324a97b",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29656,7 +29632,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexOffset",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector3",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29737,7 +29713,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             4111145537U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xf4e37e07",
             BinPropertyType.None,
             BinPropertyType.None
@@ -29850,7 +29826,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -30140,7 +30116,7 @@ namespace LeagueToolkit.Meta.Classes
             "blocks",
             BinPropertyType.UnorderedContainer,
             "IScriptBlock",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<IScriptBlock> Blocks { get; set; } = new();
@@ -30208,7 +30184,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -30660,7 +30636,7 @@ namespace LeagueToolkit.Meta.Classes
             "itemLists",
             BinPropertyType.Container,
             "Class0xc35fd9a",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xc35fd9a> ItemLists { get; set; } = new();
@@ -30672,7 +30648,7 @@ namespace LeagueToolkit.Meta.Classes
             "characterLists",
             BinPropertyType.Container,
             "TftMapCharacterList",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<TftMapCharacterList> CharacterLists { get; set; } = new();
@@ -30696,7 +30672,7 @@ namespace LeagueToolkit.Meta.Classes
             "TraitLists",
             BinPropertyType.Container,
             "Class0xd6a99b5b",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xd6a99b5b> TraitLists { get; set; } = new();
@@ -30716,7 +30692,7 @@ namespace LeagueToolkit.Meta.Classes
             "Sources",
             BinPropertyType.UnorderedContainer,
             "Class0xf795f405",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<Class0xf795f405> Sources { get; set; } = new();
@@ -30729,7 +30705,7 @@ namespace LeagueToolkit.Meta.Classes
             "Filters",
             BinPropertyType.Container,
             "Class0xa4913311",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xa4913311> Filters { get; set; } = new();
@@ -30885,7 +30861,7 @@ namespace LeagueToolkit.Meta.Classes
             "mChildConditions",
             BinPropertyType.Container,
             "ICharacterSubcondition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICharacterSubcondition> ChildConditions { get; set; } = new();
@@ -30917,7 +30893,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             141329050U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x8e3f13b5",
             BinPropertyType.None,
             BinPropertyType.None
@@ -31120,7 +31096,7 @@ namespace LeagueToolkit.Meta.Classes
             "SourcesY",
             BinPropertyType.Container,
             "Class0xaba5f12d",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xaba5f12d> SourcesY { get; set; } = new();
@@ -31129,7 +31105,7 @@ namespace LeagueToolkit.Meta.Classes
             "SourcesX",
             BinPropertyType.Container,
             "Class0xaba5f12d",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xaba5f12d> SourcesX { get; set; } = new();
@@ -31318,7 +31294,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2645397966U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x74f99b00",
             BinPropertyType.None,
             BinPropertyType.None
@@ -31374,7 +31350,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "IGameCalculation",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, IGameCalculation> Calculations { get; set; } = new();
     }
@@ -31830,7 +31806,7 @@ namespace LeagueToolkit.Meta.Classes
             "Filters",
             BinPropertyType.Container,
             "IOptionItemFilter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItemFilter> Filters { get; set; } = new();
@@ -31843,7 +31819,7 @@ namespace LeagueToolkit.Meta.Classes
             "blocks",
             BinPropertyType.UnorderedContainer,
             "IScriptBlock",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<IScriptBlock> Blocks { get; set; } = new();
@@ -32067,7 +32043,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32093,7 +32069,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Condition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptCondition",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32200,20 +32176,14 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Key",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
         )]
         public IScriptValueGet Key { get; set; } = null;
 
-        [MetaPropertyAttribute(
-            "Index",
-            BinPropertyType.Structure,
-            "IIntGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("Index", BinPropertyType.Struct, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
         public IIntGet Index { get; set; } = null;
 
         [MetaPropertyAttribute(
@@ -32324,7 +32294,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32666,7 +32636,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SceneTransitionOut",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xd1951f45",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32675,7 +32645,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SceneTransitionIn",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xd1951f45",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32787,7 +32757,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mDefaultValue",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x995ca734",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32834,7 +32804,7 @@ namespace LeagueToolkit.Meta.Classes
             "probabilityTables",
             BinPropertyType.Container,
             "VfxProbabilityTableData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<VfxProbabilityTableData> ProbabilityTables { get; set; } = new();
@@ -32854,7 +32824,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32886,7 +32856,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mPart1",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -32895,7 +32865,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mPart2",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -33247,7 +33217,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "InfoNubData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x6df7291a",
             BinPropertyType.None,
             BinPropertyType.None
@@ -33490,7 +33460,7 @@ namespace LeagueToolkit.Meta.Classes
             "items",
             BinPropertyType.Container,
             "IOptionItem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItem> Items { get; set; } = new();
@@ -33500,7 +33470,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Filter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IOptionItemFilter",
             BinPropertyType.None,
             BinPropertyType.None
@@ -33671,7 +33641,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthUVScrollRateMult",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector2",
             BinPropertyType.None,
             BinPropertyType.None
@@ -33971,7 +33941,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexScaleEmitOffset",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexTypeFloat",
             BinPropertyType.None,
             BinPropertyType.None
@@ -33992,7 +33962,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "flexBirthTranslation",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "FlexValueVector3",
             BinPropertyType.None,
             BinPropertyType.None
@@ -34347,7 +34317,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "MapPlaceable",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, MapPlaceable> Items { get; set; } = new();
     }
@@ -34890,7 +34860,7 @@ namespace LeagueToolkit.Meta.Classes
             "mReplacements",
             BinPropertyType.Container,
             "SummonerSpellPerkReplacement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<SummonerSpellPerkReplacement> Replacements { get; set; } = new();
@@ -35044,7 +35014,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mVFXResourceResolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ResourceResolver",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35176,7 +35146,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mBoolDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35229,7 +35199,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3697670398U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x12ab5c27",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35472,7 +35442,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             695961330U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x411f92df",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35481,7 +35451,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1119626666U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35490,7 +35460,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1371942855U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35499,7 +35469,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1735254996U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35514,7 +35484,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2462190943U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35532,7 +35502,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3300830664U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35554,7 +35524,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "SpellRankPips",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x1b1243af",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35563,7 +35533,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SpellRankText",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x86f7132e",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35572,7 +35542,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2484589064U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "CustomAbilitiesUiData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35672,7 +35642,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35851,7 +35821,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             2120563873U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -35860,7 +35830,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2406984042U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36027,7 +35997,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "String1",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IStringGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36036,7 +36006,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "String2",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IStringGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36090,7 +36060,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36396,7 +36366,7 @@ namespace LeagueToolkit.Meta.Classes
             "mFormulaParts",
             BinPropertyType.Container,
             "IGameCalculationPart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IGameCalculationPart> FormulaParts { get; set; } = new();
@@ -36421,7 +36391,7 @@ namespace LeagueToolkit.Meta.Classes
             "mRequirements",
             BinPropertyType.Container,
             "ISpellRankUpRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ISpellRankUpRequirement> Requirements { get; set; } = new();
@@ -36456,7 +36426,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x5c8c3181",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36469,7 +36439,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "value",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36605,7 +36575,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mBasicAttackCalculation",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -36937,7 +36907,7 @@ namespace LeagueToolkit.Meta.Classes
             "mTargeterDefinitions",
             BinPropertyType.Container,
             "TargeterDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<TargeterDefinition> TargeterDefinitions { get; set; } = new();
@@ -36984,7 +36954,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mTargeterDefinition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "TargeterDefinitionSkipTerrain",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37139,7 +37109,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "ParBar",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourceBarData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37148,7 +37118,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "CharacterStateIndicators",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xc8924ad4",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37166,7 +37136,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3670881822U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourceBarData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37178,7 +37148,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3972226635U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AbilityResourcePipsData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37187,7 +37157,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "icons",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x48184113",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37353,7 +37323,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "position",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IVectorGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37428,7 +37398,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mScript",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "PerkScript",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37461,7 +37431,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mVFXResourceResolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ResourceResolver",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37502,7 +37472,7 @@ namespace LeagueToolkit.Meta.Classes
             "mBuffs",
             BinPropertyType.Container,
             "PerkBuff",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<PerkBuff> Buffs { get; set; }
@@ -37771,7 +37741,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "verticalFacing",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "VerticalFacingType",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37789,7 +37759,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "heightSolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "HeightSolverType",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37798,7 +37768,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "visibilityComponent",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileVisibilitySpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -37809,7 +37779,7 @@ namespace LeagueToolkit.Meta.Classes
             "behaviors",
             BinPropertyType.Container,
             "MissileBehaviorSpec",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<MissileBehaviorSpec> Behaviors { get; set; } = new();
@@ -37819,7 +37789,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "movementComponent",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileMovementSpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -38210,7 +38180,7 @@ namespace LeagueToolkit.Meta.Classes
             "ItemsEither",
             BinPropertyType.Container,
             "IOptionItem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItem> ItemsEither { get; set; } = new();
@@ -38219,7 +38189,7 @@ namespace LeagueToolkit.Meta.Classes
             "itemsRight",
             BinPropertyType.Container,
             "IOptionItem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItem> ItemsRight { get; set; } = new();
@@ -38228,7 +38198,7 @@ namespace LeagueToolkit.Meta.Classes
             "itemsLeft",
             BinPropertyType.Container,
             "IOptionItem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItem> ItemsLeft { get; set; } = new();
@@ -38278,13 +38248,7 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(3280075917U)]
     public class Class0xc381fc8d : IScriptBlock
     {
-        [MetaPropertyAttribute(
-            "Team",
-            BinPropertyType.Structure,
-            "IIntGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("Team", BinPropertyType.Struct, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
         public IIntGet Team { get; set; } = null;
     }
 
@@ -38765,7 +38729,7 @@ namespace LeagueToolkit.Meta.Classes
             "mActions",
             BinPropertyType.Container,
             "MissileTriggeredActionSpec",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<MissileTriggeredActionSpec> Actions { get; set; }
@@ -38822,7 +38786,7 @@ namespace LeagueToolkit.Meta.Classes
             "mDrivers",
             BinPropertyType.Container,
             "Class0x7a851cd8",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x7a851cd8> Drivers { get; set; } = new();
@@ -39028,7 +38992,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mOverrideAutoattackCastTimeCalculation",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39255,14 +39219,14 @@ namespace LeagueToolkit.Meta.Classes
             760381042U,
             BinPropertyType.Container,
             "Class0xa0ce6603",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xa0ce6603> m760381042 { get; set; } = new();
 
         [MetaPropertyAttribute(
             1955607654U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa0ce6603",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39318,7 +39282,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             670267674U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xeca0eb94",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39364,7 +39328,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "value",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptValueGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39380,13 +39344,7 @@ namespace LeagueToolkit.Meta.Classes
         )]
         public MetaEmbedded<IntTableSet> OutIndex { get; set; } = new(new());
 
-        [MetaPropertyAttribute(
-            "Index",
-            BinPropertyType.Structure,
-            "IIntGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("Index", BinPropertyType.Struct, "IIntGet", BinPropertyType.None, BinPropertyType.None)]
         public IIntGet Index { get; set; } = null;
 
         [MetaPropertyAttribute(
@@ -39572,7 +39530,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mSubpart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39631,7 +39589,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1818600867U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xbf11ddc7",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39682,7 +39640,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mColorizationPostEffect",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MapSkinColorizationPostEffect",
             BinPropertyType.None,
             BinPropertyType.None
@@ -39766,7 +39724,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "GameModeConstant",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, GameModeConstant> m299789532 { get; set; } = new();
 
@@ -39985,7 +39943,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "TeamScore",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa37f48cd",
             BinPropertyType.None,
             BinPropertyType.None
@@ -40003,7 +39961,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "TeamHealthMeter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xdf0d389c",
             BinPropertyType.None,
             BinPropertyType.None
@@ -40173,7 +40131,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Condition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IScriptCondition",
             BinPropertyType.None,
             BinPropertyType.None
@@ -40462,7 +40420,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -40558,7 +40516,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             1833225235U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x6d44cc13",
             BinPropertyType.None,
             BinPropertyType.None
@@ -40582,7 +40540,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3019371501U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb3f7f3ed",
             BinPropertyType.None,
             BinPropertyType.None
@@ -40779,7 +40737,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             4003303987U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileMovementSpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -41064,7 +41022,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -41219,7 +41177,7 @@ namespace LeagueToolkit.Meta.Classes
             "blocks",
             BinPropertyType.UnorderedContainer,
             "IScriptBlock",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<IScriptBlock> Blocks { get; set; } = new();
@@ -41273,7 +41231,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mDragonUi",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "DragonUITunables",
             BinPropertyType.None,
             BinPropertyType.None
@@ -41541,7 +41499,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mOverrideSpec",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileMovementSpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -41576,7 +41534,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mSpellLockDeltaTimeCalculation",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -41605,7 +41563,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "mDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -41866,7 +41824,7 @@ namespace LeagueToolkit.Meta.Classes
             "traits",
             BinPropertyType.Container,
             "TftMapTraitData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<TftMapTraitData> Traits { get; set; } = new();
@@ -42017,7 +41975,7 @@ namespace LeagueToolkit.Meta.Classes
             "items",
             BinPropertyType.Container,
             "IOptionItem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItem> Items { get; set; } = new();
@@ -42085,7 +42043,7 @@ namespace LeagueToolkit.Meta.Classes
             2984191769U,
             BinPropertyType.Container,
             "Class0x8f3c54a6",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x8f3c54a6> m2984191769 { get; set; } = new();
@@ -42094,7 +42052,7 @@ namespace LeagueToolkit.Meta.Classes
             3882279857U,
             BinPropertyType.Container,
             "Class0x8f3c54a6",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0x8f3c54a6> m3882279857 { get; set; } = new();
@@ -42261,7 +42219,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Filter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa4913311",
             BinPropertyType.None,
             BinPropertyType.None
@@ -42458,7 +42416,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "CardTemplate",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xcbdadf65",
             BinPropertyType.None,
             BinPropertyType.None
@@ -42565,7 +42523,7 @@ namespace LeagueToolkit.Meta.Classes
             "extraInfo",
             BinPropertyType.Container,
             "GDSMapObjectExtraInfo",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<GDSMapObjectExtraInfo> ExtraInfo { get; set; } = new();
@@ -42776,7 +42734,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "MultikillIcon",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xadd14edd",
             BinPropertyType.None,
             BinPropertyType.None
@@ -42828,7 +42786,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "MeterSkins",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa5ed08ef",
             BinPropertyType.None,
             BinPropertyType.None
@@ -43041,7 +42999,7 @@ namespace LeagueToolkit.Meta.Classes
             "ModulePreloads",
             BinPropertyType.Container,
             "ScriptPreloadModule",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ScriptPreloadModule> ModulePreloads { get; set; } = new();
@@ -43050,7 +43008,7 @@ namespace LeagueToolkit.Meta.Classes
             "SpellPreloads",
             BinPropertyType.Container,
             "ScriptPreloadSpell",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ScriptPreloadSpell> SpellPreloads { get; set; } = new();
@@ -43059,7 +43017,7 @@ namespace LeagueToolkit.Meta.Classes
             "ParticlePreloads",
             BinPropertyType.Container,
             "ScriptPreloadParticle",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ScriptPreloadParticle> ParticlePreloads { get; set; } = new();
@@ -43068,7 +43026,7 @@ namespace LeagueToolkit.Meta.Classes
             "CharacterPreloads",
             BinPropertyType.Container,
             "ScriptPreloadCharacter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ScriptPreloadCharacter> CharacterPreloads { get; set; } = new();
@@ -43169,7 +43127,7 @@ namespace LeagueToolkit.Meta.Classes
             "blocks",
             BinPropertyType.UnorderedContainer,
             "IScriptBlock",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaUnorderedContainer<IScriptBlock> Blocks { get; set; } = new();
@@ -43273,7 +43231,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             2590088124U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x9a619bbc",
             BinPropertyType.None,
             BinPropertyType.None
@@ -43333,7 +43291,7 @@ namespace LeagueToolkit.Meta.Classes
             "components",
             BinPropertyType.Container,
             "MapComponent",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<MapComponent> Components { get; set; } = new();
@@ -43629,7 +43587,7 @@ namespace LeagueToolkit.Meta.Classes
             "Filters",
             BinPropertyType.Container,
             "Class0xa4913311",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xa4913311> Filters { get; set; } = new();
@@ -44120,7 +44078,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "Condition",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -44229,7 +44187,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xb33b2406",
             BinPropertyType.None,
             BinPropertyType.None
@@ -44471,7 +44429,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             129913348U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculation",
             BinPropertyType.None,
             BinPropertyType.None
@@ -44874,7 +44832,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mOverrideMovement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "MissileMovementSpec",
             BinPropertyType.None,
             BinPropertyType.None
@@ -45074,7 +45032,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mScript",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "PerkScript",
             BinPropertyType.None,
             BinPropertyType.None
@@ -45122,7 +45080,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mScriptAsSubStyle",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "PerkScript",
             BinPropertyType.None,
             BinPropertyType.None
@@ -45179,7 +45137,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mDefaultSplash",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "DefaultSplashedPerkStyle",
             BinPropertyType.None,
             BinPropertyType.None
@@ -45188,7 +45146,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mStyleVFXResourceResolver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ResourceResolver",
             BinPropertyType.None,
             BinPropertyType.None
@@ -45199,7 +45157,7 @@ namespace LeagueToolkit.Meta.Classes
             "mBuffs",
             BinPropertyType.Container,
             "PerkBuff",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<PerkBuff> Buffs { get; set; } = new();
@@ -45248,7 +45206,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "Class0x9a2769a4",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, Class0x9a2769a4> m3946563654 { get; set; } = new();
     }
@@ -45321,7 +45279,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3602055880U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x9a2769a4",
             BinPropertyType.None,
             BinPropertyType.None
@@ -46055,7 +46013,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Filter",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xa4913311",
             BinPropertyType.None,
             BinPropertyType.None
@@ -46085,7 +46043,7 @@ namespace LeagueToolkit.Meta.Classes
             2729703973U,
             BinPropertyType.Container,
             "Class0xd30bb41b",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<Class0xd30bb41b> m2729703973 { get; set; }
@@ -46175,7 +46133,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3225953125U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ICastRequirement",
             BinPropertyType.None,
             BinPropertyType.None
@@ -46200,7 +46158,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "SubPart",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IGameCalculationPart",
             BinPropertyType.None,
             BinPropertyType.None
@@ -46604,7 +46562,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "soundEvents",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0xe262e6be",
             BinPropertyType.None,
             BinPropertyType.None
@@ -46760,14 +46718,14 @@ namespace LeagueToolkit.Meta.Classes
             "mValueProcessorDataList",
             BinPropertyType.Container,
             "ValueProcessorData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ValueProcessorData> ValueProcessorDataList { get; set; } = new();
 
         [MetaPropertyAttribute(
             "Input",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x68b3a178",
             BinPropertyType.None,
             BinPropertyType.None
@@ -46930,7 +46888,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -47175,7 +47133,7 @@ namespace LeagueToolkit.Meta.Classes
             "mUnitsRequirements",
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> UnitsRequirements { get; set; } = new();
@@ -47340,7 +47298,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -47531,7 +47489,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "mAtlas",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "AtlasData",
             BinPropertyType.None,
             BinPropertyType.None
@@ -47553,7 +47511,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             3488202279U,
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x699533b1",
             BinPropertyType.None,
             BinPropertyType.None
@@ -47859,7 +47817,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "driver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x7a851cd8",
             BinPropertyType.None,
             BinPropertyType.None
@@ -47977,7 +47935,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -48384,7 +48342,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Updater",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "Class0x68b3a178",
             BinPropertyType.None,
             BinPropertyType.None
@@ -48677,7 +48635,7 @@ namespace LeagueToolkit.Meta.Classes
             "items",
             BinPropertyType.Container,
             "IOptionItem",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IOptionItem> Items { get; set; } = new();
@@ -49161,7 +49119,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "GameModeConstant",
             BinPropertyType.String,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<string, GameModeConstant> ScriptData { get; set; } = new();
 
@@ -49562,7 +49520,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "BaseBlendData",
             BinPropertyType.UInt64,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<ulong, BaseBlendData> BlendDataTable { get; set; } = new();
 
@@ -49583,7 +49541,7 @@ namespace LeagueToolkit.Meta.Classes
             BinPropertyType.Map,
             "ClipBaseData",
             BinPropertyType.Hash,
-            BinPropertyType.Structure
+            BinPropertyType.Struct
         )]
         public Dictionary<MetaHash, ClipBaseData> ClipDataMap { get; set; } = new();
 
@@ -49772,7 +49730,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Chance",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "IFloatGet",
             BinPropertyType.None,
             BinPropertyType.None
@@ -49870,7 +49828,7 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(
             "Table",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "ScriptTable",
             BinPropertyType.None,
             BinPropertyType.None
@@ -49923,7 +49881,7 @@ namespace LeagueToolkit.Meta.Classes
             "StatFilters",
             BinPropertyType.Container,
             "IStatStoneLogicDriver",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<IStatStoneLogicDriver> StatFilters { get; set; } = new();
@@ -50024,7 +49982,7 @@ namespace LeagueToolkit.Meta.Classes
             "mSubRequirements",
             BinPropertyType.Container,
             "ICastRequirement",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<ICastRequirement> SubRequirements { get; set; } = new();
@@ -50119,13 +50077,7 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(4190827749U)]
     public class Class0xf9caf4e5 : IScriptBlock
     {
-        [MetaPropertyAttribute(
-            "value",
-            BinPropertyType.Structure,
-            "IBoolGet",
-            BinPropertyType.None,
-            BinPropertyType.None
-        )]
+        [MetaPropertyAttribute("value", BinPropertyType.Struct, "IBoolGet", BinPropertyType.None, BinPropertyType.None)]
         public IBoolGet Value { get; set; } = null;
     }
 
@@ -50680,7 +50632,7 @@ namespace LeagueToolkit.Meta.Classes
             "probabilityTables",
             BinPropertyType.Container,
             "VfxProbabilityTableData",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             BinPropertyType.None
         )]
         public MetaContainer<VfxProbabilityTableData> ProbabilityTables { get; set; } = new();
@@ -51196,7 +51148,7 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(
             "dynamicMaterial",
-            BinPropertyType.Structure,
+            BinPropertyType.Struct,
             "DynamicMaterialDef",
             BinPropertyType.None,
             BinPropertyType.None

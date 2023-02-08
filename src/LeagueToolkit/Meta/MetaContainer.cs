@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.IO.PropertyBin.Properties;
+using LeagueToolkit.Core.Meta.Properties;
 using System.Collections;
 using System.Collections.Generic;
 

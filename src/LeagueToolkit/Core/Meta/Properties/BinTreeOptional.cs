@@ -1,0 +1,49 @@
+﻿namespace LeagueToolkit.Core.Meta.Properties;
+
+public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
+{
+    public override BinPropertyType Type => BinPropertyType.Optional;
+    public BinTreeProperty Value { get; private set; }
+
+    public BinTreeOptional(uint nameHash, BinTreeProperty value) : base(nameHash) => this.Value = value;
+
+    internal BinTreeOptional(BinaryReader br, uint nameHash) : base(nameHash)
+    {
+        BinPropertyType valueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte());
+        bool isSome = br.ReadBoolean();
+
+        if (isSome)
+            this.Value = Read(br, valueType);
+    }
+
+    protected override void WriteContent(BinaryWriter bw)
+    {
+        bw.Write((byte)BinUtilities.PackType(this.Value.Type));
+        bw.Write(this.Value is not null);
+
+        this.Value?.Write(bw, false);
+    }
+
+    //ilovefunctionalprogrammingilovefunctionalprogrammingilovefunctionalprogramming
+    internal override int GetSize(bool includeHeader) =>
+        (includeHeader ? 5 : 0)
+        + 2
+        + (
+            this.Value switch
+            {
+                null => 0,
+                BinTreeProperty someValue => someValue.GetSize(false)
+            }
+        );
+
+    public override bool Equals(BinTreeProperty other)
+    {
+        if (this.NameHash != other?.NameHash)
+            return false;
+
+        if (other is not BinTreeOptional optional)
+            return false;
+
+        return this.Value.Equals(optional.Value);
+    }
+}
