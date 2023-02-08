@@ -32,7 +32,7 @@ public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
             this.Value switch
             {
                 null => 0,
-                BinTreeProperty someValue => someValue.GetSize(false)
+                BinTreeProperty someValue => someValue.GetSize(includeHeader: false)
             }
         );
 

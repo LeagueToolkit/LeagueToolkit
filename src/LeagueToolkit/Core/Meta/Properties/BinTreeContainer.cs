@@ -25,10 +25,16 @@ public class BinTreeContainer : BinTreeProperty, IBinTreeParent
     {
         this.ElementType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         uint size = br.ReadUInt32();
+        long contentPosition = br.BaseStream.Position;
 
         uint valueCount = br.ReadUInt32();
         for (int i = 0; i < valueCount; i++)
             this._elements.Add(ReadPropertyContent(0, this.ElementType, br, useLegacyType));
+
+        if (br.BaseStream.Position != contentPosition + size)
+            ThrowHelper.ThrowInvalidDataException(
+                $"Invalid size: {br.BaseStream.Position - contentPosition}, expected {size}"
+            );
     }
 
     protected override void WriteContent(BinaryWriter bw)
@@ -41,7 +47,7 @@ public class BinTreeContainer : BinTreeProperty, IBinTreeParent
         {
             ValidateElementType(property);
 
-            property.Write(bw, false);
+            property.Write(bw, writeHeader: false);
         }
     }
 
@@ -57,7 +63,7 @@ public class BinTreeContainer : BinTreeProperty, IBinTreeParent
 
     public bool Remove(BinTreeProperty element) => this._elements.Remove(element);
 
-    internal override int GetSize(bool includeHeader) => (includeHeader ? 5 : 0) + 4 + 1 + GetContentSize();
+    internal override int GetSize(bool includeHeader) => (includeHeader ? 5 : 0) + 1 + 4 + GetContentSize();
 
     private int GetContentSize() => 4 + this.Elements.Sum(x => x.GetSize(includeHeader: false));
 

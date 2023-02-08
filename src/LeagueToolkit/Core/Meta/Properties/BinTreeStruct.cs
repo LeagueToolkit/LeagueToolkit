@@ -1,4 +1,6 @@
-﻿namespace LeagueToolkit.Core.Meta.Properties;
+﻿using CommunityToolkit.Diagnostics;
+
+namespace LeagueToolkit.Core.Meta.Properties;
 
 public class BinTreeStruct : BinTreeProperty, IBinTreeParent
 {
@@ -31,9 +33,16 @@ public class BinTreeStruct : BinTreeProperty, IBinTreeParent
             return; // Skip
 
         uint size = br.ReadUInt32();
+        long contentPosition = br.BaseStream.Position;
+
         ushort propertyCount = br.ReadUInt16();
         for (int i = 0; i < propertyCount; i++)
             this._properties.Add(Read(br, useLegacyType));
+
+        if (br.BaseStream.Position != contentPosition + size)
+            ThrowHelper.ThrowInvalidDataException(
+                $"Invalid size: {br.BaseStream.Position - contentPosition}, expected {size}"
+            );
     }
 
     protected override void WriteContent(BinaryWriter bw)

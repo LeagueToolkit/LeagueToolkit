@@ -44,7 +44,7 @@ class Program
     {
         BinTree og = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
 
-        og.Write(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin", 3);
+        og.Write(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin");
 
         BinTree notog = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin");
 

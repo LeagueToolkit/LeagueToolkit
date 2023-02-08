@@ -11,7 +11,7 @@ public sealed class BinTreeInt32 : BinTreeProperty
 
     protected override void WriteContent(BinaryWriter bw) => bw.Write(this.Value);
 
-    internal override int GetSize(bool includeHeader) => (includeHeader ? HEADER_SIZE : 0) + 8;
+    internal override int GetSize(bool includeHeader) => (includeHeader ? HEADER_SIZE : 0) + 4;
 
     public override bool Equals(BinTreeProperty other) =>
         other switch

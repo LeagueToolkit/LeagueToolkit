@@ -10,8 +10,6 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent, IDictionary<Bi
     public BinPropertyType KeyType { get; private set; }
     public BinPropertyType ValueType { get; private set; }
 
-    public IReadOnlyDictionary<BinTreeProperty, BinTreeProperty> Map => this._map;
-
     public ICollection<BinTreeProperty> Keys => this._map.Keys;
 
     public ICollection<BinTreeProperty> Values => this._map.Values;
@@ -90,7 +88,8 @@ public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent, IDictionary<Bi
     internal override int GetSize(bool includeHeader) =>
         1 + 1 + 4 + GetContentSize() + (includeHeader ? HEADER_SIZE : 0);
 
-    private int GetContentSize() => 4 + this.Map.Sum(x => x.Key.GetSize(false) + x.Value.GetSize(false));
+    private int GetContentSize() =>
+        4 + this.Sum(x => x.Key.GetSize(includeHeader: false) + x.Value.GetSize(includeHeader: false));
 
     public override bool Equals(BinTreeProperty other)
     {

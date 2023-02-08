@@ -218,11 +218,11 @@ namespace LeagueToolkit.Meta
             Type mapDictionaryType = mapDictionary.GetType();
             MethodInfo addMethod = mapDictionaryType.GetMethod("Add");
 
-            foreach (var propertyPair in map.Map)
+            foreach (var (key, value) in map)
             {
                 // Key types can only be primitive so we can fetch their value easily
-                object keyValue = FetchPrimitivePropertyValue(propertyPair.Key);
-                object valueValue = DeserializeTreeProperty(environment, propertyPair.Value);
+                object keyValue = FetchPrimitivePropertyValue(key);
+                object valueValue = DeserializeTreeProperty(environment, value);
 
                 addMethod.Invoke(mapDictionary, new[] { keyValue, valueValue });
             }

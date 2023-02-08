@@ -79,7 +79,7 @@ public sealed class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
 
         bw.Write((ushort)this._properties.Count);
         foreach (BinTreeProperty property in this._properties)
-            property.Write(bw, true);
+            property.Write(bw, writeHeader: true);
     }
 
     public void AddProperty(BinTreeProperty property)
