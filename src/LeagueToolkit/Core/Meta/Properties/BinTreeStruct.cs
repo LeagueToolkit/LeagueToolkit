@@ -26,8 +26,7 @@ public class BinTreeStruct : BinTreeProperty
     /// <summary>
     /// Gets the properties of the struct
     /// </summary>
-    public IReadOnlyList<BinTreeProperty> Properties => this._properties;
-    protected List<BinTreeProperty> _properties = new();
+    public Dictionary<uint, BinTreeProperty> Properties { get; } = new();
 
     /// <summary>
     /// Creates a new <see cref="BinTreeStruct"/> object with the specified parameters
@@ -38,12 +37,7 @@ public class BinTreeStruct : BinTreeProperty
     public BinTreeStruct(uint nameHash, uint classHash, IEnumerable<BinTreeProperty> properties) : base(nameHash)
     {
         this.ClassHash = classHash;
-        this._properties = properties.ToList();
-
-        // Verify properties
-        foreach (BinTreeProperty property in this.Properties)
-            if (properties.Any(x => x.NameHash == property.NameHash && x != property))
-                throw new ArgumentException($"Found two properties with the same name hash: {property.NameHash}");
+        this.Properties = properties.ToDictionary(x => x.NameHash);
     }
 
     internal BinTreeStruct(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
@@ -57,7 +51,11 @@ public class BinTreeStruct : BinTreeProperty
 
         ushort propertyCount = br.ReadUInt16();
         for (int i = 0; i < propertyCount; i++)
-            this._properties.Add(Read(br, useLegacyType));
+        {
+            BinTreeProperty property = Read(br, useLegacyType);
+
+            this.Properties.Add(property.NameHash, property);
+        }
 
         if (br.BaseStream.Position != contentOffset + size)
             ThrowHelper.ThrowInvalidDataException(
@@ -74,39 +72,9 @@ public class BinTreeStruct : BinTreeProperty
         bw.Write(GetContentSize());
 
         bw.Write((ushort)this.Properties.Count);
-        foreach (BinTreeProperty property in this.Properties)
+        foreach (var (_, property) in this.Properties)
             property.Write(bw, writeHeader: true);
     }
-
-    /// <summary>
-    /// Adds the specified <see cref="BinTreeProperty"/> into the struct
-    /// </summary>
-    /// <param name="property">The property to add</param>
-    public void AddProperty(BinTreeProperty property)
-    {
-        if (this._properties.Any(x => x.NameHash == property.NameHash))
-            ThrowHelper.ThrowArgumentException(
-                nameof(property),
-                $"Cannot add an already existing property: {property.NameHash}"
-            );
-
-        this._properties.Add(property);
-    }
-
-    /// <summary>
-    /// Removes a <see cref="BinTreeProperty"/> with the specified name hash from the struct
-    /// </summary>
-    /// <param name="nameHash">The hashed name of the property to remove</param>
-    /// <returns><see langword="true"/> if <paramref name="nameHash"/> was successfully removed; otherwise <see langword="false"/></returns>
-    public bool RemoveProperty(uint nameHash) =>
-        RemoveProperty(this._properties.FirstOrDefault(x => x.NameHash == nameHash));
-
-    /// <summary>
-    /// Removes the specified <see cref="BinTreeProperty"/> from the struct
-    /// </summary>
-    /// <param name="property">The property to remove</param>
-    /// <returns><see langword="true"/> if <paramref name="property"/> was successfully removed; otherwise <see langword="false"/></returns>
-    public bool RemoveProperty(BinTreeProperty property) => this._properties.Remove(property);
 
     internal override int GetSize(bool includeHeader) =>
         this.ClassHash switch
@@ -115,7 +83,7 @@ public class BinTreeStruct : BinTreeProperty
             _ => (includeHeader ? HEADER_SIZE : 0) + 4 + 4 + GetContentSize()
         };
 
-    private int GetContentSize() => 2 + this.Properties.Sum(x => x.GetSize(includeHeader: true));
+    private int GetContentSize() => 2 + this.Properties.Sum(x => x.Value.GetSize(includeHeader: true));
 
     public override bool Equals(BinTreeProperty other)
     {
@@ -126,14 +94,8 @@ public class BinTreeStruct : BinTreeProperty
         {
             if (this.ClassHash != otherProperty.ClassHash)
                 return false;
-            if (this._properties.Count != otherProperty._properties.Count)
-                return false;
 
-            for (int i = 0; i < this._properties.Count; i++)
-            {
-                if (!this._properties[i].Equals(otherProperty._properties[i]))
-                    return false;
-            }
+            return this.Properties.SequenceEqual(otherProperty.Properties);
         }
 
         return true;

@@ -34,9 +34,6 @@ public sealed class BinTreeEmbedded : BinTreeStruct
         if (this.ClassHash != embedded.ClassHash)
             return false;
 
-        if (this._properties.Count != embedded._properties.Count)
-            return false;
-
-        return this._properties.SequenceEqual(embedded._properties);
+        return this.Properties.SequenceEqual(embedded.Properties);
     }
 }

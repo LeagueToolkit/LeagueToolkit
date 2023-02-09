@@ -426,10 +426,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return DEFAULT_MAP_NAME;
 
             if (
-                !materialsBin.Objects.TryGetValue(
-                    Fnv1a.HashLower(nameof(MapContainer)),
-                    out BinTreeObject mapContainerObject
-                )
+                materialsBin.Objects.Values.FirstOrDefault(x => x.ClassHash == Fnv1a.HashLower(nameof(MapContainer)))
+                is not BinTreeObject mapContainerObject
             )
                 throw new InvalidOperationException(
                     $"Failed to find {nameof(MapContainer)} in the provided materials.bin"

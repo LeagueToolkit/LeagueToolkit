@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance;
+﻿using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Helpers.Exceptions;
 using System.Text;
 

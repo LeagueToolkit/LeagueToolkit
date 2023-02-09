@@ -84,7 +84,7 @@ namespace LeagueToolkit.Meta
             MetaEnvironment environment,
             object metaClassObject,
             Type metaClassType,
-            IReadOnlyList<BinTreeProperty> treeProperties
+            IReadOnlyDictionary<uint, BinTreeProperty> treeProperties
         )
         {
             PropertyInfo[] properties = metaClassType.GetProperties();
@@ -98,15 +98,9 @@ namespace LeagueToolkit.Meta
                 )
                     continue;
 
-                // Find matching tree property
-                BinTreeProperty treeProperty = treeProperties.FirstOrDefault(
-                    x => x.NameHash == metaPropertyAttribute.NameHash
-                );
-                if (treeProperty is not null) // Ignore missing properties
-                {
-                    // Assign values to properties
+                // Find matching tree property and ignore missing properties
+                if (treeProperties.TryGetValue(metaPropertyAttribute.NameHash, out BinTreeProperty treeProperty))
                     AssignMetaProperty(environment, metaClassObject, propertyInfo, treeProperty);
-                }
             }
         }
 
