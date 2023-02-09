@@ -17,12 +17,12 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
     /// <summary>
     /// The property type of the key
     /// </summary>
-    public BinPropertyType KeyType { get; private set; }
+    public BinPropertyType KeyType { get; }
 
     /// <summary>
     /// The property type of the value
     /// </summary>
-    public BinPropertyType ValueType { get; private set; }
+    public BinPropertyType ValueType { get; }
 
     public Dictionary<BinTreeProperty, BinTreeProperty>.KeyCollection Keys => this._map.Keys;
     public Dictionary<BinTreeProperty, BinTreeProperty>.ValueCollection Values => this._map.Values;
