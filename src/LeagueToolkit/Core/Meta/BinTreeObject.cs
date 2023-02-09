@@ -82,6 +82,10 @@ public sealed class BinTreeObject : IEquatable<BinTreeObject>
             property.Write(bw, writeHeader: true);
     }
 
+    /// <summary>
+    /// Adds the specified <see cref="BinTreeProperty"/> into the object
+    /// </summary>
+    /// <param name="property">The property to add</param>
     public void AddProperty(BinTreeProperty property)
     {
         if (this._properties.Any(x => x.NameHash == property.NameHash))
@@ -93,6 +97,11 @@ public sealed class BinTreeObject : IEquatable<BinTreeObject>
         this._properties.Add(property);
     }
 
+    /// <summary>
+    /// Removes a <see cref="BinTreeProperty"/> with the specified name hash from the object
+    /// </summary>
+    /// <param name="nameHash">The hashed name of the property to remove</param>
+    /// <returns><see langword="true"/> if <paramref name="nameHash"/> was successfully removed; otherwise <see langword="false"/></returns>
     public bool RemoveProperty(uint nameHash)
     {
         if (this._properties.Find(x => x.NameHash == nameHash) is BinTreeProperty property)
@@ -101,6 +110,11 @@ public sealed class BinTreeObject : IEquatable<BinTreeObject>
         return false;
     }
 
+    /// <summary>
+    /// Removes the specified <see cref="BinTreeProperty"/> from the object
+    /// </summary>
+    /// <param name="property">The property to remove</param>
+    /// <returns><see langword="true"/> if <paramref name="property"/> was successfully removed; otherwise <see langword="false"/></returns>
     public bool RemoveProperty(BinTreeProperty property) => this._properties.Remove(property);
 
     private int GetSize() => 4 + 2 + this._properties.Sum(x => x.GetSize(includeHeader: true));

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Helpers.Exceptions;
 using System.Text;
 
@@ -9,6 +10,9 @@ namespace LeagueToolkit.Core.Meta;
 /// </summary>
 public sealed class BinTree
 {
+    /// <summary>
+    /// Gets a value indicating whether the property bin is an override
+    /// </summary>
     public bool IsOverride { get; private set; }
 
     /// <summary>
@@ -22,12 +26,18 @@ public sealed class BinTree
     /// <summary>
     /// Gets the objects
     /// </summary>
-    public IReadOnlyList<BinTreeObject> Objects => this._objects;
-    private readonly List<BinTreeObject> _objects = new();
+    public Dictionary<uint, BinTreeObject> Objects { get; } = new();
 
+    /// <summary>
+    /// Gets the property overrides
+    /// </summary>
     public IReadOnlyList<BinTreeDataOverride> DataOverrides => this._dataOverrides;
     private readonly List<BinTreeDataOverride> _dataOverrides = new();
 
+    /// <summary>
+    /// Creates a new <see cref="BinTree"/> by reading it from the specified path
+    /// </summary>
+    /// <param name="path">The path of the property bin</param>
     public BinTree(string path) : this(File.OpenRead(path)) { }
 
     /// <summary>
@@ -84,18 +94,26 @@ public sealed class BinTree
         {
             // Read objects
             for (int i = 0; i < objectCount; i++)
-                this._objects.Add(BinTreeObject.Read(objectClasses[i], br, useLegacyType: false));
+            {
+                BinTreeObject treeObject = BinTreeObject.Read(objectClasses[i], br, useLegacyType: false);
+
+                this.Objects.Add(treeObject.PathHash, treeObject);
+            }
         }
         catch (InvalidPropertyTypeException)
         {
             // Oopsie woopsie fucky wucky we hit a "legacy" property bin
             // Reset position to objects start and read in "legacy" mode
             br.BaseStream.Seek(objectsOffset, SeekOrigin.Begin);
-            this._objects.Clear();
+            this.Objects.Clear();
 
             // Read objects
             for (int i = 0; i < objectCount; i++)
-                this._objects.Add(BinTreeObject.Read(objectClasses[i], br, useLegacyType: true));
+            {
+                BinTreeObject treeObject = BinTreeObject.Read(objectClasses[i], br, useLegacyType: true);
+
+                this.Objects.Add(treeObject.PathHash, treeObject);
+            }
         }
 
         // Read data overrides
@@ -107,11 +125,19 @@ public sealed class BinTree
         }
     }
 
-    public void Write(string fileLocation) => Write(File.Create(fileLocation));
+    /// <summary>
+    /// Writes the property bin to the specified path
+    /// </summary>
+    /// <param name="path">The path to the written property bin</param>
+    public void Write(string path) => Write(File.Create(path));
 
-    public void Write(Stream stream, bool leaveOpen = false)
+    /// <summary>
+    /// Writes the property bin into the specified stream
+    /// </summary>
+    /// <param name="stream">The stream to write to</param>
+    public void Write(Stream stream)
     {
-        using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
+        using BinaryWriter bw = new(stream, Encoding.UTF8, true);
 
         if (this.IsOverride)
         {
@@ -130,11 +156,11 @@ public sealed class BinTree
             bw.Write(dependency.AsSpan());
         }
 
-        bw.Write(this._objects.Count);
-        foreach (BinTreeObject treeObject in this._objects)
-            bw.Write(treeObject.ClassHash);
+        bw.Write(this.Objects.Count);
+        foreach (var (objectPath, _) in this.Objects)
+            bw.Write(objectPath);
 
-        foreach (BinTreeObject treeObject in this._objects)
+        foreach (var (_, treeObject) in this.Objects)
             treeObject.Write(bw);
 
         if (this.IsOverride)
@@ -143,27 +169,5 @@ public sealed class BinTree
             foreach (BinTreeDataOverride dataOverride in this._dataOverrides)
                 dataOverride.Write(bw);
         }
-    }
-
-    public void AddObject(BinTreeObject treeObject)
-    {
-        if (this._objects.Any(x => x.PathHash == treeObject.PathHash))
-        {
-            throw new InvalidOperationException("An object with the same path already exists");
-        }
-        else
-        {
-            this._objects.Add(treeObject);
-        }
-    }
-
-    public void RemoveObject(uint pathHash)
-    {
-        if (this._objects.FirstOrDefault(x => x.PathHash == pathHash) is BinTreeObject treeObject)
-        {
-            this._objects.Remove(treeObject);
-        }
-        else
-            throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
     }
 }

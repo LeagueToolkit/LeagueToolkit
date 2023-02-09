@@ -82,31 +82,31 @@ public class BinTreeStruct : BinTreeProperty
     /// Adds the specified <see cref="BinTreeProperty"/> into the struct
     /// </summary>
     /// <param name="property">The property to add</param>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when a <see cref="BinTreeProperty"/> with the same name hash already exists
-    /// </exception>
     public void AddProperty(BinTreeProperty property)
     {
         if (this._properties.Any(x => x.NameHash == property.NameHash))
-            throw new InvalidOperationException("A property with the same name already exists");
+            ThrowHelper.ThrowArgumentException(
+                nameof(property),
+                $"Cannot add an already existing property: {property.NameHash}"
+            );
 
         this._properties.Add(property);
     }
 
     /// <summary>
-    /// Removes the specified <see cref="BinTreeProperty"/> from the struct
-    /// </summary>
-    /// <param name="property">The property to remove</param>
-    /// /// <returns><see langword="true"/> if <paramref name="property"/> was successfully removed; otherwise <see langword="false"/></returns>
-    public bool RemoveProperty(BinTreeProperty property) => this._properties.Remove(property);
-
-    /// <summary>
     /// Removes a <see cref="BinTreeProperty"/> with the specified name hash from the struct
     /// </summary>
     /// <param name="nameHash">The hashed name of the property to remove</param>
-    /// /// <returns><see langword="true"/> if <paramref name="nameHash"/> was successfully removed; otherwise <see langword="false"/></returns>
+    /// <returns><see langword="true"/> if <paramref name="nameHash"/> was successfully removed; otherwise <see langword="false"/></returns>
     public bool RemoveProperty(uint nameHash) =>
         RemoveProperty(this._properties.FirstOrDefault(x => x.NameHash == nameHash));
+
+    /// <summary>
+    /// Removes the specified <see cref="BinTreeProperty"/> from the struct
+    /// </summary>
+    /// <param name="property">The property to remove</param>
+    /// <returns><see langword="true"/> if <paramref name="property"/> was successfully removed; otherwise <see langword="false"/></returns>
+    public bool RemoveProperty(BinTreeProperty property) => this._properties.Remove(property);
 
     internal override int GetSize(bool includeHeader) =>
         this.ClassHash switch

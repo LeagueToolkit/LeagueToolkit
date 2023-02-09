@@ -1,21 +1,31 @@
 ﻿using LeagueToolkit.Core.Meta.Properties;
+using LeagueToolkit.Hashing;
 
 namespace LeagueToolkit.Core.Meta;
 
+/// <summary>
+/// Represents a <see cref="BinTree"/> property
+/// </summary>
 public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
 {
     protected const int HEADER_SIZE = 5;
 
+    /// <summary>
+    /// Gets the type of the property
+    /// </summary>
     public abstract BinPropertyType Type { get; }
 
-    public uint NameHash { get; private set; }
+    /// <summary>
+    /// Gets the name hash
+    /// </summary>
+    /// <remarks>
+    /// The name is hashed using <see cref="Fnv1a.HashLower(string)"/>
+    /// </remarks>
+    public uint NameHash { get; }
 
     protected string _debuggerDisplayName => string.Format("{0:x}: {1}", this.NameHash, this.Type);
 
-    protected BinTreeProperty(uint nameHash)
-    {
-        this.NameHash = nameHash;
-    }
+    protected BinTreeProperty(uint nameHash) => this.NameHash = nameHash;
 
     internal static BinTreeProperty Read(BinaryReader br, bool useLegacyType = false)
     {
