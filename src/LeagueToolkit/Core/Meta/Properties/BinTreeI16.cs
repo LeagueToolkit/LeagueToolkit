@@ -2,12 +2,25 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="short"/> value
+/// </summary>
 [DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeI16 : BinTreeProperty
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.I16;
+
+    /// <summary>
+    /// Gets the value of the property
+    /// </summary>
     public short Value { get; set; }
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeI16"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="value">The value of the property</param>
     public BinTreeI16(uint nameHash, short value) : base(nameHash) => this.Value = value;
 
     internal BinTreeI16(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadInt16();

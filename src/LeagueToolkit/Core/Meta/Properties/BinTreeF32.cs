@@ -2,12 +2,25 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="float"/> value
+/// </summary>
 [DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeF32 : BinTreeProperty
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.F32;
+
+    /// <summary>
+    /// Gets the value of the property
+    /// </summary>
     public float Value { get; set; }
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeF32"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="value">The value of the property</param>
     public BinTreeF32(uint nameHash, float value) : base(nameHash) => this.Value = value;
 
     internal BinTreeF32(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadSingle();

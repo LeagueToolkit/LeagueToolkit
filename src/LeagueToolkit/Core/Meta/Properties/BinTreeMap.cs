@@ -5,16 +5,30 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="IDictionary{TKey, TValue}"/> value
+/// </summary>
 [DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, BinTreeProperty>
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.Map;
+
+    /// <summary>
+    /// The property type of the key
+    /// </summary>
     public BinPropertyType KeyType { get; private set; }
+
+    /// <summary>
+    /// The property type of the value
+    /// </summary>
     public BinPropertyType ValueType { get; private set; }
 
-    public ICollection<BinTreeProperty> Keys => this._map.Keys;
+    public Dictionary<BinTreeProperty, BinTreeProperty>.KeyCollection Keys => this._map.Keys;
+    public Dictionary<BinTreeProperty, BinTreeProperty>.ValueCollection Values => this._map.Values;
 
-    public ICollection<BinTreeProperty> Values => this._map.Values;
+    ICollection<BinTreeProperty> IDictionary<BinTreeProperty, BinTreeProperty>.Keys => this.Keys;
+    ICollection<BinTreeProperty> IDictionary<BinTreeProperty, BinTreeProperty>.Values => this.Values;
 
     public int Count => this._map.Count;
 
@@ -38,6 +52,13 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
 
     private string _debuggerDisplay => string.Format("Map<{0}, {1}>", this.KeyType, this.ValueType);
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeMap"/> with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="keyType">The key property type</param>
+    /// <param name="valueType">The value property type</param>
+    /// <param name="map">The elements of the map</param>
     public BinTreeMap(
         uint nameHash,
         BinPropertyType keyType,

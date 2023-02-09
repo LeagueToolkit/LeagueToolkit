@@ -2,12 +2,25 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="long"/> value
+/// </summary>
 [DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeI64 : BinTreeProperty
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.I64;
+
+    /// <summary>
+    /// Gets the value of the property
+    /// </summary>
     public long Value { get; set; }
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeI64"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="value">The value of the property</param>
     public BinTreeI64(uint nameHash, long value) : base(nameHash) => this.Value = value;
 
     internal BinTreeI64(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadInt64();

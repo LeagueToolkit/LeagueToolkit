@@ -1,8 +1,5 @@
 ﻿using CommunityToolkit.HighPerformance;
-using LeagueToolkit.Core.Meta.Properties;
-using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
-using System;
 using System.Text;
 
 namespace LeagueToolkit.Core.Meta;
@@ -28,7 +25,8 @@ public sealed class BinTree
     public IReadOnlyList<BinTreeObject> Objects => this._objects;
     private readonly List<BinTreeObject> _objects = new();
 
-    public List<BinTreeDataOverride> DataOverrides { get; private set; } = new();
+    public IReadOnlyList<BinTreeDataOverride> DataOverrides => this._dataOverrides;
+    private readonly List<BinTreeDataOverride> _dataOverrides = new();
 
     public BinTree(string path) : this(File.OpenRead(path)) { }
 
@@ -105,7 +103,7 @@ public sealed class BinTree
         {
             uint dataOverrideCount = br.ReadUInt32();
             for (int i = 0; i < dataOverrideCount; i++)
-                this.DataOverrides.Add(BinTreeDataOverride.Read(br));
+                this._dataOverrides.Add(BinTreeDataOverride.Read(br));
         }
     }
 
@@ -141,8 +139,8 @@ public sealed class BinTree
 
         if (this.IsOverride)
         {
-            bw.Write(this.DataOverrides.Count);
-            foreach (BinTreeDataOverride dataOverride in this.DataOverrides)
+            bw.Write(this._dataOverrides.Count);
+            foreach (BinTreeDataOverride dataOverride in this._dataOverrides)
                 dataOverride.Write(bw);
         }
     }
