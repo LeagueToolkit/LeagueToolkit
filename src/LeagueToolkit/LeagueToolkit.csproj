@@ -43,8 +43,5 @@
       <HintPath>BCnEncoder.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="IO\PropertyBin\" />
-  </ItemGroup>
 
 </Project>
