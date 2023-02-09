@@ -88,15 +88,13 @@ public class BinTreeStruct : BinTreeProperty
         if (this.NameHash != other.NameHash)
             return false;
 
-        if (other is BinTreeStruct otherProperty && other is not BinTreeEmbedded)
+        return other switch
         {
-            if (this.ClassHash != otherProperty.ClassHash)
-                return false;
-
-            return this.Properties.SequenceEqual(otherProperty.Properties);
-        }
-
-        return true;
+            BinTreeEmbedded _ => false,
+            BinTreeStruct otherStruct
+                => this.ClassHash == otherStruct.ClassHash && this.Properties.SequenceEqual(otherStruct.Properties),
+            _ => false
+        };
     }
 
     private string GetDebuggerDisplay() => string.Format("Class: {0:x}", this.ClassHash);

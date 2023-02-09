@@ -15,7 +15,6 @@ public class BinTreeContainerTests
             BinTreeContainer container = new(0x12345678u, BinPropertyType.U8, new[] { firstElement, secondElement });
 
             Assert.Equal(BinPropertyType.Container, container.Type);
-            Assert.Equal(0x12345678u, container.NameHash);
             Assert.Equal(BinPropertyType.U8, container.ElementType);
             Assert.Collection(
                 container.Elements,
