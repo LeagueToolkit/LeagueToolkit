@@ -2,7 +2,7 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
-public class BinTreeContainer : BinTreeProperty, IBinTreeParent
+public class BinTreeContainer : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Container;
 

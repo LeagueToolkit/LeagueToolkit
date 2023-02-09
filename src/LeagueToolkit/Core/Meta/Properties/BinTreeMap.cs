@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
-public sealed class BinTreeMap : BinTreeProperty, IBinTreeParent, IDictionary<BinTreeProperty, BinTreeProperty>
+public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, BinTreeProperty>
 {
     public override BinPropertyType Type => BinPropertyType.Map;
     public BinPropertyType KeyType { get; private set; }

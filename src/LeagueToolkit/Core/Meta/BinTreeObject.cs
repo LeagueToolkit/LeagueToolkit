@@ -6,7 +6,7 @@ namespace LeagueToolkit.Core.Meta;
 /// <summary>
 /// Represents an object instance in a <see cref="BinTree"/>
 /// </summary>
-public sealed class BinTreeObject : IBinTreeParent, IEquatable<BinTreeObject>
+public sealed class BinTreeObject : IEquatable<BinTreeObject>
 {
     /// <summary>
     /// Gets the meta class hash

@@ -2,7 +2,7 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
-public class BinTreeStruct : BinTreeProperty, IBinTreeParent
+public class BinTreeStruct : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Struct;
     public uint ClassHash { get; private set; }

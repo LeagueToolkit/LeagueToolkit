@@ -1,6 +1,6 @@
 ﻿namespace LeagueToolkit.Core.Meta.Properties;
 
-public sealed class BinTreeOptional : BinTreeProperty, IBinTreeParent
+public sealed class BinTreeOptional : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Optional;
     public BinTreeProperty Value { get; private set; }

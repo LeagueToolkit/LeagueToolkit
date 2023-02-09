@@ -179,5 +179,3 @@ public sealed class BinTree
             throw new ArgumentException("Failed to find an object with the specified path hash", nameof(pathHash));
     }
 }
-
-public interface IBinTreeParent { }
