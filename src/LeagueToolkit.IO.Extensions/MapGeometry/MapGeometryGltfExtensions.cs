@@ -5,7 +5,6 @@ using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Hashing;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Toolkit;
@@ -29,6 +28,7 @@ using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
     SharpGLTF.Schema2.Node
 >;
 using LeagueToolkit.IO.Extensions.Utils;
+using LeagueToolkit.Core.Meta;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -279,14 +279,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
         )
         {
             // Find material definition bin object
-            BinTreeObject materialBinObject = materialsBin.Objects.FirstOrDefault(
-                x => x.PathHash == Fnv1a.HashLower(materialName)
-            );
-            if (materialBinObject is null)
+            if (!materialsBin.Objects.TryGetValue(Fnv1a.HashLower(materialName), out BinTreeObject materialDefObject))
                 ThrowHelper.ThrowInvalidOperationException($"Failed to find {materialName} in {nameof(materialsBin)}");
 
             // Deserialize material definition
-            return MetaSerializer.Deserialize<StaticMaterialDef>(context.MetaEnvironment, materialBinObject);
+            return MetaSerializer.Deserialize<StaticMaterialDef>(context.MetaEnvironment, materialDefObject);
         }
 
         private static void InitializeMaterialRenderTechnique(Material material, StaticMaterialDef materialDef)
@@ -428,10 +425,10 @@ namespace LeagueToolkit.IO.MapGeometryFile
             if (materialsBin is null)
                 return DEFAULT_MAP_NAME;
 
-            BinTreeObject mapContainerObject = materialsBin.Objects.FirstOrDefault(
-                x => x.MetaClassHash == Fnv1a.HashLower(nameof(MapContainer))
-            );
-            if (mapContainerObject is null)
+            if (
+                materialsBin.Objects.Values.FirstOrDefault(x => x.ClassHash == Fnv1a.HashLower(nameof(MapContainer)))
+                is not BinTreeObject mapContainerObject
+            )
                 throw new InvalidOperationException(
                     $"Failed to find {nameof(MapContainer)} in the provided materials.bin"
                 );

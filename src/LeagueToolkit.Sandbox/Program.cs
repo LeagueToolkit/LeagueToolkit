@@ -6,7 +6,6 @@ using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapGeometryFile.Builder;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
@@ -35,6 +34,7 @@ using System.Text;
 using System.Drawing;
 using LeagueToolkit.Hashing;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Meta;
 
 namespace LeagueToolkit.Sandbox;
 
@@ -42,6 +42,9 @@ class Program
 {
     static void Main(string[] args)
     {
+        ProfileMapgeoToGltf();
+        ProfileBin(@"apheliosui.bin");
+
         //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
 
         //ProfileRiggedMeshToGltf(
@@ -70,6 +73,35 @@ class Program
             "renekton_skin26_second.glb",
             animations
         );
+    }
+
+    static void ExtractWad(string wadPath, string extractTo)
+    {
+        Dictionary<ulong, string> hashtable = new();
+        foreach (string line in File.ReadLines(@"X:\lol\tools\Obsidian\GAME_HASHTABLE.txt"))
+        {
+            string[] split = line.Split(' ', StringSplitOptions.TrimEntries);
+
+            hashtable.Add(Convert.ToUInt64(split[0], 16), split[1]);
+        }
+
+        using WadFile wad = new(wadPath);
+
+        foreach (var (chunkHash, chunk) in wad.Chunks)
+        {
+            if (hashtable.TryGetValue(chunkHash, out string chunkPath))
+            {
+                using FileStream chunkFileStream = File.Create(Path.Join(extractTo, chunkPath));
+                using Stream chunkStream = wad.OpenChunk(chunk);
+
+                chunkStream.CopyTo(chunkFileStream);
+            }
+        }
+    }
+
+    static void ProfileBin(string path)
+    {
+        BinTree bin = new(path);
     }
 
     static void ProfileWadFile(string path)
@@ -133,8 +165,9 @@ class Program
 
     static void ProfileMapgeoToGltf()
     {
-        BinTree materialsBin = new("ioniabase.materials.bin");
-        using MapGeometry mgeo = new("ioniabase.mapgeo");
+        BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
+
+        using MapGeometry mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -146,14 +179,14 @@ class Program
                     metaEnvironment,
                     new()
                     {
-                        GameDataPath = "X:/lol/game",
+                        GameDataPath = @"X:\lol\game_old",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
-                        TextureQuality = MapGeometryGltfTextureQuality.Low
+                        TextureQuality = MapGeometryGltfTextureQuality.High
                     }
                 )
             )
-            .SaveGLB("ioniabase.glb");
+            .SaveGLB("map19.glb");
     }
 
     static void ProfileTexture()
@@ -212,11 +245,6 @@ class Program
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
-        );
-
-        StaticMaterialDef staticMaterialDef = MetaSerializer.Deserialize<StaticMaterialDef>(
-            metaEnvironment,
-            binTree.Objects.First(x => x.PathHash == 0x75cccc52)
         );
     }
 

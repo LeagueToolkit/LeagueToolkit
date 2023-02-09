@@ -1,6 +1,6 @@
-﻿using LeagueToolkit.Hashing;
+﻿using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.IO.PropertyBin;
 using LeagueToolkit.Meta.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -293,18 +293,14 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property)
-        {
-            BinPropertyType propertyType = BinUtilities.UnpackType(property.Type);
-
-            return AttributeArgument(
+        private AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property) =>
+            AttributeArgument(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName(nameof(BinPropertyType)),
-                    IdentifierName(Enum.GetName(typeof(BinPropertyType), propertyType))
+                    IdentifierName(Enum.GetName(typeof(BinPropertyType), property.Type))
                 )
             );
-        }
 
         private AttributeArgumentSyntax CreatePropertyOtherClassAttributeArgument(
             MetaDumpProperty property,
@@ -360,37 +356,35 @@ namespace LeagueToolkit.Meta.Dump
         private TypeSyntax CreatePropertyTypeDeclaration(
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes
-        )
-        {
-            return BinUtilities.UnpackType(property.Type) switch
+        ) =>
+            property.Type switch
             {
                 BinPropertyType.Container
                     => CreateContainerTypeDeclaration(property.OtherClass, property.Container, false, classes),
                 BinPropertyType.UnorderedContainer
                     => CreateContainerTypeDeclaration(property.OtherClass, property.Container, true, classes),
-                BinPropertyType.Structure => CreateStructureTypeDeclaration(property.OtherClass, classes),
+                BinPropertyType.Struct => CreateStructureTypeDeclaration(property.OtherClass, classes),
                 BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(property.OtherClass, classes),
                 BinPropertyType.Optional
                     => CreateOptionalTypeDeclaration(property.OtherClass, property.Container, classes),
                 BinPropertyType.Map => CreateMapTypeDeclaration(property.OtherClass, property.Map, classes),
                 BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
-        }
 
         private TypeSyntax CreatePrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
         {
-            TypeSyntax typeDeclaration = BinUtilities.UnpackType(type) switch
+            TypeSyntax typeDeclaration = type switch
             {
                 BinPropertyType.Bool => PredefinedType(Token(SyntaxKind.BoolKeyword)),
-                BinPropertyType.SByte => PredefinedType(Token(SyntaxKind.SByteKeyword)),
-                BinPropertyType.Byte => PredefinedType(Token(SyntaxKind.ByteKeyword)),
-                BinPropertyType.Int16 => PredefinedType(Token(SyntaxKind.ShortKeyword)),
-                BinPropertyType.UInt16 => PredefinedType(Token(SyntaxKind.UShortKeyword)),
-                BinPropertyType.Int32 => PredefinedType(Token(SyntaxKind.IntKeyword)),
-                BinPropertyType.UInt32 => PredefinedType(Token(SyntaxKind.UIntKeyword)),
-                BinPropertyType.Int64 => PredefinedType(Token(SyntaxKind.LongKeyword)),
-                BinPropertyType.UInt64 => PredefinedType(Token(SyntaxKind.ULongKeyword)),
-                BinPropertyType.Float => PredefinedType(Token(SyntaxKind.FloatKeyword)),
+                BinPropertyType.I8 => PredefinedType(Token(SyntaxKind.SByteKeyword)),
+                BinPropertyType.U8 => PredefinedType(Token(SyntaxKind.ByteKeyword)),
+                BinPropertyType.I16 => PredefinedType(Token(SyntaxKind.ShortKeyword)),
+                BinPropertyType.U16 => PredefinedType(Token(SyntaxKind.UShortKeyword)),
+                BinPropertyType.I32 => PredefinedType(Token(SyntaxKind.IntKeyword)),
+                BinPropertyType.U32 => PredefinedType(Token(SyntaxKind.UIntKeyword)),
+                BinPropertyType.I64 => PredefinedType(Token(SyntaxKind.LongKeyword)),
+                BinPropertyType.U64 => PredefinedType(Token(SyntaxKind.ULongKeyword)),
+                BinPropertyType.F32 => PredefinedType(Token(SyntaxKind.FloatKeyword)),
                 BinPropertyType.Vector2 => ParseTypeName(nameof(Vector2)),
                 BinPropertyType.Vector3 => ParseTypeName(nameof(Vector3)),
                 BinPropertyType.Vector4 => ParseTypeName(nameof(Vector4)),
@@ -398,7 +392,7 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType.Color => ParseTypeName(nameof(Color)),
                 BinPropertyType.String => PredefinedType(Token(SyntaxKind.StringKeyword)),
                 BinPropertyType.Hash => ParseTypeName(nameof(MetaHash)),
-                BinPropertyType.WadEntryLink => ParseTypeName(nameof(MetaWadEntryLink)),
+                BinPropertyType.WadChunkLink => ParseTypeName(nameof(MetaWadEntryLink)),
                 BinPropertyType.ObjectLink => ParseTypeName(nameof(MetaObjectLink)),
                 BinPropertyType.BitBool => ParseTypeName(nameof(MetaBitBool)),
                 BinPropertyType propertyType
@@ -419,9 +413,9 @@ namespace LeagueToolkit.Meta.Dump
             IReadOnlyDictionary<uint, string> classes
         )
         {
-            TypeSyntax argumentTypeSyntax = BinUtilities.UnpackType(container.Type) switch
+            TypeSyntax argumentTypeSyntax = container.Type switch
             {
-                BinPropertyType.Structure => CreateStructureTypeDeclaration(elementClass, classes),
+                BinPropertyType.Struct => CreateStructureTypeDeclaration(elementClass, classes),
                 BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(elementClass, classes),
                 BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
@@ -457,7 +451,7 @@ namespace LeagueToolkit.Meta.Dump
         {
             TypeSyntax argumentTypeSyntax = container.Type switch
             {
-                BinPropertyType.Structure => CreateStructureTypeDeclaration(otherClass, classes),
+                BinPropertyType.Struct => CreateStructureTypeDeclaration(otherClass, classes),
                 BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(otherClass, classes),
                 BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
@@ -474,13 +468,10 @@ namespace LeagueToolkit.Meta.Dump
             IReadOnlyDictionary<uint, string> classes
         )
         {
-            TypeSyntax keyDeclaration = CreatePrimitivePropertyTypeDeclaration(
-                BinUtilities.UnpackType(map.KeyType),
-                false
-            );
-            TypeSyntax valueDeclaration = BinUtilities.UnpackType(map.ValueType) switch
+            TypeSyntax keyDeclaration = CreatePrimitivePropertyTypeDeclaration(map.KeyType, false);
+            TypeSyntax valueDeclaration = map.ValueType switch
             {
-                BinPropertyType.Structure => CreateStructureTypeDeclaration(otherClass, classes),
+                BinPropertyType.Struct => CreateStructureTypeDeclaration(otherClass, classes),
                 BinPropertyType.Embedded => CreateEmbeddedTypeDeclaration(otherClass, classes),
                 BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
@@ -539,19 +530,19 @@ namespace LeagueToolkit.Meta.Dump
                 // new(true)
                 JsonValueKind.True when (property.Type == BinPropertyType.BitBool)
                     => ImplicitObjectCreationExpression(
-                            ArgumentList(
-                                SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.TrueLiteralExpression)))
-                            ),
-                            null
+                        ArgumentList(
+                            SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.TrueLiteralExpression)))
                         ),
+                        null
+                    ),
                 // new(false)
                 JsonValueKind.False when (property.Type == BinPropertyType.BitBool)
                     => ImplicitObjectCreationExpression(
-                            ArgumentList(
-                                SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.FalseLiteralExpression)))
-                            ),
-                            null
+                        ArgumentList(
+                            SingletonSeparatedList(Argument(LiteralExpression(SyntaxKind.FalseLiteralExpression)))
                         ),
+                        null
+                    ),
                 // new(0U)
                 JsonValueKind.String when (property.Type == BinPropertyType.Hash)
                     => ImplicitObjectCreationExpression(
@@ -583,7 +574,7 @@ namespace LeagueToolkit.Meta.Dump
                         null
                     ),
                 // new(0UL)
-                JsonValueKind.String when (property.Type == BinPropertyType.WadEntryLink)
+                JsonValueKind.String when (property.Type == BinPropertyType.WadChunkLink)
                     => ImplicitObjectCreationExpression(
                         ArgumentList(
                             SingletonSeparatedList(
@@ -604,7 +595,7 @@ namespace LeagueToolkit.Meta.Dump
                         null
                     ),
                 // null
-                JsonValueKind.Null when (property.Type == BinPropertyType.Structure)
+                JsonValueKind.Null when (property.Type == BinPropertyType.Struct)
                     => LiteralExpression(SyntaxKind.NullLiteralExpression),
                 // new MetaOptional<T>(default(T), false)
                 // new MetaOptional<T>(nullableValue, true)
@@ -637,7 +628,9 @@ namespace LeagueToolkit.Meta.Dump
                             ),
                             Argument(
                                 LiteralExpression(
-                                    value.ValueKind is JsonValueKind.Null ? SyntaxKind.FalseLiteralExpression : SyntaxKind.TrueLiteralExpression
+                                    value.ValueKind is JsonValueKind.Null
+                                        ? SyntaxKind.FalseLiteralExpression
+                                        : SyntaxKind.TrueLiteralExpression
                                 )
                             )
                         }
@@ -651,11 +644,15 @@ namespace LeagueToolkit.Meta.Dump
         {
             return defaultValue.ValueKind switch
             {
-                JsonValueKind.String => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(defaultValue.GetString())),
-                JsonValueKind.Number when valueType == BinPropertyType.Float
+                JsonValueKind.String
+                    => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(defaultValue.GetString())),
+                JsonValueKind.Number when valueType == BinPropertyType.F32
                     => CreateFloatInitializerExpression(defaultValue.GetSingle()),
                 JsonValueKind.Number
-                    => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{defaultValue.GetInt64()}", defaultValue.GetInt64())),
+                    => LiteralExpression(
+                        SyntaxKind.NumericLiteralExpression,
+                        Literal($"{defaultValue.GetInt64()}", defaultValue.GetInt64())
+                    ),
                 JsonValueKind.Object => ImplicitObjectCreationExpression(),
                 JsonValueKind.Array
                     => valueType switch
@@ -676,7 +673,10 @@ namespace LeagueToolkit.Meta.Dump
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #region Numeric Primitive Initializer Creators
         private ExpressionSyntax CreateFloatInitializerExpression(float value) =>
-            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal($"{value.ToString(NumberFormatInfo.InvariantInfo)}f", value));
+            LiteralExpression(
+                SyntaxKind.NumericLiteralExpression,
+                Literal($"{value.ToString(NumberFormatInfo.InvariantInfo)}f", value)
+            );
 
         private ExpressionSyntax CreateVector2InitializerExpression(IEnumerable<JsonElement> elements)
         {
@@ -736,7 +736,12 @@ namespace LeagueToolkit.Meta.Dump
                 IdentifierName(nameof(Matrix4x4)),
                 ArgumentList(
                     SeparatedList(
-                        elements.SelectMany(arrayElement => arrayElement.EnumerateArray().Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle()))))
+                        elements.SelectMany(
+                            arrayElement =>
+                                arrayElement
+                                    .EnumerateArray()
+                                    .Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
+                        )
                     )
                 ),
                 null
@@ -775,7 +780,7 @@ namespace LeagueToolkit.Meta.Dump
                 typeof(LeagueToolkit.Meta.IMetaClass),
                 typeof(LeagueToolkit.Meta.Attributes.MetaClassAttribute),
                 typeof(LeagueToolkit.Meta.Attributes.MetaPropertyAttribute),
-                typeof(LeagueToolkit.IO.PropertyBin.BinPropertyType)
+                typeof(BinPropertyType)
             };
 
         private List<string> GetRequiredNamespaces(List<Type> requiredTypes)
@@ -793,6 +798,9 @@ namespace LeagueToolkit.Meta.Dump
         }
 
         public static MetaDump Deserialize(string dump) =>
-            JsonSerializer.Deserialize<MetaDump>(dump, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            JsonSerializer.Deserialize<MetaDump>(
+                dump,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+            );
     }
 }

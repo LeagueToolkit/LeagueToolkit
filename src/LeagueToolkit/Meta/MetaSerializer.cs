@@ -1,16 +1,12 @@
 ﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Meta.Properties;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.IO.PropertyBin;
-using LeagueToolkit.IO.PropertyBin.Properties;
 using LeagueToolkit.Meta.Attributes;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 
 namespace LeagueToolkit.Meta
 {
@@ -30,13 +26,14 @@ namespace LeagueToolkit.Meta
             }
 
             Type metaClassType = typeof(T);
-            MetaClassAttribute metaClassAttribute =
-                metaClassType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
 
             // Verify attribute
-            if (metaClassAttribute is null)
+            if (
+                metaClassType.GetCustomAttribute(typeof(MetaClassAttribute))
+                is not MetaClassAttribute metaClassAttribute
+            )
                 throw new InvalidOperationException("The provided MetaClass does not have a MetaClass Attribute");
-            if (metaClassAttribute.NameHash != treeObject.MetaClassHash)
+            if (metaClassAttribute.NameHash != treeObject.ClassHash)
                 throw new InvalidOperationException("Meta Class name does not match class name of treeObject");
 
             // Create an instance of T and get its runtime type
@@ -62,10 +59,11 @@ namespace LeagueToolkit.Meta
             where T : IMetaClass
         {
             Type metaClassType = metaClass.GetType();
-            MetaClassAttribute metaClassAttribute =
-                metaClassType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
 
-            if (metaClassAttribute is null)
+            if (
+                metaClassType.GetCustomAttribute(typeof(MetaClassAttribute))
+                is not MetaClassAttribute metaClassAttribute
+            )
                 throw new InvalidOperationException("The provided MetaClass does not have a MetaClass Attribute");
 
             // Create Tree Properties for meta properties
@@ -78,9 +76,7 @@ namespace LeagueToolkit.Meta
                     properties.Add(treeProperty);
             }
 
-            BinTreeObject treeObject = new BinTreeObject(metaClassAttribute.NameHash, pathHash, properties);
-
-            return treeObject;
+            return new(pathHash, metaClassAttribute.NameHash, properties);
         }
 
         // ------------ DESERIALIZATION ASSIGNMENT ------------ \\
@@ -88,29 +84,23 @@ namespace LeagueToolkit.Meta
             MetaEnvironment environment,
             object metaClassObject,
             Type metaClassType,
-            ICollection<BinTreeProperty> treeProperties
+            IReadOnlyDictionary<uint, BinTreeProperty> treeProperties
         )
         {
             PropertyInfo[] properties = metaClassType.GetProperties();
 
             foreach (PropertyInfo propertyInfo in properties)
             {
-                MetaPropertyAttribute metaPropertyAttribute =
-                    propertyInfo.GetCustomAttribute(typeof(MetaPropertyAttribute)) as MetaPropertyAttribute;
-
                 // Ignore non-meta properties
-                if (metaPropertyAttribute is null)
+                if (
+                    propertyInfo.GetCustomAttribute(typeof(MetaPropertyAttribute))
+                    is not MetaPropertyAttribute metaPropertyAttribute
+                )
                     continue;
 
-                // Find matching tree property
-                BinTreeProperty treeProperty = treeProperties.FirstOrDefault(
-                    x => x.NameHash == metaPropertyAttribute.NameHash
-                );
-                if (treeProperty is not null) // Ignore missing properties
-                {
-                    // Assign values to properties
+                // Find matching tree property and ignore missing properties
+                if (treeProperties.TryGetValue(metaPropertyAttribute.NameHash, out BinTreeProperty treeProperty))
                     AssignMetaProperty(environment, metaClassObject, propertyInfo, treeProperty);
-                }
             }
         }
 
@@ -146,9 +136,9 @@ namespace LeagueToolkit.Meta
             {
                 return DeserializeContainer(environment, propertyType, treeProperty as BinTreeContainer);
             }
-            else if (treePropertyType == BinPropertyType.Structure)
+            else if (treePropertyType == BinPropertyType.Struct)
             {
-                return DeserializeStructure(environment, treeProperty as BinTreeStructure);
+                return DeserializeStructure(environment, treeProperty as BinTreeStruct);
             }
             else if (treePropertyType == BinPropertyType.Embedded)
             {
@@ -166,9 +156,9 @@ namespace LeagueToolkit.Meta
             return null;
         }
 
-        private static object DeserializeStructure(MetaEnvironment environment, BinTreeStructure structure)
+        private static object DeserializeStructure(MetaEnvironment environment, BinTreeStruct structure)
         {
-            Type metaClassType = environment.GetMetaClassType(structure.MetaClassHash);
+            Type metaClassType = environment.GetMetaClassType(structure.ClassHash);
             if (metaClassType is null)
                 return null; // Couldn't deserialize structure
 
@@ -181,7 +171,7 @@ namespace LeagueToolkit.Meta
 
         private static object DeserializeEmbedded(MetaEnvironment environment, BinTreeEmbedded embedded)
         {
-            Type metaClassType = environment.GetMetaClassType(embedded.MetaClassHash);
+            Type metaClassType = environment.GetMetaClassType(embedded.ClassHash);
             if (metaClassType is null)
                 return null; // Couldn't deserialize structure
 
@@ -204,7 +194,7 @@ namespace LeagueToolkit.Meta
             Type containerListType = containerList.GetType();
             MethodInfo addMethod = containerListType.GetMethod("Add");
 
-            foreach (BinTreeProperty containerItem in container.Properties)
+            foreach (BinTreeProperty containerItem in container.Elements)
             {
                 addMethod.Invoke(containerList, new[] { DeserializeTreeProperty(environment, containerItem) });
             }
@@ -222,11 +212,11 @@ namespace LeagueToolkit.Meta
             Type mapDictionaryType = mapDictionary.GetType();
             MethodInfo addMethod = mapDictionaryType.GetMethod("Add");
 
-            foreach (var propertyPair in map.Map)
+            foreach (var (key, value) in map)
             {
                 // Key types can only be primitive so we can fetch their value easily
-                object keyValue = FetchPrimitivePropertyValue(propertyPair.Key);
-                object valueValue = DeserializeTreeProperty(environment, propertyPair.Value);
+                object keyValue = FetchPrimitivePropertyValue(key);
+                object valueValue = DeserializeTreeProperty(environment, value);
 
                 addMethod.Invoke(mapDictionary, new[] { keyValue, valueValue });
             }
@@ -254,9 +244,10 @@ namespace LeagueToolkit.Meta
             PropertyInfo propertyInfo
         )
         {
-            MetaPropertyAttribute metaPropertyAttribute =
-                propertyInfo.GetCustomAttribute(typeof(MetaPropertyAttribute)) as MetaPropertyAttribute;
-            if (metaPropertyAttribute is null)
+            if (
+                propertyInfo.GetCustomAttribute(typeof(MetaPropertyAttribute))
+                is not MetaPropertyAttribute metaPropertyAttribute
+            )
                 throw new InvalidOperationException("The specified property does not have a MetaProperty Attribute");
 
             object value = propertyInfo.GetValue(metaClassObject);
@@ -280,45 +271,45 @@ namespace LeagueToolkit.Meta
             if (value is null)
                 return null;
             else if (valueType == typeof(bool?))
-                return new BinTreeBool(null, nameHash, (bool)value);
+                return new BinTreeBool(nameHash, (bool)value);
             else if (valueType == typeof(sbyte?))
-                return new BinTreeSByte(null, nameHash, (sbyte)value);
+                return new BinTreeI8(nameHash, (sbyte)value);
             else if (valueType == typeof(byte?))
-                return new BinTreeByte(null, nameHash, (byte)value);
+                return new BinTreeU8(nameHash, (byte)value);
             else if (valueType == typeof(short?))
-                return new BinTreeInt16(null, nameHash, (short)value);
+                return new BinTreeI16(nameHash, (short)value);
             else if (valueType == typeof(ushort?))
-                return new BinTreeUInt16(null, nameHash, (ushort)value);
+                return new BinTreeU16(nameHash, (ushort)value);
             else if (valueType == typeof(int?))
-                return new BinTreeInt32(null, nameHash, (int)value);
+                return new BinTreeI32(nameHash, (int)value);
             else if (valueType == typeof(uint?))
-                return new BinTreeUInt32(null, nameHash, (uint)value);
+                return new BinTreeU32(nameHash, (uint)value);
             else if (valueType == typeof(long?))
-                return new BinTreeInt64(null, nameHash, (long)value);
+                return new BinTreeI64(nameHash, (long)value);
             else if (valueType == typeof(ulong?))
-                return new BinTreeUInt64(null, nameHash, (ulong)value);
+                return new BinTreeU64(nameHash, (ulong)value);
             else if (valueType == typeof(float?))
-                return new BinTreeFloat(null, nameHash, (float)value);
+                return new BinTreeF32(nameHash, (float)value);
             else if (valueType == typeof(Vector2?))
-                return new BinTreeVector2(null, nameHash, (Vector2)value);
+                return new BinTreeVector2(nameHash, (Vector2)value);
             else if (valueType == typeof(Vector3?))
-                return new BinTreeVector3(null, nameHash, (Vector3)value);
+                return new BinTreeVector3(nameHash, (Vector3)value);
             else if (valueType == typeof(Vector4?))
-                return new BinTreeVector4(null, nameHash, (Vector4)value);
+                return new BinTreeVector4(nameHash, (Vector4)value);
             else if (valueType == typeof(Matrix4x4?))
-                return new BinTreeMatrix44(null, nameHash, (Matrix4x4)value);
+                return new BinTreeMatrix44(nameHash, (Matrix4x4)value);
             else if (valueType == typeof(Color?))
-                return new BinTreeColor(null, nameHash, (Color)value);
+                return new BinTreeColor(nameHash, (Color)value);
             else if (valueType == typeof(string))
-                return new BinTreeString(null, nameHash, (string)value);
+                return new BinTreeString(nameHash, (string)value);
             else if (valueType == typeof(MetaHash?))
-                return new BinTreeHash(null, nameHash, (MetaHash)value);
+                return new BinTreeHash(nameHash, (MetaHash)value);
             else if (valueType == typeof(MetaWadEntryLink?))
-                return new BinTreeWadEntryLink(null, nameHash, (MetaWadEntryLink)value);
+                return new BinTreeWadChunkLink(nameHash, (MetaWadEntryLink)value);
             else if (valueType == typeof(MetaObjectLink?))
-                return new BinTreeObjectLink(null, nameHash, (MetaObjectLink)value);
+                return new BinTreeObjectLink(nameHash, (MetaObjectLink)value);
             else if (valueType == typeof(MetaBitBool?))
-                return new BinTreeBitBool(null, nameHash, (MetaBitBool)value);
+                return new BinTreeBitBool(nameHash, (MetaBitBool)value);
             else
             {
                 // Handle complex types
@@ -388,16 +379,17 @@ namespace LeagueToolkit.Meta
             }
         }
 
-        private static BinTreeStructure CreateStructureProperty(
+        private static BinTreeStruct CreateStructureProperty(
             MetaEnvironment environment,
             object structureObject,
             uint nameHash
         )
         {
             Type structureType = structureObject.GetType();
-            MetaClassAttribute metaClassAttribute =
-                structureType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
-            if (metaClassAttribute is null)
+            if (
+                structureType.GetCustomAttribute(typeof(MetaClassAttribute))
+                is not MetaClassAttribute metaClassAttribute
+            )
                 throw new InvalidOperationException("The specified property does not have a MetaClass Attribute");
 
             // Create properties
@@ -409,7 +401,7 @@ namespace LeagueToolkit.Meta
                     properties.Add(property);
             }
 
-            return new BinTreeStructure(null, nameHash, metaClassAttribute.NameHash, properties);
+            return new(nameHash, metaClassAttribute.NameHash, properties);
         }
 
         private static BinTreeMap CreateMapProperty(
@@ -437,8 +429,7 @@ namespace LeagueToolkit.Meta
                 }
             }
 
-            BinTreeMap treeMap = new BinTreeMap(null, nameHash, keyPropertyType, valuePropertyType, convertedMap);
-            return treeMap;
+            return new(nameHash, keyPropertyType, valuePropertyType, convertedMap);
         }
 
         private static BinTreeUnorderedContainer CreateUnorderedContainerProperty(
@@ -459,13 +450,7 @@ namespace LeagueToolkit.Meta
                     properties.Add(property);
             }
 
-            BinTreeUnorderedContainer treeContainer = new BinTreeUnorderedContainer(
-                null,
-                nameHash,
-                itemPropertyType,
-                properties
-            );
-            return treeContainer;
+            return new(nameHash, itemPropertyType, properties);
         }
 
         private static BinTreeContainer CreateContainerProperty(
@@ -486,8 +471,7 @@ namespace LeagueToolkit.Meta
                     properties.Add(property);
             }
 
-            BinTreeContainer treeContainer = new BinTreeContainer(null, nameHash, itemPropertyType, properties);
-            return treeContainer;
+            return new(nameHash, itemPropertyType, properties);
         }
 
         private static BinTreeOptional CreateOptionalProperty(
@@ -497,14 +481,14 @@ namespace LeagueToolkit.Meta
             IMetaOptional optional
         )
         {
-            BinPropertyType propertyType = GetPropertyTypeFromType(valueType);
             object value = optional.GetValue();
             BinTreeProperty optionalValue = ConvertObjectToProperty(environment, 0, value, valueType);
 
-            if (optionalValue is null)
-                return null;
-            else
-                return new BinTreeOptional(null, nameHash, propertyType, optionalValue);
+            return optionalValue switch
+            {
+                null => null,
+                BinTreeProperty someValue => new(nameHash, someValue)
+            };
         }
 
         private static BinTreeEmbedded CreateEmbeddedProperty(
@@ -514,9 +498,7 @@ namespace LeagueToolkit.Meta
             IMetaEmbedded embeddedObject
         )
         {
-            MetaClassAttribute metaClassAttribute =
-                valueType.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
-            if (metaClassAttribute is null)
+            if (valueType.GetCustomAttribute(typeof(MetaClassAttribute)) is not MetaClassAttribute metaClassAttribute)
                 throw new InvalidOperationException("The specified property does not have a MetaClass Attribute");
 
             object embdeddedValue = embeddedObject.GetValue();
@@ -531,7 +513,7 @@ namespace LeagueToolkit.Meta
                     properties.Add(property);
             }
 
-            return new BinTreeEmbedded(null, nameHash, metaClassAttribute.NameHash, properties);
+            return new(nameHash, metaClassAttribute.NameHash, properties);
         }
 
         // ------------ HELPER METHODS ------------ \\
@@ -541,15 +523,15 @@ namespace LeagueToolkit.Meta
             {
                 BinPropertyType.None => true,
                 BinPropertyType.Bool => true,
-                BinPropertyType.SByte => true,
-                BinPropertyType.Byte => true,
-                BinPropertyType.Int16 => true,
-                BinPropertyType.UInt16 => true,
-                BinPropertyType.Int32 => true,
-                BinPropertyType.UInt32 => true,
-                BinPropertyType.Int64 => true,
-                BinPropertyType.UInt64 => true,
-                BinPropertyType.Float => true,
+                BinPropertyType.I8 => true,
+                BinPropertyType.U8 => true,
+                BinPropertyType.I16 => true,
+                BinPropertyType.U16 => true,
+                BinPropertyType.I32 => true,
+                BinPropertyType.U32 => true,
+                BinPropertyType.I64 => true,
+                BinPropertyType.U64 => true,
+                BinPropertyType.F32 => true,
                 BinPropertyType.Vector2 => true,
                 BinPropertyType.Vector3 => true,
                 BinPropertyType.Vector4 => true,
@@ -557,10 +539,10 @@ namespace LeagueToolkit.Meta
                 BinPropertyType.Color => true,
                 BinPropertyType.String => true,
                 BinPropertyType.Hash => true,
-                BinPropertyType.WadEntryLink => true,
+                BinPropertyType.WadChunkLink => true,
                 BinPropertyType.Container => false,
                 BinPropertyType.UnorderedContainer => false,
-                BinPropertyType.Structure => false,
+                BinPropertyType.Struct => false,
                 BinPropertyType.Embedded => false,
                 BinPropertyType.ObjectLink => true,
                 BinPropertyType.Optional => false,
@@ -575,15 +557,15 @@ namespace LeagueToolkit.Meta
             {
                 BinPropertyType.None => false,
                 BinPropertyType.Bool => false,
-                BinPropertyType.SByte => true,
-                BinPropertyType.Byte => true,
-                BinPropertyType.Int16 => true,
-                BinPropertyType.UInt16 => true,
-                BinPropertyType.Int32 => true,
-                BinPropertyType.UInt32 => true,
-                BinPropertyType.Int64 => true,
-                BinPropertyType.UInt64 => true,
-                BinPropertyType.Float => false,
+                BinPropertyType.I8 => true,
+                BinPropertyType.U8 => true,
+                BinPropertyType.I16 => true,
+                BinPropertyType.U16 => true,
+                BinPropertyType.I32 => true,
+                BinPropertyType.U32 => true,
+                BinPropertyType.I64 => true,
+                BinPropertyType.U64 => true,
+                BinPropertyType.F32 => false,
                 BinPropertyType.Vector2 => false,
                 BinPropertyType.Vector3 => false,
                 BinPropertyType.Vector4 => false,
@@ -591,10 +573,10 @@ namespace LeagueToolkit.Meta
                 BinPropertyType.Color => false,
                 BinPropertyType.String => true,
                 BinPropertyType.Hash => true,
-                BinPropertyType.WadEntryLink => false,
+                BinPropertyType.WadChunkLink => false,
                 BinPropertyType.Container => false,
                 BinPropertyType.UnorderedContainer => false,
-                BinPropertyType.Structure => false,
+                BinPropertyType.Struct => false,
                 BinPropertyType.Embedded => false,
                 BinPropertyType.ObjectLink => false,
                 BinPropertyType.Optional => false,
@@ -609,15 +591,15 @@ namespace LeagueToolkit.Meta
             {
                 BinTreeNone _ => null,
                 BinTreeBool property => property.Value,
-                BinTreeSByte property => property.Value,
-                BinTreeByte property => property.Value,
-                BinTreeInt16 property => property.Value,
-                BinTreeUInt16 property => property.Value,
-                BinTreeInt32 property => property.Value,
-                BinTreeUInt32 property => property.Value,
-                BinTreeInt64 property => property.Value,
-                BinTreeUInt64 property => property.Value,
-                BinTreeFloat property => property.Value,
+                BinTreeI8 property => property.Value,
+                BinTreeU8 property => property.Value,
+                BinTreeI16 property => property.Value,
+                BinTreeU16 property => property.Value,
+                BinTreeI32 property => property.Value,
+                BinTreeU32 property => property.Value,
+                BinTreeI64 property => property.Value,
+                BinTreeU64 property => property.Value,
+                BinTreeF32 property => property.Value,
                 BinTreeVector2 property => property.Value,
                 BinTreeVector3 property => property.Value,
                 BinTreeVector4 property => property.Value,
@@ -625,7 +607,7 @@ namespace LeagueToolkit.Meta
                 BinTreeColor property => property.Value,
                 BinTreeString property => property.Value,
                 BinTreeHash property => new MetaHash(property.Value),
-                BinTreeWadEntryLink property => new MetaWadEntryLink(property.Value),
+                BinTreeWadChunkLink property => new MetaWadEntryLink(property.Value),
                 BinTreeObjectLink property => new MetaObjectLink(property.Value),
                 BinTreeBitBool property => new MetaBitBool(property.Value),
                 _ => null
@@ -647,23 +629,23 @@ namespace LeagueToolkit.Meta
             if (type == typeof(bool))
                 return BinPropertyType.Bool;
             else if (type == typeof(sbyte))
-                return BinPropertyType.SByte;
+                return BinPropertyType.I8;
             else if (type == typeof(byte))
-                return BinPropertyType.Byte;
+                return BinPropertyType.U8;
             else if (type == typeof(short))
-                return BinPropertyType.Int16;
+                return BinPropertyType.I16;
             else if (type == typeof(ushort))
-                return BinPropertyType.UInt16;
+                return BinPropertyType.U16;
             else if (type == typeof(int))
-                return BinPropertyType.Int32;
+                return BinPropertyType.I32;
             else if (type == typeof(uint))
-                return BinPropertyType.UInt32;
+                return BinPropertyType.U32;
             else if (type == typeof(long))
-                return BinPropertyType.Int64;
+                return BinPropertyType.I64;
             else if (type == typeof(ulong))
-                return BinPropertyType.UInt64;
+                return BinPropertyType.U64;
             else if (type == typeof(float))
-                return BinPropertyType.Float;
+                return BinPropertyType.F32;
             else if (type == typeof(Vector2))
                 return BinPropertyType.Vector2;
             else if (type == typeof(Vector3))
@@ -679,7 +661,7 @@ namespace LeagueToolkit.Meta
             else if (type == typeof(MetaHash))
                 return BinPropertyType.Hash;
             else if (type == typeof(MetaWadEntryLink))
-                return BinPropertyType.WadEntryLink;
+                return BinPropertyType.WadChunkLink;
             else if (type == typeof(MetaObjectLink))
                 return BinPropertyType.ObjectLink;
             else if (type == typeof(MetaBitBool))
@@ -705,7 +687,7 @@ namespace LeagueToolkit.Meta
                 }
                 else if (type.IsValueType is false && type.GetInterface(nameof(IMetaClass)) is not null)
                 {
-                    return BinPropertyType.Structure;
+                    return BinPropertyType.Struct;
                 }
                 else
                 {

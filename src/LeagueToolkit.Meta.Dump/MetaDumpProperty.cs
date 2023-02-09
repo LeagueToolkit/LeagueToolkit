@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.IO.PropertyBin;
+﻿using LeagueToolkit.Core.Meta;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -42,6 +42,7 @@ namespace LeagueToolkit.Meta.Dump
         [JsonPropertyName("value_size")]
         [JsonInclude]
         public uint ValueSize { get; private set; }
+
         [JsonPropertyName("fixed_size")]
         [JsonInclude]
         public int? FixedSize { get; private set; }
@@ -73,7 +74,11 @@ namespace LeagueToolkit.Meta.Dump
 
     public class MetaDumpBinPropertyTypeJsonConverter : JsonConverter<BinPropertyType>
     {
-        public override BinPropertyType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override BinPropertyType Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             string type = reader.GetString();
 
@@ -81,15 +86,15 @@ namespace LeagueToolkit.Meta.Dump
             {
                 "None" => BinPropertyType.None,
                 "Bool" => BinPropertyType.Bool,
-                "I8" => BinPropertyType.SByte,
-                "U8" => BinPropertyType.Byte,
-                "I16" => BinPropertyType.Int16,
-                "U16" => BinPropertyType.UInt16,
-                "I32" => BinPropertyType.Int32,
-                "U32" => BinPropertyType.UInt32,
-                "I64" => BinPropertyType.Int64,
-                "U64" => BinPropertyType.UInt64,
-                "F32" => BinPropertyType.Float,
+                "I8" => BinPropertyType.I8,
+                "U8" => BinPropertyType.U8,
+                "I16" => BinPropertyType.I16,
+                "U16" => BinPropertyType.U16,
+                "I32" => BinPropertyType.I32,
+                "U32" => BinPropertyType.U32,
+                "I64" => BinPropertyType.I64,
+                "U64" => BinPropertyType.U64,
+                "F32" => BinPropertyType.F32,
                 "Vec2" => BinPropertyType.Vector2,
                 "Vec3" => BinPropertyType.Vector3,
                 "Vec4" => BinPropertyType.Vector4,
@@ -97,10 +102,10 @@ namespace LeagueToolkit.Meta.Dump
                 "Color" => BinPropertyType.Color,
                 "String" => BinPropertyType.String,
                 "Hash" => BinPropertyType.Hash,
-                "File" => BinPropertyType.WadEntryLink,
+                "File" => BinPropertyType.WadChunkLink,
                 "List" => BinPropertyType.Container,
                 "List2" => BinPropertyType.UnorderedContainer,
-                "Pointer" => BinPropertyType.Structure,
+                "Pointer" => BinPropertyType.Struct,
                 "Embed" => BinPropertyType.Embedded,
                 "Link" => BinPropertyType.ObjectLink,
                 "Option" => BinPropertyType.Optional,
@@ -118,7 +123,11 @@ namespace LeagueToolkit.Meta.Dump
 
     public class MetaDumpMapStorageTypeJsonConverter : JsonConverter<MetaDumpMapStorageType>
     {
-        public override MetaDumpMapStorageType Read(ref Utf8JsonReader reader, Type objectType, JsonSerializerOptions options)
+        public override MetaDumpMapStorageType Read(
+            ref Utf8JsonReader reader,
+            Type objectType,
+            JsonSerializerOptions options
+        )
         {
             string storage = reader.GetString();
             return storage switch
@@ -131,7 +140,11 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        public override void Write(Utf8JsonWriter writer, MetaDumpMapStorageType metaDumpMapStorageType, JsonSerializerOptions jsonSerializerOptions)
+        public override void Write(
+            Utf8JsonWriter writer,
+            MetaDumpMapStorageType metaDumpMapStorageType,
+            JsonSerializerOptions jsonSerializerOptions
+        )
         {
             throw new NotImplementedException();
         }
@@ -139,7 +152,11 @@ namespace LeagueToolkit.Meta.Dump
 
     public class MetaDumpContainerStorageTypeJsonConverter : JsonConverter<MetaDumpContainerStorageType?>
     {
-        public override MetaDumpContainerStorageType? Read(ref Utf8JsonReader reader, Type objectType, JsonSerializerOptions options)
+        public override MetaDumpContainerStorageType? Read(
+            ref Utf8JsonReader reader,
+            Type objectType,
+            JsonSerializerOptions options
+        )
         {
             string storage = reader.GetString();
             return storage switch
@@ -154,7 +171,11 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        public override void Write(Utf8JsonWriter writer, MetaDumpContainerStorageType? value, JsonSerializerOptions options)
+        public override void Write(
+            Utf8JsonWriter writer,
+            MetaDumpContainerStorageType? value,
+            JsonSerializerOptions options
+        )
         {
             throw new NotImplementedException();
         }
