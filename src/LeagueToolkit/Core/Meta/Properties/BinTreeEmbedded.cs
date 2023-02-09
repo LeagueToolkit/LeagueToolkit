@@ -2,11 +2,21 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property which imitates an embedded struct
+/// </summary>
 [DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeEmbedded : BinTreeStruct
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.Embedded;
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeEmbedded"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="metaClassHash">The hashed meta class name</param>
+    /// <param name="properties">The properties of the class</param>
     public BinTreeEmbedded(uint nameHash, uint metaClassHash, IEnumerable<BinTreeProperty> properties)
         : base(nameHash, metaClassHash, properties) { }
 

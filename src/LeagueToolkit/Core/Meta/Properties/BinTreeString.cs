@@ -3,13 +3,25 @@ using System.Text;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="string"/> value
+/// </summary>
 [DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeString : BinTreeProperty
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.String;
 
+    /// <summary>
+    /// Gets the value of the property
+    /// </summary>
     public string Value { get; set; }
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeString"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="value">The value of the property</param>
     public BinTreeString(uint nameHash, string value) : base(nameHash) => this.Value = value;
 
     internal BinTreeString(BinaryReader br, uint nameHash) : base(nameHash) =>

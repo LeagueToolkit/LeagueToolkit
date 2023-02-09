@@ -3,22 +3,38 @@ using System.Diagnostics;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="List{T}"/> value
+/// </summary>
 [DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public class BinTreeContainer : BinTreeProperty
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.Container;
 
+    /// <summary>
+    /// Gets the property type of an element
+    /// </summary>
     public BinPropertyType ElementType { get; }
 
+    /// <summary>
+    /// Gets the elements of the container
+    /// </summary>
     public IReadOnlyList<BinTreeProperty> Elements => this._elements;
     protected List<BinTreeProperty> _elements = new();
 
     private string _debuggerDisplay => string.Format("Container<{0}>", this.ElementType);
 
-    public BinTreeContainer(uint nameHash, BinPropertyType propertiesType, IEnumerable<BinTreeProperty> elements)
+    /// <summary>
+    /// Creates a new <see cref="BinTreeContainer"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="elementType">The property type of an element in the container</param>
+    /// <param name="elements">The elements of the container</param>
+    public BinTreeContainer(uint nameHash, BinPropertyType elementType, IEnumerable<BinTreeProperty> elements)
         : base(nameHash)
     {
-        this.ElementType = propertiesType;
+        this.ElementType = elementType;
         this._elements = elements.ToList();
 
         foreach (BinTreeProperty element in this.Elements)
@@ -55,16 +71,22 @@ public class BinTreeContainer : BinTreeProperty
         }
     }
 
+    /// <summary>
+    /// Adds an element into the container
+    /// </summary>
+    /// <param name="element">The element to add</param>
     public void Add(BinTreeProperty element)
     {
         ValidateElementType(element);
 
-        if (this._elements.Any(x => x.NameHash == element.NameHash))
-            ThrowHelper.ThrowArgumentException(nameof(element), "A Property with the same name hash already exists");
-
         this._elements.Add(element);
     }
 
+    /// <summary>
+    /// Removes the specified element from the container
+    /// </summary>
+    /// <param name="element">The element to remove</param>
+    /// <returns><see langword="true"/> if <paramref name="element"/> was successfully removed; otherwise <see langword="false"/></returns>
     public bool Remove(BinTreeProperty element) => this._elements.Remove(element);
 
     internal override int GetSize(bool includeHeader) => (includeHeader ? 5 : 0) + 1 + 4 + GetContentSize();

@@ -2,16 +2,23 @@
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="List{T}"/> value
+/// </summary>
 [DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeUnorderedContainer : BinTreeContainer
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.UnorderedContainer;
 
-    public BinTreeUnorderedContainer(
-        uint nameHash,
-        BinPropertyType propertiesType,
-        IEnumerable<BinTreeProperty> properties
-    ) : base(nameHash, propertiesType, properties) { }
+    /// <summary>
+    /// Creates a new <see cref="BinTreeUnorderedContainer"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="elementType">The property type of an element in the container</param>
+    /// <param name="elements">The elements of the container</param>
+    public BinTreeUnorderedContainer(uint nameHash, BinPropertyType elementType, IEnumerable<BinTreeProperty> elements)
+        : base(nameHash, elementType, elements) { }
 
     internal BinTreeUnorderedContainer(BinaryReader br, uint nameHash, bool useLegacyType = false)
         : base(br, nameHash, useLegacyType) { }
