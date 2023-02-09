@@ -1,8 +1,10 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeVector3 : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Vector3;

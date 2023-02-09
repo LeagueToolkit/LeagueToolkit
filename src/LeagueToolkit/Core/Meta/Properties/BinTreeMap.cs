@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, BinTreeProperty>
 {
     public override BinPropertyType Type => BinPropertyType.Map;
@@ -33,6 +35,8 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
     }
 
     private readonly Dictionary<BinTreeProperty, BinTreeProperty> _map = new();
+
+    private string _debuggerDisplay => string.Format("Map<{0}, {1}>", this.KeyType, this.ValueType);
 
     public BinTreeMap(
         uint nameHash,

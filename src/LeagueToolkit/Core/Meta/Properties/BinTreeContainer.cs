@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public class BinTreeContainer : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Container;
@@ -10,6 +12,8 @@ public class BinTreeContainer : BinTreeProperty
 
     public IReadOnlyList<BinTreeProperty> Elements => this._elements;
     protected List<BinTreeProperty> _elements = new();
+
+    private string _debuggerDisplay => string.Format("Container<{0}>", this.ElementType);
 
     public BinTreeContainer(uint nameHash, BinPropertyType propertiesType, IEnumerable<BinTreeProperty> elements)
         : base(nameHash)

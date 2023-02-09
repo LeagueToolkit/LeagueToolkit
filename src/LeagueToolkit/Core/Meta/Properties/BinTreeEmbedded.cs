@@ -1,5 +1,8 @@
-﻿namespace LeagueToolkit.Core.Meta.Properties;
+﻿using System.Diagnostics;
 
+namespace LeagueToolkit.Core.Meta.Properties;
+
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeEmbedded : BinTreeStruct
 {
     public override BinPropertyType Type => BinPropertyType.Embedded;

@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeString : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.String;

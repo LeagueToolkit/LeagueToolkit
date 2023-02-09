@@ -1,5 +1,8 @@
-﻿namespace LeagueToolkit.Core.Meta.Properties;
+﻿using System.Diagnostics;
 
+namespace LeagueToolkit.Core.Meta.Properties;
+
+[DebuggerDisplay("", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeNone : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.None;

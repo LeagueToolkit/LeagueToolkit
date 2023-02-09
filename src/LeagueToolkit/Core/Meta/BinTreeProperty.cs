@@ -10,6 +10,8 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
 
     public uint NameHash { get; private set; }
 
+    protected string _debuggerDisplayName => string.Format("{0:x}: {1}", this.NameHash, this.Type);
+
     protected BinTreeProperty(uint nameHash)
     {
         this.NameHash = nameHash;

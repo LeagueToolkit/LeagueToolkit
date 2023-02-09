@@ -1,11 +1,16 @@
 ﻿using CommunityToolkit.Diagnostics;
+using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public class BinTreeStruct : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Struct;
     public uint ClassHash { get; private set; }
+
+    private string _debuggerDisplay => string.Format("Class: {0:x}", this.ClassHash);
 
     public IReadOnlyList<BinTreeProperty> Properties => this._properties;
     protected List<BinTreeProperty> _properties = new();

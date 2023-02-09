@@ -1,9 +1,11 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeColor : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Color;

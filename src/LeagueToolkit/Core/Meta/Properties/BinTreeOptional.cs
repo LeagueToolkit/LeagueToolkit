@@ -1,5 +1,9 @@
-﻿namespace LeagueToolkit.Core.Meta.Properties;
+﻿using System.Diagnostics;
+using System.Xml.Linq;
 
+namespace LeagueToolkit.Core.Meta.Properties;
+
+[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeOptional : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.Optional;

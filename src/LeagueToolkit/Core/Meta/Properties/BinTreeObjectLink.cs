@@ -1,9 +1,15 @@
-﻿namespace LeagueToolkit.Core.Meta.Properties;
+﻿using System.Diagnostics;
+using System.Xml.Linq;
 
+namespace LeagueToolkit.Core.Meta.Properties;
+
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeObjectLink : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.ObjectLink;
     public uint Value { get; set; }
+
+    private string _debuggerDisplay => string.Format("{0:x}", this.Value);
 
     public BinTreeObjectLink(uint nameHash, uint value) : base(nameHash) => this.Value = value;
 

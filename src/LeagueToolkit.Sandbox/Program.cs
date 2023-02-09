@@ -42,7 +42,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        //ProfileMapgeoToGltf();
+        ProfileMapgeoToGltf();
         ProfileBin(@"apheliosui.bin");
 
         //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");

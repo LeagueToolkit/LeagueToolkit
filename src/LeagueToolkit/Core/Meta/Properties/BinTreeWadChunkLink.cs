@@ -1,10 +1,15 @@
-﻿namespace LeagueToolkit.Core.Meta.Properties;
+﻿using System.Diagnostics;
 
+namespace LeagueToolkit.Core.Meta.Properties;
+
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeWadChunkLink : BinTreeProperty
 {
     public override BinPropertyType Type => BinPropertyType.WadChunkLink;
 
     public ulong Value { get; set; }
+
+    private string _debuggerDisplay => string.Format("{0:x}", this.Value);
 
     public BinTreeWadChunkLink(uint nameHash, ulong value) : base(nameHash) => this.Value = value;
 
