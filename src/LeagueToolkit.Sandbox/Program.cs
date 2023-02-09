@@ -166,7 +166,6 @@ class Program
     static void ProfileMapgeoToGltf()
     {
         BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
-        materialsBin.Write(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin");
 
         using MapGeometry mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
 

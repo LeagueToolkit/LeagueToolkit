@@ -94,7 +94,8 @@ public class BinTreeContainer : BinTreeProperty
     private void ValidateElementType(BinTreeProperty element)
     {
         if (element.Type != this.ElementType)
-            ThrowHelper.ThrowInvalidOperationException(
+            ThrowHelper.ThrowArgumentException(
+                nameof(element),
                 $"Property: {element.NameHash}: {element.Type} does not match the specified container element type: {this.ElementType}"
             );
     }
@@ -104,21 +105,13 @@ public class BinTreeContainer : BinTreeProperty
         if (this.NameHash != other.NameHash)
             return false;
 
-        if (other is BinTreeContainer otherProperty && other is not BinTreeUnorderedContainer)
-        {
-            if (this._elements.Count != otherProperty._elements.Count)
-                return false;
-            if (this.ElementType != otherProperty.ElementType)
-                return false;
+        if (other is BinTreeUnorderedContainer)
+            return false;
 
-            for (int i = 0; i < this._elements.Count; i++)
-            {
-                if (!this._elements[i].Equals(otherProperty._elements[i]))
-                    return false;
-            }
-        }
+        if (other is not BinTreeContainer otherContainer)
+            return false;
 
-        return true;
+        return this.Elements.SequenceEqual(otherContainer.Elements);
     }
 
     private string GetDebuggerDisplay() => string.Format("Container<{0}>", this.ElementType);
