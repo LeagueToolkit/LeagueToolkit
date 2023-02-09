@@ -71,12 +71,12 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
         this._map = new(map);
 
         // Verify property types
-        foreach (var pair in map)
+        foreach (var (key, value) in map)
         {
-            if (pair.Key.Type != keyType)
-                throw new ArgumentException("Found a key that does not match the specified key type", nameof(map));
-            if (pair.Value.Type != valueType)
-                throw new ArgumentException("Found a value that does not match the specified value type", nameof(map));
+            if (key.Type != this.KeyType)
+                ThrowHelper.ThrowArgumentException(nameof(map), "Key type must match the map's key type");
+            if (value.Type != this.ValueType)
+                ThrowHelper.ThrowArgumentException(nameof(map), "Value type must match the map's value type");
         }
     }
 
@@ -174,7 +174,7 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
     void ICollection<KeyValuePair<BinTreeProperty, BinTreeProperty>>.CopyTo(
         KeyValuePair<BinTreeProperty, BinTreeProperty>[] array,
         int arrayIndex
-    ) => throw new NotImplementedException();
+    ) => ((ICollection)this._map).CopyTo(array, arrayIndex);
     #endregion
 
     private string GetDebuggerDisplay() => string.Format("Map<{0}, {1}>", this.KeyType, this.ValueType);
