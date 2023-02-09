@@ -157,10 +157,10 @@ public sealed class BinTree
         }
 
         bw.Write(this.Objects.Count);
-        foreach (var (objectPath, _) in this.Objects)
+        foreach (var (objectPath, _) in this.Objects.OrderBy(x => x.Key))
             bw.Write(objectPath);
 
-        foreach (var (_, treeObject) in this.Objects)
+        foreach (var (_, treeObject) in this.Objects.OrderBy(x => x.Key))
             treeObject.Write(bw);
 
         if (this.IsOverride)

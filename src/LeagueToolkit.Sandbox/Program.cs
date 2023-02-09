@@ -245,11 +245,6 @@ class Program
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
         );
-
-        StaticMaterialDef staticMaterialDef = MetaSerializer.Deserialize<StaticMaterialDef>(
-            metaEnvironment,
-            binTree.Objects.First(x => x.PathHash == 0x75cccc52)
-        );
     }
 
     static void ProfileMapgeo(string toRead, string rewriteTo)

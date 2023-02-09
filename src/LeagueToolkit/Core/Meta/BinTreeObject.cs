@@ -1,11 +1,13 @@
 ﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Hashing;
+using System.Diagnostics;
 
 namespace LeagueToolkit.Core.Meta;
 
 /// <summary>
 /// Represents an object instance in a <see cref="BinTree"/>
 /// </summary>
+[DebuggerDisplay("{_debuggerDisplayValue, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeObject : IEquatable<BinTreeObject>
 {
     /// <summary>
@@ -29,6 +31,10 @@ public sealed class BinTreeObject : IEquatable<BinTreeObject>
     /// </summary>
     public IReadOnlyList<BinTreeProperty> Properties => this._properties;
     private readonly List<BinTreeProperty> _properties = new();
+
+    private string _debuggerDisplayName => string.Format("{0:x}", this.PathHash);
+    private string _debuggerDisplayValue =>
+        string.Format("Class: {0:x} Properties: {1}", this.ClassHash, this.Properties.Count);
 
     /// <summary>
     /// Creates a new <see cref="BinTreeObject"/> object with the specified parameters
