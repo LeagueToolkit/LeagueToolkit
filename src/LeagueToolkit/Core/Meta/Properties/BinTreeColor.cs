@@ -5,12 +5,25 @@ using System.Numerics;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
+/// <summary>
+/// Represents a property with a <see cref="Color"/> value
+/// </summary>
 [DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
 public sealed class BinTreeColor : BinTreeProperty
 {
+    /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.Color;
+
+    /// <summary>
+    /// Gets the value of the property
+    /// </summary>
     public Color Value { get; set; }
 
+    /// <summary>
+    /// Creates a new <see cref="BinTreeColor"/> object with the specified parameters
+    /// </summary>
+    /// <param name="nameHash">The hashed property name</param>
+    /// <param name="value">The value of the property</param>
     public BinTreeColor(uint nameHash, Color value) : base(nameHash) => this.Value = value;
 
     internal BinTreeColor(BinaryReader br, uint nameHash) : base(nameHash) =>
