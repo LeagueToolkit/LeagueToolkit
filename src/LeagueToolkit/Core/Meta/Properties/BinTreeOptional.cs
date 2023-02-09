@@ -5,7 +5,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with an optional <see cref="BinTreeProperty"/> value
 /// </summary>
-[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{Value, nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeOptional : BinTreeProperty
 {
     /// <inheritdoc/>

@@ -6,7 +6,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a <see cref="Fnv1a"/> hash value
 /// </summary>
-[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeHash : BinTreeProperty
 {
     /// <inheritdoc/>

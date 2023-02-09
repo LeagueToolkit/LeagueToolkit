@@ -5,7 +5,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property which imitates an embedded struct
 /// </summary>
-[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{GetDebuggerDisplay(), nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeEmbedded : BinTreeStruct
 {
     /// <inheritdoc/>

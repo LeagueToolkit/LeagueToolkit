@@ -8,7 +8,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a <see cref="Color"/> value
 /// </summary>
-[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{Value, nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeColor : BinTreeProperty
 {
     /// <inheritdoc/>

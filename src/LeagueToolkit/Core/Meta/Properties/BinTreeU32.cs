@@ -5,7 +5,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a <see cref="uint"/> value
 /// </summary>
-[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{Value, nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeU32 : BinTreeProperty
 {
     /// <inheritdoc/>

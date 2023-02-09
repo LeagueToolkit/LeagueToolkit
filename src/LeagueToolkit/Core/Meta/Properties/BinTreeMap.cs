@@ -8,7 +8,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a <see cref="IDictionary{TKey, TValue}"/> value
 /// </summary>
-[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{GetDebuggerDisplay(), nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, BinTreeProperty>
 {
     /// <inheritdoc/>
@@ -49,8 +49,6 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
     }
 
     private readonly Dictionary<BinTreeProperty, BinTreeProperty> _map = new();
-
-    private string _debuggerDisplay => string.Format("Map<{0}, {1}>", this.KeyType, this.ValueType);
 
     /// <summary>
     /// Creates a new <see cref="BinTreeMap"/> with the specified parameters
@@ -178,4 +176,6 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
         int arrayIndex
     ) => throw new NotImplementedException();
     #endregion
+
+    private string GetDebuggerDisplay() => string.Format("Map<{0}, {1}>", this.KeyType, this.ValueType);
 }

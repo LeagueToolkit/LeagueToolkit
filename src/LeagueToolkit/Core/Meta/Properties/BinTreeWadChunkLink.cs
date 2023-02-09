@@ -6,7 +6,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a value that links to a <see cref="WadChunk.PathHash"/>
 /// </summary>
-[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeWadChunkLink : BinTreeProperty
 {
     /// <inheritdoc/>

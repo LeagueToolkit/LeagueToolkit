@@ -7,7 +7,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property which imitates a pointer to a struct
 /// </summary>
-[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{GetDebuggerDisplay(), nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public class BinTreeStruct : BinTreeProperty
 {
     /// <inheritdoc/>
@@ -20,8 +20,6 @@ public class BinTreeStruct : BinTreeProperty
     /// The meta class is hashed using <see cref="Fnv1a.HashLower(string)"/>
     /// </remarks>
     public uint ClassHash { get; }
-
-    private string _debuggerDisplay => string.Format("Class: {0:x}", this.ClassHash);
 
     /// <summary>
     /// Gets the properties of the struct
@@ -100,4 +98,6 @@ public class BinTreeStruct : BinTreeProperty
 
         return true;
     }
+
+    private string GetDebuggerDisplay() => string.Format("Class: {0:x}", this.ClassHash);
 }

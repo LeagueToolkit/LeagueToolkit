@@ -7,7 +7,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a <see cref="Matrix4x4"/> value
 /// </summary>
-[DebuggerDisplay("{Value, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{Value, nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public sealed class BinTreeMatrix44 : BinTreeProperty
 {
     /// <inheritdoc/>

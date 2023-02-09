@@ -23,8 +23,6 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
     /// </remarks>
     public uint NameHash { get; }
 
-    protected string _debuggerDisplayName => string.Format("{0:x}: {1}", this.NameHash, this.Type);
-
     protected BinTreeProperty(uint nameHash) => this.NameHash = nameHash;
 
     internal static BinTreeProperty Read(BinaryReader br, bool useLegacyType = false)
@@ -103,6 +101,8 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
         };
 
     public override int GetHashCode() => (int)this.NameHash;
+
+    protected virtual string GetDebuggerDisplayName() => string.Format("{0:x}: {1}", this.NameHash, this.Type);
 }
 
 public enum BinPropertyType : byte

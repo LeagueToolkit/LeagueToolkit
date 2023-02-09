@@ -6,7 +6,7 @@ namespace LeagueToolkit.Core.Meta.Properties;
 /// <summary>
 /// Represents a property with a <see cref="List{T}"/> value
 /// </summary>
-[DebuggerDisplay("{_debuggerDisplay, nq}", Name = "{_debuggerDisplayName, nq}")]
+[DebuggerDisplay("{GetDebuggerDisplay(), nq}", Name = "{GetDebuggerDisplayName(), nq}")]
 public class BinTreeContainer : BinTreeProperty
 {
     /// <inheritdoc/>
@@ -22,8 +22,6 @@ public class BinTreeContainer : BinTreeProperty
     /// </summary>
     public IReadOnlyList<BinTreeProperty> Elements => this._elements;
     protected List<BinTreeProperty> _elements = new();
-
-    private string _debuggerDisplay => string.Format("Container<{0}>", this.ElementType);
 
     /// <summary>
     /// Creates a new <see cref="BinTreeContainer"/> object with the specified parameters
@@ -122,4 +120,6 @@ public class BinTreeContainer : BinTreeProperty
 
         return true;
     }
+
+    private string GetDebuggerDisplay() => string.Format("Container<{0}>", this.ElementType);
 }
