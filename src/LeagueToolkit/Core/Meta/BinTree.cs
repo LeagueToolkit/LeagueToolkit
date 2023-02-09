@@ -28,6 +28,8 @@ public sealed class BinTree
     public IReadOnlyList<BinTreeObject> Objects => this._objects;
     private readonly List<BinTreeObject> _objects = new();
 
+    public List<BinTreeDataOverride> DataOverrides { get; private set; } = new();
+
     public BinTree(string path) : this(File.OpenRead(path)) { }
 
     /// <summary>
@@ -98,22 +100,12 @@ public sealed class BinTree
                 this._objects.Add(BinTreeObject.Read(objectClasses[i], br, useLegacyType: true));
         }
 
-        // Read override section
+        // Read data overrides
         if (version >= 3 && this.IsOverride)
-            ReadPatchSection(br);
-    }
-
-    private void ReadPatchSection(BinaryReader br)
-    {
-        uint dataOverrideCount = br.ReadUInt32();
-        for (int i = 0; i < dataOverrideCount; i++)
         {
-            uint pathHash = br.ReadUInt32();
-            uint size = br.ReadUInt32();
-            BinPropertyType type = (BinPropertyType)br.ReadByte();
-            string objectPath = Encoding.ASCII.GetString(br.ReadBytes(br.ReadUInt16()));
-
-            BinTreeProperty property = BinTreeProperty.ReadPropertyContent(0, type, br);
+            uint dataOverrideCount = br.ReadUInt32();
+            for (int i = 0; i < dataOverrideCount; i++)
+                this.DataOverrides.Add(BinTreeDataOverride.Read(br));
         }
     }
 
@@ -149,11 +141,9 @@ public sealed class BinTree
 
         if (this.IsOverride)
         {
-            //bw.Write(this._patchObjectCount);
-            //foreach (BinTreePatchObject patchObject in this._patchObjects)
-            //{
-            //    patchObject.Write(bw);
-            //}
+            bw.Write(this.DataOverrides.Count);
+            foreach (BinTreeDataOverride dataOverride in this.DataOverrides)
+                dataOverride.Write(bw);
         }
     }
 

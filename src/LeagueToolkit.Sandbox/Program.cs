@@ -42,13 +42,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        BinTree og = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
-
-        og.Write(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin");
-
-        BinTree notog = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base_v3.materials.bin");
-
-        ProfileMapgeoToGltf();
+        //ProfileMapgeoToGltf();
         ProfileBin(@"apheliosui.bin");
 
         //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
