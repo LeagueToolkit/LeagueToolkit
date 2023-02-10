@@ -107,11 +107,11 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
 
 public static class BinTreePropertyDictionaryExtensions
 {
-    public static void Add(this Dictionary<uint, BinTreeProperty> dictionary, BinTreeProperty property) =>
-        dictionary.Add(property.NameHash, property);
+    public static void Add(this Dictionary<uint, BinTreeProperty> dictionary, BinTreeProperty value) =>
+        dictionary.Add(value.NameHash, value);
 
-    public static bool TryAdd(this Dictionary<uint, BinTreeProperty> dictionary, BinTreeProperty property) =>
-        dictionary.TryAdd(property.NameHash, property);
+    public static bool TryAdd(this Dictionary<uint, BinTreeProperty> dictionary, BinTreeProperty value) =>
+        dictionary.TryAdd(value.NameHash, value);
 
     public static TValue GetValueOrDefault<TValue>(this Dictionary<uint, BinTreeProperty> dictionary, uint nameHash)
         where TValue : BinTreeProperty =>
