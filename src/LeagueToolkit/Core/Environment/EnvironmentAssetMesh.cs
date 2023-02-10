@@ -76,8 +76,8 @@ public sealed class EnvironmentAssetMesh
     /// This feature is supported only if <c>version &lt; 9</c><br></br>
     /// Since version 9, terrain meshes use baked light instead
     /// </remarks>
-    public IReadOnlyList<Vector3> LightProbes => this._lightProbes;
-    private readonly Vector3[] _lightProbes;
+    public IReadOnlyList<Vector3> SphericalHarmonics => this._sphericalHarmonics;
+    private readonly Vector3[] _sphericalHarmonics;
 
     /// <summary>Gets the <c>"STATIONARY_LIGHT"</c> sampler data</summary>
     /// <remarks>Usually contains a diffuse texture</remarks>
@@ -175,47 +175,33 @@ public sealed class EnvironmentAssetMesh
         this.Indices = environmentAsset.ReflectIndexBuffer(indexBufferId);
 
         if (version >= 13)
-        {
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
-        }
 
         uint submeshCount = br.ReadUInt32();
         for (int i = 0; i < submeshCount; i++)
-        {
             this._submeshes.Add(new(br));
-        }
 
         if (version != 5)
-        {
             this.DisableBackfaceCulling = br.ReadBoolean();
-        }
 
         this.BoundingBox = br.ReadBox();
         this.Transform = br.ReadMatrix4x4RowMajor();
         this.EnvironmentQualityFilter = (EnvironmentQuality)br.ReadByte();
 
         if (version >= 7 && version <= 12)
-        {
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
-        }
 
         if (version >= 11)
-        {
             this.RenderFlags = (EnvironmentAssetMeshRenderFlags)br.ReadByte();
-        }
 
         if (useSeparatePointLights && version < 7)
-        {
             this.PointLight = br.ReadVector3();
-        }
 
         if (version < 9)
         {
-            this._lightProbes = new Vector3[9];
+            this._sphericalHarmonics = new Vector3[9];
             for (int i = 0; i < 9; i++)
-            {
-                this._lightProbes[i] = br.ReadVector3();
-            }
+                this._sphericalHarmonics[i] = br.ReadVector3();
 
             this.StationaryLight = EnvironmentAssetSampler.Read(br);
         }
@@ -225,9 +211,7 @@ public sealed class EnvironmentAssetMesh
             this.BakedLight = EnvironmentAssetSampler.Read(br);
 
             if (version >= 12)
-            {
                 this.BakedPaint = EnvironmentAssetSampler.Read(br);
-            }
         }
     }
 
@@ -244,58 +228,41 @@ public sealed class EnvironmentAssetMesh
         bw.Write(this._baseVertexBufferDescriptionId);
 
         foreach (int vertexBufferId in this._vertexBufferIds)
-        {
             bw.Write(vertexBufferId);
-        }
 
         bw.Write(this.Indices.Count);
         bw.Write(this._indexBufferId);
 
         if (version >= 13)
-        {
             bw.Write((byte)this.VisibilityFlags);
-        }
 
         bw.Write(this._submeshes.Count);
         foreach (EnvironmentAssetMeshPrimitive submesh in this._submeshes)
-        {
             submesh.Write(bw);
-        }
 
         if (version != 5)
-        {
             bw.Write(this.DisableBackfaceCulling);
-        }
 
         bw.WriteBox(this.BoundingBox);
         bw.WriteMatrix4x4RowMajor(this.Transform);
         bw.Write((byte)this.EnvironmentQualityFilter);
 
         if (version >= 7 && version <= 12)
-        {
             bw.Write((byte)this.VisibilityFlags);
-        }
 
         if (version >= 11)
-        {
             bw.Write((byte)this.RenderFlags);
-        }
 
         if (version < 9)
         {
             if (useSeparatePointLights)
-            {
                 bw.WriteVector3(this.PointLight ?? Vector3.Zero);
-            }
 
-            foreach (Vector3 pointLight in this.LightProbes)
-            {
-                bw.WriteVector3(pointLight);
-            }
-            for (int i = 0; i < 9 - this.LightProbes.Count; i++)
-            {
+            foreach (Vector3 sphericalHarmonic in this.SphericalHarmonics)
+                bw.WriteVector3(sphericalHarmonic);
+
+            for (int i = 0; i < 9 - this.SphericalHarmonics.Count; i++)
                 bw.WriteVector3(Vector3.Zero);
-            }
 
             this.StationaryLight.Write(bw);
         }
@@ -305,9 +272,7 @@ public sealed class EnvironmentAssetMesh
             this.BakedLight.Write(bw);
 
             if (version >= 12)
-            {
                 this.BakedPaint.Write(bw);
-            }
         }
     }
 
