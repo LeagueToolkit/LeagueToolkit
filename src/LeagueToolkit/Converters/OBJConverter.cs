@@ -36,9 +36,9 @@ namespace LeagueToolkit.Converters
             }
         }
 
-        public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(MapGeometry mgeo)
+        public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(EnvironmentAsset mgeo)
         {
-            foreach (MapGeometryModel mesh in mgeo.Meshes)
+            foreach (EnvironmentAssetMesh mesh in mgeo.Meshes)
             {
                 List<Vector3> vertices = new();
                 List<Vector3> normals = new();

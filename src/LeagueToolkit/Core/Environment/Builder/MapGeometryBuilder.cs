@@ -9,10 +9,10 @@ using System.Linq;
 
 namespace LeagueToolkit.Core.Environment.Builder
 {
-    /// <summary>Exposes an API for building a <see cref="MapGeometry"/> object</summary>
+    /// <summary>Exposes an API for building a <see cref="EnvironmentAsset"/> object</summary>
     public sealed class MapGeometryBuilder
     {
-        private MapGeometryBakedTerrainSamplers _bakedTerrainSamplers;
+        private EnvironmentAssetBakedTerrainSamplers _bakedTerrainSamplers;
         private readonly List<MapGeometryModelBuilder> _meshes = new();
         private BucketedGeometry _sceneGraph;
         private readonly List<PlanarReflector> _planarReflectors = new();
@@ -23,13 +23,13 @@ namespace LeagueToolkit.Core.Environment.Builder
         /// <summary>Creates a new <see cref="MapGeometryBuilder"/> object</summary>
         public MapGeometryBuilder() { }
 
-        /// <summary>Builds a new <see cref="MapGeometry"/> object from this <see cref="MapGeometryBuilder"/></summary>
-        /// <returns>The built <see cref="MapGeometry"/> object</returns>
+        /// <summary>Builds a new <see cref="EnvironmentAsset"/> object from this <see cref="MapGeometryBuilder"/></summary>
+        /// <returns>The built <see cref="EnvironmentAsset"/> object</returns>
         /// <remarks>
         /// Each <see cref="MapGeometryBuilder"/> instance should only be built from once,
-        /// building multiple <see cref="MapGeometry"/> objects from a single <see cref="MapGeometryBuilder"/> instance is undefined behavior
+        /// building multiple <see cref="EnvironmentAsset"/> objects from a single <see cref="MapGeometryBuilder"/> instance is undefined behavior
         /// </remarks>
-        public MapGeometry Build()
+        public EnvironmentAsset Build()
         {
             return new(
                 this._bakedTerrainSamplers,
@@ -42,10 +42,10 @@ namespace LeagueToolkit.Core.Environment.Builder
         }
 
         /// <summary>
-        /// Sets the specified <see cref="MapGeometryBakedTerrainSamplers"/> to be used by the environment asset
+        /// Sets the specified <see cref="EnvironmentAssetBakedTerrainSamplers"/> to be used by the environment asset
         /// </summary>
-        /// <param name="bakedTerrainSamplers">The <see cref="MapGeometryBakedTerrainSamplers"/> to use</param>
-        public MapGeometryBuilder WithBakedTerrainSamplers(MapGeometryBakedTerrainSamplers bakedTerrainSamplers)
+        /// <param name="bakedTerrainSamplers">The <see cref="EnvironmentAssetBakedTerrainSamplers"/> to use</param>
+        public MapGeometryBuilder WithBakedTerrainSamplers(EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers)
         {
             this._bakedTerrainSamplers = bakedTerrainSamplers;
             return this;
@@ -92,7 +92,7 @@ namespace LeagueToolkit.Core.Environment.Builder
         /// <returns>A <see cref="VertexBufferWriter"/> for the created vertex buffer and a view into it</returns>
         /// <remarks>
         /// ⚠️ It is recommended to order <paramref name="vertexElements"/> by their <see cref="ElementName"/> in ascending order<br></br>
-        /// ⚠️ You should not use the returned writer interface after building the <see cref="MapGeometry"/>,
+        /// ⚠️ You should not use the returned writer interface after building the <see cref="EnvironmentAsset"/>,
         /// doing so is considered undefined behavior
         /// </remarks>
         public (IVertexBufferView view, VertexBufferWriter writer) UseVertexBuffer(
@@ -117,7 +117,7 @@ namespace LeagueToolkit.Core.Environment.Builder
         /// <param name="indexCount">The index count of the created buffer</param>
         /// <returns>A <see cref="MemoryBufferWriter{T}"/> for the created index buffer and a read-only view into it</returns>
         /// <remarks>
-        /// ⚠️ You should not use the returned writer interface after building the <see cref="MapGeometry"/>,
+        /// ⚠️ You should not use the returned writer interface after building the <see cref="EnvironmentAsset"/>,
         /// doing so is considered undefined behavior
         /// </remarks>
         public (ReadOnlyMemory<ushort> view, MemoryBufferWriter<ushort> writer) UseIndexBuffer(int indexCount)

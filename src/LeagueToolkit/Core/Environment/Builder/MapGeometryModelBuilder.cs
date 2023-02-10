@@ -10,7 +10,7 @@ using System.Numerics;
 namespace LeagueToolkit.Core.Environment.Builder
 {
     /// <summary>
-    /// Provides an interface for building a <see cref="MapGeometryModel"/>
+    /// Provides an interface for building a <see cref="EnvironmentAssetMesh"/>
     /// </summary>
     public sealed class MapGeometryModelBuilder
     {
@@ -21,11 +21,11 @@ namespace LeagueToolkit.Core.Environment.Builder
         private EnvironmentVisibilityFlags _visibilityFlags;
         private MapGeometryMeshRenderFlags _renderFlags;
 
-        private MapGeometrySamplerData _stationaryLight;
-        private MapGeometrySamplerData _bakedLight;
-        private MapGeometrySamplerData _bakedPaint;
+        private EnvironmentAssetSampler _stationaryLight;
+        private EnvironmentAssetSampler _bakedLight;
+        private EnvironmentAssetSampler _bakedPaint;
 
-        private MapGeometrySubmesh[] _ranges;
+        private EnvironmentAssetMeshPrimitive[] _ranges;
 
         // TODO:
         // Figure out a way to expose a writing interface to the user
@@ -41,7 +41,7 @@ namespace LeagueToolkit.Core.Environment.Builder
         /// <summary>Creates a new <see cref="MapGeometryBuilder"/> instance</summary>
         public MapGeometryModelBuilder() { }
 
-        internal MapGeometryModel Build(int meshId)
+        internal EnvironmentAssetMesh Build(int meshId)
         {
             // TODO: This should be simplified
             return new(
@@ -60,10 +60,10 @@ namespace LeagueToolkit.Core.Environment.Builder
             );
         }
 
-        /// <summary>Sets the specified geometry data for the <see cref="MapGeometryModel"/></summary>
-        /// <param name="primitives">The primitives of the <see cref="MapGeometryModel"/></param>
-        /// <param name="vertexBuffer">The vertex buffer to use for the <see cref="MapGeometryModel"/></param>
-        /// <param name="indexBuffer">The index buffer to use for the <see cref="MapGeometryModel"/></param>
+        /// <summary>Sets the specified geometry data for the <see cref="EnvironmentAssetMesh"/></summary>
+        /// <param name="primitives">The primitives of the <see cref="EnvironmentAssetMesh"/></param>
+        /// <param name="vertexBuffer">The vertex buffer to use for the <see cref="EnvironmentAssetMesh"/></param>
+        /// <param name="indexBuffer">The index buffer to use for the <see cref="EnvironmentAssetMesh"/></param>
         public MapGeometryModelBuilder WithGeometry(
             IEnumerable<MeshPrimitiveBuilder> primitives,
             IVertexBufferView vertexBuffer,
@@ -82,21 +82,21 @@ namespace LeagueToolkit.Core.Environment.Builder
             return this;
         }
 
-        /// <summary>Sets the backface culling toggle for the <see cref="MapGeometryModel"/></summary>
+        /// <summary>Sets the backface culling toggle for the <see cref="EnvironmentAssetMesh"/></summary>
         public MapGeometryModelBuilder WithDisableBackfaceCulling(bool disableBackfaceCulling)
         {
             this._disableBackfaceCulling = disableBackfaceCulling;
             return this;
         }
 
-        /// <summary>Sets the specified transform for the <see cref="MapGeometryModel"/></summary>
+        /// <summary>Sets the specified transform for the <see cref="EnvironmentAssetMesh"/></summary>
         public MapGeometryModelBuilder WithTransform(Matrix4x4 transform)
         {
             this._transform = transform;
             return this;
         }
 
-        /// <summary>Sets the specified environment quality filter for the <see cref="MapGeometryModel"/></summary>
+        /// <summary>Sets the specified environment quality filter for the <see cref="EnvironmentAssetMesh"/></summary>
         public MapGeometryModelBuilder WithEnvironmentQualityFilter(
             MapGeometryEnvironmentQualityFilter environmentQualityFilter
         )
@@ -105,42 +105,42 @@ namespace LeagueToolkit.Core.Environment.Builder
             return this;
         }
 
-        /// <summary>Sets the specified visibility flags for the <see cref="MapGeometryModel"/></summary>
+        /// <summary>Sets the specified visibility flags for the <see cref="EnvironmentAssetMesh"/></summary>
         public MapGeometryModelBuilder WithVisibilityFlags(EnvironmentVisibilityFlags visibilityFlags)
         {
             this._visibilityFlags = visibilityFlags;
             return this;
         }
 
-        /// <summary>Sets the specified render flags for the <see cref="MapGeometryModel"/></summary>
+        /// <summary>Sets the specified render flags for the <see cref="EnvironmentAssetMesh"/></summary>
         public MapGeometryModelBuilder WithRenderFlags(MapGeometryMeshRenderFlags renderFlags)
         {
             this._renderFlags = renderFlags;
             return this;
         }
 
-        /// <summary>Sets the specified Stationary Light sampler for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder WithStationaryLightSampler(MapGeometrySamplerData stationaryLight)
+        /// <summary>Sets the specified Stationary Light sampler for the <see cref="EnvironmentAssetMesh"/></summary>
+        public MapGeometryModelBuilder WithStationaryLightSampler(EnvironmentAssetSampler stationaryLight)
         {
             this._stationaryLight = stationaryLight;
             return this;
         }
 
-        /// <summary>Sets the specified Baked Light sampler for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder WithBakedLightSampler(MapGeometrySamplerData bakedLight)
+        /// <summary>Sets the specified Baked Light sampler for the <see cref="EnvironmentAssetMesh"/></summary>
+        public MapGeometryModelBuilder WithBakedLightSampler(EnvironmentAssetSampler bakedLight)
         {
             this._bakedLight = bakedLight;
             return this;
         }
 
-        /// <summary>Sets the specified Baked Paint sampler for the <see cref="MapGeometryModel"/></summary>
-        public MapGeometryModelBuilder WithBakedPaintSampler(MapGeometrySamplerData bakedPaint)
+        /// <summary>Sets the specified Baked Paint sampler for the <see cref="EnvironmentAssetMesh"/></summary>
+        public MapGeometryModelBuilder WithBakedPaintSampler(EnvironmentAssetSampler bakedPaint)
         {
             this._bakedPaint = bakedPaint;
             return this;
         }
 
-        private static IEnumerable<MapGeometrySubmesh> CreateRanges(
+        private static IEnumerable<EnvironmentAssetMeshPrimitive> CreateRanges(
             IEnumerable<MeshPrimitiveBuilder> primitives,
             ReadOnlyMemory<ushort> indexBuffer,
             int vertexCount

@@ -42,9 +42,25 @@ class Program
 {
     static void Main(string[] args)
     {
-        BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
-        //ProfileMapgeoToGltf();
-        //ProfileBin(@"apheliosui.bin");
+        foreach (
+            string file in Directory.EnumerateFiles(
+                @"X:\lol\game\data\maps\mapgeometry\map22",
+                "*.mapgeo",
+                SearchOption.AllDirectories
+            )
+        )
+        {
+            using FileStream fileStream = File.OpenRead(file);
+            using EnvironmentAsset environmentAsset = new(fileStream);
+
+            if (
+                !string.IsNullOrEmpty(environmentAsset.BakedTerrainSamplers.Primary)
+                || !string.IsNullOrEmpty(environmentAsset.BakedTerrainSamplers.Secondary)
+            )
+            {
+                ;
+            }
+        }
     }
 
     static void ExtractWad(string wadPath, string extractTo)
@@ -139,7 +155,7 @@ class Program
     {
         BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
 
-        using MapGeometry mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
+        using EnvironmentAsset mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -222,7 +238,7 @@ class Program
 
     static void ProfileMapgeo(string toRead, string rewriteTo)
     {
-        using MapGeometry mgeo = new(toRead);
+        using EnvironmentAsset mgeo = new(toRead);
         //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
         //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
@@ -233,7 +249,7 @@ class Program
         Dictionary<ElementName, int> elementOrder =
             new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
-        foreach (MapGeometryModel mesh in mgeo.Meshes)
+        foreach (EnvironmentAssetMesh mesh in mgeo.Meshes)
         {
             var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
                 VertexBufferUsage.Static,
@@ -260,7 +276,7 @@ class Program
                     mesh.Submeshes.Select(
                         submesh =>
                             new MeshPrimitiveBuilder(
-                                MapGeometrySubmesh.MISSING_MATERIAL,
+                                EnvironmentAssetMeshPrimitive.MISSING_MATERIAL,
                                 submesh.StartIndex,
                                 submesh.IndexCount
                             )
@@ -272,10 +288,10 @@ class Program
             mapBuilder.WithMesh(meshBuilder);
         }
 
-        using MapGeometry builtMap = mapBuilder.Build();
+        using EnvironmentAsset builtMap = mapBuilder.Build();
         builtMap.Write(rewriteTo, 13);
 
-        static void RewriteVertexBuffer(MapGeometryModel mesh, VertexBufferWriter writer)
+        static void RewriteVertexBuffer(EnvironmentAssetMesh mesh, VertexBufferWriter writer)
         {
             bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
             bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
