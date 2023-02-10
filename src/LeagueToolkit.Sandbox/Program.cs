@@ -219,7 +219,7 @@ class Program
         //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
         //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
-        MapGeometryBuilder mapBuilder = new MapGeometryBuilder()
+        EnvironmentAssetBuilder mapBuilder = new EnvironmentAssetBuilder()
             .WithSceneGraph(mgeo.SceneGraph)
             .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
@@ -240,7 +240,7 @@ class Program
             indexBufferWriter.Write(mesh.Indices.Buffer.Span.Cast<byte, ushort>());
             RewriteVertexBuffer(mesh, vertexBufferWriter);
 
-            MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()
+            EnvironmentAssetMeshBuilder meshBuilder = new EnvironmentAssetMeshBuilder()
                 .WithTransform(mesh.Transform)
                 .WithDisableBackfaceCulling(mesh.DisableBackfaceCulling)
                 .WithEnvironmentQualityFilter(mesh.EnvironmentQualityFilter)
