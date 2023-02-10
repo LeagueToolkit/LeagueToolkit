@@ -223,7 +223,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Guard.IsNotNull(mesh, nameof(mesh));
             Guard.IsNotNull(root, nameof(root));
-            Guard.IsNotNull(materialsBin, nameof(materialsBin));
             Guard.IsNotNull(textureRegistry, nameof(textureRegistry));
             Guard.IsNotNull(context, nameof(context));
 
@@ -257,7 +256,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return;
 
             // Get material meta definition
-            StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
+            StaticMaterialDef materialDef = materialsBin switch
+            {
+                null => new(),
+                _ => ResolveMaterialDefiniton(material.Name, materialsBin, context)
+            };
 
             // Include material metadata
             material.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = material.Name });

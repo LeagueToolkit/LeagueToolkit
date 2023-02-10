@@ -38,6 +38,25 @@ class Program
     {
         using FileStream file = File.OpenRead(@"X:\lol\old_backup\room_arcade.wgeo");
         using EnvironmentAsset asset = EnvironmentAsset.LoadWorldGeometry(file);
+
+        MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+            Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+        );
+
+        asset
+            .ToGltf(
+                null,
+                new(
+                    metaEnvironment,
+                    new()
+                    {
+                        FlipAcrossX = false,
+                        LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
+                        TextureQuality = MapGeometryGltfTextureQuality.High
+                    }
+                )
+            )
+            .SaveGLB("room_arcade.wgeo.glb");
     }
 
     static void ExtractWad(string wadPath, string extractTo)
@@ -62,11 +81,6 @@ class Program
                 chunkStream.CopyTo(chunkFileStream);
             }
         }
-    }
-
-    static void ProfileBin(string path)
-    {
-        BinTree bin = new(path);
     }
 
     static void ProfileWadFile(string path)
@@ -130,7 +144,10 @@ class Program
 
     static void ProfileMapgeoToGltf()
     {
-        BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
+        using FileStream materialsBinStream = File.OpenRead(
+            @"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin"
+        );
+        BinTree materialsBin = new(materialsBinStream);
 
         using EnvironmentAsset mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
 
@@ -206,7 +223,8 @@ class Program
 
     static void ProfileMetaSerialization()
     {
-        BinTree binTree = new("base_srx.materials.bin");
+        using FileStream materialsBinStream = File.OpenRead("base_srx.materials.bin");
+        BinTree binTree = new(materialsBinStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)

@@ -10,7 +10,7 @@ public sealed class IndexBuffer : IDisposable
     public int Count { get; }
     public int Stride { get; }
 
-    public ReadOnlyMemory<byte> Buffer { get; }
+    public ReadOnlyMemory<byte> Buffer => this._buffer.Memory;
 
     private readonly MemoryOwner<byte> _buffer;
 
