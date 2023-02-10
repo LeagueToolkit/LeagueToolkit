@@ -129,7 +129,8 @@ class Program
         );
         BinTree materialsBin = new(materialsBinStream);
 
-        using EnvironmentAsset mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
+        using FileStream mapgeoStream = File.OpenRead(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
+        using EnvironmentAsset mgeo = new(mapgeoStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -213,7 +214,8 @@ class Program
 
     static void ProfileMapgeo(string toRead, string rewriteTo)
     {
-        using EnvironmentAsset mgeo = new(toRead);
+        using FileStream mapgeoStream = File.OpenRead(toRead);
+        using EnvironmentAsset mgeo = new(mapgeoStream);
         //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
         //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
@@ -264,7 +266,9 @@ class Program
         }
 
         using EnvironmentAsset builtMap = mapBuilder.Build();
-        builtMap.Write(rewriteTo, 13);
+
+        using FileStream rewriteToStream = File.Create(rewriteTo);
+        builtMap.Write(rewriteToStream, 13);
 
         static void RewriteVertexBuffer(EnvironmentAssetMesh mesh, VertexBufferWriter writer)
         {

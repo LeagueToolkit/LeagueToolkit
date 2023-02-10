@@ -58,12 +58,6 @@ public sealed class EnvironmentAsset : IDisposable
     }
 
     /// <summary>
-    /// Creates a new <see cref="EnvironmentAsset"/> instance by reading it from <paramref name="fileLocation"/>
-    /// </summary>
-    /// <param name="fileLocation">The file to read from</param>
-    public EnvironmentAsset(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-
-    /// <summary>
     /// Creates a new <see cref="EnvironmentAsset"/> instance by reading it from <paramref name="stream"/>
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to read from</param>
@@ -71,34 +65,25 @@ public sealed class EnvironmentAsset : IDisposable
     /// <exception cref="UnsupportedFileVersionException">The version of the <see cref="EnvironmentAsset"/> file is not supported</exception>
     public EnvironmentAsset(Stream stream)
     {
-        using BinaryReader br = new(stream);
+        using BinaryReader br = new(stream, Encoding.UTF8, true);
 
         string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
         if (magic != "OEGM")
-        {
             throw new InvalidFileSignatureException();
-        }
 
         uint version = br.ReadUInt32();
         if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
-        {
             throw new UnsupportedFileVersionException();
-        }
 
-        bool useSeparatePointLights = false;
-        if (version < 7)
-        {
-            useSeparatePointLights = br.ReadBoolean();
-        }
+        bool useSeparatePointLights = version < 7 && br.ReadBoolean();
 
         ReadBakedTerrainSamplers(br, version);
 
-        uint vertexBufferDescriptionCount = br.ReadUInt32();
-        VertexBufferDescription[] vertexBufferDescriptions = new VertexBufferDescription[vertexBufferDescriptionCount];
-        for (int i = 0; i < vertexBufferDescriptionCount; i++)
-        {
-            vertexBufferDescriptions[i] = VertexBufferDescription.ReadFromMapGeometry(br);
-        }
+        // Read vertex declarations
+        uint vertexDeclarationCount = br.ReadUInt32();
+        VertexBufferDescription[] vertexDeclarations = new VertexBufferDescription[vertexDeclarationCount];
+        for (int i = 0; i < vertexDeclarationCount; i++)
+            vertexDeclarations[i] = VertexBufferDescription.ReadFromMapGeometry(br);
 
         // Reading of vertex buffers is deferred until we start reading meshes
         uint vertexBufferCount = br.ReadUInt32();
@@ -138,38 +123,34 @@ public sealed class EnvironmentAsset : IDisposable
             this._indexBuffers[i] = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
         }
 
-        uint modelCount = br.ReadUInt32();
-        for (int i = 0; i < modelCount; i++)
-        {
+        // Read meshes
+        uint meshCount = br.ReadUInt32();
+        for (int i = 0; i < meshCount; i++)
             this._meshes.Add(
-                new(i, this, br, vertexBufferDescriptions, vertexBufferOffsets, useSeparatePointLights, version)
+                new(i, this, br, vertexDeclarations, vertexBufferOffsets, useSeparatePointLights, version)
             );
-        }
 
+        // Read bucketed geometry
         this.SceneGraph = new(br);
 
         if (version >= 13)
         {
+            // Read reflection planes
             uint planarReflectorCount = br.ReadUInt32();
             for (int i = 0; i < planarReflectorCount; i++)
-            {
                 this._planarReflectors.Add(PlanarReflector.ReadFromMapGeometry(br));
-            }
         }
     }
 
     internal void ReadBakedTerrainSamplers(BinaryReader br, uint version)
     {
         EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers = new();
+
         if (version >= 9)
-        {
             bakedTerrainSamplers.Primary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
 
-            if (version >= 11)
-            {
-                bakedTerrainSamplers.Secondary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-            }
-        }
+        if (version >= 11)
+            bakedTerrainSamplers.Secondary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
 
         this.BakedTerrainSamplers = bakedTerrainSamplers;
     }
@@ -208,27 +189,18 @@ public sealed class EnvironmentAsset : IDisposable
     internal IndexArray ReflectIndexBuffer(int id) => this._indexBuffers[id].AsArray();
 
     /// <summary>
-    /// Writes this <see cref="EnvironmentAsset"/> instance into <paramref name="fileLocation"/> with the requested <paramref name="version"/>
-    /// </summary>
-    /// <param name="fileLocation">The file to write into</param>
-    /// <param name="version">The version of the written <see cref="EnvironmentAsset"/> file</param>
-    public void Write(string fileLocation, uint version) => Write(File.Create(fileLocation), version);
-
-    /// <summary>
     /// Writes this <see cref="EnvironmentAsset"/> instance into <paramref name="stream"/>
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to write to</param>
     /// <param name="version">The version of the written <see cref="EnvironmentAsset"/> file</param>
     /// <param name="leaveOpen">Whether the internal reader should leave <paramref name="stream"/> opened</param>
     /// <exception cref="ArgumentException"></exception>
-    public void Write(Stream stream, uint version, bool leaveOpen = false)
+    public void Write(Stream stream, uint version)
     {
         if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
-        {
             throw new ArgumentException($"Unsupported version: {version}", nameof(version));
-        }
 
-        using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
+        using BinaryWriter bw = new(stream, Encoding.UTF8, true);
 
         bw.Write(Encoding.ASCII.GetBytes("OEGM"));
         bw.Write(version);
@@ -242,21 +214,17 @@ public sealed class EnvironmentAsset : IDisposable
 
         WriteBakedTerrainSamplers(bw, version);
 
-        List<VertexBufferDescription> vertexElementGroups = GenerateVertexBufferDescriptions();
-        bw.Write(vertexElementGroups.Count);
-        foreach (VertexBufferDescription vertexElementGroup in vertexElementGroups)
-        {
-            vertexElementGroup.WriteToMapGeometry(bw);
-        }
+        List<VertexBufferDescription> vertexDeclarations = GenerateVertexBufferDescriptions();
+        bw.Write(vertexDeclarations.Count);
+        foreach (VertexBufferDescription vertexDeclaration in vertexDeclarations)
+            vertexDeclaration.WriteToMapGeometry(bw);
 
         WriteVertexBuffers(bw, version);
         WriteIndexBuffers(bw, version);
 
         bw.Write(this._meshes.Count);
         foreach (EnvironmentAssetMesh model in this._meshes)
-        {
             model.Write(bw, usesSeparatePointLights, version);
-        }
 
         this.SceneGraph.Write(bw);
 
@@ -264,9 +232,7 @@ public sealed class EnvironmentAsset : IDisposable
         {
             bw.Write(this.PlanarReflectors.Count);
             foreach (PlanarReflector planarReflector in this.PlanarReflectors)
-            {
                 planarReflector.WriteToMapGeometry(bw);
-            }
         }
     }
 
