@@ -417,6 +417,12 @@ public sealed class EnvironmentAsset : IDisposable
         };
     }
 
+    #region World Geometry
+    /// <summary>
+    /// Reads a World Geometry (.wgeo) file from the specified stream
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <returns>The created <see cref="EnvironmentAsset"/> object</returns>
     public static EnvironmentAsset LoadWorldGeometry(Stream stream)
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
@@ -511,7 +517,9 @@ public sealed class EnvironmentAsset : IDisposable
             new()
         );
     }
+    #endregion
 
+    #region IDisposable
     public void Dispose()
     {
         Dispose(true);
@@ -540,6 +548,7 @@ public sealed class EnvironmentAsset : IDisposable
 
         this.IsDisposed = true;
     }
+    #endregion
 }
 
 internal static class BakedEnvironmentVertexDescription
