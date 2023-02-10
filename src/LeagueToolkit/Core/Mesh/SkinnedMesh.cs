@@ -32,10 +32,10 @@ namespace LeagueToolkit.Core.Mesh
         public IVertexBufferView VerticesView => this._vertexBuffer;
 
         /// <summary>Gets a read-only view into the mesh's index buffer</summary>
-        public ReadOnlyMemory<ushort> IndicesView => this._indexBuffer.Memory;
+        public IndexArray Indices => this._indexBuffer.AsArray();
 
         private readonly VertexBuffer _vertexBuffer;
-        private readonly MemoryOwner<ushort> _indexBuffer;
+        private readonly IndexBuffer _indexBuffer;
 
         /// <summary>Gets a value indicating whether the <see cref="SkinnedMesh"/> has been disposed of</summary>
         public bool IsDisposed { get; private set; }
@@ -44,11 +44,7 @@ namespace LeagueToolkit.Core.Mesh
         /// <param name="ranges">The ranges of the <see cref="SkinnedMesh"/></param>
         /// <param name="vertexBuffer">The vertex buffer of the <see cref="SkinnedMesh"/></param>
         /// <param name="indexBuffer">The index buffer of the <see cref="SkinnedMesh"/></param>
-        public SkinnedMesh(
-            IEnumerable<SkinnedMeshRange> ranges,
-            VertexBuffer vertexBuffer,
-            MemoryOwner<ushort> indexBuffer
-        )
+        public SkinnedMesh(IEnumerable<SkinnedMeshRange> ranges, VertexBuffer vertexBuffer, IndexBuffer indexBuffer)
         {
             this._ranges = ranges.ToArray();
             this._vertexBuffer = vertexBuffer;
@@ -135,17 +131,18 @@ namespace LeagueToolkit.Core.Mesh
                 }
             }
 
-            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(
+                indexCount * IndexBuffer.GetFormatSize(IndexFormat.U16)
+            );
             MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
                 vertexBufferDescription.GetVertexSize() * vertexCount
             );
 
             // Read index buffer
-            Span<byte> indexBuffer = indexBufferOwner.Span.Cast<ushort, byte>();
-            int indexBufferBytesRead = br.Read(indexBuffer);
-            if (indexBufferBytesRead != indexBuffer.Length)
+            int indexBufferBytesRead = br.Read(indexBufferOwner.Span);
+            if (indexBufferBytesRead != indexBufferOwner.Length)
                 throw new IOException(
-                    $"Failed to read index buffer: {nameof(indexBuffer.Length)}: {indexBuffer.Length}"
+                    $"Failed to read index buffer: {nameof(indexBufferOwner.Length)}: {indexBufferOwner.Length}"
                         + $" {nameof(indexBufferBytesRead)}: {indexBufferBytesRead}"
                 );
 
@@ -157,13 +154,14 @@ namespace LeagueToolkit.Core.Mesh
                         + $" {nameof(vertexBufferBytesRead)}: {vertexBufferBytesRead}"
                 );
 
+            IndexBuffer indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
             VertexBuffer vertexBuffer = VertexBuffer.Create(
                 vertexBufferDescription.Usage,
                 vertexBufferDescription.Elements,
                 vertexBufferOwner
             );
 
-            return new(ranges, vertexBuffer, indexBufferOwner);
+            return new(ranges, vertexBuffer, indexBuffer);
         }
 
         /// <summary>
@@ -190,7 +188,7 @@ namespace LeagueToolkit.Core.Mesh
                 range.WriteToSimpleSkin(bw);
 
             bw.Write((uint)0); // Flags
-            bw.Write(this._indexBuffer.Length);
+            bw.Write(this._indexBuffer.Count);
             bw.Write(this._vertexBuffer.VertexCount);
             bw.Write(this._vertexBuffer.VertexStride);
             bw.Write((int)GetVertexTypeForDescription(this._vertexBuffer.Description));
@@ -198,7 +196,7 @@ namespace LeagueToolkit.Core.Mesh
             bw.WriteBox(this.AABB);
             bw.WriteSphere(this.BoundingSphere);
 
-            bw.Write(this._indexBuffer.Span.Cast<ushort, byte>());
+            bw.Write(this._indexBuffer.Buffer.Span);
             bw.Write(this._vertexBuffer.View.Span);
 
             Span<byte> endTab = stackalloc byte[12];

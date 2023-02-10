@@ -68,13 +68,10 @@ namespace LeagueToolkit.Converters
                 }
 
                 // TODO: Rework OBJ API
-                List<uint> indices = new(mesh.Indices.Length);
-                for (int i = 0; i < mesh.Indices.Length; i++)
-                {
-                    indices.Add(mesh.Indices.Span[i]);
-                }
-
-                yield return new Tuple<string, OBJFile>(mesh.Name, new OBJFile(vertices, indices, uvs, normals));
+                yield return new Tuple<string, OBJFile>(
+                    mesh.Name,
+                    new OBJFile(vertices, mesh.Indices.ToList(), uvs, normals)
+                );
             }
         }
 

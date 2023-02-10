@@ -20,14 +20,14 @@ public sealed class EnvironmentAssetMesh
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets the mesh's <see cref="InstancedVertexBufferView"/>
+    /// Gets a view into the vertex buffer
     /// </summary>
     public InstancedVertexBufferView VerticesView { get; private set; }
 
     /// <summary>
-    /// Gets a read-only view into the index buffer
+    /// Gets a view into the index buffer
     /// </summary>
-    public ReadOnlyMemory<ushort> Indices { get; private set; }
+    public IndexArray Indices { get; private set; }
 
     /// <summary>
     /// Gets a read-only collection of the mesh's primitives
@@ -99,7 +99,7 @@ public sealed class EnvironmentAssetMesh
     internal EnvironmentAssetMesh(
         int id,
         IVertexBufferView vertexBufferView,
-        ReadOnlyMemory<ushort> indexBufferView,
+        IndexArray indexBufferView,
         IEnumerable<EnvironmentAssetMeshPrimitive> submeshes,
         Matrix4x4 transform,
         bool disableBackfaceCulling,
@@ -244,7 +244,7 @@ public sealed class EnvironmentAssetMesh
             bw.Write(vertexBufferId);
         }
 
-        bw.Write(this.Indices.Length);
+        bw.Write(this.Indices.Count);
         bw.Write(this._indexBufferId);
 
         if (version >= 13)

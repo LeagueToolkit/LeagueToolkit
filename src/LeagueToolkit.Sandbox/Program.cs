@@ -258,9 +258,9 @@ class Program
                     .OrderBy(element => element.Name),
                 mesh.VerticesView.VertexCount
             );
-            var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Length);
+            var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Count);
 
-            indexBufferWriter.Write(mesh.Indices.Span);
+            indexBufferWriter.Write(mesh.Indices.Buffer.Span.Cast<byte, ushort>());
             RewriteVertexBuffer(mesh, vertexBufferWriter);
 
             MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()

@@ -23,11 +23,6 @@ namespace LeagueToolkit.IO.WorldGeometry
         public BucketedGeometry BucketGrid { get; set; }
 
         /// <summary>
-        /// Initializes a new empty <see cref="WorldGeometry"/>
-        /// </summary>
-        public WorldGeometry() { }
-
-        /// <summary>
         /// Initializes a new <see cref="WorldGeometry"/>
         /// </summary>
         /// <param name="models">Models of this <see cref="WorldGeometry"/></param>
@@ -38,44 +33,30 @@ namespace LeagueToolkit.IO.WorldGeometry
             this.BucketGrid = bucketGrid;
         }
 
-        /// <summary>
-        /// Initalizes a new <see cref="WorldGeometry"/> from the specified location
-        /// </summary>
-        /// <param name="fileLocation">Location to read from</param>
-        public WorldGeometry(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-
-        /// <summary>
-        /// Initializes a new <see cref="WorldGeometry"/> from a <see cref="Stream"/>
-        /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to read from</param>
         public WorldGeometry(Stream stream)
         {
-            using (BinaryReader br = new BinaryReader(stream))
+            using BinaryReader br = new(stream, Encoding.UTF8, true);
+
+            string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+            if (magic is not "WGEO")
+                throw new InvalidFileSignatureException();
+
+            // I'm pretty sure there was version 6 for a short while before the transition to mapgeo
+            uint version = br.ReadUInt32();
+            if (version is not (5 or 4))
+                throw new UnsupportedFileVersionException();
+
+            uint modelCount = br.ReadUInt32();
+            uint faceCount = br.ReadUInt32();
+
+            for (int i = 0; i < modelCount; i++)
             {
-                string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                if (magic != "WGEO")
-                {
-                    throw new InvalidFileSignatureException();
-                }
+                this.Models.Add(new WorldGeometryModel(br));
+            }
 
-                uint version = br.ReadUInt32();
-                if (version != 5 && version != 4)
-                {
-                    throw new UnsupportedFileVersionException();
-                }
-
-                uint modelCount = br.ReadUInt32();
-                uint faceCount = br.ReadUInt32();
-
-                for (int i = 0; i < modelCount; i++)
-                {
-                    this.Models.Add(new WorldGeometryModel(br));
-                }
-
-                if (version == 5)
-                {
-                    this.BucketGrid = new BucketedGeometry(br);
-                }
+            if (version == 5)
+            {
+                this.BucketGrid = new BucketedGeometry(br);
             }
         }
 

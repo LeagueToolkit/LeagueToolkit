@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
@@ -6,6 +7,7 @@ using LeagueToolkit.Core.SceneGraph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace LeagueToolkit.Core.Environment.Builder
 {
@@ -18,7 +20,7 @@ namespace LeagueToolkit.Core.Environment.Builder
         private readonly List<PlanarReflector> _planarReflectors = new();
 
         private readonly List<VertexBuffer> _vertexBuffers = new();
-        private readonly List<MemoryOwner<ushort>> _indexBuffers = new();
+        private readonly List<IndexBuffer> _indexBuffers = new();
 
         /// <summary>Creates a new <see cref="MapGeometryBuilder"/> object</summary>
         public MapGeometryBuilder() { }
@@ -120,18 +122,20 @@ namespace LeagueToolkit.Core.Environment.Builder
         /// ⚠️ You should not use the returned writer interface after building the <see cref="EnvironmentAsset"/>,
         /// doing so is considered undefined behavior
         /// </remarks>
-        public (ReadOnlyMemory<ushort> view, MemoryBufferWriter<ushort> writer) UseIndexBuffer(int indexCount)
+        public (IndexArray view, MemoryBufferWriter<ushort> writer) UseIndexBuffer(int indexCount)
         {
             Guard.IsGreaterThan(indexCount, 0, nameof(indexCount));
             if (indexCount % 3 != 0)
                 ThrowHelper.ThrowArgumentException(nameof(indexCount), $"{nameof(indexCount)} must be a multiple of 3");
 
-            MemoryOwner<ushort> bufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
+            int indexSize = IndexBuffer.GetFormatSize(IndexFormat.U16);
+            MemoryOwner<byte> bufferOwner = MemoryOwner<byte>.Allocate(indexCount * indexSize);
+            IndexBuffer buffer = IndexBuffer.Create(IndexFormat.U16, bufferOwner);
 
-            this._indexBuffers.Add(bufferOwner);
+            this._indexBuffers.Add(buffer);
 
             // TODO: This should probably return a ref struct for the writer
-            return (bufferOwner.Memory, new(bufferOwner.Memory));
+            return (buffer.AsArray(), new(bufferOwner.Memory.Cast<byte, ushort>()));
         }
     }
 }

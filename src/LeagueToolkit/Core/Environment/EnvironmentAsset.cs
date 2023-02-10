@@ -28,7 +28,7 @@ public sealed class EnvironmentAsset : IDisposable
     private readonly List<PlanarReflector> _planarReflectors = new();
 
     private readonly VertexBuffer[] _vertexBuffers;
-    private readonly MemoryOwner<ushort>[] _indexBuffers;
+    private readonly IndexBuffer[] _indexBuffers;
 
     public bool IsDisposed { get; private set; }
 
@@ -38,7 +38,7 @@ public sealed class EnvironmentAsset : IDisposable
         BucketedGeometry sceneGraph,
         IEnumerable<PlanarReflector> planarReflectors,
         IEnumerable<VertexBuffer> vertexBuffers,
-        IEnumerable<MemoryOwner<ushort>> indexBuffers
+        IEnumerable<IndexBuffer> indexBuffers
     )
     {
         Guard.IsNotNull(meshes, nameof(meshes));
@@ -117,7 +117,7 @@ public sealed class EnvironmentAsset : IDisposable
         }
 
         uint indexBufferCount = br.ReadUInt32();
-        this._indexBuffers = new MemoryOwner<ushort>[indexBufferCount];
+        this._indexBuffers = new IndexBuffer[indexBufferCount];
         for (int i = 0; i < indexBufferCount; i++)
         {
             if (version >= 13)
@@ -126,15 +126,15 @@ public sealed class EnvironmentAsset : IDisposable
             }
 
             int bufferSize = br.ReadInt32();
-            MemoryOwner<ushort> indexBuffer = MemoryOwner<ushort>.Allocate(bufferSize / 2);
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(bufferSize);
 
-            int bytesRead = br.Read(indexBuffer.Span.Cast<ushort, byte>());
+            int bytesRead = br.Read(indexBufferOwner.Span);
             if (bytesRead != bufferSize)
                 throw new IOException(
                     $"Failed to read index buffer: {i} {nameof(bufferSize)}: {bufferSize} {nameof(bytesRead)}: {bytesRead}"
                 );
 
-            this._indexBuffers[i] = indexBuffer;
+            this._indexBuffers[i] = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
         }
 
         uint modelCount = br.ReadUInt32();
@@ -204,7 +204,7 @@ public sealed class EnvironmentAsset : IDisposable
         return vertexBuffer;
     }
 
-    internal ReadOnlyMemory<ushort> ReflectIndexBuffer(int id) => this._indexBuffers[id].Memory;
+    internal IndexArray ReflectIndexBuffer(int id) => this._indexBuffers[id].AsArray();
 
     /// <summary>
     /// Writes this <see cref="EnvironmentAsset"/> instance into <paramref name="fileLocation"/> with the requested <paramref name="version"/>
@@ -384,12 +384,12 @@ public sealed class EnvironmentAsset : IDisposable
         // Write buffer data
         for (int i = 0; i < this._indexBuffers.Length; i++)
         {
-            ReadOnlySpan<byte> indexBuffer = this._indexBuffers[i].Span.Cast<ushort, byte>();
+            ReadOnlyMemory<byte> indexBuffer = this._indexBuffers[i].Buffer;
 
             if (version >= 13)
                 bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(indexBuffer.Length);
-            bw.Write(indexBuffer);
+            bw.Write(indexBuffer.Span);
         }
     }
 
@@ -413,7 +413,7 @@ public sealed class EnvironmentAsset : IDisposable
 
     private int GetMeshIndexBufferId(EnvironmentAssetMesh mesh)
     {
-        return Array.FindIndex(this._indexBuffers, buffer => buffer.Span == mesh.Indices.Span) switch
+        return Array.FindIndex(this._indexBuffers, buffer => buffer.Buffer.Span == mesh.Indices.Buffer.Span) switch
         {
             -1 => throw new InvalidOperationException($"Failed to find index buffer for mesh: {mesh.Name}"),
             int bufferId => bufferId
@@ -440,7 +440,7 @@ public sealed class EnvironmentAsset : IDisposable
                 }
 
             if (this._indexBuffers is not null)
-                foreach (MemoryOwner<ushort> indexBuffer in this._indexBuffers)
+                foreach (IndexBuffer indexBuffer in this._indexBuffers)
                 {
                     indexBuffer?.Dispose();
                 }
@@ -448,4 +448,9 @@ public sealed class EnvironmentAsset : IDisposable
 
         this.IsDisposed = true;
     }
+}
+
+internal static class BakedEnvironmentVertexDescription
+{
+    public static readonly VertexElement[] BASIC = new[] { VertexElement.POSITION, VertexElement.DIFFUSE_UV };
 }

@@ -36,7 +36,7 @@ namespace LeagueToolkit.Core.Environment.Builder
         // Leave as is but warn the caller that it's their responsibility to not store a reference
         // Not complying can cause undefined behavior
         private IVertexBufferView _vertexBuffer;
-        private ReadOnlyMemory<ushort> _indexBuffer;
+        private IndexArray _indexBuffer;
 
         /// <summary>Creates a new <see cref="MapGeometryBuilder"/> instance</summary>
         public MapGeometryModelBuilder() { }
@@ -67,13 +67,13 @@ namespace LeagueToolkit.Core.Environment.Builder
         public MapGeometryModelBuilder WithGeometry(
             IEnumerable<MeshPrimitiveBuilder> primitives,
             IVertexBufferView vertexBuffer,
-            ReadOnlyMemory<ushort> indexBuffer
+            IndexArray indexBuffer
         )
         {
             Guard.IsNotNull(primitives, nameof(primitives));
             Guard.IsNotNull(vertexBuffer, nameof(vertexBuffer));
             Guard.HasSizeGreaterThan(vertexBuffer.View.Span, 0, nameof(vertexBuffer));
-            Guard.HasSizeGreaterThan(indexBuffer.Span, 0, nameof(indexBuffer));
+            Guard.HasSizeGreaterThan(indexBuffer, 0, nameof(indexBuffer));
 
             this._vertexBuffer = vertexBuffer;
             this._indexBuffer = indexBuffer;
@@ -142,7 +142,7 @@ namespace LeagueToolkit.Core.Environment.Builder
 
         private static IEnumerable<EnvironmentAssetMeshPrimitive> CreateRanges(
             IEnumerable<MeshPrimitiveBuilder> primitives,
-            ReadOnlyMemory<ushort> indexBuffer,
+            IndexArray indexBuffer,
             int vertexCount
         )
         {
@@ -150,15 +150,15 @@ namespace LeagueToolkit.Core.Environment.Builder
             foreach (MeshPrimitiveBuilder primitive in primitives)
             {
                 // Index range must be within bounds
-                if (primitive.StartIndex + primitive.IndexCount > indexBuffer.Length)
+                if (primitive.StartIndex + primitive.IndexCount > indexBuffer.Count)
                     ThrowHelper.ThrowInvalidOperationException(
-                        $"Primitive index range goes out of bounds ({nameof(indexBuffer.Length)}: {indexBuffer.Length})."
+                        $"Primitive index range goes out of bounds ({nameof(indexBuffer.Count)}: {indexBuffer.Count})."
                     );
 
-                ReadOnlySpan<ushort> rangeIndices = indexBuffer.Span.Slice(primitive.StartIndex, primitive.IndexCount);
+                IndexArray rangeIndices = indexBuffer.Slice(primitive.StartIndex, primitive.IndexCount);
 
-                ushort minVertex = rangeIndices.Min();
-                ushort maxVertex = rangeIndices.Max();
+                uint minVertex = rangeIndices.Min();
+                uint maxVertex = rangeIndices.Max();
 
                 // Vertex interval must be within range
                 if (minVertex + 1 > vertexCount || maxVertex - 1 > vertexCount)
@@ -167,7 +167,13 @@ namespace LeagueToolkit.Core.Environment.Builder
                             + $" ({nameof(vertexCount)}: {vertexCount})."
                     );
 
-                yield return new(primitive.Material, primitive.StartIndex, primitive.IndexCount, minVertex, maxVertex);
+                yield return new(
+                    primitive.Material,
+                    primitive.StartIndex,
+                    primitive.IndexCount,
+                    (int)minVertex,
+                    (int)maxVertex
+                );
             }
         }
     }

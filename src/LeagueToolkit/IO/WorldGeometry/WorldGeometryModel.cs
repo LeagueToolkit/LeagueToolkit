@@ -5,6 +5,9 @@ using System.Numerics;
 using System.Text;
 using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Core.Memory;
+using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Environment;
 
 namespace LeagueToolkit.IO.WorldGeometry
 {
@@ -81,27 +84,27 @@ namespace LeagueToolkit.IO.WorldGeometry
             this.Sphere = br.ReadSphere();
             this.BoundingBox = br.ReadBox();
 
-            uint vertexCount = br.ReadUInt32();
-            uint indexCount = br.ReadUInt32();
-            for (int i = 0; i < vertexCount; i++)
-            {
-                this.Vertices.Add(new WorldGeometryVertex(br));
-            }
+            int vertexCount = br.ReadInt32();
+            int indexCount = br.ReadInt32();
 
-            if (indexCount <= 65536)
-            {
-                for (int i = 0; i < indexCount; i++)
-                {
-                    this.Indices.Add(br.ReadUInt16());
-                }
-            }
-            else
-            {
-                for (int i = 0; i < indexCount; i++)
-                {
-                    this.Indices.Add(br.ReadUInt32());
-                }
-            }
+            VertexBufferDescription vertexDeclaration =
+                new(VertexBufferUsage.Static, BakedEnvironmentVertexDescription.BASIC);
+            int vertexSize = vertexDeclaration.GetVertexSize();
+            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(vertexCount * vertexSize);
+
+            IndexFormat indexFormat = indexCount <= ushort.MaxValue + 1 ? IndexFormat.U16 : IndexFormat.U32;
+            int indexFormatSize = IndexBuffer.GetFormatSize(indexFormat);
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(indexCount * indexFormatSize);
+
+            br.Read(vertexBufferOwner.Span);
+            br.Read(indexBufferOwner.Span);
+
+            IndexBuffer indexBuffer = IndexBuffer.Create(indexFormat, indexBufferOwner);
+            VertexBuffer vertexBuffer = VertexBuffer.Create(
+                VertexBufferUsage.Static,
+                vertexDeclaration.Elements,
+                vertexBufferOwner
+            );
         }
 
         /// <summary>
