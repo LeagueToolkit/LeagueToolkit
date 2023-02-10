@@ -158,33 +158,30 @@ class Build : NukeBuild
                         Credentials = new Credentials(GitHubActions.Token)
                     };
 
-                    NewRelease newRelease =
-                        new(MinVer.Version)
-                        {
-                            TargetCommitish = GitHubActions.Sha,
-                            Draft = true,
-                            Name = MinVer.Version,
-                            Prerelease = !string.IsNullOrEmpty(MinVer.MinVerPreRelease)
-                        };
-
                     string owner = GitRepository.GetGitHubOwner();
                     string name = GitRepository.GetGitHubName();
 
-                    Release createdRelease = await GitHubTasks.GitHubClient.Repository.Release.Create(
+                    Release release = await GitHubTasks.GitHubClient.Repository.Release.Get(
                         owner,
                         name,
-                        newRelease
+                        MinVer.Version
+                    );
+
+                    Release createdRelease = await GitHubTasks.GitHubClient.Repository.Release.Edit(
+                        owner,
+                        name,
+                        release.Id,
+                        new()
+                        {
+                            TagName = MinVer.Version,
+                            TargetCommitish = GitHubActions.Sha,
+                            Name = MinVer.Version,
+                            Prerelease = !string.IsNullOrEmpty(MinVer.MinVerPreRelease)
+                        }
                     );
 
                     GlobFiles(ArtifactsDirectory, "*.nupkg")
                         .ForEach(async x => await UploadReleaseAssetToGithub(createdRelease, x));
-
-                    await GitHubTasks.GitHubClient.Repository.Release.Edit(
-                        owner,
-                        name,
-                        createdRelease.Id,
-                        new ReleaseUpdate { Draft = false }
-                    );
                 });
 
     Target PublishToNuget =>
