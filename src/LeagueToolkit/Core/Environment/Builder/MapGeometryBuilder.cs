@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
@@ -6,30 +7,31 @@ using LeagueToolkit.Core.SceneGraph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
-namespace LeagueToolkit.IO.MapGeometryFile.Builder
+namespace LeagueToolkit.Core.Environment.Builder
 {
-    /// <summary>Exposes an API for building a <see cref="MapGeometry"/> object</summary>
+    /// <summary>Exposes an API for building a <see cref="EnvironmentAsset"/> object</summary>
     public sealed class MapGeometryBuilder
     {
-        private MapGeometryBakedTerrainSamplers _bakedTerrainSamplers;
+        private EnvironmentAssetBakedTerrainSamplers _bakedTerrainSamplers;
         private readonly List<MapGeometryModelBuilder> _meshes = new();
         private BucketedGeometry _sceneGraph;
         private readonly List<PlanarReflector> _planarReflectors = new();
 
         private readonly List<VertexBuffer> _vertexBuffers = new();
-        private readonly List<MemoryOwner<ushort>> _indexBuffers = new();
+        private readonly List<IndexBuffer> _indexBuffers = new();
 
         /// <summary>Creates a new <see cref="MapGeometryBuilder"/> object</summary>
         public MapGeometryBuilder() { }
 
-        /// <summary>Builds a new <see cref="MapGeometry"/> object from this <see cref="MapGeometryBuilder"/></summary>
-        /// <returns>The built <see cref="MapGeometry"/> object</returns>
+        /// <summary>Builds a new <see cref="EnvironmentAsset"/> object from this <see cref="MapGeometryBuilder"/></summary>
+        /// <returns>The built <see cref="EnvironmentAsset"/> object</returns>
         /// <remarks>
         /// Each <see cref="MapGeometryBuilder"/> instance should only be built from once,
-        /// building multiple <see cref="MapGeometry"/> objects from a single <see cref="MapGeometryBuilder"/> instance is undefined behavior
+        /// building multiple <see cref="EnvironmentAsset"/> objects from a single <see cref="MapGeometryBuilder"/> instance is undefined behavior
         /// </remarks>
-        public MapGeometry Build()
+        public EnvironmentAsset Build()
         {
             return new(
                 this._bakedTerrainSamplers,
@@ -42,10 +44,10 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         }
 
         /// <summary>
-        /// Sets the specified <see cref="MapGeometryBakedTerrainSamplers"/> to be used by the environment asset
+        /// Sets the specified <see cref="EnvironmentAssetBakedTerrainSamplers"/> to be used by the environment asset
         /// </summary>
-        /// <param name="bakedTerrainSamplers">The <see cref="MapGeometryBakedTerrainSamplers"/> to use</param>
-        public MapGeometryBuilder WithBakedTerrainSamplers(MapGeometryBakedTerrainSamplers bakedTerrainSamplers)
+        /// <param name="bakedTerrainSamplers">The <see cref="EnvironmentAssetBakedTerrainSamplers"/> to use</param>
+        public MapGeometryBuilder WithBakedTerrainSamplers(EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers)
         {
             this._bakedTerrainSamplers = bakedTerrainSamplers;
             return this;
@@ -92,7 +94,7 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         /// <returns>A <see cref="VertexBufferWriter"/> for the created vertex buffer and a view into it</returns>
         /// <remarks>
         /// ⚠️ It is recommended to order <paramref name="vertexElements"/> by their <see cref="ElementName"/> in ascending order<br></br>
-        /// ⚠️ You should not use the returned writer interface after building the <see cref="MapGeometry"/>,
+        /// ⚠️ You should not use the returned writer interface after building the <see cref="EnvironmentAsset"/>,
         /// doing so is considered undefined behavior
         /// </remarks>
         public (IVertexBufferView view, VertexBufferWriter writer) UseVertexBuffer(
@@ -117,21 +119,23 @@ namespace LeagueToolkit.IO.MapGeometryFile.Builder
         /// <param name="indexCount">The index count of the created buffer</param>
         /// <returns>A <see cref="MemoryBufferWriter{T}"/> for the created index buffer and a read-only view into it</returns>
         /// <remarks>
-        /// ⚠️ You should not use the returned writer interface after building the <see cref="MapGeometry"/>,
+        /// ⚠️ You should not use the returned writer interface after building the <see cref="EnvironmentAsset"/>,
         /// doing so is considered undefined behavior
         /// </remarks>
-        public (ReadOnlyMemory<ushort> view, MemoryBufferWriter<ushort> writer) UseIndexBuffer(int indexCount)
+        public (IndexArray view, MemoryBufferWriter<ushort> writer) UseIndexBuffer(int indexCount)
         {
             Guard.IsGreaterThan(indexCount, 0, nameof(indexCount));
             if (indexCount % 3 != 0)
                 ThrowHelper.ThrowArgumentException(nameof(indexCount), $"{nameof(indexCount)} must be a multiple of 3");
 
-            MemoryOwner<ushort> bufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
+            int indexSize = IndexBuffer.GetFormatSize(IndexFormat.U16);
+            MemoryOwner<byte> bufferOwner = MemoryOwner<byte>.Allocate(indexCount * indexSize);
+            IndexBuffer buffer = IndexBuffer.Create(IndexFormat.U16, bufferOwner);
 
-            this._indexBuffers.Add(bufferOwner);
+            this._indexBuffers.Add(buffer);
 
             // TODO: This should probably return a ref struct for the writer
-            return (bufferOwner.Memory, new(bufferOwner.Memory));
+            return (buffer.AsArray(), new(bufferOwner.Memory.Cast<byte, ushort>()));
         }
     }
 }

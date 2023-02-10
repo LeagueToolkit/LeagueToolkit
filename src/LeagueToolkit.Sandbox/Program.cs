@@ -1,15 +1,18 @@
 ﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Animation;
+using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Environment.Builder;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
-using LeagueToolkit.Core.Renderer;
+using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
-using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
 using SharpGLTF.Schema2;
@@ -24,17 +27,8 @@ using System.Net.Http;
 using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
-using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
-using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
-using LeagueToolkit.Core.Animation;
-using LeagueToolkit.Core.Environment;
-using LeagueToolkit.Core.Wad;
-using System.Text;
-using System.Drawing;
-using LeagueToolkit.Hashing;
-using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Core.Meta;
+using RigResource = LeagueToolkit.Core.Animation.RigResource;
 
 namespace LeagueToolkit.Sandbox;
 
@@ -43,36 +37,6 @@ class Program
     static void Main(string[] args)
     {
         ProfileMapgeoToGltf();
-        ProfileBin(@"apheliosui.bin");
-
-        //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
-
-        //ProfileRiggedMeshToGltf(
-        //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skn",
-        //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skl",
-        //    "original.glb",
-        //    new List<(string, IAnimationAsset)>()
-        //);
-        //ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
-
-        List<(string, IAnimationAsset)> animations = LoadAnimations(
-                @"X:\lol\game\assets\characters\renekton\skins\skin26\animations"
-            )
-            .ToList();
-
-        ProfileRiggedMeshToGltf(
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
-            "renekton_skin26.glb",
-            animations
-        );
-
-        ProfileRiggedMeshToGltf(
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
-            "renekton_skin26_second.glb",
-            animations
-        );
     }
 
     static void ExtractWad(string wadPath, string extractTo)
@@ -97,11 +61,6 @@ class Program
                 chunkStream.CopyTo(chunkFileStream);
             }
         }
-    }
-
-    static void ProfileBin(string path)
-    {
-        BinTree bin = new(path);
     }
 
     static void ProfileWadFile(string path)
@@ -165,9 +124,13 @@ class Program
 
     static void ProfileMapgeoToGltf()
     {
-        BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
+        using FileStream materialsBinStream = File.OpenRead(
+            @"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin"
+        );
+        BinTree materialsBin = new(materialsBinStream);
 
-        using MapGeometry mgeo = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
+        using FileStream mapgeoStream = File.OpenRead(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.mapgeo");
+        using EnvironmentAsset mgeo = new(mapgeoStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -241,7 +204,8 @@ class Program
 
     static void ProfileMetaSerialization()
     {
-        BinTree binTree = new("base_srx.materials.bin");
+        using FileStream materialsBinStream = File.OpenRead("base_srx.materials.bin");
+        BinTree binTree = new(materialsBinStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -250,7 +214,8 @@ class Program
 
     static void ProfileMapgeo(string toRead, string rewriteTo)
     {
-        using MapGeometry mgeo = new(toRead);
+        using FileStream mapgeoStream = File.OpenRead(toRead);
+        using EnvironmentAsset mgeo = new(mapgeoStream);
         //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
         //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
@@ -261,7 +226,7 @@ class Program
         Dictionary<ElementName, int> elementOrder =
             new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
-        foreach (MapGeometryModel mesh in mgeo.Meshes)
+        foreach (EnvironmentAssetMesh mesh in mgeo.Meshes)
         {
             var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
                 VertexBufferUsage.Static,
@@ -270,9 +235,9 @@ class Program
                     .OrderBy(element => element.Name),
                 mesh.VerticesView.VertexCount
             );
-            var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Length);
+            var (indexBuffer, indexBufferWriter) = mapBuilder.UseIndexBuffer(mesh.Indices.Count);
 
-            indexBufferWriter.Write(mesh.Indices.Span);
+            indexBufferWriter.Write(mesh.Indices.Buffer.Span.Cast<byte, ushort>());
             RewriteVertexBuffer(mesh, vertexBufferWriter);
 
             MapGeometryModelBuilder meshBuilder = new MapGeometryModelBuilder()
@@ -288,7 +253,7 @@ class Program
                     mesh.Submeshes.Select(
                         submesh =>
                             new MeshPrimitiveBuilder(
-                                MapGeometrySubmesh.MISSING_MATERIAL,
+                                EnvironmentAssetMeshPrimitive.MISSING_MATERIAL,
                                 submesh.StartIndex,
                                 submesh.IndexCount
                             )
@@ -300,10 +265,12 @@ class Program
             mapBuilder.WithMesh(meshBuilder);
         }
 
-        using MapGeometry builtMap = mapBuilder.Build();
-        builtMap.Write(rewriteTo, 13);
+        using EnvironmentAsset builtMap = mapBuilder.Build();
 
-        static void RewriteVertexBuffer(MapGeometryModel mesh, VertexBufferWriter writer)
+        using FileStream rewriteToStream = File.Create(rewriteTo);
+        builtMap.Write(rewriteToStream, 13);
+
+        static void RewriteVertexBuffer(EnvironmentAssetMesh mesh, VertexBufferWriter writer)
         {
             bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
             bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);

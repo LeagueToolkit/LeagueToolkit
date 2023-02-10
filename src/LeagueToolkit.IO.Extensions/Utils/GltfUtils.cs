@@ -14,17 +14,24 @@ namespace LeagueToolkit.IO.Extensions.Utils
 {
     internal static class GltfUtils
     {
-        internal static MemoryAccessor CreateIndicesMemoryAccessor(ReadOnlyMemory<ushort> indexBuffer, int baseVertex)
+        internal static MemoryAccessor CreateIndicesMemoryAccessor(IndexArray indices, int baseVertex)
         {
             MemoryAccessor memoryAccessor =
                 new(
-                    new(new byte[2 * indexBuffer.Length]),
-                    new("INDEX", 0, indexBuffer.Length, 0, DimensionType.SCALAR, EncodingType.UNSIGNED_SHORT)
+                    new(new byte[indices.Buffer.Length]),
+                    new(
+                        "INDEX",
+                        0,
+                        indices.Count,
+                        0,
+                        DimensionType.SCALAR,
+                        indices.Format == IndexFormat.U16 ? EncodingType.UNSIGNED_SHORT : EncodingType.UNSIGNED_INT
+                    )
                 );
 
-            Span<ushort> accessorBuffer = memoryAccessor.Data.AsSpan().Cast<byte, ushort>();
-            for (int i = 0; i < indexBuffer.Length; i++)
-                accessorBuffer[i] = (ushort)(indexBuffer.Span[i] - baseVertex);
+            IntegerArray accessorArray = memoryAccessor.AsIntegerArray();
+            for (int i = 0; i < indices.Count; i++)
+                accessorArray[i] = (uint)(indices[i] - baseVertex);
 
             return memoryAccessor;
         }

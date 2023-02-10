@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Helpers.Exceptions;
 using System.Text;
 
@@ -34,10 +35,23 @@ public sealed class BinTree
     private readonly List<BinTreeDataOverride> _dataOverrides = new();
 
     /// <summary>
-    /// Creates a new <see cref="BinTree"/> by reading it from the specified path
+    /// Creates a new empty <see cref="BinTree"/> object
     /// </summary>
-    /// <param name="path">The path of the property bin</param>
-    public BinTree(string path) : this(File.OpenRead(path)) { }
+    public BinTree() { }
+
+    /// <summary>
+    /// Creates a new <see cref="BinTree"/> object with the specified parameters
+    /// </summary>
+    /// <param name="objects">The objects of the property bin</param>
+    /// <param name="dependencies">The dependencies of the property bin</param>
+    public BinTree(IEnumerable<BinTreeObject> objects, IEnumerable<string> dependencies)
+    {
+        Guard.IsNotNull(objects, nameof(objects));
+        Guard.IsNotNull(dependencies, nameof(dependencies));
+
+        this.Objects = objects.ToDictionary(x => x.PathHash);
+        this.Dependencies = dependencies.ToList();
+    }
 
     /// <summary>
     /// Creates a new <see cref="BinTree"/> by reading it from the specified stream

@@ -24,7 +24,7 @@ using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
-    LeagueToolkit.Core.Environment.EnvironmentVisibilityFlags,
+    LeagueToolkit.Core.Environment.EnvironmentVisibility,
     SharpGLTF.Schema2.Node
 >;
 using LeagueToolkit.IO.Extensions.Utils;
@@ -47,14 +47,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private const string TEXTURE_QUALITY_PREFIX_MEDIUM = "2x";
 
         /// <summary>
-        /// Converts the <see cref="MapGeometry"/> object into a glTF asset
+        /// Converts the <see cref="EnvironmentAsset"/> object into a glTF asset
         /// </summary>
-        /// <param name="mapGeometry">The <see cref="MapGeometry"/> object to convert</param>
+        /// <param name="mapGeometry">The <see cref="EnvironmentAsset"/> object to convert</param>
         /// <param name="materialsBin">The "materials.bin" <see cref="BinTree"/> to use for conversion</param>
         /// <param name="context">The conversion context</param>
         /// <returns>The created glTF asset</returns>
         public static ModelRoot ToGltf(
-            this MapGeometry mapGeometry,
+            this EnvironmentAsset mapGeometry,
             BinTree materialsBin,
             MapGeometryGltfConversionContext context
         )
@@ -71,7 +71,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             // Create meshes
             TextureRegistry textureRegistry = new();
-            foreach (MapGeometryModel mesh in mapGeometry.Meshes)
+            foreach (EnvironmentAssetMesh mesh in mapGeometry.Meshes)
             {
                 // Create materials
                 Dictionary<string, Material> materials = CreateGltfMeshMaterials(
@@ -105,16 +105,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static VisibilityNodeRegistry CreateIndividualVisibilityFlagsNodeRegistry(Node mapNode) =>
             new(
-                Enum.GetValues<EnvironmentVisibilityFlags>()
-                    .Where(x => x is not (EnvironmentVisibilityFlags.NoLayer or EnvironmentVisibilityFlags.AllLayers))
-                    .Select(
-                        x => new KeyValuePair<EnvironmentVisibilityFlags, Node>(x, mapNode.CreateNode(x.ToString()))
-                    )
+                Enum.GetValues<EnvironmentVisibility>()
+                    .Where(x => x is not (EnvironmentVisibility.NoLayer or EnvironmentVisibility.AllLayers))
+                    .Select(x => new KeyValuePair<EnvironmentVisibility, Node>(x, mapNode.CreateNode(x.ToString())))
             );
 
         private static Mesh CreateGltfMesh(
             ModelRoot root,
-            MapGeometryModel mesh,
+            EnvironmentAssetMesh mesh,
             IReadOnlyDictionary<string, Material> materials
         )
         {
@@ -128,7 +126,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
             GltfUtils.SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
 
-            foreach (MapGeometrySubmesh range in mesh.Submeshes)
+            foreach (EnvironmentAssetMeshPrimitive range in mesh.Submeshes)
             {
                 MemoryAccessor indicesMemoryAccessor = GltfUtils.CreateIndicesMemoryAccessor(
                     mesh.Indices.Slice(range.StartIndex, range.IndexCount),
@@ -152,7 +150,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return gltfMesh;
         }
 
-        private static GltfMeshExtras CreateGltfMeshExtras(MapGeometryModel mesh) =>
+        private static GltfMeshExtras CreateGltfMeshExtras(EnvironmentAssetMesh mesh) =>
             new()
             {
                 Name = mesh.Name,
@@ -166,7 +164,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static void PlaceGltfMeshIntoScene(
             Mesh gltfMesh,
-            MapGeometryModel mesh,
+            EnvironmentAssetMesh mesh,
             Node mapNode,
             VisibilityNodeRegistry visibilityNodeRegistry,
             MapGeometryGltfConversionContext context
@@ -184,12 +182,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static void PlaceGltfMeshIntoVisibilityNodes(
             Mesh gltfMesh,
-            MapGeometryModel mesh,
+            EnvironmentAssetMesh mesh,
             Node mapNode,
             VisibilityNodeRegistry visibilityNodeRegistry
         )
         {
-            if (mesh.VisibilityFlags == EnvironmentVisibilityFlags.NoLayer)
+            if (mesh.VisibilityFlags == EnvironmentVisibility.NoLayer)
                 PlaceGltfMeshIntoNode(gltfMesh, mesh, mapNode, mesh.Name);
 
             foreach (var (visibilityFlag, node) in visibilityNodeRegistry)
@@ -201,7 +199,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
             }
         }
 
-        private static void PlaceGltfMeshIntoNode(Mesh gltfMesh, MapGeometryModel mesh, Node node, string meshNodeName)
+        private static void PlaceGltfMeshIntoNode(
+            Mesh gltfMesh,
+            EnvironmentAssetMesh mesh,
+            Node node,
+            string meshNodeName
+        )
         {
             Node meshNode = node.CreateNode(meshNodeName).WithMesh(gltfMesh);
 
@@ -210,8 +213,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         #region Material Creation
         private static Dictionary<string, Material> CreateGltfMeshMaterials(
-            MapGeometryModel mesh,
-            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            EnvironmentAssetMesh mesh,
+            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
             ModelRoot root,
             BinTree materialsBin,
             TextureRegistry textureRegistry,
@@ -220,12 +223,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Guard.IsNotNull(mesh, nameof(mesh));
             Guard.IsNotNull(root, nameof(root));
-            Guard.IsNotNull(materialsBin, nameof(materialsBin));
             Guard.IsNotNull(textureRegistry, nameof(textureRegistry));
             Guard.IsNotNull(context, nameof(context));
 
             Dictionary<string, Material> materials = new();
-            foreach (MapGeometrySubmesh range in mesh.Submeshes)
+            foreach (EnvironmentAssetMeshPrimitive range in mesh.Submeshes)
             {
                 Material material = root.CreateMaterial(range.Material)
                     .WithUnlit()
@@ -241,8 +243,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static void InitializeMaterial(
             Material material,
-            MapGeometryModel mesh,
-            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
+            EnvironmentAssetMesh mesh,
+            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
             ModelRoot root,
             BinTree materialsBin,
             TextureRegistry textureRegistry,
@@ -254,7 +256,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return;
 
             // Get material meta definition
-            StaticMaterialDef materialDef = ResolveMaterialDefiniton(material.Name, materialsBin, context);
+            StaticMaterialDef materialDef = materialsBin switch
+            {
+                null => new(),
+                _ => ResolveMaterialDefiniton(material.Name, materialsBin, context)
+            };
 
             // Include material metadata
             material.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = material.Name });
@@ -319,8 +325,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private static void InitializeMaterialBaseColorChannel(
             Material material,
             StaticMaterialDef materialDef,
-            MapGeometryBakedTerrainSamplers bakedTerrainSamplers,
-            MapGeometryModel mesh,
+            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
+            EnvironmentAssetMesh mesh,
             ModelRoot root,
             TextureRegistry textureRegistry,
             MapGeometryGltfConversionContext context
@@ -338,7 +344,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 return;
 
             int texcoordId = 0;
-            MapGeometrySamplerData sampler = new();
+            EnvironmentAssetSampler sampler = new();
             if (!string.IsNullOrEmpty(mesh.BakedPaint.Texture))
             {
                 texcoordId = 1;
@@ -497,9 +503,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
             public int QualityFlags { get; init; }
             public int RenderFlags { get; init; }
 
-            public MapGeometrySamplerData StationaryLight { get; init; }
-            public MapGeometrySamplerData BakedLight { get; init; }
-            public MapGeometrySamplerData BakedPaint { get; init; }
+            public EnvironmentAssetSampler StationaryLight { get; init; }
+            public EnvironmentAssetSampler BakedLight { get; init; }
+            public EnvironmentAssetSampler BakedPaint { get; init; }
         }
 
         private readonly struct GltfMaterialExtras
@@ -580,16 +586,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
     }
 
     /// <summary>
-    /// Specifies the <see cref="EnvironmentVisibilityFlags"/> grouping policy for meshes
+    /// Specifies the <see cref="EnvironmentVisibility"/> grouping policy for meshes
     /// </summary>
     /// <remarks>
-    /// The <see cref="EnvironmentVisibilityFlags"/> will always be written into the
+    /// The <see cref="EnvironmentVisibility"/> will always be written into the
     /// <see href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#reference-extras">extras field</see>
     /// </remarks>
     public enum MapGeometryGltfLayerGroupingPolicy
     {
         /// <summary>
-        /// Each mesh will be placed under the node of each of its <see cref="EnvironmentVisibilityFlags"/>
+        /// Each mesh will be placed under the node of each of its <see cref="EnvironmentVisibility"/>
         /// </summary>
         Default,
 

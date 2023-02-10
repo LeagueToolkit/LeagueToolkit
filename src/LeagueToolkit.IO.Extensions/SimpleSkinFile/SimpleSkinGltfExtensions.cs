@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using GltfImage = SharpGLTF.Schema2.Image;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
@@ -105,10 +106,10 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             var (rig, influenceLookup) = CreateRig(skin, isJointInfluenceLookup);
 
             SkinnedMeshRange[] ranges = CreateSkinnedMeshRanges(mesh.Primitives);
-            MemoryOwner<ushort> indexBufferOwner = CreateSkinnedMeshIndexBuffer(mesh.Primitives);
+            IndexBuffer indexBuffer = CreateSkinnedMeshIndexBuffer(mesh.Primitives);
             VertexBuffer vertexBuffer = CreateSkinnedMeshVertexBuffer(mesh, ranges, influenceLookup);
 
-            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBufferOwner);
+            SkinnedMesh skinnedMesh = new(ranges, vertexBuffer, indexBuffer);
 
             return (skinnedMesh, rig);
         }
@@ -168,27 +169,32 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             return ranges;
         }
 
-        private static MemoryOwner<ushort> CreateSkinnedMeshIndexBuffer(IReadOnlyList<MeshPrimitive> primitives)
+        private static IndexBuffer CreateSkinnedMeshIndexBuffer(IReadOnlyList<MeshPrimitive> gltfMeshPrimitives)
         {
             int indexOffset = 0;
             int baseIndex = 0;
-            int indexCount = primitives.Sum(x => x.IndexAccessor.Count);
-            MemoryOwner<ushort> indexBufferOwner = MemoryOwner<ushort>.Allocate(indexCount);
-            for (int primitiveId = 0; primitiveId < primitives.Count; primitiveId++)
-            {
-                MeshPrimitive primitive = primitives[primitiveId];
-                IReadOnlyList<uint> primitiveIndices = primitive.IndexAccessor.AsIndicesArray();
+            int indexSize = IndexBuffer.GetFormatSize(IndexFormat.U16);
+            int indexCount = gltfMeshPrimitives.Sum(x => x.IndexAccessor.Count);
 
-                for (int i = 0; i < primitive.IndexAccessor.Count; i++)
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(indexCount * indexSize);
+
+            // TODO: Index Buffer writer
+            for (int primitiveId = 0; primitiveId < gltfMeshPrimitives.Count; primitiveId++)
+            {
+                MeshPrimitive gltfPrimitive = gltfMeshPrimitives[primitiveId];
+                IReadOnlyList<uint> primitiveIndices = gltfPrimitive.IndexAccessor.AsIndicesArray();
+
+                for (int i = 0; i < gltfPrimitive.IndexAccessor.Count; i++)
                 {
-                    indexBufferOwner.Span[indexOffset + i] = (ushort)(primitiveIndices[i] + baseIndex);
+                    ushort index = (ushort)(primitiveIndices[i] + baseIndex);
+                    MemoryMarshal.Write(indexBufferOwner.Span[((indexOffset + i) * indexSize)..], ref index);
                 }
 
                 indexOffset += primitiveIndices.Count;
-                baseIndex += primitive.GetVertexAccessor("POSITION").Count;
+                baseIndex += gltfPrimitive.GetVertexAccessor("POSITION").Count;
             }
 
-            return indexBufferOwner;
+            return IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
         }
 
         private static VertexBuffer CreateSkinnedMeshVertexBuffer(
@@ -325,7 +331,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             foreach (SkinnedMeshRange range in skinnedMesh.Ranges)
             {
                 MemoryAccessor indicesMemoryAccessor = GltfUtils.CreateIndicesMemoryAccessor(
-                    skinnedMesh.IndicesView.Slice(range.StartIndex, range.IndexCount),
+                    skinnedMesh.Indices.Slice(range.StartIndex, range.IndexCount),
                     baseVertex
                 );
                 MemoryAccessor[] vertexMemoryAccessors = GltfUtils.SliceVertexMemoryAccessors(
