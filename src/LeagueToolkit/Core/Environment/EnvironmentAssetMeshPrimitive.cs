@@ -1,5 +1,4 @@
 ﻿using LeagueToolkit.Hashing;
-using System.IO;
 using System.Text;
 
 namespace LeagueToolkit.Core.Environment;
@@ -11,11 +10,6 @@ public readonly struct EnvironmentAssetMeshPrimitive
 {
     /// <summary>Represents the default material name for a <see cref="EnvironmentAssetMeshPrimitive"/></summary>
     public const string MISSING_MATERIAL = "-missing@environment-";
-
-    /// <summary>
-    /// Represents the maximum primitive count for a <see cref="EnvironmentAssetMesh"/>
-    /// </summary>
-    public const uint MAX_COUNT = 64;
 
     /// <summary>Gets a <see cref="Fnv1a"/> hash of <see cref="Material"/></summary>
     /// <remarks>⚠️ This is always set to 0 because the game computes the hash by itself</remarks>

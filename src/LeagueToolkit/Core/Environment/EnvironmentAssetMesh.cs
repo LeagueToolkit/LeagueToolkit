@@ -95,6 +95,11 @@ public sealed class EnvironmentAssetMesh
     internal int[] _vertexBufferIds;
     internal int _indexBufferId;
 
+    /// <summary>
+    /// Represents the maximum primitive count of an <see cref="EnvironmentAssetMesh"/>
+    /// </summary>
+    public const int MAX_PRIMITIVE_COUNT = 64;
+
     internal EnvironmentAssetMesh(
         int id,
         IVertexBufferView vertexBufferView,
