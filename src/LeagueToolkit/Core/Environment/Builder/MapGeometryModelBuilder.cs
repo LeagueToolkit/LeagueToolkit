@@ -17,9 +17,9 @@ namespace LeagueToolkit.Core.Environment.Builder
         private Matrix4x4 _transform;
 
         private bool _disableBackfaceCulling;
-        private MapGeometryEnvironmentQualityFilter _environmentQualityMask;
-        private EnvironmentVisibilityFlags _visibilityFlags;
-        private MapGeometryMeshRenderFlags _renderFlags;
+        private EnvironmentQuality _environmentQualityMask;
+        private EnvironmentVisibility _visibilityFlags;
+        private EnvironmentAssetMeshRenderFlags _renderFlags;
 
         private EnvironmentAssetSampler _stationaryLight;
         private EnvironmentAssetSampler _bakedLight;
@@ -97,23 +97,21 @@ namespace LeagueToolkit.Core.Environment.Builder
         }
 
         /// <summary>Sets the specified environment quality filter for the <see cref="EnvironmentAssetMesh"/></summary>
-        public MapGeometryModelBuilder WithEnvironmentQualityFilter(
-            MapGeometryEnvironmentQualityFilter environmentQualityFilter
-        )
+        public MapGeometryModelBuilder WithEnvironmentQualityFilter(EnvironmentQuality environmentQualityFilter)
         {
             this._environmentQualityMask = environmentQualityFilter;
             return this;
         }
 
         /// <summary>Sets the specified visibility flags for the <see cref="EnvironmentAssetMesh"/></summary>
-        public MapGeometryModelBuilder WithVisibilityFlags(EnvironmentVisibilityFlags visibilityFlags)
+        public MapGeometryModelBuilder WithVisibilityFlags(EnvironmentVisibility visibilityFlags)
         {
             this._visibilityFlags = visibilityFlags;
             return this;
         }
 
         /// <summary>Sets the specified render flags for the <see cref="EnvironmentAssetMesh"/></summary>
-        public MapGeometryModelBuilder WithRenderFlags(MapGeometryMeshRenderFlags renderFlags)
+        public MapGeometryModelBuilder WithRenderFlags(EnvironmentAssetMeshRenderFlags renderFlags)
         {
             this._renderFlags = renderFlags;
             return this;

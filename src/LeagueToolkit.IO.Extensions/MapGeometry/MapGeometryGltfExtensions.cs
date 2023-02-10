@@ -24,7 +24,7 @@ using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
-    LeagueToolkit.Core.Environment.EnvironmentVisibilityFlags,
+    LeagueToolkit.Core.Environment.EnvironmentVisibility,
     SharpGLTF.Schema2.Node
 >;
 using LeagueToolkit.IO.Extensions.Utils;
@@ -105,11 +105,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static VisibilityNodeRegistry CreateIndividualVisibilityFlagsNodeRegistry(Node mapNode) =>
             new(
-                Enum.GetValues<EnvironmentVisibilityFlags>()
-                    .Where(x => x is not (EnvironmentVisibilityFlags.NoLayer or EnvironmentVisibilityFlags.AllLayers))
-                    .Select(
-                        x => new KeyValuePair<EnvironmentVisibilityFlags, Node>(x, mapNode.CreateNode(x.ToString()))
-                    )
+                Enum.GetValues<EnvironmentVisibility>()
+                    .Where(x => x is not (EnvironmentVisibility.NoLayer or EnvironmentVisibility.AllLayers))
+                    .Select(x => new KeyValuePair<EnvironmentVisibility, Node>(x, mapNode.CreateNode(x.ToString())))
             );
 
         private static Mesh CreateGltfMesh(
@@ -189,7 +187,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             VisibilityNodeRegistry visibilityNodeRegistry
         )
         {
-            if (mesh.VisibilityFlags == EnvironmentVisibilityFlags.NoLayer)
+            if (mesh.VisibilityFlags == EnvironmentVisibility.NoLayer)
                 PlaceGltfMeshIntoNode(gltfMesh, mesh, mapNode, mesh.Name);
 
             foreach (var (visibilityFlag, node) in visibilityNodeRegistry)
@@ -585,16 +583,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
     }
 
     /// <summary>
-    /// Specifies the <see cref="EnvironmentVisibilityFlags"/> grouping policy for meshes
+    /// Specifies the <see cref="EnvironmentVisibility"/> grouping policy for meshes
     /// </summary>
     /// <remarks>
-    /// The <see cref="EnvironmentVisibilityFlags"/> will always be written into the
+    /// The <see cref="EnvironmentVisibility"/> will always be written into the
     /// <see href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#reference-extras">extras field</see>
     /// </remarks>
     public enum MapGeometryGltfLayerGroupingPolicy
     {
         /// <summary>
-        /// Each mesh will be placed under the node of each of its <see cref="EnvironmentVisibilityFlags"/>
+        /// Each mesh will be placed under the node of each of its <see cref="EnvironmentVisibility"/>
         /// </summary>
         Default,
 

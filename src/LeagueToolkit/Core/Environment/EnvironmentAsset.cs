@@ -6,6 +6,7 @@ using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
+using System.Numerics;
 using System.Text;
 
 namespace LeagueToolkit.Core.Environment;
@@ -107,7 +108,7 @@ public sealed class EnvironmentAsset : IDisposable
         {
             if (version >= 13)
             {
-                EnvironmentVisibilityFlags _ = (EnvironmentVisibilityFlags)br.ReadByte();
+                EnvironmentVisibility _ = (EnvironmentVisibility)br.ReadByte();
             }
 
             uint bufferSize = br.ReadUInt32();
@@ -122,7 +123,7 @@ public sealed class EnvironmentAsset : IDisposable
         {
             if (version >= 13)
             {
-                EnvironmentVisibilityFlags _ = (EnvironmentVisibilityFlags)br.ReadByte();
+                EnvironmentVisibility _ = (EnvironmentVisibility)br.ReadByte();
             }
 
             int bufferSize = br.ReadInt32();
@@ -326,9 +327,7 @@ public sealed class EnvironmentAsset : IDisposable
         List<int[]> bufferIdsOfMeshes = new(this._meshes.Select(GetMeshVertexBufferIds));
 
         // Set the vertex buffer IDs for each mesh and collect visibility flags for each vertex buffer
-        EnvironmentVisibilityFlags[] visibilityFlagsOfBuffers = new EnvironmentVisibilityFlags[
-            this._vertexBuffers.Length
-        ];
+        EnvironmentVisibility[] visibilityFlagsOfBuffers = new EnvironmentVisibility[this._vertexBuffers.Length];
         for (int meshId = 0; meshId < bufferIdsOfMeshes.Count; meshId++)
         {
             EnvironmentAssetMesh mesh = this._meshes[meshId];
@@ -363,9 +362,7 @@ public sealed class EnvironmentAsset : IDisposable
         List<int> bufferIdOfMeshes = new(this._meshes.Select(GetMeshIndexBufferId));
 
         // Set the index buffer id for each mesh and collect visibility flags for each buffer
-        EnvironmentVisibilityFlags[] visibilityFlagsOfBuffers = new EnvironmentVisibilityFlags[
-            this._indexBuffers.Length
-        ];
+        EnvironmentVisibility[] visibilityFlagsOfBuffers = new EnvironmentVisibility[this._indexBuffers.Length];
         for (int meshId = 0; meshId < bufferIdOfMeshes.Count; meshId++)
         {
             EnvironmentAssetMesh mesh = this._meshes[meshId];
@@ -418,6 +415,101 @@ public sealed class EnvironmentAsset : IDisposable
             -1 => throw new InvalidOperationException($"Failed to find index buffer for mesh: {mesh.Name}"),
             int bufferId => bufferId
         };
+    }
+
+    public static EnvironmentAsset LoadWorldGeometry(Stream stream)
+    {
+        using BinaryReader br = new(stream, Encoding.UTF8, true);
+
+        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+        if (magic is not "WGEO")
+            throw new InvalidFileSignatureException();
+
+        // I'm pretty sure there was version 6 for a short while before the transition to mapgeo
+        uint version = br.ReadUInt32();
+        if (version is not (5 or 4))
+            throw new UnsupportedFileVersionException();
+
+        int modelCount = br.ReadInt32();
+        uint faceCount = br.ReadUInt32();
+
+        List<VertexBuffer> vertexBuffers = new(modelCount);
+        List<IndexBuffer> indexBuffers = new(modelCount);
+        EnvironmentAssetMesh[] meshes = new EnvironmentAssetMesh[modelCount];
+
+        for (int i = 0; i < modelCount; i++)
+            meshes[i] = ReadWorldGeometryMesh(br, i, vertexBuffers, indexBuffers);
+
+        BucketedGeometry sceneGraph = version switch
+        {
+            5 => new(br),
+            _ => new()
+        };
+
+        return new(new(), meshes, sceneGraph, Array.Empty<PlanarReflector>(), vertexBuffers, indexBuffers);
+    }
+
+    private static EnvironmentAssetMesh ReadWorldGeometryMesh(
+        BinaryReader br,
+        int id,
+        List<VertexBuffer> vertexBuffers,
+        List<IndexBuffer> indexBuffers
+    )
+    {
+        string texture = br.ReadPaddedString(260);
+        string material = br.ReadPaddedString(64);
+        Sphere sphere = br.ReadSphere();
+        Box aabb = br.ReadBox();
+
+        int vertexCount = br.ReadInt32();
+        int indexCount = br.ReadInt32();
+
+        // Create vertex buffer memory
+        VertexBufferDescription vertexDeclaration =
+            new(VertexBufferUsage.Static, BakedEnvironmentVertexDescription.BASIC);
+        int vertexSize = vertexDeclaration.GetVertexSize();
+        MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(vertexCount * vertexSize);
+
+        // Create index buffer memory
+        IndexFormat indexFormat = indexCount <= ushort.MaxValue + 1 ? IndexFormat.U16 : IndexFormat.U32;
+        int indexFormatSize = IndexBuffer.GetFormatSize(indexFormat);
+        MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(indexCount * indexFormatSize);
+
+        // Read buffers
+        br.Read(vertexBufferOwner.Span);
+        br.Read(indexBufferOwner.Span);
+
+        // Create buffers
+        IndexBuffer indexBuffer = IndexBuffer.Create(indexFormat, indexBufferOwner);
+        VertexBuffer vertexBuffer = VertexBuffer.Create(
+            VertexBufferUsage.Static,
+            vertexDeclaration.Elements,
+            vertexBufferOwner
+        );
+
+        indexBuffers.Add(indexBuffer);
+        vertexBuffers.Add(vertexBuffer);
+
+        // Create primitive
+        EnvironmentAssetMeshPrimitive[] primitives = new[]
+        {
+            new EnvironmentAssetMeshPrimitive(material, 0, indexCount, 0, vertexCount - 1)
+        };
+
+        return new(
+            id,
+            vertexBuffer,
+            indexBuffer.AsArray(),
+            primitives,
+            Matrix4x4.Identity,
+            disableBackfaceCulling: false,
+            EnvironmentQuality.AllQualities,
+            EnvironmentVisibility.AllLayers,
+            EnvironmentAssetMeshRenderFlags.None,
+            new(texture, Vector2.One, Vector2.Zero),
+            new(),
+            new()
+        );
     }
 
     public void Dispose()

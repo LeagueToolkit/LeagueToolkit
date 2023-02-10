@@ -53,16 +53,15 @@ public sealed class EnvironmentAssetMesh
     /// <summary>
     /// Tells the game on which "Environment Quality" settings this mesh should be rendered
     /// </summary>
-    public MapGeometryEnvironmentQualityFilter EnvironmentQualityFilter { get; private set; } =
-        MapGeometryEnvironmentQualityFilter.AllQualities;
+    public EnvironmentQuality EnvironmentQualityFilter { get; private set; } = EnvironmentQuality.AllQualities;
 
     /// <summary>
     /// Tells the game on which Visibility Flags this mesh should be rendered
     /// </summary>
-    public EnvironmentVisibilityFlags VisibilityFlags { get; private set; } = EnvironmentVisibilityFlags.AllLayers;
+    public EnvironmentVisibility VisibilityFlags { get; private set; } = EnvironmentVisibility.AllLayers;
 
     /// <summary>Gets the render flags of the mesh</summary>
-    public MapGeometryMeshRenderFlags RenderFlags { get; private set; }
+    public EnvironmentAssetMeshRenderFlags RenderFlags { get; private set; }
 
     /// <remarks>
     /// This feature is supported only if <c>version &lt; 7</c>
@@ -103,9 +102,9 @@ public sealed class EnvironmentAssetMesh
         IEnumerable<EnvironmentAssetMeshPrimitive> submeshes,
         Matrix4x4 transform,
         bool disableBackfaceCulling,
-        MapGeometryEnvironmentQualityFilter environmentQualityFilter,
-        EnvironmentVisibilityFlags visibilityFlags,
-        MapGeometryMeshRenderFlags renderFlags,
+        EnvironmentQuality environmentQualityFilter,
+        EnvironmentVisibility visibilityFlags,
+        EnvironmentAssetMeshRenderFlags renderFlags,
         EnvironmentAssetSampler stationaryLight,
         EnvironmentAssetSampler bakedLight,
         EnvironmentAssetSampler bakedPaint
@@ -172,7 +171,7 @@ public sealed class EnvironmentAssetMesh
 
         if (version >= 13)
         {
-            this.VisibilityFlags = (EnvironmentVisibilityFlags)br.ReadByte();
+            this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
         }
 
         uint submeshCount = br.ReadUInt32();
@@ -188,16 +187,16 @@ public sealed class EnvironmentAssetMesh
 
         this.BoundingBox = br.ReadBox();
         this.Transform = br.ReadMatrix4x4RowMajor();
-        this.EnvironmentQualityFilter = (MapGeometryEnvironmentQualityFilter)br.ReadByte();
+        this.EnvironmentQualityFilter = (EnvironmentQuality)br.ReadByte();
 
         if (version >= 7 && version <= 12)
         {
-            this.VisibilityFlags = (EnvironmentVisibilityFlags)br.ReadByte();
+            this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
         }
 
         if (version >= 11)
         {
-            this.RenderFlags = (MapGeometryMeshRenderFlags)br.ReadByte();
+            this.RenderFlags = (EnvironmentAssetMeshRenderFlags)br.ReadByte();
         }
 
         if (useSeparatePointLights && version < 7)
@@ -323,7 +322,7 @@ public sealed class EnvironmentAssetMesh
 /// Used for limiting the visibility of an environment mesh for specific environment quality settings
 /// </summary>
 [Flags]
-public enum MapGeometryEnvironmentQualityFilter : byte
+public enum EnvironmentQuality : byte
 {
     VeryLow = 1 << 0,
     Low = 1 << 1,
@@ -341,8 +340,10 @@ public enum MapGeometryEnvironmentQualityFilter : byte
 /// General render flags
 /// </summary>
 [Flags]
-public enum MapGeometryMeshRenderFlags : byte
+public enum EnvironmentAssetMeshRenderFlags : byte
 {
+    None = 0,
+
     /// <summary>
     /// Mesh will have a higher render priority which causes it to be rendered
     /// on top of certain meshes such as particles with the following properties:

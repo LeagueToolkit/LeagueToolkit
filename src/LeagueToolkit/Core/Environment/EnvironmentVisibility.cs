@@ -4,7 +4,7 @@
 /// Used for limiting the visibility of environment assets
 /// </summary>
 [Flags]
-public enum EnvironmentVisibilityFlags : byte
+public enum EnvironmentVisibility : byte
 {
     /// <summary>
     /// Toggles visibility on no layers

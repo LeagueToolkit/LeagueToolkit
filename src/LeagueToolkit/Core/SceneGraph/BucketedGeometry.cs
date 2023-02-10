@@ -48,14 +48,14 @@ public class BucketedGeometry
     public IReadOnlyList<ushort> Indices => this._indices;
 
     /// <summary>Gets a read-only view into the face visibility flags</summary>
-    public IReadOnlyList<EnvironmentVisibilityFlags> FaceVisibilityFlags => this._faceVisibilityFlags;
+    public IReadOnlyList<EnvironmentVisibility> FaceVisibilityFlags => this._faceVisibilityFlags;
 
     private readonly GeometryBucket[,] _buckets;
 
     private readonly Vector3[] _vertices;
     private readonly ushort[] _indices;
 
-    private readonly EnvironmentVisibilityFlags[] _faceVisibilityFlags;
+    private readonly EnvironmentVisibility[] _faceVisibilityFlags;
 
     // TODO: This is temporary hack
     internal BucketedGeometry()
@@ -104,10 +104,10 @@ public class BucketedGeometry
         if (flags.HasFlag(BucketedGeometryFlags.HasFaceVisibilityFlags))
         {
             uint faceCount = indexCount / 3;
-            this._faceVisibilityFlags = new EnvironmentVisibilityFlags[faceCount];
+            this._faceVisibilityFlags = new EnvironmentVisibility[faceCount];
 
             for (int i = 0; i < faceCount; i++)
-                this._faceVisibilityFlags[i] = (EnvironmentVisibilityFlags)br.ReadByte();
+                this._faceVisibilityFlags[i] = (EnvironmentVisibility)br.ReadByte();
         }
     }
 
@@ -156,7 +156,7 @@ public class BucketedGeometry
                     $"{nameof(this.FaceVisibilityFlags)}.Count is invalid, must be {nameof(this.Indices)}.Count / 3"
                 );
 
-            foreach (EnvironmentVisibilityFlags faceVisibilityFlag in this.FaceVisibilityFlags)
+            foreach (EnvironmentVisibility faceVisibilityFlag in this.FaceVisibilityFlags)
                 bw.Write((byte)faceVisibilityFlag);
         }
     }
