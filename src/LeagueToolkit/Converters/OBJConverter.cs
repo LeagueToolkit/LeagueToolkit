@@ -1,41 +1,14 @@
-﻿using LeagueToolkit.IO.OBJ;
-using LeagueToolkit.IO.WorldGeometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using LeagueToolkit.IO.NVR;
-using LeagueToolkit.Core.Memory;
-using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Mesh;
-using CommunityToolkit.HighPerformance;
-using LeagueToolkit.Helpers.Extensions;
+﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Memory;
+using LeagueToolkit.IO.NVR;
+using LeagueToolkit.IO.OBJ;
+using System.Numerics;
 
 namespace LeagueToolkit.Converters
 {
     public static class OBJConverter
     {
-        /// <summary>
-        /// Converts the models of <paramref name="wgeo"/> into the <see cref="OBJFile"/> format
-        /// </summary>
-        /// <param name="wgeo">The <see cref="WorldGeometry"/> to convert models from</param>
-        /// <returns>Converted <see cref="WorldGeometryModel"/> models in the <see cref="OBJFile"/> format</returns>
-        public static IEnumerable<OBJFile> ConvertWGEOModels(WorldGeometry wgeo)
-        {
-            foreach (WorldGeometryModel model in wgeo.Models)
-            {
-                List<Vector3> vertices = new List<Vector3>();
-                List<Vector2> uvs = new List<Vector2>();
-                foreach (WorldGeometryVertex vertex in model.Vertices)
-                {
-                    vertices.Add(vertex.Position);
-                    uvs.Add(vertex.UV);
-                }
-                yield return new OBJFile(vertices, model.Indices, uvs);
-            }
-        }
-
         public static IEnumerable<Tuple<string, OBJFile>> ConvertMGEOModels(EnvironmentAsset mgeo)
         {
             foreach (EnvironmentAssetMesh mesh in mgeo.Meshes)

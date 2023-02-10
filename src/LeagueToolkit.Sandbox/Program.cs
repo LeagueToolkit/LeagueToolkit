@@ -1,14 +1,18 @@
 ﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
+using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Animation;
+using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Environment.Builder;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
-using LeagueToolkit.Core.Renderer;
+using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
-using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
 using SharpGLTF.Schema2;
@@ -23,18 +27,8 @@ using System.Net.Http;
 using System.Numerics;
 using System.Reflection;
 using System.Threading.Tasks;
-using RigResource = LeagueToolkit.Core.Animation.RigResource;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
-using LeagueAnimation = LeagueToolkit.Core.Animation.Animation;
-using LeagueToolkit.Core.Animation;
-using LeagueToolkit.Core.Environment;
-using LeagueToolkit.Core.Wad;
-using System.Text;
-using System.Drawing;
-using LeagueToolkit.Hashing;
-using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Core.Meta;
-using LeagueToolkit.Core.Environment.Builder;
+using RigResource = LeagueToolkit.Core.Animation.RigResource;
 
 namespace LeagueToolkit.Sandbox;
 
@@ -42,25 +36,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        foreach (
-            string file in Directory.EnumerateFiles(
-                @"X:\lol\game\data\maps\mapgeometry\map22",
-                "*.mapgeo",
-                SearchOption.AllDirectories
-            )
-        )
-        {
-            using FileStream fileStream = File.OpenRead(file);
-            using EnvironmentAsset environmentAsset = new(fileStream);
-
-            if (
-                !string.IsNullOrEmpty(environmentAsset.BakedTerrainSamplers.Primary)
-                || !string.IsNullOrEmpty(environmentAsset.BakedTerrainSamplers.Secondary)
-            )
-            {
-                ;
-            }
-        }
+        using FileStream file = File.OpenRead(@"X:\lol\old_backup\room_arcade.wgeo");
+        using EnvironmentAsset asset = EnvironmentAsset.LoadWorldGeometry(file);
     }
 
     static void ExtractWad(string wadPath, string extractTo)
