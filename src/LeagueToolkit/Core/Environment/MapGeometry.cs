@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
@@ -14,7 +13,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometryFile
+namespace LeagueToolkit.Core.Environment
 {
     /// <summary>Represents an environment asset</summary>
     public sealed class MapGeometry : IDisposable

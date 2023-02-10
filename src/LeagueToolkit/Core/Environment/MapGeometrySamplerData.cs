@@ -3,7 +3,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometryFile
+namespace LeagueToolkit.Core.Environment
 {
     /// <summary>
     /// Represents an environment terrain mesh sampler

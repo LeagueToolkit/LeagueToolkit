@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometryFile
+namespace LeagueToolkit.Core.Environment
 {
     /// <summary>
     /// Represents an environment mesh primitive
@@ -26,7 +26,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         /// </summary>
         /// <remarks>
         /// The StaticMaterialDef structure can be found in the respective ".materials.bin" file
-        /// <br>It can be parsed by <see cref="Core.Meta.BinTree"/> and serialized by <see cref="Meta.MetaSerializer"/></br>
+        /// <br>It can be parsed by <see cref="Meta.BinTree"/> and serialized by <see cref="Meta.MetaSerializer"/></br>
         /// </remarks>
         public string Material { get; private set; }
 

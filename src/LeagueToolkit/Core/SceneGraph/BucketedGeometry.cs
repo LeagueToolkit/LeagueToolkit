@@ -2,10 +2,6 @@
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.IO.MapGeometryFile;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.SceneGraph

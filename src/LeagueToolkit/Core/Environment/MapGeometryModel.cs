@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
@@ -9,7 +8,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapGeometryFile
+namespace LeagueToolkit.Core.Environment
 {
     /// <summary>
     /// Represents a mesh inside of a <see cref="MapGeometry"/> environment asset
@@ -140,7 +139,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             int id,
             MapGeometry environmentAsset,
             BinaryReader br,
-            IReadOnlyList<VertexBufferDescription> vertexBufferDescriptions,
+            IReadOnlyList<VertexBufferDescription> vertexDeclarations,
             IReadOnlyList<long> vertexBufferOffsets,
             bool useSeparatePointLights,
             uint version
@@ -149,20 +148,20 @@ namespace LeagueToolkit.IO.MapGeometryFile
             this.Name = version <= 11 ? Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32())) : CreateName(id);
 
             int vertexCount = br.ReadInt32();
-            uint vertexBufferCount = br.ReadUInt32();
+            uint vertexDeclarationCount = br.ReadUInt32();
 
             // This ID is always that of the "instanced" vertex buffer which
             // means that the data of the first vertex buffer is instanced (unique to this mesh instance).
             // (Assuming that this mesh uses at least 2 vertex buffers)
-            int baseVertexBufferDescriptionId = br.ReadInt32();
+            int vertexDeclarationId = br.ReadInt32();
 
-            IVertexBufferView[] vertexBufferViews = new IVertexBufferView[vertexBufferCount];
-            for (int i = 0; i < vertexBufferCount; i++)
+            IVertexBufferView[] vertexBufferViews = new IVertexBufferView[vertexDeclarationCount];
+            for (int i = 0; i < vertexDeclarationCount; i++)
             {
                 int vertexBufferId = br.ReadInt32();
                 vertexBufferViews[i] = environmentAsset.ReflectVertexBuffer(
                     vertexBufferId,
-                    vertexBufferDescriptions[baseVertexBufferDescriptionId + i],
+                    vertexDeclarations[vertexDeclarationId + i],
                     vertexCount,
                     br,
                     vertexBufferOffsets[vertexBufferId]
@@ -205,7 +204,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 this.RenderFlags = (MapGeometryMeshRenderFlags)br.ReadByte();
             }
 
-            if (useSeparatePointLights && (version < 7))
+            if (useSeparatePointLights && version < 7)
             {
                 this.PointLight = br.ReadVector3();
             }

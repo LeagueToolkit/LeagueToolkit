@@ -1,4 +1,4 @@
-﻿namespace LeagueToolkit.IO.MapGeometryFile
+﻿namespace LeagueToolkit.Core.Environment
 {
     /// <summary>
     /// Contains information about which samplers should be used for sampling "BAKED_PAINT" textures

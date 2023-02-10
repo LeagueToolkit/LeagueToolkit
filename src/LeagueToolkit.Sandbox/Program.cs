@@ -5,7 +5,6 @@ using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.IO.MapGeometryFile.Builder;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
@@ -35,6 +34,7 @@ using System.Drawing;
 using LeagueToolkit.Hashing;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Environment.Builder;
 
 namespace LeagueToolkit.Sandbox;
 
@@ -42,37 +42,9 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMapgeoToGltf();
-        ProfileBin(@"apheliosui.bin");
-
-        //ProfileWadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Champions\Belveth.wad.client");
-
-        //ProfileRiggedMeshToGltf(
-        //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skn",
-        //    @"X:\sandbox\lol\wadbaketest\assets\characters\neeko\skins\skin22\neeko_skin22.pie_c_12_20.skl",
-        //    "original.glb",
-        //    new List<(string, IAnimationAsset)>()
-        //);
-        //ProfileGltfToRiggedMesh("original.glb", "original.skn", "original.skl");
-
-        List<(string, IAnimationAsset)> animations = LoadAnimations(
-                @"X:\lol\game\assets\characters\renekton\skins\skin26\animations"
-            )
-            .ToList();
-
-        ProfileRiggedMeshToGltf(
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
-            "renekton_skin26.glb",
-            animations
-        );
-
-        ProfileRiggedMeshToGltf(
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
-            "renekton_skin26_second.glb",
-            animations
-        );
+        BinTree materialsBin = new(@"X:\lol\game_old\data\maps\mapgeometry\map19\base.materials.bin");
+        //ProfileMapgeoToGltf();
+        //ProfileBin(@"apheliosui.bin");
     }
 
     static void ExtractWad(string wadPath, string extractTo)

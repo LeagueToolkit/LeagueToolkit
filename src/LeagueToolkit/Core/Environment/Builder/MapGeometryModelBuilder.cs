@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Helpers.Extensions;
 using System;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.MapGeometryFile.Builder
+namespace LeagueToolkit.Core.Environment.Builder
 {
     /// <summary>
     /// Provides an interface for building a <see cref="MapGeometryModel"/>

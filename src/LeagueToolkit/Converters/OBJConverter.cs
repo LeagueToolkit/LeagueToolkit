@@ -3,7 +3,6 @@ using LeagueToolkit.IO.WorldGeometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LeagueToolkit.IO.MapGeometryFile;
 using System.Numerics;
 using LeagueToolkit.IO.NVR;
 using LeagueToolkit.Core.Memory;
@@ -11,6 +10,7 @@ using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Mesh;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Core.Environment;
 
 namespace LeagueToolkit.Converters
 {

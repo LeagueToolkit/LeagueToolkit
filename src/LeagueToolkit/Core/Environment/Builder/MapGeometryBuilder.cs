@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LeagueToolkit.IO.MapGeometryFile.Builder
+namespace LeagueToolkit.Core.Environment.Builder
 {
     /// <summary>Exposes an API for building a <see cref="MapGeometry"/> object</summary>
     public sealed class MapGeometryBuilder
