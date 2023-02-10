@@ -36,27 +36,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        using FileStream file = File.OpenRead(@"X:\lol\old_backup\room_arcade.wgeo");
-        using EnvironmentAsset asset = EnvironmentAsset.LoadWorldGeometry(file);
-
-        MetaEnvironment metaEnvironment = MetaEnvironment.Create(
-            Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
-        );
-
-        asset
-            .ToGltf(
-                null,
-                new(
-                    metaEnvironment,
-                    new()
-                    {
-                        FlipAcrossX = false,
-                        LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
-                        TextureQuality = MapGeometryGltfTextureQuality.High
-                    }
-                )
-            )
-            .SaveGLB("room_arcade.wgeo.glb");
+        ProfileMapgeoToGltf();
     }
 
     static void ExtractWad(string wadPath, string extractTo)

@@ -1,13 +1,13 @@
 ﻿namespace LeagueToolkit.Core.Environment;
 
 /// <summary>
-/// Used for limiting the visibility of environment assets
+/// Used for specifying the visibility of environment objects
 /// </summary>
 [Flags]
 public enum EnvironmentVisibility : byte
 {
     /// <summary>
-    /// Toggles visibility on no layers
+    /// Not visible on any layer
     /// </summary>
     NoLayer = 0,
 
@@ -21,7 +21,7 @@ public enum EnvironmentVisibility : byte
     Layer8 = 1 << 7,
 
     /// <summary>
-    /// Toggles visibility on all layers
+    /// Visibility on all layers
     /// </summary>
     AllLayers = Layer1 | Layer2 | Layer3 | Layer4 | Layer5 | Layer6 | Layer7 | Layer8
 }
