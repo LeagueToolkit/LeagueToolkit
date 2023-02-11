@@ -105,6 +105,38 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
     protected virtual string GetDebuggerDisplayName() => string.Format("{0:x}: {1}", this.NameHash, this.Type);
 }
 
+public static class BinTreePropertyDictionaryExtensions
+{
+    public static void Add(this Dictionary<uint, BinTreeProperty> dictionary, BinTreeProperty value) =>
+        dictionary.Add(value.NameHash, value);
+
+    public static bool TryAdd(this Dictionary<uint, BinTreeProperty> dictionary, BinTreeProperty value) =>
+        dictionary.TryAdd(value.NameHash, value);
+
+    public static TValue GetValueOrDefault<TValue>(this Dictionary<uint, BinTreeProperty> dictionary, uint nameHash)
+        where TValue : BinTreeProperty =>
+        TryGetValue(dictionary, nameHash, out TValue value) switch
+        {
+            true => value,
+            false => default
+        };
+
+    public static bool TryGetValue<TValue>(
+        this Dictionary<uint, BinTreeProperty> dictionary,
+        uint nameHash,
+        out TValue value
+    ) where TValue : BinTreeProperty
+    {
+        (bool result, value) = dictionary.TryGetValue(nameHash, out BinTreeProperty property) switch
+        {
+            true when property is TValue concreteProperty => (true, concreteProperty),
+            _ => (false, default)
+        };
+
+        return result;
+    }
+}
+
 public enum BinPropertyType : byte
 {
     // PRIMITIVE TYPES
