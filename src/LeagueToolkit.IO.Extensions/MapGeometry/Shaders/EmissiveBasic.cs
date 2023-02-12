@@ -49,7 +49,7 @@ internal sealed class EmissiveBasic : IMaterialAdapter
 
         MaterialChannel emissiveChannel = gltfMaterial.FindChannel("Emissive").Value;
 
-        gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", emissiveIntensityParamDef?.Value.X ?? 0.1f);
+        gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", emissiveIntensityParamDef?.Value.X ?? 1f);
         gltfMaterial.WithChannelColor("Emissive", emissiveColorParamDef?.Value ?? Vector4.One);
     }
 }

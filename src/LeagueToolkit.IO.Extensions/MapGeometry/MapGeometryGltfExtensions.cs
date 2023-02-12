@@ -53,10 +53,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private static readonly Dictionary<uint, IMaterialAdapter> MATERIAL_ADAPTERS =
             new()
             {
-                { Fnv1a.HashLower("Shaders/StaticMesh/Hologram"), new StaticMeshHologram() },
                 { Fnv1a.HashLower("Shaders/Environment/DefaultEnv"), new DefaultEnv() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/Hologram"), new StaticMeshHologram() },
                 { Fnv1a.HashLower("Shaders/StaticMesh/Env_Glow"), new EnvGlow() },
-                { Fnv1a.HashLower("Shaders/StaticMesh/Emissive_Basic"), new EmissiveBasic() }
+                { Fnv1a.HashLower("Shaders/StaticMesh/Emissive_Basic"), new EmissiveBasic() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/AlphaTest_ENV"), new AlphaTestEnv() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/SinFade_Alpha"), new SinFadeAlpha() }
             };
 
         /// <summary>

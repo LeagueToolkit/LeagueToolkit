@@ -27,8 +27,6 @@ internal sealed class DefaultEnv : IMaterialAdapter
     )
     {
         gltfMaterial.WithPBRMetallicRoughness();
-        gltfMaterial.WithChannelFactor("MetallicRoughness", "MetallicFactor", 0f);
-        gltfMaterial.WithChannelFactor("MetallicRoughness", "RoughnessFactor", 1f);
 
         InitializeMaterialRenderTechnique(gltfMaterial, materialDef);
         InitializeMaterialBaseColorChannel(gltfMaterial, materialDef, mesh, root, textureRegistry, context);
@@ -195,8 +193,8 @@ internal sealed class DefaultEnv : IMaterialAdapter
             context
         );
 
-        channel.SetFactor("MetallicFactor", 0.75f);
-        channel.SetFactor("RoughnessFactor", 1);
+        channel.SetFactor("MetallicFactor", 0f);
+        channel.SetFactor("RoughnessFactor", 1 - glossinessFactor);
 
         channel.SetTexture(
             0,
@@ -241,7 +239,7 @@ internal sealed class DefaultEnv : IMaterialAdapter
                     {
                         R = 0,
                         G = (byte)(255 - Math.Round(color.A * glossinessFactor)),
-                        B = color.R,
+                        B = 0,
                         A = 255
                     };
                 }
