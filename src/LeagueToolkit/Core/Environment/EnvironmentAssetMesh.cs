@@ -203,7 +203,7 @@ public sealed class EnvironmentAssetMesh
             for (int i = 0; i < 9; i++)
                 this._sphericalHarmonics[i] = br.ReadVector3();
 
-            this.StationaryLight = EnvironmentAssetSampler.Read(br);
+            this.BakedLight = EnvironmentAssetSampler.Read(br);
         }
         else
         {
