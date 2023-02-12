@@ -61,6 +61,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     new DefaultEnvFlatAlphaTestDoubleSided()
                 },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Island"), new SrxBlendEarthIsland() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Rocks"), new SrxBlendEarthRocks() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Generic_Island"), new SrxBlendGenericIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Island"), new SrxBlendInfernalIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Master"), new SrxBlendMaster() },
