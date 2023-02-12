@@ -360,8 +360,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 context
             );
 
-            channel.SetFactor("MetallicFactor", 0);
-            channel.SetFactor("RoughnessFactor", 1 - glossinessFactor);
+            channel.SetFactor("MetallicFactor", 0.75f);
+            channel.SetFactor("RoughnessFactor", 1);
 
             channel.SetTexture(
                 0,

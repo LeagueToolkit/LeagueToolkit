@@ -38,6 +38,9 @@ internal static class TextureUtils
         TextureRegistry textureRegistry
     )
     {
+        if (textureRegistry.TryGetValue(name, out GltfImage existingImage))
+            return existingImage;
+
         using MemoryStream imageStream = new();
         image.SaveAsPng(imageStream);
 

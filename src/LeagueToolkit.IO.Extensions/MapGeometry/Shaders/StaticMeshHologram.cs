@@ -27,32 +27,54 @@ internal static class StaticMeshHologram
         MapGeometryGltfConversionContext context
     )
     {
-        gltfMaterial.InitializeUnlit();
+        gltfMaterial.WithPBRMetallicRoughness();
+        gltfMaterial.WithChannelFactor("MetallicRoughness", "MetallicFactor", 0f);
+        gltfMaterial.WithChannelFactor("MetallicRoughness", "RoughnessFactor", 0f);
 
         gltfMaterial.Alpha = AlphaMode.MASK;
         gltfMaterial.AlphaCutoff = 0.3f;
 
-        gltfMaterial.WithChannelTexture(
-            "BaseColor",
-            0,
-            CreateBaseColorChannelTexture(materialDef, textureRegistry, root, context)
-        );
-        InitializeEmissiveChannel(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+        InitializeChannels(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
     }
 
-    private static GltfImage CreateBaseColorChannelTexture(
+    private static void InitializeChannels(
+        Material gltfMaterial,
+        StaticMaterialDef materialDef,
+        EnvironmentAssetMesh mesh,
+        TextureRegistry textureRegistry,
+        ModelRoot root,
+        MapGeometryGltfConversionContext context
+    )
+    {
+        StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(
+            x => x.Value.Name is "Emissive_Intensity"
+        );
+
+        var (baseColorTexture, emissiveTexture) = CreateBaseColorAndEmissiveTexture(
+            materialDef,
+            textureRegistry,
+            root,
+            context
+        );
+
+        gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", emissiveIntensityDef?.Value.X ?? 0.3f);
+        gltfMaterial.WithChannelColor("Emissive", Vector4.One);
+        gltfMaterial.WithChannelTexture("Emissive", 0, emissiveTexture);
+        gltfMaterial.WithChannelTexture("BaseColor", 0, baseColorTexture);
+    }
+
+    private static (GltfImage BaseColorTexture, GltfImage EmissiveTexture) CreateBaseColorAndEmissiveTexture(
         StaticMaterialDef materialDef,
         TextureRegistry textureRegistry,
         ModelRoot root,
         MapGeometryGltfConversionContext context
     )
     {
-        // If texture is already loaded, return it
+        // If textures are already loaded, return them
         string diffuseTextureName = GetDiffuseTextureName(materialDef);
-        if (textureRegistry.TryGetValue(diffuseTextureName, out GltfImage existingImage))
-            return existingImage;
-
         string maskTextureName = GetMaskTextureName(materialDef);
+        if (textureRegistry.TryGetValue(diffuseTextureName, out GltfImage existingDiffuse))
+            return (existingDiffuse, textureRegistry[maskTextureName]);
 
         string diffuseTexturePath = TextureUtils.GetQualityPrefixedTexturePath(
             Path.Join(context.Settings.GameDataPath, diffuseTextureName),
@@ -63,15 +85,30 @@ internal static class StaticMeshHologram
             context.Settings.TextureQuality
         );
 
+        StaticMaterialShaderParamDef bloomColorDef = materialDef.ParamValues.FirstOrDefault(
+            x => x.Value.Name is "Bloom_Color"
+        );
+
         Image<Rgba32> diffuseTexture = TextureUtils.GetImage(TextureUtils.Load(diffuseTexturePath));
         Image<Rgba32> maskTexture = TextureUtils.GetImage(TextureUtils.Load(maskTexturePath));
 
-        MergeMaskIntoDiffuse(diffuseTexture, maskTexture);
-
-        return TextureUtils.CreateGltfImage(diffuseTextureName, diffuseTexture, root, textureRegistry);
+        return (
+            TextureUtils.CreateGltfImage(
+                diffuseTextureName,
+                CreateBaseColorFromDiffuseAndMask(diffuseTexture, maskTexture),
+                root,
+                textureRegistry
+            ),
+            TextureUtils.CreateGltfImage(
+                maskTextureName,
+                CreateEmissiveFromDiffuseAndMask(diffuseTexture, maskTexture, bloomColorDef?.Value ?? Vector4.One),
+                root,
+                textureRegistry
+            )
+        );
     }
 
-    private static void MergeMaskIntoDiffuse(Image<Rgba32> diffuse, Image<Rgba32> mask)
+    private static Image<Rgba32> CreateBaseColorFromDiffuseAndMask(Image<Rgba32> diffuse, Image<Rgba32> mask)
     {
         diffuse.ProcessPixelRows(x =>
         {
@@ -85,50 +122,31 @@ internal static class StaticMeshHologram
                 }
             }
         });
+
+        return diffuse;
     }
 
-    private static void InitializeEmissiveChannel(
-        Material gltfMaterial,
-        StaticMaterialDef materialDef,
-        EnvironmentAssetMesh mesh,
-        TextureRegistry textureRegistry,
-        ModelRoot root,
-        MapGeometryGltfConversionContext context
+    private static Image<Rgba32> CreateEmissiveFromDiffuseAndMask(
+        Image<Rgba32> diffuse,
+        Image<Rgba32> mask,
+        Vector4 emissiveColor
     )
     {
-        StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Emissive_Intensity"
-        );
-        StaticMaterialShaderParamDef bloomColorDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Bloom_Color"
-        );
-
-        gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", emissiveIntensityDef?.Value.X ?? 0.3f);
-        gltfMaterial.WithChannelColor("Emissive", bloomColorDef?.Value ?? Vector4.One);
-
-        if (!string.IsNullOrEmpty(mesh.BakedLight.Texture))
+        mask.ProcessPixelRows(x =>
         {
-            string texturePath = TextureUtils.GetQualityPrefixedTexturePath(
-                Path.Join(context.Settings.GameDataPath, mesh.BakedLight.Texture),
-                context.Settings.TextureQuality
-            );
-
-            GltfImage image = textureRegistry.TryGetValue(texturePath, out GltfImage existingImage) switch
+            for (int rowId = 0; rowId < x.Height; rowId++)
             {
-                true => existingImage,
-                false
-                    => TextureUtils.CreateGltfImage(
-                        texturePath,
-                        TextureUtils.GetImage(TextureUtils.Load(texturePath)),
-                        root,
-                        textureRegistry
-                    )
-            };
-            MaterialChannel channel = gltfMaterial.FindChannel("Emissive").Value;
+                Span<Rgba32> row = x.GetRowSpan(rowId);
 
-            channel.SetTransform(mesh.BakedLight.Bias, mesh.BakedLight.Scale);
-            channel.SetTexture(1, image);
-        }
+                for (int i = 0; i < row.Length; i++)
+                {
+                    Vector4 maskColor = row[i].ToVector4();
+                    row[i].FromVector4(diffuse[i, rowId].ToVector4() * ((maskColor.Z * emissiveColor) with { W = 1f }));
+                }
+            }
+        });
+
+        return mask;
     }
 
     private static string GetDiffuseTextureName(StaticMaterialDef materialDef)
