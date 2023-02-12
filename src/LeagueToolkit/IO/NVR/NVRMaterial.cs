@@ -13,14 +13,14 @@ namespace LeagueToolkit.IO.NVR
     public class NVRMaterial
     {
         public string Name { get; private set; }
-        public NVRMaterialType Type { get; private set; }
-        public NVRMaterialFlags Flags { get; private set; }
+        public SimpleEnvironmentMaterialType Type { get; private set; }
+        public SimpleEnvironmentMaterialFlags Flags { get; private set; }
         public List<NVRChannel> Channels { get; private set; } = new List<NVRChannel>();
 
         public NVRMaterial(BinaryReader br, bool readOld)
         {
             this.Name = br.ReadPaddedString(260);
-            this.Type = (NVRMaterialType)br.ReadInt32();
+            this.Type = (SimpleEnvironmentMaterialType)br.ReadInt32();
             if (readOld)
             {
                 Color diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
@@ -38,7 +38,7 @@ namespace LeagueToolkit.IO.NVR
             }
             else
             {
-                this.Flags = (NVRMaterialFlags)br.ReadUInt32();
+                this.Flags = (SimpleEnvironmentMaterialFlags)br.ReadUInt32();
                 for (int i = 0; i < 8; i++)
                 {
                     this.Channels.Add(new NVRChannel(br));
@@ -46,7 +46,12 @@ namespace LeagueToolkit.IO.NVR
             }
         }
 
-        public NVRMaterial(string name, NVRMaterialType type, NVRMaterialFlags flag, List<NVRChannel> channels)
+        public NVRMaterial(
+            string name,
+            SimpleEnvironmentMaterialType type,
+            SimpleEnvironmentMaterialFlags flag,
+            List<NVRChannel> channels
+        )
         {
             this.Name = name;
             this.Type = type;
@@ -65,8 +70,8 @@ namespace LeagueToolkit.IO.NVR
                 materialName,
                 textureName,
                 new Color(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f),
-                NVRMaterialType.MATERIAL_TYPE_DEFAULT,
-                NVRMaterialFlags.ColoredVertex
+                SimpleEnvironmentMaterialType.Default,
+                SimpleEnvironmentMaterialFlags.ColoredVertex
             );
         }
 
@@ -74,8 +79,8 @@ namespace LeagueToolkit.IO.NVR
             string materialName,
             string textureName,
             Color color,
-            NVRMaterialType matType,
-            NVRMaterialFlags matFlags
+            SimpleEnvironmentMaterialType matType,
+            SimpleEnvironmentMaterialFlags matFlags
         )
         {
             List<NVRChannel> channels = new List<NVRChannel>();
@@ -100,20 +105,24 @@ namespace LeagueToolkit.IO.NVR
         }
     }
 
-    public enum NVRMaterialType : int
+    public enum SimpleEnvironmentMaterialType : int
     {
-        MATERIAL_TYPE_DEFAULT = 0x0,
-        MATERIAL_TYPE_DECAL = 0x1,
-        MATERIAL_TYPE_WALL_OF_GRASS = 0x2,
-        MATERIAL_TYPE_FOUR_BLEND = 0x3,
-        MATERIAL_TYPE_COUNT = 0x4
+        Default = 0x0,
+        Decal = 0x1,
+        WallOfGrass = 0x2,
+        FourBlend = 0x3
     };
 
     [Flags]
-    public enum NVRMaterialFlags : UInt32
+    public enum SimpleEnvironmentMaterialFlags : int
     {
-        GroundVertex = 1,
-        ColoredVertex = 16
+        Ground = 1 << 0,
+        NoShadow = 1 << 1,
+        VertexAlpha = 1 << 2,
+        Lightmapped = 1 << 3,
+        DualVertexColor = 1 << 4,
+        Background = 1 << 5,
+        BackgroundWithFog = 1 << 6,
     }
 
     public class MaterialInvalidChannelCountException : Exception

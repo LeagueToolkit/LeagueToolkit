@@ -43,21 +43,30 @@ namespace LeagueToolkit.IO.NVR
 
         private static bool ContainsGroundKeyword(string texture)
         {
-            return texture.Contains("_floor") || texture.Contains("_dirt") || texture.Contains("grass") || texture.Contains("RiverBed") || texture.Contains("_project") || texture.Contains("tile_");
+            return texture.Contains("_floor")
+                || texture.Contains("_dirt")
+                || texture.Contains("grass")
+                || texture.Contains("RiverBed")
+                || texture.Contains("_project")
+                || texture.Contains("tile_");
         }
 
         public static bool IsGroundType(NVRMaterial mat)
         {
-            return mat.Flags.HasFlag(NVRMaterialFlags.GroundVertex) && ContainsGroundKeyword(mat.Channels[0].Name);
+            return mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.Ground)
+                && ContainsGroundKeyword(mat.Channels[0].Name);
         }
 
         public static NVRVertexType GetVertexTypeFromMaterial(NVRMaterial mat)
         {
-            if (mat.Type == NVRMaterialType.MATERIAL_TYPE_FOUR_BLEND)
+            if (mat.Type == SimpleEnvironmentMaterialType.FourBlend)
             {
                 return NVRVertexType.NVRVERTEX_12;
             }
-            else if (mat.Type == NVRMaterialType.MATERIAL_TYPE_DEFAULT && mat.Flags.HasFlag(NVRMaterialFlags.ColoredVertex))
+            else if (
+                mat.Type == SimpleEnvironmentMaterialType.Default
+                && mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.ColoredVertex)
+            )
             {
                 return NVRVertexType.NVRVERTEX_8;
             }
@@ -80,9 +89,7 @@ namespace LeagueToolkit.IO.NVR
             this.DiffuseColor = br.ReadColor(ColorFormat.BgraU8);
         }
 
-        public NVRVertex4(Vector3 position) : base(position)
-        {
-        }
+        public NVRVertex4(Vector3 position) : base(position) { }
 
         public NVRVertex4(Vector3 position, Vector3 normal, Vector2 UV, Color diffuseColor) : base(position)
         {
@@ -130,7 +137,8 @@ namespace LeagueToolkit.IO.NVR
 
         public NVRVertex8(Vector3 position) : base(position) { }
 
-        public NVRVertex8(Vector3 position, Vector3 normal, Vector2 UV, Color diffuseColor, Color emissiveColor) : base(position)
+        public NVRVertex8(Vector3 position, Vector3 normal, Vector2 UV, Color diffuseColor, Color emissiveColor)
+            : base(position)
         {
             this.Normal = normal;
             this.UV = UV;
@@ -175,7 +183,8 @@ namespace LeagueToolkit.IO.NVR
             this.DiffuseColor = br.ReadColor(ColorFormat.BgraU8);
         }
 
-        public NVRVertex12(Vector3 position, Vector3 normal, Vector2 unknown, Vector2 UV, Color diffuseColor) : base(position)
+        public NVRVertex12(Vector3 position, Vector3 normal, Vector2 unknown, Vector2 UV, Color diffuseColor)
+            : base(position)
         {
             this.Normal = normal;
             this.Unknown = unknown;

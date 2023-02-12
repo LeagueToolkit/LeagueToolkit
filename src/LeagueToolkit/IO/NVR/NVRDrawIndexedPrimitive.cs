@@ -146,6 +146,13 @@ namespace LeagueToolkit.IO.NVR
 
     public class InvalidVertexTypeException : Exception
     {
-        public InvalidVertexTypeException(NVRMaterialType matType, NVRVertexType expected) : base(String.Format("Invalid vertex type for the specified material ({0}), expected type: {1}.", matType, expected)) { }
+        public InvalidVertexTypeException(SimpleEnvironmentMaterialType matType, NVRVertexType expected)
+            : base(
+                String.Format(
+                    "Invalid vertex type for the specified material ({0}), expected type: {1}.",
+                    matType,
+                    expected
+                )
+            ) { }
     }
 }
