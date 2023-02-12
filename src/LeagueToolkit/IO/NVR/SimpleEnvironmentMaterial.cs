@@ -107,10 +107,11 @@ namespace LeagueToolkit.IO.NVR
 
     public enum SimpleEnvironmentMaterialType : int
     {
-        Default = 0x0,
-        Decal = 0x1,
-        WallOfGrass = 0x2,
-        FourBlend = 0x3
+        Default = 0,
+        Decal = 1,
+        WallOfGrass = 2,
+        FourBlend = 3,
+        AntiBrush = 4
     };
 
     [Flags]
