@@ -67,6 +67,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Hextech_Ground"), new SrxBlendHextechGround() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Hextech_Island"), new SrxBlendHextechIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Dragon"), new SrxBlendInfernalDragon() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Ground"), new SrxBlendInfernalGround() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Island"), new SrxBlendInfernalIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Master"), new SrxBlendMaster() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Ocean"), new SrxBlendOcean() },
