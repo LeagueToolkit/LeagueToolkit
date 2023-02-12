@@ -145,7 +145,7 @@ class Program
                         GameDataPath = "X:/lol/game",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
-                        TextureQuality = MapGeometryGltfTextureQuality.High
+                        TextureQuality = MapGeometryGltfTextureQuality.Low
                     }
                 )
             )
