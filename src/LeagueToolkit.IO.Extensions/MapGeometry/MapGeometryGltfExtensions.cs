@@ -66,6 +66,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Hextech_Island"), new SrxBlendHextectIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Island"), new SrxBlendInfernalIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Master"), new SrxBlendMaster() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Ocean"), new SrxBlendOcean() },
                 { Fnv1a.HashLower("Shaders/Environment/OD_FlowMap"), new OdFlowMap() },
                 { Fnv1a.HashLower("Shaders/StaticMesh/Hologram"), new StaticMeshHologram() },
                 { Fnv1a.HashLower("Shaders/StaticMesh/Env_Glow"), new EnvGlow() },
