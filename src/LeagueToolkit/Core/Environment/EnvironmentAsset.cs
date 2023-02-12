@@ -525,9 +525,31 @@ internal static class BakedEnvironmentVertexDescription
 internal static class SimpleEnvironmentVertexDescription
 {
     public static readonly VertexElement[] POSITION = new[] { VertexElement.POSITION };
-    public static readonly VertexElement[] UV2 = new[] { VertexElement.POSITION };
-    public static readonly VertexElement[] UV3 = new[] { VertexElement.POSITION };
-    public static readonly VertexElement[] COLOR2 = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] UV2 = new[]
+    {
+        VertexElement.POSITION,
+        VertexElement.NORMAL,
+        VertexElement.DIFFUSE_UV,
+        VertexElement.LIGHTMAP_UV,
+        VertexElement.PRIMARY_COLOR
+    };
+    public static readonly VertexElement[] UV3 = new[]
+    {
+        VertexElement.POSITION,
+        VertexElement.NORMAL,
+        VertexElement.DIFFUSE_UV,
+        VertexElement.LIGHTMAP_UV,
+        VertexElement.TEXCOORD_1,
+        VertexElement.PRIMARY_COLOR
+    };
+    public static readonly VertexElement[] COLOR2 = new[]
+    {
+        VertexElement.POSITION,
+        VertexElement.NORMAL,
+        VertexElement.DIFFUSE_UV,
+        VertexElement.PRIMARY_COLOR,
+        VertexElement.SECONDARY_COLOR
+    };
     public static readonly VertexElement[] DECAL = new[] { VertexElement.POSITION };
-    public static readonly VertexElement[] POSITION_UV1 = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] POSITION_UV1 = new[] { VertexElement.POSITION, VertexElement.DIFFUSE_UV };
 }
