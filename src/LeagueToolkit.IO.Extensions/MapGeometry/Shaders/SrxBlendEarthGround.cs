@@ -44,7 +44,7 @@ internal sealed class SrxBlendEarthGround : IMaterialAdapter
     {
         // Resolve diffuse sampler definition, return if not found
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "Diffuse_Texture"
+            x => x.Value.SamplerName is "DiffuseTexture"
         );
         samplerDef ??= new() { TextureName = DEFAULT_DIFFUSE_TEXTURE };
 
