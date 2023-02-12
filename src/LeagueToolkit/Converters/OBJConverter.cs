@@ -59,7 +59,7 @@ namespace LeagueToolkit.Converters
         {
             List<OBJFile> returnList = new();
 
-            foreach (NVRMaterial material in nvr.Materials)
+            foreach (SimpleEnvironmentMaterial material in nvr.Materials)
             {
                 var materialIndex = nvr.Materials.IndexOf(material);
                 List<OBJFile> objSet = new();

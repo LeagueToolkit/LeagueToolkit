@@ -18,7 +18,7 @@ namespace LeagueToolkit.IO.NVR
         public int Flag { get; private set; }
         public Sphere BoundingSphere { get; private set; }
         public Box BoundingBox { get; private set; }
-        public NVRMaterial Material { get; private set; }
+        public SimpleEnvironmentMaterial Material { get; private set; }
         public NVRDrawIndexedPrimitive[] IndexedPrimitives { get; private set; } = new NVRDrawIndexedPrimitive[2];
 
         //Used for writing
@@ -41,7 +41,7 @@ namespace LeagueToolkit.IO.NVR
         public NVRMesh(
             NVRMeshQuality meshQualityLevel,
             int flag,
-            NVRMaterial material,
+            SimpleEnvironmentMaterial material,
             List<NVRVertex> vertices,
             List<int> indices
         )

@@ -51,13 +51,13 @@ namespace LeagueToolkit.IO.NVR
                 || texture.Contains("tile_");
         }
 
-        public static bool IsGroundType(NVRMaterial mat)
+        public static bool IsGroundType(SimpleEnvironmentMaterial mat)
         {
             return mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.Ground)
                 && ContainsGroundKeyword(mat.Channels[0].Name);
         }
 
-        public static NVRVertexType GetVertexTypeFromMaterial(NVRMaterial mat)
+        public static NVRVertexType GetVertexTypeFromMaterial(SimpleEnvironmentMaterial mat)
         {
             if (mat.Type == SimpleEnvironmentMaterialType.FourBlend)
             {

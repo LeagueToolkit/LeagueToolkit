@@ -10,14 +10,14 @@ using System.Numerics;
 
 namespace LeagueToolkit.IO.NVR
 {
-    public class NVRMaterial
+    public class SimpleEnvironmentMaterial
     {
         public string Name { get; private set; }
         public SimpleEnvironmentMaterialType Type { get; private set; }
         public SimpleEnvironmentMaterialFlags Flags { get; private set; }
-        public List<NVRChannel> Channels { get; private set; } = new List<NVRChannel>();
+        public List<SimpleEnvironmentChannel> Channels { get; private set; } = new List<SimpleEnvironmentChannel>();
 
-        public NVRMaterial(BinaryReader br, bool readOld)
+        public SimpleEnvironmentMaterial(BinaryReader br, bool readOld)
         {
             this.Name = br.ReadPaddedString(260);
             this.Type = (SimpleEnvironmentMaterialType)br.ReadInt32();
@@ -25,15 +25,15 @@ namespace LeagueToolkit.IO.NVR
             {
                 Color diffuseColor = br.ReadColor(ColorFormat.RgbaF32);
                 string diffuseName = br.ReadPaddedString(260);
-                this.Channels.Add(new NVRChannel(diffuseName, diffuseColor, Matrix4x4.Identity));
+                this.Channels.Add(new SimpleEnvironmentChannel(diffuseName, diffuseColor, Matrix4x4.Identity));
 
                 Color emmisiveColor = br.ReadColor(ColorFormat.RgbaF32);
                 string emissiveName = br.ReadPaddedString(260);
-                this.Channels.Add(new NVRChannel(emissiveName, emmisiveColor, Matrix4x4.Identity));
+                this.Channels.Add(new SimpleEnvironmentChannel(emissiveName, emmisiveColor, Matrix4x4.Identity));
 
                 for (int i = 0; i < 6; i++)
                 {
-                    this.Channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), Matrix4x4.Identity));
+                    this.Channels.Add(new SimpleEnvironmentChannel("", new Color(0, 0, 0, 0), Matrix4x4.Identity));
                 }
             }
             else
@@ -41,16 +41,16 @@ namespace LeagueToolkit.IO.NVR
                 this.Flags = (SimpleEnvironmentMaterialFlags)br.ReadUInt32();
                 for (int i = 0; i < 8; i++)
                 {
-                    this.Channels.Add(new NVRChannel(br));
+                    this.Channels.Add(new SimpleEnvironmentChannel(br));
                 }
             }
         }
 
-        public NVRMaterial(
+        public SimpleEnvironmentMaterial(
             string name,
             SimpleEnvironmentMaterialType type,
             SimpleEnvironmentMaterialFlags flag,
-            List<NVRChannel> channels
+            List<SimpleEnvironmentChannel> channels
         )
         {
             this.Name = name;
@@ -64,18 +64,18 @@ namespace LeagueToolkit.IO.NVR
         }
 
         // Easy way to create a material with working values. Needs to be used with vertex 8
-        public static NVRMaterial CreateMaterial(string materialName, string textureName)
+        public static SimpleEnvironmentMaterial CreateMaterial(string materialName, string textureName)
         {
             return CreateMaterial(
                 materialName,
                 textureName,
                 new Color(0.003921569f, 0.003921569f, 0.003921569f, 0.003921569f),
                 SimpleEnvironmentMaterialType.Default,
-                SimpleEnvironmentMaterialFlags.ColoredVertex
+                SimpleEnvironmentMaterialFlags.DualVertexColor
             );
         }
 
-        public static NVRMaterial CreateMaterial(
+        public static SimpleEnvironmentMaterial CreateMaterial(
             string materialName,
             string textureName,
             Color color,
@@ -83,13 +83,13 @@ namespace LeagueToolkit.IO.NVR
             SimpleEnvironmentMaterialFlags matFlags
         )
         {
-            List<NVRChannel> channels = new List<NVRChannel>();
-            channels.Add(new NVRChannel(textureName, color, Matrix4x4.Identity));
+            List<SimpleEnvironmentChannel> channels = new List<SimpleEnvironmentChannel>();
+            channels.Add(new SimpleEnvironmentChannel(textureName, color, Matrix4x4.Identity));
             for (int i = 0; i < 7; i++)
             {
-                channels.Add(new NVRChannel("", new Color(0, 0, 0, 0), Matrix4x4.Identity));
+                channels.Add(new SimpleEnvironmentChannel("", new Color(0, 0, 0, 0), Matrix4x4.Identity));
             }
-            NVRMaterial newMat = new NVRMaterial(materialName, matType, matFlags, channels);
+            SimpleEnvironmentMaterial newMat = new SimpleEnvironmentMaterial(materialName, matType, matFlags, channels);
             return newMat;
         }
 
@@ -98,7 +98,7 @@ namespace LeagueToolkit.IO.NVR
             bw.WritePaddedString(this.Name, 260);
             bw.Write((int)this.Type);
             bw.Write((int)this.Flags);
-            foreach (NVRChannel channel in this.Channels)
+            foreach (SimpleEnvironmentChannel channel in this.Channels)
             {
                 channel.Write(bw);
             }

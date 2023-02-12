@@ -10,14 +10,11 @@ namespace LeagueToolkit.IO.NVR
     {
         public short MajorVersion { get; private set; }
         public short MinorVersion { get; private set; }
-        public List<NVRMaterial> Materials { get; private set; }
+        public List<SimpleEnvironmentMaterial> Materials { get; private set; }
         public List<NVRMesh> Meshes { get; private set; }
 
-        public NVRFile(string fileLocation)
-            : this(File.OpenRead(fileLocation))
-        {
+        public NVRFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
-        }
         public NVRFile(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))
@@ -42,7 +39,9 @@ namespace LeagueToolkit.IO.NVR
                 NVRBuffers buffers = new NVRBuffers();
                 for (int i = 0; i < materialsCount; i++)
                 {
-                    buffers.Materials.Add(new NVRMaterial(br, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
+                    buffers.Materials.Add(
+                        new SimpleEnvironmentMaterial(br, (MajorVersion == 8 && MinorVersion == 1 ? true : false))
+                    );
                 }
                 for (int i = 0; i < vertexBufferCount; i++)
                 {
@@ -54,7 +53,9 @@ namespace LeagueToolkit.IO.NVR
                 }
                 for (int i = 0; i < meshesCount; i++)
                 {
-                    buffers.Meshes.Add(new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false)));
+                    buffers.Meshes.Add(
+                        new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false))
+                    );
                 }
                 // Unused
                 for (int i = 0; i < nodesCount; i++)
@@ -85,7 +86,7 @@ namespace LeagueToolkit.IO.NVR
                 bw.Write(buffers.IndexBuffers.Count);
                 bw.Write(buffers.Meshes.Count);
                 bw.Write(buffers.Nodes.Count);
-                foreach (NVRMaterial material in buffers.Materials)
+                foreach (SimpleEnvironmentMaterial material in buffers.Materials)
                 {
                     material.Write(bw);
                 }
@@ -108,7 +109,12 @@ namespace LeagueToolkit.IO.NVR
             }
         }
 
-        public NVRMesh AddMesh(NVRMeshQuality meshQualityLevel, NVRMaterial material, List<NVRVertex> vertices, List<int> indices)
+        public NVRMesh AddMesh(
+            NVRMeshQuality meshQualityLevel,
+            SimpleEnvironmentMaterial material,
+            List<NVRVertex> vertices,
+            List<int> indices
+        )
         {
             NVRMesh newMesh = new NVRMesh(meshQualityLevel, 0, material, vertices, indices);
             this.Meshes.Add(newMesh);
@@ -214,7 +220,7 @@ namespace LeagueToolkit.IO.NVR
 
     public class NVRBuffers
     {
-        public List<NVRMaterial> Materials { get; private set; } = new List<NVRMaterial>();
+        public List<SimpleEnvironmentMaterial> Materials { get; private set; } = new List<SimpleEnvironmentMaterial>();
         public List<NVRVertexBuffer> VertexBuffers { get; private set; } = new List<NVRVertexBuffer>();
         public List<NVRIndexBuffer> IndexBuffers { get; private set; } = new List<NVRIndexBuffer>();
         public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();
