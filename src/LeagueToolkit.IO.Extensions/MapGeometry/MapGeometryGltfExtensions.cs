@@ -54,6 +54,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
             new()
             {
                 { Fnv1a.HashLower("Shaders/Environment/DefaultEnv"), new DefaultEnv() },
+                { Fnv1a.HashLower("Shaders/Environment/DefaultEnv_Flat"), new DefaultEnvFlat() },
+                { Fnv1a.HashLower("Shaders/Environment/OD_FlowMap"), new OdFlowMap() },
                 { Fnv1a.HashLower("Shaders/StaticMesh/Hologram"), new StaticMeshHologram() },
                 { Fnv1a.HashLower("Shaders/StaticMesh/Env_Glow"), new EnvGlow() },
                 { Fnv1a.HashLower("Shaders/StaticMesh/Emissive_Basic"), new EmissiveBasic() },

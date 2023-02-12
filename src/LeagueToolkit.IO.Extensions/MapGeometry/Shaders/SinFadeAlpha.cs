@@ -26,7 +26,9 @@ internal sealed class SinFadeAlpha : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        gltfMaterial.InitializeUnlit();
+        gltfMaterial.InitializePBRMetallicRoughness();
+        gltfMaterial.WithChannelFactor("MetallicRoughness", "MetallicFactor", 0f);
+        gltfMaterial.WithChannelFactor("MetallicRoughness", "RoughnessFactor", 0f);
 
         InitializeMaterialRenderTechnique(gltfMaterial);
         InitializeMaterialBaseColorChannel(gltfMaterial, materialDef, root, textureRegistry, context);
