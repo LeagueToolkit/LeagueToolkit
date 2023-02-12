@@ -9,7 +9,7 @@ namespace LeagueToolkit.IO.NVR
 {
     public class NVRDrawIndexedPrimitive
     {
-        public NVRMesh Parent;
+        public SimpleEnvironmentMesh Parent;
         public NVRVertexType VertexType { get; private set; }
         public List<NVRVertex> Vertices { get; private set; } = new List<NVRVertex>();
         public List<int> Indices { get; private set; } = new List<int>();
@@ -22,7 +22,7 @@ namespace LeagueToolkit.IO.NVR
         public int FirstIndex;
         public int IndexCount;
 
-        public NVRDrawIndexedPrimitive(BinaryReader br, NVRBuffers buffers, NVRMesh mesh, bool isComplex)
+        public NVRDrawIndexedPrimitive(BinaryReader br, NVRBuffers buffers, SimpleEnvironmentMesh mesh, bool isComplex)
         {
             this.Parent = mesh;
             // Read vertices
@@ -92,7 +92,12 @@ namespace LeagueToolkit.IO.NVR
             }
         }
 
-        public NVRDrawIndexedPrimitive(NVRMesh mesh, List<NVRVertex> vertices, List<int> indices, bool complex)
+        public NVRDrawIndexedPrimitive(
+            SimpleEnvironmentMesh mesh,
+            List<NVRVertex> vertices,
+            List<int> indices,
+            bool complex
+        )
         {
             this.Parent = mesh;
             this.Indices.AddRange(indices);

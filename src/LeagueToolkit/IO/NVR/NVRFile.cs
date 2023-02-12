@@ -11,7 +11,7 @@ namespace LeagueToolkit.IO.NVR
         public short MajorVersion { get; private set; }
         public short MinorVersion { get; private set; }
         public List<SimpleEnvironmentMaterial> Materials { get; private set; }
-        public List<NVRMesh> Meshes { get; private set; }
+        public List<SimpleEnvironmentMesh> Meshes { get; private set; }
 
         public NVRFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
@@ -54,7 +54,7 @@ namespace LeagueToolkit.IO.NVR
                 for (int i = 0; i < meshesCount; i++)
                 {
                     buffers.Meshes.Add(
-                        new NVRMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false))
+                        new SimpleEnvironmentMesh(br, buffers, (MajorVersion == 8 && MinorVersion == 1 ? true : false))
                     );
                 }
                 // Unused
@@ -98,7 +98,7 @@ namespace LeagueToolkit.IO.NVR
                 {
                     indBuffer.Write(bw);
                 }
-                foreach (NVRMesh mesh in buffers.Meshes)
+                foreach (SimpleEnvironmentMesh mesh in buffers.Meshes)
                 {
                     mesh.Write(bw);
                 }
@@ -109,14 +109,14 @@ namespace LeagueToolkit.IO.NVR
             }
         }
 
-        public NVRMesh AddMesh(
+        public SimpleEnvironmentMesh AddMesh(
             NVRMeshQuality meshQualityLevel,
             SimpleEnvironmentMaterial material,
             List<NVRVertex> vertices,
             List<int> indices
         )
         {
-            NVRMesh newMesh = new NVRMesh(meshQualityLevel, 0, material, vertices, indices);
+            SimpleEnvironmentMesh newMesh = new SimpleEnvironmentMesh(meshQualityLevel, 0, material, vertices, indices);
             this.Meshes.Add(newMesh);
             return newMesh;
         }
@@ -126,7 +126,7 @@ namespace LeagueToolkit.IO.NVR
         {
             NVRBuffers buffers = new NVRBuffers();
             // Material buffer
-            foreach (NVRMesh mesh in Meshes)
+            foreach (SimpleEnvironmentMesh mesh in Meshes)
             {
                 if (!buffers.Materials.Contains(mesh.Material))
                 {
@@ -135,7 +135,7 @@ namespace LeagueToolkit.IO.NVR
             }
 
             // Creating complex buffers first
-            foreach (NVRMesh mesh in Meshes)
+            foreach (SimpleEnvironmentMesh mesh in Meshes)
             {
                 NVRDrawIndexedPrimitive complexMesh = mesh.IndexedPrimitives[0];
                 NVRVertexType type = complexMesh.Vertices[0].GetVertexType();
@@ -159,7 +159,7 @@ namespace LeagueToolkit.IO.NVR
             }
 
             // Then do simple ones
-            foreach (NVRMesh mesh in Meshes)
+            foreach (SimpleEnvironmentMesh mesh in Meshes)
             {
                 NVRDrawIndexedPrimitive simpleMesh = mesh.IndexedPrimitives[1];
                 NVRVertexType type = simpleMesh.Vertices[0].GetVertexType();
@@ -185,7 +185,7 @@ namespace LeagueToolkit.IO.NVR
             NVRNode parentNode = this.CreateRootNode();
             // Making mesh buffer
             buffers.GenerateMeshBuffer(parentNode);
-            foreach (NVRMesh mesh in buffers.Meshes)
+            foreach (SimpleEnvironmentMesh mesh in buffers.Meshes)
             {
                 mesh.MaterialIndex = buffers.Materials.IndexOf(mesh.Material);
             }
@@ -223,7 +223,7 @@ namespace LeagueToolkit.IO.NVR
         public List<SimpleEnvironmentMaterial> Materials { get; private set; } = new List<SimpleEnvironmentMaterial>();
         public List<NVRVertexBuffer> VertexBuffers { get; private set; } = new List<NVRVertexBuffer>();
         public List<NVRIndexBuffer> IndexBuffers { get; private set; } = new List<NVRIndexBuffer>();
-        public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();
+        public List<SimpleEnvironmentMesh> Meshes { get; private set; } = new List<SimpleEnvironmentMesh>();
         public List<NVRNode> Nodes { get; private set; } = new List<NVRNode>();
 
         // Find index buffer with its position (for a given model, it has to be the same as its vertex buffer position)

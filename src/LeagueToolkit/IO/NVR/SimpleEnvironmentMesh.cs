@@ -12,7 +12,7 @@ using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.IO.NVR
 {
-    public class NVRMesh
+    public class SimpleEnvironmentMesh
     {
         public NVRMeshQuality QualityLevel { get; set; }
         public int Flag { get; private set; }
@@ -24,7 +24,7 @@ namespace LeagueToolkit.IO.NVR
         //Used for writing
         public int MaterialIndex;
 
-        public NVRMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
+        public SimpleEnvironmentMesh(BinaryReader br, NVRBuffers buffers, bool readOld)
         {
             this.QualityLevel = (NVRMeshQuality)br.ReadInt32();
             if (!readOld)
@@ -38,7 +38,7 @@ namespace LeagueToolkit.IO.NVR
             this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(br, buffers, this, false);
         }
 
-        public NVRMesh(
+        public SimpleEnvironmentMesh(
             NVRMeshQuality meshQualityLevel,
             int flag,
             SimpleEnvironmentMaterial material,

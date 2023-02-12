@@ -54,7 +54,7 @@ namespace LeagueToolkit.Converters
         /// <param name="nvr">The <see cref="NVRFile"/> to convert meshes from</param>
         /// <param name="materialFile">The name of the material file that the <see cref="OBJFile"/> will use for materials.</param>
         /// <param name="simple">Converts simple primitives which do not contain UVs or Normals.</param>
-        /// <returns>Converted <see cref="NVRMesh"/> meshes in the <see cref="OBJFile"/> format</returns>
+        /// <returns>Converted <see cref="SimpleEnvironmentMesh"/> meshes in the <see cref="OBJFile"/> format</returns>
         public static List<OBJFile> ConvertNVRMeshes(NVRFile nvr, string materialFile = "", bool simple = false)
         {
             List<OBJFile> returnList = new();
@@ -66,7 +66,7 @@ namespace LeagueToolkit.Converters
 
                 for (int meshIndex = 0; meshIndex < nvr.Meshes.Count; meshIndex++)
                 {
-                    NVRMesh mesh = nvr.Meshes[meshIndex];
+                    SimpleEnvironmentMesh mesh = nvr.Meshes[meshIndex];
 
                     var meshMaterialIndex = nvr.Materials.IndexOf(mesh.Material);
 

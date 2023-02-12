@@ -15,7 +15,7 @@ namespace LeagueToolkit.IO.NVR
         public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255, 127, 255 }, 0);
         public Box BoundingBox { get; private set; }
         public List<NVRNode> Children { get; private set; } = new List<NVRNode>();
-        public List<NVRMesh> Meshes { get; private set; } = new List<NVRMesh>();
+        public List<SimpleEnvironmentMesh> Meshes { get; private set; } = new List<SimpleEnvironmentMesh>();
 
         //Values used when reading
         public int FirstMesh;
@@ -54,7 +54,7 @@ namespace LeagueToolkit.IO.NVR
             this.BoundingBox = this.CalculateBoundingBox();
         }
 
-        public NVRNode(List<NVRMesh> meshes)
+        public NVRNode(List<SimpleEnvironmentMesh> meshes)
         {
             // Used when creating the big parent node.
             this.Meshes.AddRange(meshes);
