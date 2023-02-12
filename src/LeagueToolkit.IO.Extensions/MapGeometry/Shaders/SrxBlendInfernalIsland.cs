@@ -2,6 +2,7 @@
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
@@ -30,7 +31,30 @@ internal sealed class SrxBlendInfernalIsland : IMaterialAdapter
     {
         gltfMaterial.WithUnlit();
 
+        InitializeMaterialRenderTechnique(gltfMaterial, materialDef);
         InitializeMaterialBaseColorChannel(gltfMaterial, materialDef, mesh, root, textureRegistry, context);
+    }
+
+    private static void InitializeMaterialRenderTechnique(Material gltfMaterial, StaticMaterialDef materialDef)
+    {
+        StaticMaterialShaderParamDef alphaTestDef = materialDef.ParamValues.FirstOrDefault(
+            x => x.Value.Name is "Alpha_Test_Value"
+        );
+        alphaTestDef ??= new() { Value = Vector4.Zero with { X = 0.3f } };
+
+        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault(
+            x => x.Value.Name == materialDef.DefaultTechnique
+        );
+        techniqueDef ??= new();
+
+        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault();
+        passDef ??= new();
+
+        if (passDef.BlendEnable)
+        {
+            gltfMaterial.Alpha = AlphaMode.MASK;
+            gltfMaterial.AlphaCutoff = alphaTestDef.Value.X;
+        }
     }
 
     private static void InitializeMaterialBaseColorChannel(
