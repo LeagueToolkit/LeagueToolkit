@@ -15,7 +15,7 @@ using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.
 
 namespace LeagueToolkit.IO.Extensions.MapGeometry.Shaders;
 
-internal sealed class DefaultEnvFlat : IMaterialAdapter
+internal sealed class EnvTileableDiffuse : IMaterialAdapter
 {
     private const string DEFAULT_DIFFUSE_TEXTURE = "ASSETS/Shared/Materials/rock_texture.dds";
 
@@ -52,7 +52,7 @@ internal sealed class DefaultEnvFlat : IMaterialAdapter
     {
         // Resolve diffuse sampler definition, return if not found
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "DiffuseTexture"
+            x => x.Value.SamplerName is "Diffuse_Texture"
         );
         samplerDef ??= new() { TextureName = DEFAULT_DIFFUSE_TEXTURE };
 
@@ -72,9 +72,6 @@ internal sealed class DefaultEnvFlat : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        if (string.IsNullOrEmpty(mesh.BakedLight.Texture))
-            return;
-
         MaterialChannel emissiveChannel = gltfMaterial.FindChannel("Emissive").Value;
 
         gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", 0.1f);
