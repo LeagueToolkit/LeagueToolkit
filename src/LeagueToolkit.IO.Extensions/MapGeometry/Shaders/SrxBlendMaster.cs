@@ -30,7 +30,25 @@ internal sealed class SrxBlendMaster : IMaterialAdapter
     {
         gltfMaterial.WithUnlit();
 
+        InitializeMaterialRenderTechnique(gltfMaterial, materialDef);
         InitializeMaterialBaseColorChannel(gltfMaterial, materialDef, mesh, root, textureRegistry, context);
+    }
+
+    private static void InitializeMaterialRenderTechnique(Material gltfMaterial, StaticMaterialDef materialDef)
+    {
+        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault(
+            x => x.Value.Name == materialDef.DefaultTechnique
+        );
+        techniqueDef ??= new();
+
+        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault();
+        passDef ??= new();
+
+        if (passDef.BlendEnable)
+        {
+            gltfMaterial.Alpha = AlphaMode.MASK;
+            gltfMaterial.AlphaCutoff = 0.3f;
+        }
     }
 
     private static void InitializeMaterialBaseColorChannel(
