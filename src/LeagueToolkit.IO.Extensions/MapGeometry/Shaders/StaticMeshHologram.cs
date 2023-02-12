@@ -13,12 +13,12 @@ using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.
 
 namespace LeagueToolkit.IO.Extensions.MapGeometry.Shaders;
 
-internal static class StaticMeshHologram
+internal sealed class StaticMeshHologram : IMaterialAdapter
 {
     private static readonly string DEFAULT_DIFFUSE_TEXTURE = "ASSETS/Shared/Materials/black.dds";
     private static readonly string DEFAULT_MASK_TEXTURE = "ASSETS/Shared/Materials/black.dds";
 
-    public static void InitializeMaterial(
+    public void InitializeMaterial(
         Material gltfMaterial,
         StaticMaterialDef materialDef,
         EnvironmentAssetMesh mesh,
@@ -34,13 +34,12 @@ internal static class StaticMeshHologram
         gltfMaterial.Alpha = AlphaMode.MASK;
         gltfMaterial.AlphaCutoff = 0.3f;
 
-        InitializeChannels(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+        InitializeChannels(gltfMaterial, materialDef, textureRegistry, root, context);
     }
 
     private static void InitializeChannels(
         Material gltfMaterial,
         StaticMaterialDef materialDef,
-        EnvironmentAssetMesh mesh,
         TextureRegistry textureRegistry,
         ModelRoot root,
         MapGeometryGltfConversionContext context

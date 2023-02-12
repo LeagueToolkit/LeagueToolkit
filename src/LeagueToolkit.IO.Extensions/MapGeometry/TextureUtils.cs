@@ -12,6 +12,9 @@ using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using GltfImage = SharpGLTF.Schema2.Image;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
+using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
+using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
+
 namespace LeagueToolkit.IO.Extensions.MapGeometry;
 
 internal static class TextureUtils
@@ -32,13 +35,32 @@ internal static class TextureUtils
     }
 
     public static GltfImage CreateGltfImage(
-        string name,
+        string textureName,
+        ModelRoot root,
+        TextureRegistry textureRegistry,
+        MapGeometryGltfConversionContext context
+    )
+    {
+        if (textureRegistry.TryGetValue(textureName, out GltfImage existingImage))
+            return existingImage;
+
+        string texturePath = TextureUtils.GetQualityPrefixedTexturePath(
+            Path.Join(context.Settings.GameDataPath, textureName),
+            context.Settings.TextureQuality
+        );
+        using Image<Rgba32> image = GetImage(Load(texturePath));
+
+        return CreateGltfImage(textureName, image, root, textureRegistry);
+    }
+
+    public static GltfImage CreateGltfImage(
+        string textureName,
         Image<Rgba32> image,
         ModelRoot root,
         TextureRegistry textureRegistry
     )
     {
-        if (textureRegistry.TryGetValue(name, out GltfImage existingImage))
+        if (textureRegistry.TryGetValue(textureName, out GltfImage existingImage))
             return existingImage;
 
         using MemoryStream imageStream = new();
@@ -46,9 +68,9 @@ internal static class TextureUtils
 
         // Create glTF image
         GltfImage gltfImage = root.UseImage(new(imageStream.ToArray()));
-        gltfImage.Name = Path.GetFileNameWithoutExtension(name);
+        gltfImage.Name = Path.GetFileNameWithoutExtension(textureName);
 
-        textureRegistry.Add(name, gltfImage);
+        textureRegistry.Add(textureName, gltfImage);
         return gltfImage;
     }
 
@@ -83,4 +105,21 @@ internal static class TextureUtils
             false => texturePath
         };
     }
+
+    public static GltfTextureWrapMode GetWrapMode(TextureAddress textureAddress) =>
+        textureAddress switch
+        {
+            TextureAddress.Wrap => GltfTextureWrapMode.REPEAT,
+            TextureAddress.Clamp => GltfTextureWrapMode.CLAMP_TO_EDGE,
+            _ => throw new NotImplementedException($"Invalid {nameof(TextureAddress)}: {textureAddress}")
+        };
+
+    public static GltfTextureInterpolationFilter GetInterpolationFilter(TextureFilter textureFilter) =>
+        textureFilter switch
+        {
+            TextureFilter.None => GltfTextureInterpolationFilter.DEFAULT,
+            TextureFilter.Nearest => GltfTextureInterpolationFilter.NEAREST,
+            TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
+            _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
+        };
 }

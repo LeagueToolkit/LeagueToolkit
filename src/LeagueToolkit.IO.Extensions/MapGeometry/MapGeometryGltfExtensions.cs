@@ -19,8 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using GltfImage = SharpGLTF.Schema2.Image;
-using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
-using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
@@ -51,6 +49,15 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
 
         private const float DEFAULT_ALPHA_TEST = 0.3f;
+
+        private static readonly Dictionary<uint, IMaterialAdapter> MATERIAL_ADAPTERS =
+            new()
+            {
+                { Fnv1a.HashLower("Shaders/StaticMesh/Hologram"), new StaticMeshHologram() },
+                { Fnv1a.HashLower("Shaders/Environment/DefaultEnv"), new DefaultEnv() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/Env_Glow"), new EnvGlow() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/Emissive_Basic"), new EmissiveBasic() }
+            };
 
         /// <summary>
         /// Converts the <see cref="EnvironmentAsset"/> object into a glTF asset
@@ -282,26 +289,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
             gltfMaterial.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = gltfMaterial.Name });
 
             uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
-            if (defaultTechniqueShader == Fnv1a.HashLower("Shaders/StaticMesh/Hologram"))
+            if (MATERIAL_ADAPTERS.TryGetValue(defaultTechniqueShader, out IMaterialAdapter techniqueAdapter))
             {
-                StaticMeshHologram.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+                techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
             }
             else
             {
-                TryInitializeMetallicRoughness(gltfMaterial, materialDef, root, textureRegistry, context);
-
-                // Initialize material properties
-                InitializeMaterialRenderTechnique(gltfMaterial, materialDef);
-                InitializeMaterialBaseColorChannel(
-                    gltfMaterial,
-                    materialDef,
-                    bakedTerrainSamplers,
-                    mesh,
-                    root,
-                    textureRegistry,
-                    context
-                );
-                InitializeMaterialEmissiveColorChannel(gltfMaterial, materialDef, mesh, root, textureRegistry, context);
+                // TODO
             }
         }
 
@@ -317,186 +311,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             // Deserialize material definition
             return MetaSerializer.Deserialize<StaticMaterialDef>(context.MetaEnvironment, materialDefObject);
-        }
-
-        private static void TryInitializeMetallicRoughness(
-            Material gltfMaterial,
-            StaticMaterialDef materialDef,
-            ModelRoot root,
-            TextureRegistry textureRegistry,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            // Find specular glossiness sampler
-            StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-                x => x.Value.SamplerName is "Material"
-            );
-            MaterialChannel channel = gltfMaterial.FindChannel("MetallicRoughness").Value;
-
-            // Material isn't PBR Metallic Roughness
-            if (samplerDef is null)
-            {
-                channel.SetFactor("RoughnessFactor", 0.5f);
-                return;
-            }
-
-            // Resolve gloss factor parameter
-            StaticMaterialShaderParamDef glossParamDef = materialDef.ParamValues.FirstOrDefault(
-                x => x.Value.Name is "Gloss"
-            );
-
-            // Resolve specular factor parameter
-            StaticMaterialShaderParamDef specularFactorParamDef = materialDef.ParamValues.FirstOrDefault(
-                x => x.Value.Name is "SpecularColor_Multiplier"
-            );
-
-            // Convert specular glossiness map to roughness
-            float glossinessFactor = glossParamDef?.Value.X ?? 1f;
-            GltfImage image = CreateRoughnessImage(
-                samplerDef.TextureName,
-                glossinessFactor,
-                textureRegistry,
-                root,
-                context
-            );
-
-            channel.SetFactor("MetallicFactor", 0.75f);
-            channel.SetFactor("RoughnessFactor", 1);
-
-            channel.SetTexture(
-                0,
-                image,
-                ws: GetGltfTextureWrapMode((TextureAddress)samplerDef.AddressU),
-                wt: GetGltfTextureWrapMode((TextureAddress)samplerDef.AddressV)
-            );
-        }
-
-        private static void InitializeMaterialRenderTechnique(Material gltfMaterial, StaticMaterialDef materialDef)
-        {
-            // Resolve default technique
-            StaticMaterialTechniqueDef defaultTechnique = materialDef.Techniques.FirstOrDefault(
-                x => x.Value.Name == materialDef.DefaultTechnique
-            );
-            if (defaultTechnique is null)
-                return;
-
-            // Get first render pass definition
-            StaticMaterialPassDef pass = defaultTechnique.Passes.FirstOrDefault();
-            if (pass is null)
-                return;
-
-            // Try to get alpha cutoff, if it doesn't exist then assign default one
-            StaticMaterialShaderParamDef alphaCutoffParameter = materialDef.ParamValues.FirstOrDefault(
-                x => ALPHA_CLIP_PARAM_NAMES.Contains(x.Value.Name)
-            );
-
-            if (alphaCutoffParameter is not null)
-            {
-                gltfMaterial.Alpha = AlphaMode.MASK;
-                gltfMaterial.AlphaCutoff = alphaCutoffParameter.Value.X;
-            }
-            else if (pass.BlendEnable)
-            {
-                gltfMaterial.Alpha = AlphaMode.BLEND;
-            }
-            else
-            {
-                gltfMaterial.Alpha = AlphaMode.MASK;
-                gltfMaterial.AlphaCutoff = DEFAULT_ALPHA_TEST;
-            }
-        }
-
-        private static void InitializeMaterialBaseColorChannel(
-            Material gltfMaterial,
-            StaticMaterialDef materialDef,
-            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
-            EnvironmentAssetMesh mesh,
-            ModelRoot root,
-            TextureRegistry textureRegistry,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            Guard.IsNotNull(materialDef, nameof(materialDef));
-
-            // Resolve diffuse sampler definition, return if not found
-            StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-                x =>
-                    DIFFUSE_SAMPLER_NAMES.Contains(x.Value.SamplerName)
-                    || x.Value.SamplerName == bakedTerrainSamplers.Primary
-            );
-            if (samplerDef is null)
-                return;
-
-            // Figure out texcoord id and sampler transform
-            int texcoordId = 0;
-            EnvironmentAssetSampler sampler = new();
-            if (!string.IsNullOrEmpty(mesh.BakedPaint.Texture))
-            {
-                texcoordId = 1;
-                sampler = mesh.BakedPaint;
-            }
-            else if (!string.IsNullOrEmpty(samplerDef.TextureName))
-            {
-                sampler = new(samplerDef.TextureName, Vector2.One, Vector2.Zero);
-            }
-            else
-            {
-                sampler = mesh.StationaryLight;
-            }
-
-            StaticMaterialShaderParamDef colorParam = materialDef.ParamValues.FirstOrDefault(
-                x => x.Value.Name is "Color"
-            );
-            gltfMaterial.WithChannelColor("BaseColor", (colorParam?.Value ?? Vector4.One) with { W = 1f });
-
-            if (!string.IsNullOrEmpty(sampler.Texture))
-            {
-                MaterialChannel channel = gltfMaterial.FindChannel("BaseColor").Value;
-                GltfImage image = CreateImage(sampler.Texture, textureRegistry, root, context);
-
-                channel.SetTransform(sampler.Bias, sampler.Scale);
-                channel.SetTexture(
-                    texcoordId,
-                    image,
-                    ws: GetGltfTextureWrapMode((TextureAddress)samplerDef.AddressU),
-                    wt: GetGltfTextureWrapMode((TextureAddress)samplerDef.AddressV)
-                );
-            }
-        }
-
-        private static void InitializeMaterialEmissiveColorChannel(
-            Material gltfMaterial,
-            StaticMaterialDef materialDef,
-            EnvironmentAssetMesh mesh,
-            ModelRoot root,
-            TextureRegistry textureRegistry,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            StaticMaterialShaderParamDef emissiveColorParamDef = materialDef.ParamValues.FirstOrDefault(
-                x => x.Value.Name is "Emissive_Color"
-            );
-            StaticMaterialShaderParamDef emissiveIntensityParamDef = materialDef.ParamValues.FirstOrDefault(
-                x => x.Value.Name is "Emissive_Intensity"
-            );
-
-            MaterialChannel emissiveChannel = gltfMaterial.FindChannel("Emissive").Value;
-
-            gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", emissiveIntensityParamDef?.Value.X ?? 0.1f);
-            gltfMaterial.WithChannelColor("Emissive", Vector4.One);
-
-            if (emissiveColorParamDef is not null)
-            {
-                gltfMaterial.WithChannelColor("Emissive", emissiveColorParamDef?.Value ?? Vector4.One);
-            }
-            else if (!string.IsNullOrEmpty(mesh.BakedLight.Texture))
-            {
-                // Create glTF Image
-                GltfImage image = CreateImage(mesh.BakedLight.Texture, textureRegistry, root, context);
-
-                emissiveChannel.SetTransform(mesh.BakedLight.Bias, mesh.BakedLight.Scale);
-                emissiveChannel.SetTexture(1, image);
-            }
         }
 
         private static GltfImage CreateImage(
@@ -521,55 +335,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Re-encode to PNG
             ReadOnlyMemory2D<ColorRgba32> biggestMipMap = texture.Mips[0];
             using Image<Rgba32> image = biggestMipMap.ToImage();
-
-            return TextureUtils.CreateGltfImage(texturePath, image, root, textureRegistry);
-        }
-
-        private static GltfImage CreateRoughnessImage(
-            string textureName,
-            float glossinessFactor,
-            TextureRegistry textureRegistry,
-            ModelRoot root,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            string texturePath = TextureUtils.GetQualityPrefixedTexturePath(
-                Path.Join(context.Settings.GameDataPath, textureName),
-                context.Settings.TextureQuality
-            );
-
-            // If texture is already loaded, return it
-            if (textureRegistry.TryGetValue(texturePath, out GltfImage existingImage))
-                return existingImage;
-
-            // Load texture
-            LeagueTexture texture = TextureUtils.Load(texturePath);
-
-            // Re-encode to PNG
-            ReadOnlyMemory2D<ColorRgba32> biggestMipMap = texture.Mips[0];
-            using Image<Rgba32> image = biggestMipMap.ToImage();
-
-            // Convert specular glossiness to roughness
-            image.ProcessPixelRows(x =>
-            {
-                for (int rowId = 0; rowId < x.Height; rowId++)
-                {
-                    Span<Rgba32> row = x.GetRowSpan(rowId);
-
-                    for (int i = 0; i < row.Length; i++)
-                    {
-                        Rgba32 color = row[i];
-
-                        row[i] = new()
-                        {
-                            R = 0,
-                            G = (byte)(255 - Math.Round(color.A * glossinessFactor)),
-                            B = color.R,
-                            A = 255
-                        };
-                    }
-                }
-            });
 
             return TextureUtils.CreateGltfImage(texturePath, image, root, textureRegistry);
         }
@@ -623,23 +388,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             return technique?.Passes.FirstOrDefault()?.Value.Shader ?? default;
         }
-
-        private static GltfTextureWrapMode GetGltfTextureWrapMode(TextureAddress textureAddress) =>
-            textureAddress switch
-            {
-                TextureAddress.Wrap => GltfTextureWrapMode.REPEAT,
-                TextureAddress.Clamp => GltfTextureWrapMode.CLAMP_TO_EDGE,
-                _ => throw new NotImplementedException($"Invalid {nameof(TextureAddress)}: {textureAddress}")
-            };
-
-        private static GltfTextureInterpolationFilter GetGltfTextureInterpolationFilter(TextureFilter textureFilter) =>
-            textureFilter switch
-            {
-                TextureFilter.None => GltfTextureInterpolationFilter.DEFAULT,
-                TextureFilter.Nearest => GltfTextureInterpolationFilter.NEAREST,
-                TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
-                _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
-            };
 
         private readonly struct GltfMapRootExtras
         {
