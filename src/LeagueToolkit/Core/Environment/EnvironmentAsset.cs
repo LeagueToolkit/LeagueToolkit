@@ -521,3 +521,13 @@ internal static class BakedEnvironmentVertexDescription
 {
     public static readonly VertexElement[] BASIC = new[] { VertexElement.POSITION, VertexElement.DIFFUSE_UV };
 }
+
+internal static class SimpleEnvironmentVertexDescription
+{
+    public static readonly VertexElement[] POSITION = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] UV2 = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] UV3 = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] COLOR2 = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] DECAL = new[] { VertexElement.POSITION };
+    public static readonly VertexElement[] POSITION_UV1 = new[] { VertexElement.POSITION };
+}
