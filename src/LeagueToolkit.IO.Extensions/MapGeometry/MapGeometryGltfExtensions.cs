@@ -315,15 +315,10 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Include material metadata
             gltfMaterial.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = gltfMaterial.Name });
 
+            // Initialize only if there is an adapter for the shader
             uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
             if (MATERIAL_ADAPTERS.TryGetValue(defaultTechniqueShader, out IMaterialAdapter techniqueAdapter))
-            {
                 techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
-            }
-            else
-            {
-                // TODO
-            }
         }
 
         private static StaticMaterialDef ResolveMaterialDefiniton(
@@ -339,33 +334,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Deserialize material definition
             return MetaSerializer.Deserialize<StaticMaterialDef>(context.MetaEnvironment, materialDefObject);
         }
-
-        private static GltfImage CreateImage(
-            string textureName,
-            TextureRegistry textureRegistry,
-            ModelRoot root,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            string texturePath = TextureUtils.GetQualityPrefixedTexturePath(
-                Path.Join(context.Settings.GameDataPath, textureName),
-                context.Settings.TextureQuality
-            );
-
-            // If texture is already loaded, return it
-            if (textureRegistry.TryGetValue(texturePath, out GltfImage existingImage))
-                return existingImage;
-
-            // Load texture
-            LeagueTexture texture = TextureUtils.Load(texturePath);
-
-            // Re-encode to PNG
-            ReadOnlyMemory2D<ColorRgba32> biggestMipMap = texture.Mips[0];
-            using Image<Rgba32> image = biggestMipMap.ToImage();
-
-            return TextureUtils.CreateGltfImage(texturePath, image, root, textureRegistry);
-        }
-
         #endregion
 
         private static void CreateSun(MapContainer mapContainer, ModelRoot root)
