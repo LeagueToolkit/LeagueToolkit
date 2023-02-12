@@ -61,8 +61,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     new DefaultEnvFlatAlphaTestDoubleSided()
                 },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Chemtech_Decal"), new SrxBlendChemtechDecal() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Chemtech_Ground"), new SrxBlendChemtechGround() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Cloud_Ground"), new SrxBlendCloudGround() },
-                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Ground"), new SrxBlendCloudGround() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Ground"), new SrxBlendEarthGround() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Island"), new SrxBlendEarthIsland() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Rocks"), new SrxBlendEarthRocks() },
                 { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Generic_Island"), new SrxBlendGenericIsland() },
