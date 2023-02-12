@@ -65,7 +65,7 @@ namespace LeagueToolkit.IO.NVR
             }
             else if (
                 mat.Type == SimpleEnvironmentMaterialType.Default
-                && mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.ColoredVertex)
+                && mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.DualVertexColor)
             )
             {
                 return NVRVertexType.NVRVERTEX_8;
