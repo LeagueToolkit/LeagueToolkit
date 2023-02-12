@@ -125,11 +125,11 @@ class Program
     static void ProfileMapgeoToGltf()
     {
         using FileStream materialsBinStream = File.OpenRead(
-            @"X:\lol\game\data\maps\mapgeometry\map22\starguardian.materials.bin"
+            @"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"
         );
         BinTree materialsBin = new(materialsBinStream);
 
-        using FileStream mapgeoStream = File.OpenRead(@"X:\lol\game\data\maps\mapgeometry\map22\starguardian.mapgeo");
+        using FileStream mapgeoStream = File.OpenRead(@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo");
         using EnvironmentAsset mgeo = new(mapgeoStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
@@ -149,7 +149,7 @@ class Program
                     }
                 )
             )
-            .SaveGLB("map22_starguardian.glb");
+            .SaveGLB("worlds_trophyonly.glb");
     }
 
     static void ProfileTexture()
