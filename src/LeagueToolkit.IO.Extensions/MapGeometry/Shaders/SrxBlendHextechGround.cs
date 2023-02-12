@@ -15,7 +15,7 @@ using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.
 
 namespace LeagueToolkit.IO.Extensions.MapGeometry.Shaders;
 
-internal sealed class SrxBlendHextechIsland : IMaterialAdapter
+internal sealed class SrxBlendHextechGround : IMaterialAdapter
 {
     private const string DEFAULT_DIFFUSE_TEXTURE = "ASSETS/Maps/KitPieces/SRX/textures/Earth_RockSpike_A.dds";
 
@@ -30,25 +30,7 @@ internal sealed class SrxBlendHextechIsland : IMaterialAdapter
     {
         gltfMaterial.WithUnlit();
 
-        InitializeMaterialRenderTechnique(gltfMaterial, materialDef);
         InitializeMaterialBaseColorChannel(gltfMaterial, materialDef, mesh, root, textureRegistry, context);
-    }
-
-    private static void InitializeMaterialRenderTechnique(Material gltfMaterial, StaticMaterialDef materialDef)
-    {
-        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault(
-            x => x.Value.Name == materialDef.DefaultTechnique
-        );
-        techniqueDef ??= new();
-
-        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault();
-        passDef ??= new();
-
-        if (passDef.BlendEnable)
-        {
-            gltfMaterial.Alpha = AlphaMode.MASK;
-            gltfMaterial.AlphaCutoff = 0.3f;
-        }
     }
 
     private static void InitializeMaterialBaseColorChannel(
@@ -62,7 +44,7 @@ internal sealed class SrxBlendHextechIsland : IMaterialAdapter
     {
         // Resolve diffuse sampler definition, return if not found
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "DiffuseTexture"
+            x => x.Value.SamplerName is "Diffuse_Texture"
         );
         samplerDef ??= new() { TextureName = DEFAULT_DIFFUSE_TEXTURE };
 
