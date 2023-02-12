@@ -137,7 +137,7 @@ namespace LeagueToolkit.IO.NVR
             // Creating complex buffers first
             foreach (SimpleEnvironmentMesh mesh in Meshes)
             {
-                NVRDrawIndexedPrimitive complexMesh = mesh.IndexedPrimitives[0];
+                SimpleEnvironmentMeshPrimitive complexMesh = mesh.IndexedPrimitives[0];
                 NVRVertexType type = complexMesh.Vertices[0].GetVertexType();
                 NVRVertexBuffer vertBuffer = buffers.GetVertexBuffer(complexMesh.Vertices.Count, type);
                 int bufferIndex = buffers.VertexBuffers.IndexOf(vertBuffer);
@@ -161,7 +161,7 @@ namespace LeagueToolkit.IO.NVR
             // Then do simple ones
             foreach (SimpleEnvironmentMesh mesh in Meshes)
             {
-                NVRDrawIndexedPrimitive simpleMesh = mesh.IndexedPrimitives[1];
+                SimpleEnvironmentMeshPrimitive simpleMesh = mesh.IndexedPrimitives[1];
                 NVRVertexType type = simpleMesh.Vertices[0].GetVertexType();
                 NVRVertexBuffer vertBuffer = buffers.GetVertexBuffer(simpleMesh.Vertices.Count, type);
                 int bufferIndex = buffers.VertexBuffers.IndexOf(vertBuffer);

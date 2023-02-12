@@ -19,7 +19,8 @@ namespace LeagueToolkit.IO.NVR
         public Sphere BoundingSphere { get; private set; }
         public Box BoundingBox { get; private set; }
         public SimpleEnvironmentMaterial Material { get; private set; }
-        public NVRDrawIndexedPrimitive[] IndexedPrimitives { get; private set; } = new NVRDrawIndexedPrimitive[2];
+        public SimpleEnvironmentMeshPrimitive[] IndexedPrimitives { get; private set; } =
+            new SimpleEnvironmentMeshPrimitive[2];
 
         //Used for writing
         public int MaterialIndex;
@@ -34,8 +35,8 @@ namespace LeagueToolkit.IO.NVR
             this.BoundingSphere = br.ReadSphere();
             this.BoundingBox = br.ReadBox();
             this.Material = buffers.Materials[br.ReadInt32()];
-            this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(br, buffers, this, true);
-            this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(br, buffers, this, false);
+            this.IndexedPrimitives[0] = new SimpleEnvironmentMeshPrimitive(br, buffers, this, true);
+            this.IndexedPrimitives[1] = new SimpleEnvironmentMeshPrimitive(br, buffers, this, false);
         }
 
         public SimpleEnvironmentMesh(
@@ -49,8 +50,8 @@ namespace LeagueToolkit.IO.NVR
             this.QualityLevel = meshQualityLevel;
             this.Flag = flag;
             this.Material = material;
-            this.IndexedPrimitives[0] = new NVRDrawIndexedPrimitive(this, vertices, indices, true);
-            this.IndexedPrimitives[1] = new NVRDrawIndexedPrimitive(this, vertices, indices, false);
+            this.IndexedPrimitives[0] = new SimpleEnvironmentMeshPrimitive(this, vertices, indices, true);
+            this.IndexedPrimitives[1] = new SimpleEnvironmentMeshPrimitive(this, vertices, indices, false);
 
             float[] min = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };
             float[] max = new float[3] { vertices[0].Position.X, vertices[0].Position.Y, vertices[0].Position.Z };

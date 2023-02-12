@@ -7,7 +7,7 @@ using System.IO;
 
 namespace LeagueToolkit.IO.NVR
 {
-    public class NVRDrawIndexedPrimitive
+    public class SimpleEnvironmentMeshPrimitive
     {
         public SimpleEnvironmentMesh Parent;
         public NVRVertexType VertexType { get; private set; }
@@ -22,7 +22,12 @@ namespace LeagueToolkit.IO.NVR
         public int FirstIndex;
         public int IndexCount;
 
-        public NVRDrawIndexedPrimitive(BinaryReader br, NVRBuffers buffers, SimpleEnvironmentMesh mesh, bool isComplex)
+        public SimpleEnvironmentMeshPrimitive(
+            BinaryReader br,
+            NVRBuffers buffers,
+            SimpleEnvironmentMesh mesh,
+            bool isComplex
+        )
         {
             this.Parent = mesh;
             // Read vertices
@@ -92,7 +97,7 @@ namespace LeagueToolkit.IO.NVR
             }
         }
 
-        public NVRDrawIndexedPrimitive(
+        public SimpleEnvironmentMeshPrimitive(
             SimpleEnvironmentMesh mesh,
             List<NVRVertex> vertices,
             List<int> indices,

@@ -75,7 +75,9 @@ namespace LeagueToolkit.Converters
                         continue;
                     }
 
-                    NVRDrawIndexedPrimitive primitive = simple ? mesh.IndexedPrimitives[1] : mesh.IndexedPrimitives[0];
+                    SimpleEnvironmentMeshPrimitive primitive = simple
+                        ? mesh.IndexedPrimitives[1]
+                        : mesh.IndexedPrimitives[0];
 
                     List<Vector3> vertices = new();
                     List<uint> indices = primitive.Indices.ConvertAll(i => (uint)i);
