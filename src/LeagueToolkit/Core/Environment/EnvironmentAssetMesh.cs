@@ -203,12 +203,12 @@ public sealed class EnvironmentAssetMesh
             for (int i = 0; i < 9; i++)
                 this._sphericalHarmonics[i] = br.ReadVector3();
 
-            this.StationaryLight = EnvironmentAssetSampler.Read(br);
+            this.BakedLight = EnvironmentAssetSampler.Read(br);
         }
         else
         {
-            this.StationaryLight = EnvironmentAssetSampler.Read(br);
             this.BakedLight = EnvironmentAssetSampler.Read(br);
+            this.StationaryLight = EnvironmentAssetSampler.Read(br);
 
             if (version >= 12)
                 this.BakedPaint = EnvironmentAssetSampler.Read(br);
@@ -264,12 +264,12 @@ public sealed class EnvironmentAssetMesh
             for (int i = 0; i < 9 - this.SphericalHarmonics.Count; i++)
                 bw.WriteVector3(Vector3.Zero);
 
-            this.StationaryLight.Write(bw);
+            this.BakedLight.Write(bw);
         }
         else
         {
-            this.StationaryLight.Write(bw);
             this.BakedLight.Write(bw);
+            this.StationaryLight.Write(bw);
 
             if (version >= 12)
                 this.BakedPaint.Write(bw);

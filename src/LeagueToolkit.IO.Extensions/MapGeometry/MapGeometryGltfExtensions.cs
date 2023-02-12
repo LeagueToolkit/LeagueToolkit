@@ -19,8 +19,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using GltfImage = SharpGLTF.Schema2.Image;
-using GltfTextureInterpolationFilter = SharpGLTF.Schema2.TextureInterpolationFilter;
-using GltfTextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
@@ -29,6 +27,9 @@ using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
 >;
 using LeagueToolkit.IO.Extensions.Utils;
 using LeagueToolkit.Core.Meta;
+using SixLabors.ImageSharp.Advanced;
+using LeagueToolkit.IO.Extensions.MapGeometry;
+using LeagueToolkit.IO.Extensions.MapGeometry.Shaders;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -36,15 +37,54 @@ namespace LeagueToolkit.IO.MapGeometryFile
     {
         private const string DEFAULT_MAP_NAME = "map";
 
-        private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[] { "DiffuseTexture", "Diffuse_Texture" };
+        private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[]
+        {
+            "DiffuseTexture",
+            "Diffuse_Texture",
+            "GlowTexture",
+            "Mask_Textures"
+        };
 
         private static readonly string[] ALPHA_CLIP_PARAM_NAMES = new[] { "AlphaTestValue", "Opacity_Clip" };
         private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
 
         private const float DEFAULT_ALPHA_TEST = 0.3f;
 
-        private const string TEXTURE_QUALITY_PREFIX_LOW = "4x";
-        private const string TEXTURE_QUALITY_PREFIX_MEDIUM = "2x";
+        private static readonly Dictionary<uint, IMaterialAdapter> MATERIAL_ADAPTERS =
+            new()
+            {
+                { Fnv1a.HashLower("Shaders/Environment/DefaultEnv"), new DefaultEnv() },
+                { Fnv1a.HashLower("Shaders/Environment/DefaultEnv_Flat"), new DefaultEnvFlat() },
+                { Fnv1a.HashLower("Shaders/Environment/DefaultEnv_Flat_AlphaTest"), new DefaultEnvFlatAlphaTest() },
+                {
+                    Fnv1a.HashLower("Shaders/Environment/DefaultEnv_Flat_AlphaTest_DoubleSided"),
+                    new DefaultEnvFlatAlphaTestDoubleSided()
+                },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Chemtech_Decal"), new SrxBlendChemtechDecal() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Chemtech_Ground"), new SrxBlendChemtechGround() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Cloud_Ground"), new SrxBlendCloudGround() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Cloud_WindZone"), new SrxBlendCloudWindZone() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Ground"), new SrxBlendEarthGround() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Island"), new SrxBlendEarthIsland() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Earth_Rocks"), new SrxBlendEarthRocks() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Generic_Island"), new SrxBlendGenericIsland() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Hextech_Dragon"), new SrxBlendHextechDragon() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Hextech_Ground"), new SrxBlendHextechGround() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Hextech_Island"), new SrxBlendHextechIsland() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Dragon"), new SrxBlendInfernalDragon() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Ground"), new SrxBlendInfernalGround() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Infernal_Island"), new SrxBlendInfernalIsland() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Master"), new SrxBlendMaster() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Blend_Ocean"), new SrxBlendOcean() },
+                { Fnv1a.HashLower("Shaders/Environment/SRX_Brush"), new SrxBrush() },
+                { Fnv1a.HashLower("Shaders/Environment/OD_FlowMap"), new OdFlowMap() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/Hologram"), new StaticMeshHologram() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/Env_Glow"), new EnvGlow() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/ENV_TileableDiffuse"), new EnvTileableDiffuse() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/Emissive_Basic"), new EmissiveBasic() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/AlphaTest_ENV"), new AlphaTestEnv() },
+                { Fnv1a.HashLower("Shaders/StaticMesh/SinFade_Alpha"), new SinFadeAlpha() }
+            };
 
         /// <summary>
         /// Converts the <see cref="EnvironmentAsset"/> object into a glTF asset
@@ -61,10 +101,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
-            Node mapNode = CreateMapNode(scene, materialsBin, context);
+
+            MapContainer mapContainer = GetMapContainer(materialsBin, context);
+
+            Node mapNode = CreateMapNode(scene, mapContainer, context);
 
             if (context.Settings.FlipAcrossX)
                 mapNode = mapNode.WithLocalScale(new(-1f, 1f, 1f));
+
+            // Create sun
+            CreateSun(mapContainer, root);
 
             // Create visibility nodes
             VisibilityNodeRegistry visibilityNodeRegistry = CreateIndividualVisibilityFlagsNodeRegistry(mapNode);
@@ -97,9 +143,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return root;
         }
 
-        private static Node CreateMapNode(Scene scene, BinTree materialsBin, MapGeometryGltfConversionContext context)
+        private static Node CreateMapNode(
+            Scene scene,
+            MapContainer mapContainer,
+            MapGeometryGltfConversionContext context
+        )
         {
-            string mapNodeName = GetMapName(materialsBin, context);
+            string mapNodeName = string.IsNullOrEmpty(mapContainer.MapPath) ? DEFAULT_MAP_NAME : mapContainer.MapPath;
             return scene.CreateNode(mapNodeName);
         }
 
@@ -230,7 +280,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             foreach (EnvironmentAssetMeshPrimitive range in mesh.Submeshes)
             {
                 Material material = root.CreateMaterial(range.Material)
-                    .WithUnlit()
+                    .WithPBRMetallicRoughness()
                     .WithDoubleSide(mesh.DisableBackfaceCulling);
 
                 InitializeMaterial(material, mesh, bakedTerrainSamplers, root, materialsBin, textureRegistry, context);
@@ -242,7 +292,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         }
 
         private static void InitializeMaterial(
-            Material material,
+            Material gltfMaterial,
             EnvironmentAssetMesh mesh,
             EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
             ModelRoot root,
@@ -259,23 +309,16 @@ namespace LeagueToolkit.IO.MapGeometryFile
             StaticMaterialDef materialDef = materialsBin switch
             {
                 null => new(),
-                _ => ResolveMaterialDefiniton(material.Name, materialsBin, context)
+                _ => ResolveMaterialDefiniton(gltfMaterial.Name, materialsBin, context)
             };
 
             // Include material metadata
-            material.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = material.Name });
+            gltfMaterial.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = gltfMaterial.Name });
 
-            // Initialize material properties
-            InitializeMaterialRenderTechnique(material, materialDef);
-            InitializeMaterialBaseColorChannel(
-                material,
-                materialDef,
-                bakedTerrainSamplers,
-                mesh,
-                root,
-                textureRegistry,
-                context
-            );
+            // Initialize only if there is an adapter for the shader
+            uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
+            if (MATERIAL_ADAPTERS.TryGetValue(defaultTechniqueShader, out IMaterialAdapter techniqueAdapter))
+                techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
         }
 
         private static StaticMaterialDef ResolveMaterialDefiniton(
@@ -291,146 +334,36 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Deserialize material definition
             return MetaSerializer.Deserialize<StaticMaterialDef>(context.MetaEnvironment, materialDefObject);
         }
-
-        private static void InitializeMaterialRenderTechnique(Material material, StaticMaterialDef materialDef)
-        {
-            // Resolve default technique
-            StaticMaterialTechniqueDef defaultTechnique = materialDef.Techniques.FirstOrDefault(
-                x => x.Value.Name == materialDef.DefaultTechnique
-            );
-            if (defaultTechnique is null)
-                return;
-
-            // Get first render pass definition
-            StaticMaterialPassDef pass = defaultTechnique.Passes.FirstOrDefault();
-            if (pass is null)
-                return;
-
-            // Try to get alpha cutoff, if it doesn't exist then assign default one
-            StaticMaterialShaderParamDef alphaCutoffParameter = materialDef.ParamValues.FirstOrDefault(
-                x => ALPHA_CLIP_PARAM_NAMES.Contains(x.Value.Name)
-            );
-            if (alphaCutoffParameter is not null)
-            {
-                material.Alpha = AlphaMode.MASK;
-                material.AlphaCutoff = alphaCutoffParameter.Value.X;
-            }
-            else if (pass.BlendEnable)
-            {
-                material.Alpha = AlphaMode.MASK;
-                material.AlphaCutoff = DEFAULT_ALPHA_TEST;
-            }
-        }
-
-        private static void InitializeMaterialBaseColorChannel(
-            Material material,
-            StaticMaterialDef materialDef,
-            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
-            EnvironmentAssetMesh mesh,
-            ModelRoot root,
-            TextureRegistry textureRegistry,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            Guard.IsNotNull(materialDef, nameof(materialDef));
-
-            // Resolve diffuse sampler definition, return if not found
-            StaticMaterialShaderSamplerDef diffuseSampler = materialDef.SamplerValues.FirstOrDefault(
-                x =>
-                    DIFFUSE_SAMPLER_NAMES.Contains(x.Value.SamplerName)
-                    || x.Value.SamplerName == bakedTerrainSamplers.Primary
-            );
-            if (diffuseSampler is null)
-                return;
-
-            int texcoordId = 0;
-            EnvironmentAssetSampler sampler = new();
-            if (!string.IsNullOrEmpty(mesh.BakedPaint.Texture))
-            {
-                texcoordId = 1;
-                sampler = mesh.BakedPaint;
-            }
-            else if (!string.IsNullOrEmpty(diffuseSampler.TextureName))
-            {
-                sampler = new(diffuseSampler.TextureName, Vector2.One, Vector2.Zero);
-            }
-            else
-            {
-                sampler = mesh.StationaryLight;
-            }
-
-            // Return if we couldn't figure out the sampler
-            if (string.IsNullOrEmpty(sampler.Texture))
-                return;
-
-            // Create glTF Image
-            GltfImage image = CreateImage(sampler.Texture, textureRegistry, root, context);
-
-            // Set channel properties
-            MaterialChannel baseColorChannel = material.FindChannel("BaseColor").Value;
-
-            baseColorChannel.SetTransform(sampler.Bias, sampler.Scale);
-            baseColorChannel.SetTexture(
-                texcoordId,
-                image,
-                ws: GetGltfTextureWrapMode((TextureAddress)diffuseSampler.AddressU),
-                wt: GetGltfTextureWrapMode((TextureAddress)diffuseSampler.AddressV)
-            );
-        }
-
-        private static GltfImage CreateImage(
-            string textureName,
-            TextureRegistry textureRegistry,
-            ModelRoot root,
-            MapGeometryGltfConversionContext context
-        )
-        {
-            string texturePath = GetQualityPrefixedTexturePath(
-                Path.Join(context.Settings.GameDataPath, textureName),
-                context.Settings.TextureQuality
-            );
-
-            // If texture is already loaded, return it
-            if (textureRegistry.TryGetValue(texturePath, out GltfImage existingImage))
-                return existingImage;
-
-            // Load texture
-            LeagueTexture texture = LoadTexture(texturePath);
-
-            // Re-encode to PNG
-            ReadOnlyMemory2D<ColorRgba32> biggestMipMap = texture.Mips[0];
-            using MemoryStream imageStream = new();
-            using Image<Rgba32> image = biggestMipMap.ToImage();
-
-            image.SaveAsPng(imageStream);
-
-            // Create glTF image
-            GltfImage gltfImage = root.UseImage(new(imageStream.ToArray()));
-            gltfImage.Name = Path.GetFileNameWithoutExtension(texturePath);
-
-            textureRegistry.Add(texturePath, gltfImage);
-
-            return gltfImage;
-        }
-
-        private static LeagueTexture LoadTexture(string texturePath)
-        {
-            // Get texture file format and return if it's unknown
-            using FileStream textureStream = File.OpenRead(texturePath);
-            TextureFileFormat format = LeagueTexture.IdentifyFileFormat(textureStream);
-            if (format is TextureFileFormat.Unknown)
-                return null;
-
-            // Load and register texture
-            return LeagueTexture.Load(textureStream);
-        }
         #endregion
 
-        private static string GetMapName(BinTree materialsBin, MapGeometryGltfConversionContext context)
+        private static void CreateSun(MapContainer mapContainer, ModelRoot root)
         {
-            if (materialsBin is null)
-                return DEFAULT_MAP_NAME;
+            MapSunProperties sunComponent = (MapSunProperties)
+                mapContainer.Components.FirstOrDefault(x => x is MapSunProperties);
 
+            Vector2 mapCenter = Vector2.Multiply(
+                Vector2.Abs(mapContainer.BoundsMin) + Vector2.Abs(mapContainer.BoundsMax),
+                0.5f
+            );
+
+            Node sunNode = root.CreateLogicalNode()
+                .WithLocalTransform(
+                    Matrix4x4.CreateLookAt(
+                        Vector3.Zero,
+                        Vector3.Multiply(sunComponent.SunDirection, new Vector3(1f, 1f, -1f)),
+                        Vector3.UnitY
+                    )
+                );
+
+            sunNode.PunctualLight = root.CreatePunctualLight("sun", PunctualLightType.Directional)
+                .WithColor(
+                    new(sunComponent.SunColor.X, sunComponent.SunColor.Y, sunComponent.SunColor.Z),
+                    sunComponent.SunIntensityScale / 10f // convert to lux unit
+                );
+        }
+
+        private static MapContainer GetMapContainer(BinTree materialsBin, MapGeometryGltfConversionContext context)
+        {
             if (
                 materialsBin.Objects.Values.FirstOrDefault(x => x.ClassHash == Fnv1a.HashLower(nameof(MapContainer)))
                 is not BinTreeObject mapContainerObject
@@ -439,56 +372,17 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     $"Failed to find {nameof(MapContainer)} in the provided materials.bin"
                 );
 
-            MapContainer mapContainer = MetaSerializer.Deserialize<MapContainer>(
-                context.MetaEnvironment,
-                mapContainerObject
+            return MetaSerializer.Deserialize<MapContainer>(context.MetaEnvironment, mapContainerObject);
+        }
+
+        private static MetaObjectLink GetDefaultTechniqueShaderLink(StaticMaterialDef material)
+        {
+            StaticMaterialTechniqueDef technique = material.Techniques.FirstOrDefault(
+                x => x.Value.Name == material.DefaultTechnique
             );
 
-            return string.IsNullOrEmpty(mapContainer.MapPath) ? DEFAULT_MAP_NAME : mapContainer.MapPath;
+            return technique?.Passes.FirstOrDefault()?.Value.Shader ?? default;
         }
-
-        private static string GetQualityPrefixedTexturePath(string texturePath, MapGeometryGltfTextureQuality quality)
-        {
-            string prefixedPath = quality switch
-            {
-                MapGeometryGltfTextureQuality.Low
-                    => Path.Combine(
-                        Path.GetDirectoryName(texturePath),
-                        $"{TEXTURE_QUALITY_PREFIX_LOW}_{Path.GetFileName(texturePath)}"
-                    ),
-                MapGeometryGltfTextureQuality.Medium
-                    => Path.Combine(
-                        Path.GetDirectoryName(texturePath),
-                        $"{TEXTURE_QUALITY_PREFIX_MEDIUM}_{Path.GetFileName(texturePath)}"
-                    ),
-                MapGeometryGltfTextureQuality.High => texturePath,
-                _ => throw new NotImplementedException($"Invalid {nameof(MapGeometryGltfTextureQuality)}: {quality}"),
-            };
-
-            // Check if file exists, otherwise return non-prefixed
-            return File.Exists(prefixedPath) switch
-            {
-                true => prefixedPath,
-                false => texturePath
-            };
-        }
-
-        private static GltfTextureWrapMode GetGltfTextureWrapMode(TextureAddress textureAddress) =>
-            textureAddress switch
-            {
-                TextureAddress.Wrap => GltfTextureWrapMode.REPEAT,
-                TextureAddress.Clamp => GltfTextureWrapMode.CLAMP_TO_EDGE,
-                _ => throw new NotImplementedException($"Invalid {nameof(TextureAddress)}: {textureAddress}")
-            };
-
-        private static GltfTextureInterpolationFilter GetGltfTextureInterpolationFilter(TextureFilter textureFilter) =>
-            textureFilter switch
-            {
-                TextureFilter.None => GltfTextureInterpolationFilter.DEFAULT,
-                TextureFilter.Nearest => GltfTextureInterpolationFilter.NEAREST,
-                TextureFilter.Linear => GltfTextureInterpolationFilter.LINEAR,
-                _ => throw new NotImplementedException($"Invalid {nameof(TextureFilter)}: {textureFilter}")
-            };
 
         private readonly struct GltfMapRootExtras
         {
