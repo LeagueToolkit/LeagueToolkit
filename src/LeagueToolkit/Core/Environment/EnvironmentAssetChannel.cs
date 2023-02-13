@@ -5,9 +5,9 @@ using System.Text;
 namespace LeagueToolkit.Core.Environment;
 
 /// <summary>
-/// Represents a texture sampler
+/// Represents a sampling channel
 /// </summary>
-public struct EnvironmentAssetSampler
+public struct EnvironmentAssetChannel
 {
     /// <summary>
     /// Gets the texture
@@ -25,9 +25,9 @@ public struct EnvironmentAssetSampler
     public Vector2 Bias;
 
     /// <summary>
-    /// Creates a new <see cref="EnvironmentAssetSampler"/> object
+    /// Creates a new <see cref="EnvironmentAssetChannel"/> object
     /// </summary>
-    public EnvironmentAssetSampler()
+    public EnvironmentAssetChannel()
     {
         this.Texture = string.Empty;
         this.Scale = Vector2.Zero;
@@ -35,20 +35,20 @@ public struct EnvironmentAssetSampler
     }
 
     /// <summary>
-    /// Creates a new <see cref="EnvironmentAssetSampler"/> object with the specified parameters
+    /// Creates a new <see cref="EnvironmentAssetChannel"/> object with the specified parameters
     /// </summary>
-    public EnvironmentAssetSampler(string texture, Vector2 scale, Vector2 bias)
+    public EnvironmentAssetChannel(string texture, Vector2 scale, Vector2 bias)
     {
         this.Texture = texture;
         this.Scale = scale;
         this.Bias = bias;
     }
 
-    internal static EnvironmentAssetSampler Read(BinaryReader br)
+    internal static EnvironmentAssetChannel Read(BinaryReader br)
     {
         return new()
         {
-            Texture = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32())),
+            Texture = Encoding.UTF8.GetString(br.ReadBytes(br.ReadInt32())),
             Scale = br.ReadVector2(),
             Bias = br.ReadVector2()
         };
@@ -56,8 +56,10 @@ public struct EnvironmentAssetSampler
 
     internal void Write(BinaryWriter bw)
     {
-        bw.Write(this.Texture.Length);
-        bw.Write(Encoding.ASCII.GetBytes(this.Texture ?? string.Empty));
+        bw.Write(this.Texture?.Length ?? 0);
+        if (!string.IsNullOrEmpty(this.Texture))
+            bw.Write(Encoding.UTF8.GetBytes(this.Texture));
+
         bw.WriteVector2(this.Scale);
         bw.WriteVector2(this.Bias);
     }

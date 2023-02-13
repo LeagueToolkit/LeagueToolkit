@@ -89,7 +89,7 @@ internal sealed class DefaultEnv : IMaterialAdapter
 
         // Figure out texcoord id and sampler transform
         int texcoordId = 0;
-        EnvironmentAssetSampler sampler = new();
+        EnvironmentAssetChannel sampler = new();
         if (!string.IsNullOrEmpty(mesh.BakedPaint.Texture))
         {
             texcoordId = 1;
