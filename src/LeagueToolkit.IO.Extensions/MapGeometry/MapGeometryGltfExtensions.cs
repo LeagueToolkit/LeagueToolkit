@@ -102,7 +102,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
 
-            MapContainer mapContainer = GetMapContainer(materialsBin, context);
+            MapContainer mapContainer = materialsBin is null ? new() : GetMapContainer(materialsBin, context);
 
             Node mapNode = CreateMapNode(scene, mapContainer, context);
 
@@ -318,7 +318,23 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Initialize only if there is an adapter for the shader
             uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
             if (MATERIAL_ADAPTERS.TryGetValue(defaultTechniqueShader, out IMaterialAdapter techniqueAdapter))
+            {
                 techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(mesh.StationaryLight.Texture))
+                    return;
+
+                // Try to initialize simple material
+                gltfMaterial.InitializeUnlit();
+
+                gltfMaterial.WithChannelTexture(
+                    "BaseColor",
+                    0,
+                    TextureUtils.CreateGltfImage(mesh.StationaryLight.Texture, root, textureRegistry, context)
+                );
+            }
         }
 
         private static StaticMaterialDef ResolveMaterialDefiniton(
@@ -340,6 +356,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             MapSunProperties sunComponent = (MapSunProperties)
                 mapContainer.Components.FirstOrDefault(x => x is MapSunProperties);
+            if (sunComponent is null)
+                return;
 
             Vector2 mapCenter = Vector2.Multiply(
                 Vector2.Abs(mapContainer.BoundsMin) + Vector2.Abs(mapContainer.BoundsMax),

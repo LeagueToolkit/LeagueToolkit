@@ -36,7 +36,32 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMapgeoToGltf();
+        using FileStream stream = File.OpenRead(@"X:\lol\old_backup\Map10\scene\room.nvr");
+        EnvironmentAsset nvr = EnvironmentAsset.LoadSimpleEnvironment(stream);
+
+        using FileStream writeStream = File.Create("TT_room.nvr.mapgeo");
+        nvr.Write(writeStream, 13);
+
+        MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+            Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+        );
+
+        nvr.ToGltf(
+                null,
+                new(
+                    metaEnvironment,
+                    new()
+                    {
+                        GameDataPath = @"X:\lol\old_backup\Map10\scene\Textures",
+                        FlipAcrossX = false,
+                        LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
+                        TextureQuality = MapGeometryGltfTextureQuality.High
+                    }
+                )
+            )
+            .SaveGLB("twistedtreeline.glb");
+
+        //ProfileMapgeoToGltf();
     }
 
     static void ExtractWad(string wadPath, string extractTo)
@@ -125,11 +150,13 @@ class Program
     static void ProfileMapgeoToGltf()
     {
         using FileStream materialsBinStream = File.OpenRead(
-            @"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"
+            @"C:\Users\Filip\Downloads\bilgewater.materials.bin" /*@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"*/
         );
         BinTree materialsBin = new(materialsBinStream);
 
-        using FileStream mapgeoStream = File.OpenRead(@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo");
+        using FileStream mapgeoStream = File.OpenRead(
+            @"C:\Users\Filip\Downloads\bilgewater.mapgeo" /*@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo"*/
+        );
         using EnvironmentAsset mgeo = new(mapgeoStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
@@ -145,11 +172,11 @@ class Program
                         GameDataPath = "X:/lol/game",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
-                        TextureQuality = MapGeometryGltfTextureQuality.Low
+                        TextureQuality = MapGeometryGltfTextureQuality.High
                     }
                 )
             )
-            .SaveGLB("worlds_trophyonly.glb");
+            .SaveGLB("bilgewater.glb");
     }
 
     static void ProfileTexture()
