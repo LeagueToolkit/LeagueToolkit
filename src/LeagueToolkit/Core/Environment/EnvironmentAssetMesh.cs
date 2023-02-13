@@ -81,15 +81,15 @@ public sealed class EnvironmentAssetMesh
 
     /// <summary>Gets the <c>"STATIONARY_LIGHT"</c> sampler data</summary>
     /// <remarks>Usually contains a diffuse texture</remarks>
-    public EnvironmentAssetSampler StationaryLight { get; private set; }
+    public EnvironmentAssetChannel StationaryLight { get; private set; }
 
     /// <summary>Gets the <c>"BAKED_LIGHT"</c> sampler data</summary>
     /// <remarks>Usually contains a lightmap texture (baked from scene point lights)</remarks>
-    public EnvironmentAssetSampler BakedLight { get; private set; }
+    public EnvironmentAssetChannel BakedLight { get; private set; }
 
     /// <summary>Gets the <c>"BAKED_PAINT"</c> sampler data</summary>
     /// <remarks>Usually contains a texture with baked diffuse and lightmap data</remarks>
-    public EnvironmentAssetSampler BakedPaint { get; private set; }
+    public EnvironmentAssetChannel BakedPaint { get; private set; }
 
     internal int _baseVertexBufferDescriptionId;
     internal int[] _vertexBufferIds;
@@ -110,9 +110,9 @@ public sealed class EnvironmentAssetMesh
         EnvironmentQuality environmentQualityFilter,
         EnvironmentVisibility visibilityFlags,
         EnvironmentAssetMeshRenderFlags renderFlags,
-        EnvironmentAssetSampler stationaryLight,
-        EnvironmentAssetSampler bakedLight,
-        EnvironmentAssetSampler bakedPaint
+        EnvironmentAssetChannel stationaryLight,
+        EnvironmentAssetChannel bakedLight,
+        EnvironmentAssetChannel bakedPaint
     )
     {
         this.Name = CreateName(id);
@@ -203,15 +203,15 @@ public sealed class EnvironmentAssetMesh
             for (int i = 0; i < 9; i++)
                 this._sphericalHarmonics[i] = br.ReadVector3();
 
-            this.BakedLight = EnvironmentAssetSampler.Read(br);
+            this.BakedLight = EnvironmentAssetChannel.Read(br);
         }
         else
         {
-            this.BakedLight = EnvironmentAssetSampler.Read(br);
-            this.StationaryLight = EnvironmentAssetSampler.Read(br);
+            this.BakedLight = EnvironmentAssetChannel.Read(br);
+            this.StationaryLight = EnvironmentAssetChannel.Read(br);
 
             if (version >= 12)
-                this.BakedPaint = EnvironmentAssetSampler.Read(br);
+                this.BakedPaint = EnvironmentAssetChannel.Read(br);
         }
     }
 

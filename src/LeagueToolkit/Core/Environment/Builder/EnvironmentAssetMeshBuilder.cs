@@ -18,9 +18,9 @@ public sealed class EnvironmentAssetMeshBuilder
     private EnvironmentVisibility _visibilityFlags;
     private EnvironmentAssetMeshRenderFlags _renderFlags;
 
-    private EnvironmentAssetSampler _stationaryLight;
-    private EnvironmentAssetSampler _bakedLight;
-    private EnvironmentAssetSampler _bakedPaint;
+    private EnvironmentAssetChannel _stationaryLight;
+    private EnvironmentAssetChannel _bakedLight;
+    private EnvironmentAssetChannel _bakedPaint;
 
     private EnvironmentAssetMeshPrimitive[] _ranges;
 
@@ -115,21 +115,21 @@ public sealed class EnvironmentAssetMeshBuilder
     }
 
     /// <summary>Sets the specified Stationary Light sampler for the <see cref="EnvironmentAssetMesh"/></summary>
-    public EnvironmentAssetMeshBuilder WithStationaryLightSampler(EnvironmentAssetSampler stationaryLight)
+    public EnvironmentAssetMeshBuilder WithStationaryLightSampler(EnvironmentAssetChannel stationaryLight)
     {
         this._stationaryLight = stationaryLight;
         return this;
     }
 
     /// <summary>Sets the specified Baked Light sampler for the <see cref="EnvironmentAssetMesh"/></summary>
-    public EnvironmentAssetMeshBuilder WithBakedLightSampler(EnvironmentAssetSampler bakedLight)
+    public EnvironmentAssetMeshBuilder WithBakedLightSampler(EnvironmentAssetChannel bakedLight)
     {
         this._bakedLight = bakedLight;
         return this;
     }
 
     /// <summary>Sets the specified Baked Paint sampler for the <see cref="EnvironmentAssetMesh"/></summary>
-    public EnvironmentAssetMeshBuilder WithBakedPaintSampler(EnvironmentAssetSampler bakedPaint)
+    public EnvironmentAssetMeshBuilder WithBakedPaintSampler(EnvironmentAssetChannel bakedPaint)
     {
         this._bakedPaint = bakedPaint;
         return this;

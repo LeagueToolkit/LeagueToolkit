@@ -415,9 +415,9 @@ namespace LeagueToolkit.IO.MapGeometryFile
             public int QualityFlags { get; init; }
             public int RenderFlags { get; init; }
 
-            public EnvironmentAssetSampler StationaryLight { get; init; }
-            public EnvironmentAssetSampler BakedLight { get; init; }
-            public EnvironmentAssetSampler BakedPaint { get; init; }
+            public EnvironmentAssetChannel StationaryLight { get; init; }
+            public EnvironmentAssetChannel BakedLight { get; init; }
+            public EnvironmentAssetChannel BakedPaint { get; init; }
         }
 
         private readonly struct GltfMaterialExtras
