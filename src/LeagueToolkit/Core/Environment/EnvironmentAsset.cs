@@ -641,7 +641,6 @@ public sealed class EnvironmentAsset : IDisposable
 
         return new(new(), meshes, new(), Array.Empty<PlanarReflector>(), meshVertexBuffers, meshIndexBuffers);
     }
-
     #endregion
 
     #region IDisposable
