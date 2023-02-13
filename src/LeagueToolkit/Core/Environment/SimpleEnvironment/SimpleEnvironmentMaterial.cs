@@ -2,7 +2,7 @@
 using LeagueToolkit.Helpers.Structures;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.NVR;
+namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
 public readonly struct SimpleEnvironmentMaterial
 {
@@ -79,6 +79,6 @@ public enum SimpleEnvironmentMaterialFlags : int
 public class MaterialInvalidChannelCountException : Exception
 {
     public MaterialInvalidChannelCountException(int actual)
-        : base(String.Format("There have to be exactly 8 channels in a material ({0} channel(s) specified).", actual))
+        : base(string.Format("There have to be exactly 8 channels in a material ({0} channel(s) specified).", actual))
     { }
 }

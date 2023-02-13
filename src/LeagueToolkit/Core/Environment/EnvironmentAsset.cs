@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Environment.SimpleEnvironment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
@@ -482,6 +483,72 @@ public sealed class EnvironmentAsset : IDisposable
             new(),
             new()
         );
+    }
+    #endregion
+
+    #region Simple Environment
+    public static EnvironmentAsset LoadSimpleEnvironment(Stream stream)
+    {
+        using BinaryReader br = new(stream, Encoding.UTF8, true);
+
+        string magic = Encoding.UTF8.GetString(br.ReadBytes(4));
+        if (magic is not "NVR\0")
+            throw new InvalidFileSignatureException();
+
+        ushort major = br.ReadUInt16();
+        ushort minor = br.ReadUInt16();
+
+        //Reading the counts
+        int materialsCount = br.ReadInt32();
+        int vertexBufferCount = br.ReadInt32();
+        int indexBufferCount = br.ReadInt32();
+        int meshesCount = br.ReadInt32();
+        int nodesCount = br.ReadInt32();
+
+        SimpleEnvironmentMaterial[] materials = new SimpleEnvironmentMaterial[materialsCount];
+        long[] vertexBufferOffsets = new long[vertexBufferCount];
+        IndexBuffer[] indexBuffers = new IndexBuffer[indexBufferCount];
+        SimpleEnvironmentMesh[] meshes = new SimpleEnvironmentMesh[meshesCount];
+
+        for (int i = 0; i < materialsCount; i++)
+        {
+            materials[i] = (major, minor) switch
+            {
+                (8, 1) => SimpleEnvironmentMaterial.ReadOld(br),
+                _ => SimpleEnvironmentMaterial.Read(br)
+            };
+        }
+
+        for (int i = 0; i < vertexBufferCount; i++)
+        {
+            int vertexBufferSize = br.ReadInt32();
+            vertexBufferOffsets[i] = br.BaseStream.Position;
+
+            br.BaseStream.Seek(vertexBufferSize, SeekOrigin.Current);
+        }
+        for (int i = 0; i < indexBufferCount; i++)
+        {
+            int indexBufferSize = br.ReadInt32();
+            int indexFormat = br.ReadInt32();
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(indexBufferSize);
+
+            br.Read(indexBufferOwner.Span);
+
+            indexBuffers[i] = IndexBuffer.Create(
+                indexFormat is 0x65 ? IndexFormat.U16 : IndexFormat.U32,
+                indexBufferOwner
+            );
+        }
+        for (int i = 0; i < meshesCount; i++)
+        {
+            meshes[i] = (major, minor) switch
+            {
+                (8, 1) => SimpleEnvironmentMesh.ReadOld(br),
+                _ => SimpleEnvironmentMesh.Read(br)
+            };
+        }
+
+        return null;
     }
     #endregion
 

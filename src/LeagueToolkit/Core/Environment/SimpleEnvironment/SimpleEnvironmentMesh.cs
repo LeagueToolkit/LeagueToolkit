@@ -2,7 +2,7 @@
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
 
-namespace LeagueToolkit.IO.NVR;
+namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
 public readonly struct SimpleEnvironmentMesh
 {

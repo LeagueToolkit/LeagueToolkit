@@ -1,4 +1,4 @@
-﻿namespace LeagueToolkit.IO.NVR;
+﻿namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
 public readonly struct SimpleEnvironmentMeshPrimitive
 {
