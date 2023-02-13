@@ -1,6 +1,6 @@
 ﻿namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-public readonly struct SimpleEnvironmentMeshPrimitive
+internal readonly struct SimpleEnvironmentMeshPrimitive
 {
     public int VertexBufferId { get; }
     public int StartVertex { get; }

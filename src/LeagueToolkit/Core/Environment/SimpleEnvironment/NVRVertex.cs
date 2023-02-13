@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-public class NVRVertex
+internal class NVRVertex
 {
     public Vector3 Position { get; private set; }
     public const int Size = 12;
@@ -67,7 +67,7 @@ public class NVRVertex
     }
 }
 
-public class NVRVertex4 : NVRVertex
+internal class NVRVertex4 : NVRVertex
 {
     public Vector3 Normal { get; set; }
     public Vector2 UV { get; set; }
@@ -111,7 +111,7 @@ public class NVRVertex4 : NVRVertex
     }
 }
 
-public class NVRVertex8 : NVRVertex
+internal class NVRVertex8 : NVRVertex
 {
     public Vector3 Normal { get; set; }
     public Vector2 UV { get; set; }
@@ -159,7 +159,7 @@ public class NVRVertex8 : NVRVertex
     }
 }
 
-public class NVRVertex12 : NVRVertex
+internal class NVRVertex12 : NVRVertex
 {
     public Vector3 Normal { get; set; }
     public Vector2 Unknown { get; set; }

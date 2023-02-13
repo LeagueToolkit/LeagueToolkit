@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-public class QuadTreeNode
+internal class QuadTreeNode
 {
     public static readonly float NullCoordinate = BitConverter.ToSingle(new byte[4] { 255, 255, 127, 255 }, 0);
     public Box BoundingBox { get; private set; }

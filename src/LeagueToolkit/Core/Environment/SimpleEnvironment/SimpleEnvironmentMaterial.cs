@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-public readonly struct SimpleEnvironmentMaterial
+internal readonly struct SimpleEnvironmentMaterial
 {
     public string Name { get; }
     public SimpleEnvironmentMaterialType Type { get; }

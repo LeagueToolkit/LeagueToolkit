@@ -4,7 +4,7 @@ using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-public readonly struct SimpleEnvironmentMesh
+internal readonly struct SimpleEnvironmentMesh
 {
     public EnvironmentQuality Quality { get; }
     public uint Flags { get; }

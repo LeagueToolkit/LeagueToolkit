@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-public readonly struct SimpleEnvironmentChannel
+internal readonly struct SimpleEnvironmentChannel
 {
     public Color Color { get; }
     public string Name { get; }
