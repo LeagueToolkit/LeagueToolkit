@@ -1,13 +1,17 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Core.Environment.Builder;
 using LeagueToolkit.Core.Environment.SimpleEnvironment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
+using LeagueToolkit.Core.Wad;
 using LeagueToolkit.Helpers.Exceptions;
 using LeagueToolkit.Helpers.Extensions;
+using System;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace LeagueToolkit.Core.Environment;
@@ -478,7 +482,7 @@ public sealed class EnvironmentAsset : IDisposable
             disableBackfaceCulling: false,
             EnvironmentQuality.AllQualities,
             EnvironmentVisibility.AllLayers,
-            EnvironmentAssetMeshRenderFlags.None,
+            EnvironmentAssetMeshRenderFlags.Default,
             new(texture, Vector2.One, Vector2.Zero),
             new(),
             new()
@@ -501,13 +505,13 @@ public sealed class EnvironmentAsset : IDisposable
         int materialsCount = br.ReadInt32();
         int vertexBufferCount = br.ReadInt32();
         int indexBufferCount = br.ReadInt32();
-        int meshesCount = br.ReadInt32();
+        int meshCount = br.ReadInt32();
         int nodesCount = br.ReadInt32();
 
         SimpleEnvironmentMaterial[] materials = new SimpleEnvironmentMaterial[materialsCount];
         long[] vertexBufferOffsets = new long[vertexBufferCount];
-        IndexBuffer[] indexBuffers = new IndexBuffer[indexBufferCount];
-        SimpleEnvironmentMesh[] meshes = new SimpleEnvironmentMesh[meshesCount];
+        IndexBuffer[] nvrIndexBuffers = new IndexBuffer[indexBufferCount];
+        SimpleEnvironmentMesh[] nvrMeshes = new SimpleEnvironmentMesh[meshCount];
 
         // Read materials
         for (int i = 0; i < materialsCount; i++)
@@ -537,24 +541,107 @@ public sealed class EnvironmentAsset : IDisposable
 
             br.Read(indexBufferOwner.Span);
 
-            indexBuffers[i] = IndexBuffer.Create(
+            nvrIndexBuffers[i] = IndexBuffer.Create(
                 indexFormat is 0x65 ? IndexFormat.U16 : IndexFormat.U32,
                 indexBufferOwner
             );
         }
 
         // Read meshes
-        for (int i = 0; i < meshesCount; i++)
+        for (int i = 0; i < meshCount; i++)
         {
-            meshes[i] = (major, minor) switch
+            nvrMeshes[i] = (major, minor) switch
             {
                 (8, 1) => SimpleEnvironmentMesh.ReadOld(br),
                 _ => SimpleEnvironmentMesh.Read(br)
             };
         }
 
-        return null;
+        EnvironmentAssetMesh[] meshes = new EnvironmentAssetMesh[meshCount];
+        VertexBuffer[] meshVertexBuffers = new VertexBuffer[meshCount];
+        IndexBuffer[] meshIndexBuffers = new IndexBuffer[meshCount];
+        for (int meshId = 0; meshId < nvrMeshes.Length; meshId++)
+        {
+            SimpleEnvironmentMesh nvrMesh = nvrMeshes[meshId];
+            SimpleEnvironmentMaterial nvrMeshMaterial = materials[nvrMesh.MaterialId];
+            SimpleEnvironmentMeshPrimitive nvrMeshPrimitive = nvrMesh.Primitives[0];
+            SimpleEnvironmentMeshPrimitive nvrComplexPrimitive = nvrMesh.Primitives[1];
+
+            EnvironmentAssetMeshBuilder meshBuilder = new();
+
+            meshBuilder.WithVisibilityFlags(EnvironmentVisibility.AllLayers);
+
+            if (nvrMeshMaterial.Type is SimpleEnvironmentMaterialType.Decal)
+                meshBuilder.WithRenderFlags(EnvironmentAssetMeshRenderFlags.Decal);
+
+            VertexBufferDescription vertexDeclaration = nvrMeshMaterial.GetVertexDeclaration();
+            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
+                nvrMeshPrimitive.VertexCount * vertexDeclaration.GetVertexSize()
+            );
+
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(
+                nvrMeshPrimitive.IndexCount * sizeof(ushort)
+            );
+
+            // Seek to vertex buffer + offset to first vertex
+            br.BaseStream.Seek(
+                vertexBufferOffsets[nvrMeshPrimitive.VertexBufferId]
+                    + (nvrMeshPrimitive.StartVertex * vertexDeclaration.GetVertexSize()),
+                SeekOrigin.Begin
+            );
+            br.Read(vertexBufferOwner.Span);
+
+            // Copy and normalize indices
+            IndexArray nvrMeshIndexArray = nvrIndexBuffers[nvrMeshPrimitive.IndexBufferId]
+                .AsArray()
+                .Slice(nvrMeshPrimitive.StartIndex, nvrMeshPrimitive.IndexCount);
+
+            uint minVertex = nvrMeshIndexArray.Min();
+            for (int i = 0; i < nvrMeshPrimitive.IndexCount; i++)
+            {
+                ushort normalizedIndex = (ushort)(nvrMeshIndexArray[i] - minVertex);
+                MemoryMarshal.Write(indexBufferOwner.Span[(i * sizeof(ushort))..], ref normalizedIndex);
+            }
+
+            VertexBuffer vertexBuffer = VertexBuffer.Create(
+                vertexDeclaration.Usage,
+                vertexDeclaration.Elements,
+                vertexBufferOwner
+            );
+            IndexBuffer indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
+
+            meshVertexBuffers[meshId] = vertexBuffer;
+            meshIndexBuffers[meshId] = indexBuffer;
+            meshes[meshId] = new(
+                meshId,
+                vertexBuffer,
+                indexBuffer.AsArray(),
+                new[]
+                {
+                    new EnvironmentAssetMeshPrimitive(
+                        nvrMeshMaterial.GetFormattedName(),
+                        0,
+                        nvrMeshPrimitive.IndexCount,
+                        0,
+                        nvrMeshPrimitive.VertexCount - 1
+                    )
+                },
+                Matrix4x4.Identity,
+                false,
+                EnvironmentQuality.AllQualities,
+                EnvironmentVisibility.AllLayers,
+                nvrMeshMaterial.Type is SimpleEnvironmentMaterialType.Decal
+                    ? EnvironmentAssetMeshRenderFlags.Decal
+                    : EnvironmentAssetMeshRenderFlags.Default,
+                new(),
+                new(),
+                new()
+            );
+        }
+
+        return new(new(), meshes, new(), Array.Empty<PlanarReflector>(), meshVertexBuffers, meshIndexBuffers);
     }
+
     #endregion
 
     #region IDisposable
@@ -596,8 +683,14 @@ internal static class BakedEnvironmentVertexDescription
 
 internal static class SimpleEnvironmentVertexDescription
 {
-    public static readonly VertexElement[] POSITION = new[] { VertexElement.POSITION };
-    public static readonly VertexElement[] UV2 = new[]
+    public static readonly VertexElement[] DEFAULT = new[]
+    {
+        VertexElement.POSITION,
+        VertexElement.NORMAL,
+        VertexElement.DIFFUSE_UV,
+        VertexElement.PRIMARY_COLOR
+    };
+    public static readonly VertexElement[] FOUR_BLEND = new[]
     {
         VertexElement.POSITION,
         VertexElement.NORMAL,
@@ -605,15 +698,7 @@ internal static class SimpleEnvironmentVertexDescription
         VertexElement.LIGHTMAP_UV,
         VertexElement.PRIMARY_COLOR
     };
-    public static readonly VertexElement[] UV3 = new[]
-    {
-        VertexElement.POSITION,
-        VertexElement.NORMAL,
-        VertexElement.DIFFUSE_UV,
-        VertexElement.LIGHTMAP_UV,
-        VertexElement.TEXCOORD_1
-    };
-    public static readonly VertexElement[] COLOR2 = new[]
+    public static readonly VertexElement[] DUAL_VERTEX_COLOR = new[]
     {
         VertexElement.POSITION,
         VertexElement.NORMAL,
@@ -621,6 +706,4 @@ internal static class SimpleEnvironmentVertexDescription
         VertexElement.PRIMARY_COLOR,
         VertexElement.SECONDARY_COLOR
     };
-    public static readonly VertexElement[] DECAL = new[] { VertexElement.POSITION };
-    public static readonly VertexElement[] POSITION_UV1 = new[] { VertexElement.POSITION, VertexElement.DIFFUSE_UV };
 }

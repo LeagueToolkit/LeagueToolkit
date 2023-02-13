@@ -102,7 +102,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             ModelRoot root = ModelRoot.CreateModel();
             Scene scene = root.UseScene(root.LogicalScenes.Count);
 
-            MapContainer mapContainer = GetMapContainer(materialsBin, context);
+            MapContainer mapContainer = materialsBin is null ? new() : GetMapContainer(materialsBin, context);
 
             Node mapNode = CreateMapNode(scene, mapContainer, context);
 
@@ -340,6 +340,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             MapSunProperties sunComponent = (MapSunProperties)
                 mapContainer.Components.FirstOrDefault(x => x is MapSunProperties);
+            if (sunComponent is null)
+                return;
 
             Vector2 mapCenter = Vector2.Multiply(
                 Vector2.Abs(mapContainer.BoundsMin) + Vector2.Abs(mapContainer.BoundsMax),

@@ -312,19 +312,16 @@ public enum EnvironmentQuality : byte
 [Flags]
 public enum EnvironmentAssetMeshRenderFlags : byte
 {
-    None = 0,
+    Default = 0,
 
     /// <summary>
-    /// Mesh will have a higher render priority which causes it to be rendered
-    /// on top of certain meshes such as particles with the following properties:
-    /// <code>miscRenderFlags: u8 = 1 || isGroundLayer: flag = true || useNavmeshMask: flag = true</code>
+    /// The renderer will treat the <see cref="EnvironmentAssetMesh"/> as a decal
     /// </summary>
-    HighRenderPriority = 1 << 0,
+    Decal = 1 << 0,
 
     /// <summary>
-    /// <br>⚠️ SPECULATIVE ⚠️</br>
+    /// ⚠️ SPECULATIVE ⚠️<br></br>
     /// Tells the renderer to render distortion effects of a mesh's material into a separate buffer
-    /// <br>⚠️ SPECULATIVE ⚠️</br>
     /// </summary>
     UseEnvironmentDistortionEffectBuffer = 1 << 1,
 

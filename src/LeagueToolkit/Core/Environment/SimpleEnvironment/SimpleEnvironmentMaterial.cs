@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
+﻿using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System.Diagnostics;
 using System.Numerics;
@@ -55,15 +56,44 @@ internal readonly struct SimpleEnvironmentMaterial
 
         return new(name, type, 0, channels);
     }
+
+    public string GetFormattedName()
+    {
+        if (this.Flags.HasFlag(SimpleEnvironmentMaterialFlags.VertexAlpha))
+            return $"NVRMaterial_AlphaTest_{this.Name}";
+        else
+            return $"NVRMaterial_{this.Name}";
+    }
+
+    public VertexBufferDescription GetVertexDeclaration()
+    {
+        return this.Type switch
+        {
+            SimpleEnvironmentMaterialType.Default
+                => this.Flags.HasFlag(SimpleEnvironmentMaterialFlags.DualVertexColor) switch
+                {
+                    true => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.DUAL_VERTEX_COLOR),
+                    false => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.DEFAULT)
+                },
+            SimpleEnvironmentMaterialType.Decal
+                => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.DEFAULT),
+            SimpleEnvironmentMaterialType.WallOfGrass
+                => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.DEFAULT),
+            SimpleEnvironmentMaterialType.FourBlend
+                => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.FOUR_BLEND),
+            SimpleEnvironmentMaterialType.AntiBrush
+                => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.DEFAULT),
+        };
+    }
 }
 
 public enum SimpleEnvironmentMaterialType : int
 {
-    Default = 0,
-    Decal = 1,
-    WallOfGrass = 2,
-    FourBlend = 3,
-    AntiBrush = 4
+    Default = 0, // vertex - 4
+    Decal = 1, // vertex - 0
+    WallOfGrass = 2, // vertex - 0
+    FourBlend = 3, // vertex - 2
+    AntiBrush = 4 // vertex - 0
 };
 
 [Flags]

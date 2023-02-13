@@ -45,25 +45,18 @@ internal class NVRVertex
             || texture.Contains("tile_");
     }
 
-    public static bool IsGroundType(SimpleEnvironmentMaterial mat)
-    {
-        return mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.Ground) && ContainsGroundKeyword(mat.Channels[0].Name);
-    }
+    public static bool IsGroundType(SimpleEnvironmentMaterial mat) =>
+        mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.Ground) && ContainsGroundKeyword(mat.Channels[0].Name);
 
     public static NVRVertexType GetVertexTypeFromMaterial(SimpleEnvironmentMaterial mat)
     {
-        if (mat.Type == SimpleEnvironmentMaterialType.FourBlend)
+        return mat.Type switch
         {
-            return NVRVertexType.NVRVERTEX_12;
-        }
-        else if (
-            mat.Type == SimpleEnvironmentMaterialType.Default
-            && mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.DualVertexColor)
-        )
-        {
-            return NVRVertexType.NVRVERTEX_8;
-        }
-        return NVRVertexType.NVRVERTEX_4;
+            SimpleEnvironmentMaterialType.FourBlend => NVRVertexType.NVRVERTEX_12,
+            SimpleEnvironmentMaterialType.Default when mat.Flags.HasFlag(SimpleEnvironmentMaterialFlags.DualVertexColor)
+                => NVRVertexType.NVRVERTEX_8,
+            _ => NVRVertexType.NVRVERTEX_4,
+        };
     }
 }
 

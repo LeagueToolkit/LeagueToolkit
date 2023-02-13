@@ -36,8 +36,29 @@ class Program
 {
     static void Main(string[] args)
     {
-        using FileStream stream = File.OpenRead(@"X:\lol\old_backup\room.nvr");
+        using FileStream stream = File.OpenRead(@"X:\lol\old_backup\Map10\scene\room.nvr");
         EnvironmentAsset nvr = EnvironmentAsset.LoadSimpleEnvironment(stream);
+
+        using FileStream writeStream = File.Create("TT_room.nvr.mapgeo");
+        nvr.Write(writeStream, 13);
+
+        MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+            Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+        );
+
+        nvr.ToGltf(
+                null,
+                new(
+                    metaEnvironment,
+                    new()
+                    {
+                        FlipAcrossX = false,
+                        LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
+                        TextureQuality = MapGeometryGltfTextureQuality.High
+                    }
+                )
+            )
+            .SaveGLB("twistedtreeline.glb");
 
         //ProfileMapgeoToGltf();
     }
