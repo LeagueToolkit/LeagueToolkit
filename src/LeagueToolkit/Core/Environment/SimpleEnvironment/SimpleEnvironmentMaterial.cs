@@ -1,9 +1,11 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
+[DebuggerDisplay("Type: {Type} Flags: {Flags}", Name = "{Name}")]
 internal readonly struct SimpleEnvironmentMaterial
 {
     public string Name { get; }
@@ -74,11 +76,4 @@ public enum SimpleEnvironmentMaterialFlags : int
     DualVertexColor = 1 << 4,
     Background = 1 << 5,
     BackgroundWithFog = 1 << 6,
-}
-
-public class MaterialInvalidChannelCountException : Exception
-{
-    public MaterialInvalidChannelCountException(int actual)
-        : base(string.Format("There have to be exactly 8 channels in a material ({0} channel(s) specified).", actual))
-    { }
 }

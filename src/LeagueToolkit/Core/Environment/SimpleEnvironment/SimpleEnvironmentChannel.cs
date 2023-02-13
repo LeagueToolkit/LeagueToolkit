@@ -1,9 +1,11 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 
+[DebuggerDisplay("{Name}")]
 internal readonly struct SimpleEnvironmentChannel
 {
     public Color Color { get; }

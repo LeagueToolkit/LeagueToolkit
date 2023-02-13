@@ -498,7 +498,6 @@ public sealed class EnvironmentAsset : IDisposable
         ushort major = br.ReadUInt16();
         ushort minor = br.ReadUInt16();
 
-        //Reading the counts
         int materialsCount = br.ReadInt32();
         int vertexBufferCount = br.ReadInt32();
         int indexBufferCount = br.ReadInt32();
@@ -510,6 +509,7 @@ public sealed class EnvironmentAsset : IDisposable
         IndexBuffer[] indexBuffers = new IndexBuffer[indexBufferCount];
         SimpleEnvironmentMesh[] meshes = new SimpleEnvironmentMesh[meshesCount];
 
+        // Read materials
         for (int i = 0; i < materialsCount; i++)
         {
             materials[i] = (major, minor) switch
@@ -519,6 +519,7 @@ public sealed class EnvironmentAsset : IDisposable
             };
         }
 
+        // Store vertex buffer offsets
         for (int i = 0; i < vertexBufferCount; i++)
         {
             int vertexBufferSize = br.ReadInt32();
@@ -526,6 +527,8 @@ public sealed class EnvironmentAsset : IDisposable
 
             br.BaseStream.Seek(vertexBufferSize, SeekOrigin.Current);
         }
+
+        // Read index buffers
         for (int i = 0; i < indexBufferCount; i++)
         {
             int indexBufferSize = br.ReadInt32();
@@ -539,6 +542,8 @@ public sealed class EnvironmentAsset : IDisposable
                 indexBufferOwner
             );
         }
+
+        // Read meshes
         for (int i = 0; i < meshesCount; i++)
         {
             meshes[i] = (major, minor) switch

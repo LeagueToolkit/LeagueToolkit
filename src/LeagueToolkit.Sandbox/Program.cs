@@ -10,7 +10,6 @@ using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.IO.NVR;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
@@ -37,9 +36,10 @@ class Program
 {
     static void Main(string[] args)
     {
-        SimpleEnvironment nvr = new(@"X:\lol\old_backup\room.nvr");
+        using FileStream stream = File.OpenRead(@"X:\lol\old_backup\room.nvr");
+        EnvironmentAsset nvr = EnvironmentAsset.LoadSimpleEnvironment(stream);
 
-        ProfileMapgeoToGltf();
+        //ProfileMapgeoToGltf();
     }
 
     static void ExtractWad(string wadPath, string extractTo)
