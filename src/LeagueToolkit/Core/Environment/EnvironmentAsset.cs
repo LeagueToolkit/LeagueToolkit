@@ -633,7 +633,7 @@ public sealed class EnvironmentAsset : IDisposable
                 nvrMeshMaterial.Type is SimpleEnvironmentMaterialType.Decal
                     ? EnvironmentAssetMeshRenderFlags.Decal
                     : EnvironmentAssetMeshRenderFlags.Default,
-                new(),
+                new(nvrMeshMaterial.Channels[0].Texture, Vector2.One, Vector2.Zero),
                 new(),
                 new()
             );

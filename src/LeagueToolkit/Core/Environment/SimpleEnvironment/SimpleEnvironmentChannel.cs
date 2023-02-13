@@ -9,12 +9,12 @@ namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 internal readonly struct SimpleEnvironmentChannel
 {
     public Color Color { get; }
-    public string Name { get; }
+    public string Texture { get; }
     public Matrix4x4 Transform { get; }
 
     public SimpleEnvironmentChannel(string name, Color color, Matrix4x4 matrix)
     {
-        this.Name = name;
+        this.Texture = name;
         this.Color = color;
         this.Transform = matrix;
     }
