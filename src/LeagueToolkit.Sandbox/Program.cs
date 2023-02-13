@@ -52,6 +52,7 @@ class Program
                     metaEnvironment,
                     new()
                     {
+                        GameDataPath = @"X:\lol\old_backup\Map10\scene\Textures",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
                         TextureQuality = MapGeometryGltfTextureQuality.High

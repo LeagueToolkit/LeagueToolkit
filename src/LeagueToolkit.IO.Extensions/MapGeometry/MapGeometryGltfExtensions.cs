@@ -318,7 +318,23 @@ namespace LeagueToolkit.IO.MapGeometryFile
             // Initialize only if there is an adapter for the shader
             uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
             if (MATERIAL_ADAPTERS.TryGetValue(defaultTechniqueShader, out IMaterialAdapter techniqueAdapter))
+            {
                 techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(mesh.StationaryLight.Texture))
+                    return;
+
+                // Try to initialize simple material
+                gltfMaterial.InitializeUnlit();
+
+                gltfMaterial.WithChannelTexture(
+                    "BaseColor",
+                    0,
+                    TextureUtils.CreateGltfImage(mesh.StationaryLight.Texture, root, textureRegistry, context)
+                );
+            }
         }
 
         private static StaticMaterialDef ResolveMaterialDefiniton(
