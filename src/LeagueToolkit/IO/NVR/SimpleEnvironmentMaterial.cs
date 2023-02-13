@@ -26,13 +26,15 @@ public readonly struct SimpleEnvironmentMaterial
 
     public static SimpleEnvironmentMaterial Read(BinaryReader br)
     {
+        string name = br.ReadPaddedString(260);
+        SimpleEnvironmentMaterialType type = (SimpleEnvironmentMaterialType)br.ReadInt32();
         SimpleEnvironmentMaterialFlags flags = (SimpleEnvironmentMaterialFlags)br.ReadUInt32();
         SimpleEnvironmentChannel[] channels = new SimpleEnvironmentChannel[8];
 
         for (int i = 0; i < 8; i++)
             channels[i] = SimpleEnvironmentChannel.Read(br);
 
-        return new(string.Empty, SimpleEnvironmentMaterialType.Default, flags, channels);
+        return new(name, type, flags, channels);
     }
 
     public static SimpleEnvironmentMaterial ReadOld(BinaryReader br)

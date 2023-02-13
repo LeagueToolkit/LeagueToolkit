@@ -10,6 +10,7 @@ using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.IO.NVR;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
@@ -36,8 +37,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        using FileStream stream = File.OpenRead(@"C:\Users\Filip\Downloads\bilgewater.mapgeo");
-        using EnvironmentAsset envAsset = new(stream);
+        SimpleEnvironment nvr = new(@"X:\lol\old_backup\room.nvr");
 
         ProfileMapgeoToGltf();
     }
