@@ -75,9 +75,7 @@ namespace LeagueToolkit.Converters
                         continue;
                     }
 
-                    SimpleEnvironmentMeshPrimitive primitive = simple
-                        ? mesh.IndexedPrimitives[1]
-                        : mesh.IndexedPrimitives[0];
+                    SimpleEnvironmentMeshPrimitive primitive = simple ? mesh.Primitives[1] : mesh.Primitives[0];
 
                     List<Vector3> vertices = new();
                     List<uint> indices = primitive.Indices.ConvertAll(i => (uint)i);

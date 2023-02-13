@@ -1,35 +1,28 @@
 ﻿using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
-using System.IO;
 using System.Numerics;
 
-namespace LeagueToolkit.IO.NVR
+namespace LeagueToolkit.IO.NVR;
+
+public readonly struct SimpleEnvironmentChannel
 {
-    public class SimpleEnvironmentChannel
+    public Color Color { get; }
+    public string Name { get; }
+    public Matrix4x4 Transform { get; }
+
+    public SimpleEnvironmentChannel(string name, Color color, Matrix4x4 matrix)
     {
-        public Color Color { get; private set; }
-        public string Name { get; private set; }
-        public Matrix4x4 Transform { get; private set; }
+        this.Name = name;
+        this.Color = color;
+        this.Transform = matrix;
+    }
 
-        public SimpleEnvironmentChannel(BinaryReader br)
-        {
-            this.Color = br.ReadColor(ColorFormat.RgbaF32);
-            this.Name = br.ReadPaddedString(260);
-            this.Transform = br.ReadMatrix4x4RowMajor();
-        }
+    public static SimpleEnvironmentChannel Read(BinaryReader br)
+    {
+        Color color = br.ReadColor(ColorFormat.RgbaF32);
+        string name = br.ReadPaddedString(260);
+        Matrix4x4 transform = br.ReadMatrix4x4RowMajor();
 
-        public SimpleEnvironmentChannel(string name, Color color, Matrix4x4 matrix)
-        {
-            this.Name = name;
-            this.Color = color;
-            this.Transform = matrix;
-        }
-
-        public void Write(BinaryWriter bw)
-        {
-            bw.WriteColor(this.Color, ColorFormat.RgbaF32);
-            bw.WritePaddedString(this.Name, 260);
-            bw.WriteMatrix4x4RowMajor(this.Transform);
-        }
+        return new(name, color, transform);
     }
 }

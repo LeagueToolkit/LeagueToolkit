@@ -539,8 +539,7 @@ internal static class SimpleEnvironmentVertexDescription
         VertexElement.NORMAL,
         VertexElement.DIFFUSE_UV,
         VertexElement.LIGHTMAP_UV,
-        VertexElement.TEXCOORD_1,
-        VertexElement.PRIMARY_COLOR
+        VertexElement.TEXCOORD_1
     };
     public static readonly VertexElement[] COLOR2 = new[]
     {
