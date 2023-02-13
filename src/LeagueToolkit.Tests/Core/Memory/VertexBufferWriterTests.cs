@@ -22,18 +22,18 @@ namespace LeagueToolkit.Tests.Core.Memory
                 {
                     VertexElement.POSITION,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
+                    VertexElement.TEXCOORD_0
                 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter = new(elements, vertexBufferOwner.Memory);
 
                 Assert.Equal(VertexElement.POSITION, vertexBufferWriter.Elements[ElementName.Position].Element);
                 Assert.Equal(VertexElement.NORMAL, vertexBufferWriter.Elements[ElementName.Normal].Element);
-                Assert.Equal(VertexElement.DIFFUSE_UV, vertexBufferWriter.Elements[ElementName.DiffuseUV].Element);
+                Assert.Equal(VertexElement.TEXCOORD_0, vertexBufferWriter.Elements[ElementName.Texcoord0].Element);
 
                 Assert.Equal(0, vertexBufferWriter.Elements[ElementName.Position].Offset);
                 Assert.Equal(12, vertexBufferWriter.Elements[ElementName.Normal].Offset);
-                Assert.Equal(24, vertexBufferWriter.Elements[ElementName.DiffuseUV].Offset);
+                Assert.Equal(24, vertexBufferWriter.Elements[ElementName.Texcoord0].Offset);
 
                 Assert.Equal(32, vertexBufferWriter.VertexStride);
             }
@@ -64,13 +64,13 @@ namespace LeagueToolkit.Tests.Core.Memory
             [Fact]
             public void Should_Write_The_Value()
             {
-                VertexElement[] elements = new VertexElement[] { VertexElement.DIFFUSE_UV };
+                VertexElement[] elements = new VertexElement[] { VertexElement.TEXCOORD_0 };
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
                 VertexBufferWriter vertexBufferWriter = new(elements, vertexBufferOwner.Memory);
 
-                vertexBufferWriter.WriteVector2(0, ElementName.DiffuseUV, new(0f, 0f));
-                vertexBufferWriter.WriteVector2(1, ElementName.DiffuseUV, new(1f, 1f));
-                vertexBufferWriter.WriteVector2(2, ElementName.DiffuseUV, new(2f, 2f));
+                vertexBufferWriter.WriteVector2(0, ElementName.Texcoord0, new(0f, 0f));
+                vertexBufferWriter.WriteVector2(1, ElementName.Texcoord0, new(1f, 1f));
+                vertexBufferWriter.WriteVector2(2, ElementName.Texcoord0, new(2f, 2f));
 
                 Assert.Equal(new(0f, 0f), MemoryMarshal.Read<Vector2>(vertexBufferOwner.Span[0..]));
                 Assert.Equal(new(1f, 1f), MemoryMarshal.Read<Vector2>(vertexBufferOwner.Span[8..]));

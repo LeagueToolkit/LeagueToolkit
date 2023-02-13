@@ -250,7 +250,7 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                     );
                     vertexBufferWriter.WriteVector4(vertexId, ElementName.BlendWeight, vertexWeights);
                     vertexBufferWriter.WriteVector3(vertexId, ElementName.Normal, normals[i]);
-                    vertexBufferWriter.WriteVector2(vertexId, ElementName.DiffuseUV, diffuseUvs[i]);
+                    vertexBufferWriter.WriteVector2(vertexId, ElementName.Texcoord0, diffuseUvs[i]);
 
                     if (hasColors || hasTangents)
                         vertexBufferWriter.WriteColorBgraU8(vertexId, ElementName.PrimaryColor, colors[i]);

@@ -63,9 +63,9 @@ namespace LeagueToolkit.IO.Extensions.Utils
                     WriteMemoryAccessorBgraU8(gltfMemoryAccessor, elementAccessor);
                 else if (element.Name == ElementName.BlendIndex)
                     WriteMemoryAccessorXyzwU8(gltfMemoryAccessor, elementAccessor);
-                else if (element.Name == ElementName.DiffuseUV)
+                else if (element.Name == ElementName.Texcoord0)
                     WriteMemoryAccessorVector2(gltfMemoryAccessor, elementAccessor);
-                else if (element.Name == ElementName.LightmapUV)
+                else if (element.Name == ElementName.Texcoord7)
                     WriteMemoryAccessorVector2(gltfMemoryAccessor, elementAccessor);
                 else if (element.Name == ElementName.Tangent)
                     WriteMemoryAccessorVector4(gltfMemoryAccessor, elementAccessor);
@@ -168,8 +168,8 @@ namespace LeagueToolkit.IO.Extensions.Utils
                     => new("COLOR_1", 0, vertexCount, 0, DimensionType.VEC4, EncodingType.UNSIGNED_BYTE, true),
                 ElementName.BlendIndex
                     => new("JOINTS_0", 0, vertexCount, 0, DimensionType.VEC4, EncodingType.UNSIGNED_BYTE),
-                ElementName.DiffuseUV => new("TEXCOORD_0", 0, vertexCount, 0, DimensionType.VEC2, EncodingType.FLOAT),
-                ElementName.LightmapUV => new("TEXCOORD_1", 0, vertexCount, 0, DimensionType.VEC2, EncodingType.FLOAT),
+                ElementName.Texcoord0 => new("TEXCOORD_0", 0, vertexCount, 0, DimensionType.VEC2, EncodingType.FLOAT),
+                ElementName.Texcoord7 => new("TEXCOORD_1", 0, vertexCount, 0, DimensionType.VEC2, EncodingType.FLOAT),
                 ElementName.Tangent => new("TANGENT", 0, vertexCount, 0, DimensionType.VEC4, EncodingType.FLOAT),
                 _ => throw new NotImplementedException($"Cannot map element: {element} to a glTF vertex attribute")
             };

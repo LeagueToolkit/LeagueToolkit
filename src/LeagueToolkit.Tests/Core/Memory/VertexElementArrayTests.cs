@@ -20,7 +20,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 {
                     VertexElement.POSITION,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
+                    VertexElement.TEXCOORD_0
                 };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
                     VertexBufferUsage.Static,
@@ -45,7 +45,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 {
                     VertexElement.POSITION,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
+                    VertexElement.TEXCOORD_0
                 };
 
                 MemoryOwner<byte> vertexBufferOwner = VertexBuffer.AllocateForElements(elements, 3);
@@ -55,14 +55,14 @@ namespace LeagueToolkit.Tests.Core.Memory
                 {
                     vertexBufferWriter.WriteVector3(i, ElementName.Position, new(i + 100, i + 100, i + 100));
                     vertexBufferWriter.WriteVector3(i, ElementName.Normal, new(i, i, i));
-                    vertexBufferWriter.WriteVector2(i, ElementName.DiffuseUV, new(i + 200, i + 200));
+                    vertexBufferWriter.WriteVector2(i, ElementName.Texcoord0, new(i + 200, i + 200));
                 }
 
                 VertexBuffer vertexBuffer = VertexBuffer.Create(VertexBufferUsage.Static, elements, vertexBufferOwner);
 
                 VertexElementArray<Vector3> normalArray = vertexBuffer.GetAccessor(ElementName.Normal).AsVector3Array();
                 VertexElementArray<Vector2> diffuseUvArray = vertexBuffer
-                    .GetAccessor(ElementName.DiffuseUV)
+                    .GetAccessor(ElementName.Texcoord0)
                     .AsVector2Array();
 
                 Assert.Equal(new(1, 1, 1), normalArray[1]);

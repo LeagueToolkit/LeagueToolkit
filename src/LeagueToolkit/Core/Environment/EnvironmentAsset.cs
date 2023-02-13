@@ -677,7 +677,7 @@ public sealed class EnvironmentAsset : IDisposable
 
 internal static class BakedEnvironmentVertexDescription
 {
-    public static readonly VertexElement[] BASIC = new[] { VertexElement.POSITION, VertexElement.DIFFUSE_UV };
+    public static readonly VertexElement[] BASIC = new[] { VertexElement.POSITION, VertexElement.TEXCOORD_0 };
 }
 
 internal static class SimpleEnvironmentVertexDescription
@@ -686,22 +686,22 @@ internal static class SimpleEnvironmentVertexDescription
     {
         VertexElement.POSITION,
         VertexElement.NORMAL,
-        VertexElement.DIFFUSE_UV,
+        VertexElement.TEXCOORD_0,
         VertexElement.PRIMARY_COLOR
     };
     public static readonly VertexElement[] FOUR_BLEND = new[]
     {
         VertexElement.POSITION,
         VertexElement.NORMAL,
-        VertexElement.DIFFUSE_UV,
-        VertexElement.LIGHTMAP_UV,
+        VertexElement.TEXCOORD_0,
+        VertexElement.TEXCOORD_7,
         VertexElement.PRIMARY_COLOR
     };
     public static readonly VertexElement[] DUAL_VERTEX_COLOR = new[]
     {
         VertexElement.POSITION,
         VertexElement.NORMAL,
-        VertexElement.DIFFUSE_UV,
+        VertexElement.TEXCOORD_0,
         VertexElement.PRIMARY_COLOR,
         VertexElement.SECONDARY_COLOR
     };

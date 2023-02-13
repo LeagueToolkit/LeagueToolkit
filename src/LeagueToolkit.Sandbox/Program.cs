@@ -251,7 +251,7 @@ class Program
             .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
 
         Dictionary<ElementName, int> elementOrder =
-            new() { { ElementName.DiffuseUV, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
+            new() { { ElementName.Texcoord0, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
         foreach (EnvironmentAssetMesh mesh in mgeo.Meshes)
         {
@@ -302,8 +302,8 @@ class Program
             bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
             bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
             bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.PrimaryColor, out var baseColorAccessor);
-            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
-            bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(ElementName.LightmapUV, out var lightmapUvAccessor);
+            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.Texcoord0, out var diffuseUvAccessor);
+            bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(ElementName.Texcoord7, out var lightmapUvAccessor);
 
             if (hasPositions is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
@@ -325,9 +325,9 @@ class Program
                     writer.WriteColorBgraU8(i, ElementName.PrimaryColor, new(r, g, b, a));
                 }
                 if (hasDiffuseUvs)
-                    writer.WriteVector2(i, ElementName.DiffuseUV, diffuseUvsArray[i]);
+                    writer.WriteVector2(i, ElementName.Texcoord0, diffuseUvsArray[i]);
                 if (hasLightmapUvs)
-                    writer.WriteVector2(i, ElementName.LightmapUV, lightmapUvsArray[i]);
+                    writer.WriteVector2(i, ElementName.Texcoord7, lightmapUvsArray[i]);
             }
         }
     }

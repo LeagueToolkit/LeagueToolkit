@@ -15,7 +15,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             public void Should_Create_A_New_Instance()
             {
                 VertexElement[] elements1 = new[] { VertexElement.POSITION, VertexElement.NORMAL };
-                VertexElement[] elements2 = new[] { VertexElement.DIFFUSE_UV };
+                VertexElement[] elements2 = new[] { VertexElement.TEXCOORD_0 };
                 int vertexCount = 3;
                 var (buffer1, buffer2) = CreateVertexBuffers(elements1, elements2, vertexCount);
 
@@ -73,7 +73,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             public void Should_Return_Accessor_If_Element_Is_In_Vertex_Buffers()
             {
                 var (buffer1, buffer2) = CreateVertexBuffers(
-                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.TEXCOORD_0 },
                     new VertexElement[] { VertexElement.PRIMARY_COLOR },
                     3
                 );
@@ -112,7 +112,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             public void Should_Return_True_And_Accessor_If_Element_Is_In_Vertex_Buffers()
             {
                 var (buffer1, buffer2) = CreateVertexBuffers(
-                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.TEXCOORD_0 },
                     new VertexElement[] { VertexElement.PRIMARY_COLOR },
                     3
                 );
