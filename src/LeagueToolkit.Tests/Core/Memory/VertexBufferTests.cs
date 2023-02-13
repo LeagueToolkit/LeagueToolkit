@@ -20,7 +20,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 {
                     VertexElement.POSITION,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
+                    VertexElement.TEXCOORD_0
                 };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
                     usage,
@@ -36,7 +36,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 // Test element offsets
                 Assert.Equal(0, vertexBuffer.Elements[ElementName.Position].Offset);
                 Assert.Equal(12, vertexBuffer.Elements[ElementName.Normal].Offset);
-                Assert.Equal(24, vertexBuffer.Elements[ElementName.DiffuseUV].Offset);
+                Assert.Equal(24, vertexBuffer.Elements[ElementName.Texcoord0].Offset);
             }
 
             [Fact]
@@ -91,7 +91,7 @@ namespace LeagueToolkit.Tests.Core.Memory
             public void Should_Return_Buffer_Of_Correct_Size()
             {
                 MemoryOwner<byte> buffer = VertexBuffer.AllocateForElements(
-                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.DIFFUSE_UV },
+                    new VertexElement[] { VertexElement.POSITION, VertexElement.NORMAL, VertexElement.TEXCOORD_0 },
                     3
                 );
 
@@ -120,7 +120,7 @@ namespace LeagueToolkit.Tests.Core.Memory
                 {
                     VertexElement.POSITION,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
+                    VertexElement.TEXCOORD_0
                 };
                 VertexBuffer vertexBuffer = VertexBuffer.Create(
                     VertexBufferUsage.Static,
@@ -130,7 +130,7 @@ namespace LeagueToolkit.Tests.Core.Memory
 
                 _ = vertexBuffer.GetAccessor(ElementName.Position);
                 _ = vertexBuffer.GetAccessor(ElementName.Normal);
-                _ = vertexBuffer.GetAccessor(ElementName.DiffuseUV);
+                _ = vertexBuffer.GetAccessor(ElementName.Texcoord0);
 
                 Assert.True(true);
             }

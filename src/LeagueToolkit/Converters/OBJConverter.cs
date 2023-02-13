@@ -18,7 +18,7 @@ public static class OBJConverter
 
             bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
             bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
-            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.DiffuseUV, out var diffuseUvAccessor);
+            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.Texcoord0, out var diffuseUvAccessor);
 
             if (hasPositions is false)
                 ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");

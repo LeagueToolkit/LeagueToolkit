@@ -23,14 +23,14 @@ namespace LeagueToolkit.Core.Memory
         public static readonly VertexElement SECONDARY_COLOR =
             new(ElementName.SecondaryColor, ElementFormat.BGRA_Packed8888);
         public static readonly VertexElement BLEND_INDEX = new(ElementName.BlendIndex, ElementFormat.XYZW_Packed8888);
-        public static readonly VertexElement DIFFUSE_UV = new(ElementName.DiffuseUV, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_0 = new(ElementName.Texcoord0, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_1 = new(ElementName.Texcoord1, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_2 = new(ElementName.Texcoord2, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_3 = new(ElementName.Texcoord3, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_4 = new(ElementName.Texcoord4, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_5 = new(ElementName.Texcoord5, ElementFormat.XY_Float32);
         public static readonly VertexElement TEXCOORD_6 = new(ElementName.Texcoord6, ElementFormat.XY_Float32);
-        public static readonly VertexElement LIGHTMAP_UV = new(ElementName.LightmapUV, ElementFormat.XY_Float32);
+        public static readonly VertexElement TEXCOORD_7 = new(ElementName.Texcoord7, ElementFormat.XY_Float32);
         public static readonly VertexElement TANGENT = new(ElementName.Tangent, ElementFormat.XYZW_Float32);
 
         /// <summary> The semantic name of the <see cref="VertexElement"/> </summary>
@@ -118,14 +118,14 @@ namespace LeagueToolkit.Core.Memory
         PrimaryColor, // StreamIndex -> 3
         SecondaryColor, // StreamIndex -> 4
         BlendIndex, // StreamIndex -> 7
-        DiffuseUV, // StreamIndex -> 8
+        Texcoord0, // StreamIndex -> 8
         Texcoord1, // StreamIndex -> 9
         Texcoord2, // StreamIndex -> 10
         Texcoord3, // StreamIndex -> 11
         Texcoord4, // StreamIndex -> 12
         Texcoord5, // StreamIndex -> 13
         Texcoord6, // StreamIndex -> 14
-        LightmapUV, // StreamIndex -> 15
+        Texcoord7, // StreamIndex -> 15
 
         Tangent // Riot's enum doesn't have this so not sure how they map it
     }

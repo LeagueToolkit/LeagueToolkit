@@ -268,7 +268,7 @@ namespace LeagueToolkit.Core.Mesh
                     VertexElement.BLEND_INDEX,
                     VertexElement.BLEND_WEIGHT,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV
+                    VertexElement.TEXCOORD_0
                 }
             );
 
@@ -284,7 +284,7 @@ namespace LeagueToolkit.Core.Mesh
                     VertexElement.BLEND_INDEX,
                     VertexElement.BLEND_WEIGHT,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV,
+                    VertexElement.TEXCOORD_0,
                     VertexElement.PRIMARY_COLOR
                 }
             );
@@ -301,7 +301,7 @@ namespace LeagueToolkit.Core.Mesh
                     VertexElement.BLEND_INDEX,
                     VertexElement.BLEND_WEIGHT,
                     VertexElement.NORMAL,
-                    VertexElement.DIFFUSE_UV,
+                    VertexElement.TEXCOORD_0,
                     VertexElement.PRIMARY_COLOR,
                     VertexElement.TANGENT
                 }

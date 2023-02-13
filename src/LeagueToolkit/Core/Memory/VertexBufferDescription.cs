@@ -176,14 +176,14 @@ namespace LeagueToolkit.Core.Memory
         PrimaryColor = 1 << ElementName.PrimaryColor,
         SecondaryColor = 1 << ElementName.SecondaryColor,
         BlendIndex = 1 << ElementName.BlendIndex,
-        DiffuseUV = 1 << ElementName.DiffuseUV,
+        DiffuseUV = 1 << ElementName.Texcoord0,
         Texcoord1 = 1 << ElementName.Texcoord1,
         Texcoord2 = 1 << ElementName.Texcoord2,
         Texcoord3 = 1 << ElementName.Texcoord3,
         Texcoord4 = 1 << ElementName.Texcoord4,
         Texcoord5 = 1 << ElementName.Texcoord5,
         Texcoord6 = 1 << ElementName.Texcoord6,
-        LightmapUV = 1 << ElementName.LightmapUV,
+        LightmapUV = 1 << ElementName.Texcoord7,
 
         Tangent = 1 << ElementName.Tangent,
     }
