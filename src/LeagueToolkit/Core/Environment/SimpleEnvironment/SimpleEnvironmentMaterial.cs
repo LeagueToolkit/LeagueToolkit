@@ -87,7 +87,7 @@ internal readonly struct SimpleEnvironmentMaterial
     }
 }
 
-public enum SimpleEnvironmentMaterialType : int
+internal enum SimpleEnvironmentMaterialType : int
 {
     Default = 0, // vertex - 4
     Decal = 1, // vertex - 0
@@ -97,7 +97,7 @@ public enum SimpleEnvironmentMaterialType : int
 };
 
 [Flags]
-public enum SimpleEnvironmentMaterialFlags : int
+internal enum SimpleEnvironmentMaterialFlags : int
 {
     Ground = 1 << 0,
     NoShadow = 1 << 1,

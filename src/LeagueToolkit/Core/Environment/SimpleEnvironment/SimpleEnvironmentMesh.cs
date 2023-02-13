@@ -1,5 +1,4 @@
-﻿using LeagueToolkit.Core.Environment;
-using LeagueToolkit.Core.Primitives;
+﻿using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
