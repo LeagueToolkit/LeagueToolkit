@@ -24,6 +24,17 @@ public readonly struct SimpleEnvironmentMaterial
         this.Channels = channels.ToArray();
     }
 
+    public static SimpleEnvironmentMaterial Read(BinaryReader br)
+    {
+        SimpleEnvironmentMaterialFlags flags = (SimpleEnvironmentMaterialFlags)br.ReadUInt32();
+        SimpleEnvironmentChannel[] channels = new SimpleEnvironmentChannel[8];
+
+        for (int i = 0; i < 8; i++)
+            channels[i] = SimpleEnvironmentChannel.Read(br);
+
+        return new(string.Empty, SimpleEnvironmentMaterialType.Default, flags, channels);
+    }
+
     public static SimpleEnvironmentMaterial ReadOld(BinaryReader br)
     {
         string name = br.ReadPaddedString(260);
@@ -39,17 +50,6 @@ public readonly struct SimpleEnvironmentMaterial
         channels[1] = new(emissiveName, emmisiveColor, Matrix4x4.Identity);
 
         return new(name, type, 0, channels);
-    }
-
-    public static SimpleEnvironmentMaterial Read(BinaryReader br)
-    {
-        SimpleEnvironmentMaterialFlags flags = (SimpleEnvironmentMaterialFlags)br.ReadUInt32();
-        SimpleEnvironmentChannel[] channels = new SimpleEnvironmentChannel[8];
-
-        for (int i = 0; i < 8; i++)
-            channels[i] = SimpleEnvironmentChannel.Read(br);
-
-        return new(string.Empty, SimpleEnvironmentMaterialType.Default, flags, channels);
     }
 }
 

@@ -26,23 +26,6 @@ namespace LeagueToolkit.IO.NVR
         //Values used when writing
         public Box CentralPointsBoundingBox;
 
-        public NVRNode(BinaryReader br, NVRBuffers buffers)
-        {
-            this.BoundingBox = br.ReadBox();
-            this.FirstMesh = br.ReadInt32();
-            this.MeshCount = br.ReadInt32();
-            this.FirstChildNode = br.ReadInt32();
-            this.ChildNodeCount = br.ReadInt32();
-
-            if (this.FirstChildNode == -1)
-            {
-                for (int i = this.FirstMesh; i < this.FirstMesh + this.MeshCount; i++)
-                {
-                    this.Meshes.Add(buffers.Meshes[i]);
-                }
-            }
-        }
-
         public NVRNode(Box centralPointsBox, NVRNode parentNode)
         {
             // Used if we create it from a parent node.
