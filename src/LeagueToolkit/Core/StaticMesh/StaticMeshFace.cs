@@ -1,10 +1,6 @@
 ﻿using LeagueToolkit.Helpers.Structures;
-using System;
 using System.Globalization;
-using System.IO;
 using System.Numerics;
-using System.Text;
-using LeagueToolkit.Helpers.Extensions;
 
 namespace LeagueToolkit.Core.StaticMesh;
 
