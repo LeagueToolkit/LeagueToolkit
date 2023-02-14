@@ -8,10 +8,10 @@ using LeagueToolkit.Core.Environment.Builder;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.StaticMesh;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
@@ -330,14 +330,6 @@ class Program
                     writer.WriteVector2(i, ElementName.Texcoord7, lightmapUvsArray[i]);
             }
         }
-    }
-
-    static void TestStaticObject()
-    {
-        StaticObject sco = StaticObject.ReadSCB("aatrox_base_w_ground_ring.scb");
-        sco.WriteSCO(@"C:\Users\Crauzer\Desktop\zzzz.sco");
-
-        StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
     }
 
     static IEnumerable<(string, IAnimationAsset)> LoadAnimations(string path)
