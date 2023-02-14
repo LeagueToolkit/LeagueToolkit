@@ -36,6 +36,20 @@ class Program
 {
     static void Main(string[] args)
     {
+        foreach (
+            string scbFile in Directory.EnumerateFiles(
+                @"X:\lol\game\assets\characters\belveth\skins\base\particles",
+                "*.scb"
+            )
+        )
+        {
+            using FileStream stream = File.OpenRead(scbFile);
+            StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
+        }
+    }
+
+    static void ProfileNvrToEnvironmentAsset()
+    {
         using FileStream stream = File.OpenRead(@"X:\lol\old_backup\Map10\scene\room.nvr");
         EnvironmentAsset nvr = EnvironmentAsset.LoadSimpleEnvironment(stream);
 
@@ -60,8 +74,6 @@ class Program
                 )
             )
             .SaveGLB("twistedtreeline.glb");
-
-        //ProfileMapgeoToGltf();
     }
 
     static void ExtractWad(string wadPath, string extractTo)

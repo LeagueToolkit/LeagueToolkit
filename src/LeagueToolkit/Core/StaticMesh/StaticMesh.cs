@@ -97,8 +97,12 @@ public class StaticMesh
         // Read vertex colors
         Color[] vertexColors = Array.Empty<Color>();
         if (hasVertexColors)
+        {
+            vertexColors = new Color[vertexCount];
+
             for (int i = 0; i < vertexCount; i++)
                 vertexColors[i] = br.ReadColor(ColorFormat.BgraU8);
+        }
 
         Vector3 centralPoint = br.ReadVector3();
 

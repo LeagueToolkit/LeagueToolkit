@@ -6,8 +6,8 @@ namespace LeagueToolkit.Helpers.Structures;
 [DebuggerDisplay("{R} {G} {B} {A}")]
 public struct Color : IEquatable<Color>
 {
-    public static readonly Color Zero = new(0, 0, 0, 0);
-    public static readonly Color One = new(1, 1, 1, 1);
+    public static readonly Color Zero = new(0f, 0f, 0f, 0f);
+    public static readonly Color One = new(1f, 1f, 1f, 1f);
 
     public float R
     {
