@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Helpers.Structures;
 using System.Globalization;
 using System.Numerics;
 
@@ -91,7 +92,7 @@ public readonly struct StaticMeshFace
         bw.Write((uint)this.VertexId1);
         bw.Write((uint)this.VertexId2);
 
-        bw.BaseStream.Seek(64, SeekOrigin.Current);
+        bw.WritePaddedString("staticrange", 64);
 
         bw.Write(this.UV0.X);
         bw.Write(this.UV1.X);
@@ -116,6 +117,8 @@ public readonly struct StaticMeshFace
 
         string line = $"{this.UV0.X.ToString(CultureInfo.InvariantCulture)}";
 
-        sw.WriteLine(string.Format("3 {0} staticmesh {1}", $"{this.VertexId0} {this.VertexId1} {this.VertexId2}", uvs));
+        sw.WriteLine(
+            string.Format("3 {0} staticrange {1}", $"{this.VertexId0} {this.VertexId1} {this.VertexId2}", uvs)
+        );
     }
 }

@@ -11,6 +11,7 @@ using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.StaticMesh;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.IO.MapObjects;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Dump;
@@ -36,6 +37,15 @@ class Program
 {
     static void Main(string[] args)
     {
+        {
+            using FileStream stream = File.OpenRead(
+                @"X:\lol\game\assets\characters\belveth\skins\base\particles\belveth_base_ba_mis_energyflame.belveth.scb"
+            );
+            StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
+
+            staticMesh.WriteBinary(File.Create("belveth_base_ba_mis_energyflame.belveth.rewritten.scb"));
+        }
+
         foreach (
             string scbFile in Directory.EnumerateFiles(
                 @"X:\lol\game\assets\characters\belveth\skins\base\particles",

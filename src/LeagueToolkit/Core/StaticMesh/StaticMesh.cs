@@ -227,11 +227,8 @@ public class StaticMesh
     {
         using BinaryWriter bw = new(stream, Encoding.UTF8, true);
 
-        StaticMeshFlags flags = 0;
+        StaticMeshFlags flags = StaticMeshFlags.HasLocalOriginLocatorAndPivot;
         Box aabb = Box.FromVertices(this.Vertices);
-
-        if (this.HasVertexColors)
-            flags |= StaticMeshFlags.HasVcp;
 
         bw.Write("r3d2Mesh"u8);
         bw.Write((ushort)3);
@@ -258,6 +255,8 @@ public class StaticMesh
 
         foreach (StaticMeshFace face in this.Faces)
             face.WriteBinary(bw);
+
+        // TODO: Write face vertex colors
     }
 
     public void WriteAscii(Stream stream)
