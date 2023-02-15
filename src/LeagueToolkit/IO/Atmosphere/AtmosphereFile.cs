@@ -48,7 +48,7 @@ namespace LeagueToolkit.IO.Atmosphere
         /// <summary>
         /// Initializes a new <see cref="AtmosphereFile"/> from the specified <see cref="Stream"/>
         /// </summary>
-        /// <param name="stream"><The <see cref="Stream"/> to read from</param>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
         public AtmosphereFile(Stream stream)
         {
             using (BinaryReader br = new BinaryReader(stream))

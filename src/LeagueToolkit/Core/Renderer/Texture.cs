@@ -35,8 +35,7 @@ namespace LeagueToolkit.Core.Renderer
             {
                 TextureFileFormat.DDS => LoadDds(stream),
                 TextureFileFormat.TEX => LoadTex(stream),
-                TextureFileFormat.Unknown
-                    => throw new InvalidOperationException("Cannot load unknown textue file format"),
+                _ => throw new InvalidOperationException("Cannot load unknown texture file format")
             };
         }
 

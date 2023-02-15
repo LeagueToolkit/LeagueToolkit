@@ -15,7 +15,8 @@ public readonly struct IndexArray : IReadOnlyList<uint>
         this.Format switch
         {
             IndexFormat.U16 => MemoryMarshal.Read<ushort>(this.Buffer.Span[(index * this.Stride)..]),
-            IndexFormat.U32 => MemoryMarshal.Read<uint>(this.Buffer.Span[(index * this.Stride)..])
+            IndexFormat.U32 => MemoryMarshal.Read<uint>(this.Buffer.Span[(index * this.Stride)..]),
+            _ => throw new InvalidOperationException()
         };
 
     public IndexArray(IndexFormat format, ReadOnlyMemory<byte> buffer)

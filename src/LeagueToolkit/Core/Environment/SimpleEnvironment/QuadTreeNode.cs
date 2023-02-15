@@ -12,10 +12,12 @@ internal class QuadTreeNode
     public List<SimpleEnvironmentMesh> Meshes { get; private set; } = new List<SimpleEnvironmentMesh>();
 
     //Values used when reading
+#pragma warning disable CS0649
     public int FirstMesh;
     public int MeshCount;
     public int FirstChildNode;
     public int ChildNodeCount;
+#pragma warning restore CS0649
 
     //Values used when writing
     public Box CentralPointsBoundingBox;

@@ -22,7 +22,7 @@ namespace LeagueToolkit.Helpers.Extensions
             return min;
         }
 
-        // <summary>
+        /// <summary>
         /// Returns the element with the highest value in <paramref name="span"/>
         /// </summary>
         public static ushort Max(this ReadOnlySpan<ushort> span)
