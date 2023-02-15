@@ -83,6 +83,7 @@ internal readonly struct SimpleEnvironmentMaterial
                 => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.FOUR_BLEND),
             SimpleEnvironmentMaterialType.AntiBrush
                 => new(VertexBufferUsage.Static, SimpleEnvironmentVertexDescription.DEFAULT),
+            _ => throw new InvalidOperationException()
         };
     }
 }

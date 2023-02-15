@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace LeagueToolkit.Core.Animation;
 
 [DebuggerDisplay("{GetJointId()} | {GetTransformType()}")]
+[StructLayout(LayoutKind.Sequential)]
 internal unsafe struct CompressedFrame
 {
     public readonly ushort Time;

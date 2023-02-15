@@ -5,20 +5,6 @@ namespace LeagueToolkit.Helpers
 {
     public static class Utilities
     {
-        public static string ByteArrayToHex(byte[] array)
-        {
-            char[] c = new char[array.Length * 2];
-            for (int i = 0; i < array.Length; i++)
-            {
-                int b = array[i] >> 4;
-                c[i * 2] = (char)(55 + b + (((b - 10) >> 31) & -7));
-                b = array[i] & 0xF;
-                c[i * 2 + 1] = (char)(55 + b + (((b - 10) >> 31) & -7));
-            }
-
-            return new string(c);
-        }
-        
         // TODO: We can use "SequenceEqual" together with "u8" string literal
         // to simplify this whole function
         public static LeagueFileType GetExtensionType(ReadOnlySpan<byte> magicData)

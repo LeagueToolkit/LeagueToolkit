@@ -198,7 +198,6 @@ public sealed class EnvironmentAsset : IDisposable
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to write to</param>
     /// <param name="version">The version of the written <see cref="EnvironmentAsset"/> file</param>
-    /// <param name="leaveOpen">Whether the internal reader should leave <paramref name="stream"/> opened</param>
     /// <exception cref="ArgumentException"></exception>
     public void Write(Stream stream, uint version)
     {
