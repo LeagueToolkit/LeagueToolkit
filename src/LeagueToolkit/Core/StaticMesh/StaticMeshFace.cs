@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
+﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
 using System.Globalization;
 using System.Numerics;
@@ -7,6 +8,8 @@ namespace LeagueToolkit.Core.StaticMesh;
 
 public readonly struct StaticMeshFace
 {
+    public string Material { get; init; }
+
     public ushort VertexId0 { get; init; }
     public ushort VertexId1 { get; init; }
     public ushort VertexId2 { get; init; }
@@ -19,8 +22,11 @@ public readonly struct StaticMeshFace
     public Color Color1 { get; init; }
     public Color Color2 { get; init; }
 
-    public StaticMeshFace((ushort, ushort, ushort) indices, (Vector2, Vector2, Vector2) uvs)
+    public StaticMeshFace(string material, (ushort, ushort, ushort) indices, (Vector2, Vector2, Vector2) uvs)
     {
+        Guard.IsNotNull(material, nameof(material));
+
+        this.Material = material;
         (this.VertexId0, this.VertexId1, this.VertexId2) = indices;
         (this.UV0, this.UV1, this.UV2) = uvs;
 
@@ -30,11 +36,15 @@ public readonly struct StaticMeshFace
     }
 
     public StaticMeshFace(
+        string material,
         (ushort, ushort, ushort) indices,
         (Vector2, Vector2, Vector2) uvs,
         (Color, Color, Color) colors
     )
     {
+        Guard.IsNotNull(material, nameof(material));
+
+        this.Material = material;
         (this.VertexId0, this.VertexId1, this.VertexId2) = indices;
         (this.UV0, this.UV1, this.UV2) = uvs;
         (this.Color0, this.Color1, this.Color2) = colors;
@@ -45,8 +55,7 @@ public readonly struct StaticMeshFace
         // indices are 16-bit internally
         (ushort, ushort, ushort) indices = ((ushort)br.ReadUInt32(), (ushort)br.ReadUInt32(), (ushort)br.ReadUInt32());
 
-        // ignore material because it's not used
-        br.BaseStream.Seek(64, SeekOrigin.Current);
+        string material = br.ReadPaddedString(64);
 
         ReadOnlySpan<float> uvs =
             stackalloc float[] {
@@ -58,7 +67,7 @@ public readonly struct StaticMeshFace
                 br.ReadSingle()
             };
 
-        return new(indices, (new(uvs[0], uvs[3]), new(uvs[1], uvs[4]), new(uvs[2], uvs[5])));
+        return new(material, indices, (new(uvs[0], uvs[3]), new(uvs[1], uvs[4]), new(uvs[2], uvs[5])));
     }
 
     public static StaticMeshFace ReadAscii(StreamReader sr)
@@ -68,6 +77,7 @@ public readonly struct StaticMeshFace
         var indices = (ushort.Parse(input[1]), ushort.Parse(input[2]), ushort.Parse(input[3]));
 
         return new(
+            input[4],
             indices,
             (
                 new(
@@ -92,7 +102,7 @@ public readonly struct StaticMeshFace
         bw.Write((uint)this.VertexId1);
         bw.Write((uint)this.VertexId2);
 
-        bw.WritePaddedString("staticrange", 64);
+        bw.WritePaddedString(this.Material, 64);
 
         bw.Write(this.UV0.X);
         bw.Write(this.UV1.X);
@@ -115,10 +125,8 @@ public readonly struct StaticMeshFace
             this.UV2.Y.ToString(CultureInfo.InvariantCulture)
         );
 
-        string line = $"{this.UV0.X.ToString(CultureInfo.InvariantCulture)}";
-
         sw.WriteLine(
-            string.Format("3 {0} staticrange {1}", $"{this.VertexId0} {this.VertexId1} {this.VertexId2}", uvs)
+            string.Format("3 {0} {1} {2}", $"{this.VertexId0} {this.VertexId1} {this.VertexId2}", this.Material, uvs)
         );
     }
 }

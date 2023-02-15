@@ -230,6 +230,14 @@ public class StaticMesh
         StaticMeshFlags flags = StaticMeshFlags.HasLocalOriginLocatorAndPivot;
         Box aabb = Box.FromVertices(this.Vertices);
 
+        // Figure out if we need to write face vertex colors
+        foreach (StaticMeshFace face in this.Faces)
+            if (face.Color0 != Color.One || face.Color1 != Color.One || face.Color2 != Color.One)
+            {
+                flags |= StaticMeshFlags.HasVcp;
+                break;
+            }
+
         bw.Write("r3d2Mesh"u8);
         bw.Write((ushort)3);
         bw.Write((ushort)2);
@@ -242,21 +250,29 @@ public class StaticMesh
         bw.WriteBox(aabb);
         bw.Write(this.HasVertexColors ? 1 : 0);
 
+        // Write vertices
         foreach (Vector3 vertex in this.Vertices)
             bw.WriteVector3(vertex);
 
+        // Write vertex colors
         if (this.HasVertexColors)
-        {
             foreach (Color vertexColor in this.VertexColors)
                 bw.WriteColor(vertexColor, ColorFormat.RgbaU8);
-        }
 
         bw.WriteVector3(aabb.GetCentralPoint());
 
+        // Write faces
         foreach (StaticMeshFace face in this.Faces)
             face.WriteBinary(bw);
 
         // TODO: Write face vertex colors
+        if (flags.HasFlag(StaticMeshFlags.HasVcp))
+            foreach (StaticMeshFace face in this.Faces)
+            {
+                bw.WriteColor(face.Color0, ColorFormat.RgbU8);
+                bw.WriteColor(face.Color1, ColorFormat.RgbU8);
+                bw.WriteColor(face.Color2, ColorFormat.RgbU8);
+            }
     }
 
     public void WriteAscii(Stream stream)
