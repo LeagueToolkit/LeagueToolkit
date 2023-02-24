@@ -52,7 +52,7 @@ public class LeagueFileTests
         [Fact]
         public void Should_Return_Dds_If_Magic_Matches()
         {
-            Assert.Equal(LeagueFileType.TextureDds, LeagueFile.GetFileType("DDS\0"u8));
+            Assert.Equal(LeagueFileType.TextureDds, LeagueFile.GetFileType("DDS "u8));
         }
 
         [Fact]
