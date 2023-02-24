@@ -56,6 +56,16 @@ public class LeagueFileTests
         }
 
         [Fact]
+        public void Should_Return_SimpleSKin_If_FormatToken_Matches()
+        {
+            Span<byte> magic = stackalloc byte[4];
+
+            BinaryPrimitives.WriteUInt32LittleEndian(magic, 0x00112233);
+
+            Assert.Equal(LeagueFileType.SimpleSkin, LeagueFile.GetFileType(magic));
+        }
+
+        [Fact]
         public void Should_Return_PropertyBin_If_Magic_Matches()
         {
             Assert.Equal(LeagueFileType.PropertyBin, LeagueFile.GetFileType("PROP"u8));
