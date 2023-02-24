@@ -4,7 +4,7 @@ using LeagueToolkit.Helpers.Structures;
 using System.Globalization;
 using System.Numerics;
 
-namespace LeagueToolkit.Core.StaticMesh;
+namespace LeagueToolkit.Core.Mesh;
 
 public readonly struct StaticMeshFace
 {

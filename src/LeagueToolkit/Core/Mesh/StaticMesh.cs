@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Numerics;
 using System.Text;
 
-namespace LeagueToolkit.Core.StaticMesh;
+namespace LeagueToolkit.Core.Mesh;
 
 public class StaticMesh
 {
