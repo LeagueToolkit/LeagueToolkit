@@ -3,7 +3,7 @@ using System.Buffers.Binary;
 
 namespace LeagueToolkit.Utils;
 
-public static class LeagueFileUtils
+public static class LeagueFile
 {
     public static LeagueFileType GetFileType(ReadOnlySpan<byte> magicData)
     {
