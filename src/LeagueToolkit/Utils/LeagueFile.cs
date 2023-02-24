@@ -26,12 +26,12 @@ public static class LeagueFile
             { Length: >= 4 } when magicData[..4].SequenceEqual("WGEO"u8) => LeagueFileType.WorldGeometry,
             { Length: >= 4 } when magicData[..4].SequenceEqual("OEGM"u8) => LeagueFileType.MapGeometry,
             { Length: >= 4 } when magicData[..4].SequenceEqual("[Obj"u8) => LeagueFileType.StaticMeshAscii,
-            { Length: >= 5 } when magicData[1..4].SequenceEqual("LuaQ"u8) => LeagueFileType.LuaObj,
+            { Length: >= 5 } when magicData[1..5].SequenceEqual("LuaQ"u8) => LeagueFileType.LuaObj,
             { Length: >= 7 } when magicData[..7].SequenceEqual("PreLoad"u8) => LeagueFileType.Preload,
             { Length: >= 4 } when BinaryPrimitives.ReadUInt32LittleEndian(magicData) is 3 => LeagueFileType.LightGrid,
             { Length: >= 3 } when magicData[..3].SequenceEqual("RST"u8) => LeagueFileType.RiotStringTable,
             { Length: >= 4 } when magicData[..4].SequenceEqual("PTCH"u8) => LeagueFileType.PropertyBinOverride,
-            { Length: >= 3 } when (BinaryPrimitives.ReadUInt32LittleEndian(magicData) & 0xFFFFFF00) is 0xFFD8FF00
+            { Length: >= 3 } when (BinaryPrimitives.ReadUInt32LittleEndian(magicData) & 0x00FFFFFF) is 0x00FFD8FF
                 => LeagueFileType.Jpeg,
             { Length: >= 8 } when BinaryPrimitives.ReadInt32LittleEndian(magicData[4..]) is RigResource.FORMAT_TOKEN
                 => LeagueFileType.Skeleton,
