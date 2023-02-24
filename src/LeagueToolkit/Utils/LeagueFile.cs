@@ -18,7 +18,7 @@ public static class LeagueFile
                     && BinaryPrimitives.ReadUInt32LittleEndian(magicData[4..]) is 1
                 => LeagueFileType.WwisePackage,
             { Length: >= 4 } when magicData[1..4].SequenceEqual("PNG"u8) => LeagueFileType.Png,
-            { Length: >= 4 } when magicData[..3].SequenceEqual("DDS "u8) => LeagueFileType.TextureDds,
+            { Length: >= 4 } when magicData[..4].SequenceEqual("DDS "u8) => LeagueFileType.TextureDds,
             { Length: >= 4 } when BinaryPrimitives.ReadUInt32LittleEndian(magicData) is 0x00112233
                 => LeagueFileType.SimpleSkin,
             { Length: >= 4 } when magicData[..4].SequenceEqual("PROP"u8) => LeagueFileType.PropertyBin,
