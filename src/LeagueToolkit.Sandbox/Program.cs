@@ -8,7 +8,6 @@ using LeagueToolkit.Core.Environment.Builder;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
-using LeagueToolkit.Core.StaticMesh;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapObjects;
