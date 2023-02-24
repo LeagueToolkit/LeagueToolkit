@@ -10,8 +10,8 @@ using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.IO.MapObjects;
 using LeagueToolkit.IO.SimpleSkinFile;
-using LeagueToolkit.IO.StaticObjectFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
@@ -35,6 +35,29 @@ namespace LeagueToolkit.Sandbox;
 class Program
 {
     static void Main(string[] args)
+    {
+        {
+            using FileStream stream = File.OpenRead(
+                @"X:\lol\game\assets\characters\belveth\skins\base\particles\belveth_base_ba_mis_energyflame.belveth.scb"
+            );
+            StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
+
+            staticMesh.WriteBinary(File.Create("belveth_base_ba_mis_energyflame.belveth.rewritten.scb"));
+        }
+
+        foreach (
+            string scbFile in Directory.EnumerateFiles(
+                @"X:\lol\game\assets\characters\belveth\skins\base\particles",
+                "*.scb"
+            )
+        )
+        {
+            using FileStream stream = File.OpenRead(scbFile);
+            StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
+        }
+    }
+
+    static void ProfileNvrToEnvironmentAsset()
     {
         using FileStream stream = File.OpenRead(@"X:\lol\old_backup\Map10\scene\room.nvr");
         EnvironmentAsset nvr = EnvironmentAsset.LoadSimpleEnvironment(stream);
@@ -60,8 +83,6 @@ class Program
                 )
             )
             .SaveGLB("twistedtreeline.glb");
-
-        //ProfileMapgeoToGltf();
     }
 
     static void ExtractWad(string wadPath, string extractTo)
@@ -330,14 +351,6 @@ class Program
                     writer.WriteVector2(i, ElementName.Texcoord7, lightmapUvsArray[i]);
             }
         }
-    }
-
-    static void TestStaticObject()
-    {
-        StaticObject sco = StaticObject.ReadSCB("aatrox_base_w_ground_ring.scb");
-        sco.WriteSCO(@"C:\Users\Crauzer\Desktop\zzzz.sco");
-
-        StaticObject x = StaticObject.ReadSCB(@"C:\Users\Crauzer\Desktop\zzzz.scb");
     }
 
     static IEnumerable<(string, IAnimationAsset)> LoadAnimations(string path)
