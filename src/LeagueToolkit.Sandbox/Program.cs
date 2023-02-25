@@ -15,6 +15,7 @@ using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
+using LeagueToolkit.Toolkit.Gltf;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -36,15 +37,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        {
-            using FileStream stream = File.OpenRead(
-                @"X:\lol\game\assets\characters\belveth\skins\base\particles\belveth_base_ba_mis_energyflame.belveth.scb"
-            );
-            StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
-
-            staticMesh.WriteBinary(File.Create("belveth_base_ba_mis_energyflame.belveth.rewritten.scb"));
-        }
-
+        Directory.CreateDirectory("staticgltfs");
         foreach (
             string scbFile in Directory.EnumerateFiles(
                 @"X:\lol\game\assets\characters\belveth\skins\base\particles",
@@ -54,6 +47,8 @@ class Program
         {
             using FileStream stream = File.OpenRead(scbFile);
             StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
+
+            staticMesh.ToGltf().Save($"staticgltfs/{Path.GetFileName(scbFile)}.glb");
         }
     }
 
