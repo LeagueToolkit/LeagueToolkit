@@ -4,15 +4,15 @@
     "net6.0": {
       "CommunityToolkit.Diagnostics": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
-        "resolved": "8.0.0",
-        "contentHash": "wzjy3iA+7qjoL6t89Zhn3qsF9u2linoGEad/sl/MG4i8p8ZnItv3xZ+2/mbIwxwq5u1UdJ0+ZVqMe1wfdV4QRQ=="
+        "requested": "[8.1.0, )",
+        "resolved": "8.1.0",
+        "contentHash": "R9h5uw8W2ADbmzrJpUJHH7cBpOE2g7jJ0mL/6sJEucfDvTWk3Uq/d4ZgWfVsQTf+MX8wAsWEYsc+UNfeZ3o6LQ=="
       },
       "CommunityToolkit.HighPerformance": {
         "type": "Direct",
-        "requested": "[8.0.0, )",
-        "resolved": "8.0.0",
-        "contentHash": "S5Iv1d5UJZNJLJbe/xzJmLqYJ2mhefbLAvhXCZEh3G4sFadUBuQZhQioE4oJG4enY69QMuJX3AX9+6P9rH1bMw=="
+        "requested": "[8.1.0, )",
+        "resolved": "8.1.0",
+        "contentHash": "kgDi65k02hrgnHy3N0xENecsr0spW13RdIA1tipovi9t16gKziI7uZIu3qkxz0GctCHNM4hfeqXYg//6wHJ6Kw=="
       },
       "FlatSharp.Compiler": {
         "type": "Direct",
@@ -31,11 +31,11 @@
       },
       "SharpGLTF.Toolkit": {
         "type": "Direct",
-        "requested": "[1.0.0-alpha0027, )",
-        "resolved": "1.0.0-alpha0027",
-        "contentHash": "7CCcP/trfk4idVjnCkpCqloMdVCk581fr4XCrGu98NwGF/pAHlMxN/Z9jFcKfiNs7p8xBjj5ZbQBXMKUKSzwRA==",
+        "requested": "[1.0.0-alpha0028, )",
+        "resolved": "1.0.0-alpha0028",
+        "contentHash": "CNw7Cc0vPtbeqag4Jv+/x7Dgc5Vfcz6PmE5TiVzfsyLho4uEve2suQO42KSJa85q8g9MeWU/cMVy0ND/9gz+Qw==",
         "dependencies": {
-          "SharpGLTF.Core": "1.0.0-alpha0027"
+          "SharpGLTF.Core": "1.0.0-alpha0028"
         }
       },
       "SixLabors.ImageSharp": {
@@ -70,8 +70,8 @@
       },
       "SharpGLTF.Core": {
         "type": "Transitive",
-        "resolved": "1.0.0-alpha0027",
-        "contentHash": "RPv9c2ctq0PoZRMT/WXrZ07C5wWPXJw8AO23xdZWC4VofSMP1D4MKqUSs7Y/es8pczR4Nsk54wMpWvgaWXbriQ=="
+        "resolved": "1.0.0-alpha0028",
+        "contentHash": "ALHHo0St08I77sZGEf/eFOIpSFF8aP/nbWNIvh27omQz/ds9MJADU4aF4MyOrHaW4Ir4bwZ1xF3QLwKyIH3Oow=="
       },
       "System.Memory": {
         "type": "Transitive",

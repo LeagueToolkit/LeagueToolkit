@@ -37,19 +37,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        Directory.CreateDirectory("staticgltfs");
-        foreach (
-            string scbFile in Directory.EnumerateFiles(
-                @"X:\lol\game\assets\characters\belveth\skins\base\particles",
-                "*.scb"
-            )
-        )
-        {
-            using FileStream stream = File.OpenRead(scbFile);
-            StaticMesh staticMesh = StaticMesh.ReadBinary(stream);
-
-            staticMesh.ToGltf().Save($"staticgltfs/{Path.GetFileName(scbFile)}.glb");
-        }
+        ProfileMapgeoToGltf();
     }
 
     static void ProfileNvrToEnvironmentAsset()
@@ -166,13 +154,11 @@ class Program
     static void ProfileMapgeoToGltf()
     {
         using FileStream materialsBinStream = File.OpenRead(
-            @"C:\Users\Filip\Downloads\bilgewater.materials.bin" /*@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"*/
+            @"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"
         );
         BinTree materialsBin = new(materialsBinStream);
 
-        using FileStream mapgeoStream = File.OpenRead(
-            @"C:\Users\Filip\Downloads\bilgewater.mapgeo" /*@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo"*/
-        );
+        using FileStream mapgeoStream = File.OpenRead(@"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.mapgeo");
         using EnvironmentAsset mgeo = new(mapgeoStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
@@ -192,7 +178,7 @@ class Program
                     }
                 )
             )
-            .SaveGLB("bilgewater.glb");
+            .SaveGLB("testnewshaders.glb");
     }
 
     static void ProfileTexture()
