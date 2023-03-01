@@ -8,7 +8,7 @@
 
   <!-- package references -->
   <ItemGroup>
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0027" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0028" />
   </ItemGroup>
 
   <!-- project references -->
