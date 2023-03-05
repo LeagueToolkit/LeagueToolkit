@@ -16,6 +16,7 @@ using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
 using LeagueToolkit.Toolkit.Gltf;
+using LeagueToolkit.Toolkit.Ritobin;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -37,7 +38,27 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMapgeoToGltf();
+        ProfileRitobinWriter();
+    }
+
+    static void ProfileRitobinWriter()
+    {
+        using FileStream binFile = File.OpenRead(
+            @"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"
+        );
+        BinTree bin = new(binFile);
+
+        FileStream ritobinStream = File.Create("ritobintest.txt");
+        using RitobinWriter writer =
+            new(
+                ritobinStream,
+                new Dictionary<uint, string>(),
+                new Dictionary<uint, string>(),
+                new Dictionary<uint, string>(),
+                new Dictionary<uint, string>()
+            );
+
+        writer.WritePropertyBin(bin);
     }
 
     static void ProfileNvrToEnvironmentAsset()

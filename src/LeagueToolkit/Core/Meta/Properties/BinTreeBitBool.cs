@@ -14,16 +14,16 @@ public sealed class BinTreeBitBool : BinTreeProperty
     /// <summary>
     /// Gets the value of the property
     /// </summary>
-    public byte Value { get; set; }
+    public bool Value { get; set; }
 
     /// <summary>
     /// Creates a new <see cref="BinTreeBitBool"/> object with the specified parameters
     /// </summary>
     /// <param name="nameHash">The hashed property name</param>
     /// <param name="value">The value of the property</param>
-    public BinTreeBitBool(uint nameHash, byte value) : base(nameHash) => this.Value = value;
+    public BinTreeBitBool(uint nameHash, bool value) : base(nameHash) => this.Value = value;
 
-    internal BinTreeBitBool(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadByte();
+    internal BinTreeBitBool(BinaryReader br, uint nameHash) : base(nameHash) => this.Value = br.ReadBoolean();
 
     protected override void WriteContent(BinaryWriter bw) => bw.Write(this.Value);
 
@@ -36,5 +36,5 @@ public sealed class BinTreeBitBool : BinTreeProperty
             _ => false
         };
 
-    public static implicit operator byte(BinTreeBitBool property) => property.Value;
+    public static implicit operator bool(BinTreeBitBool property) => property.Value;
 }
