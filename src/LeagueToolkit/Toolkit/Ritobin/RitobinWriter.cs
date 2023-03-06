@@ -1,13 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Meta.Properties;
-using Microsoft.VisualBasic.FileIO;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueToolkit.Toolkit.Ritobin;
 
@@ -159,8 +153,7 @@ public sealed class RitobinWriter : IDisposable
         else if (property is BinTreeObjectLink objectLink)
             WriteObjectLinkProperty(objectLink);
         else if (property is BinTreeOptional optional)
-        { /* TODO*/
-        }
+            WriteOptionalProperty(optional);
         else if (property is BinTreeMap map)
             WriteMapProperty(map);
         else if (property is BinTreeBitBool bitBool)
@@ -231,8 +224,13 @@ public sealed class RitobinWriter : IDisposable
 
     private void WriteContainerProperty(BinTreeContainer container)
     {
-        this._writer.WriteLine("{");
+        if (container.Elements.Count is 0)
+        {
+            this._writer.Write("{}");
+            return;
+        }
 
+        this._writer.WriteLine("{");
         IncreaseDepth();
         foreach (BinTreeProperty property in container.Elements)
         {
@@ -241,7 +239,6 @@ public sealed class RitobinWriter : IDisposable
             this._writer.WriteLine();
         }
         DecreaseDepth();
-
         Indent();
         this._writer.Write("}");
     }
@@ -253,6 +250,12 @@ public sealed class RitobinWriter : IDisposable
             true => foundClassName,
             false => string.Format("0x{0:x}", structProperty.ClassHash)
         };
+
+        if (structProperty.Properties.Count is 0)
+        {
+            this._writer.Write($@"{className} {{}}");
+            return;
+        }
 
         this._writer.WriteLine($"{className} {{");
         IncreaseDepth();
@@ -278,8 +281,32 @@ public sealed class RitobinWriter : IDisposable
         this._writer.Write(value);
     }
 
+    private void WriteOptionalProperty(BinTreeOptional optional)
+    {
+        if (optional.Value is null)
+        {
+            this._writer.Write("{}");
+            return;
+        }
+
+        this._writer.WriteLine("{");
+        IncreaseDepth();
+        Indent();
+        WritePropertyValue(optional.Value);
+        this._writer.WriteLine();
+        DecreaseDepth();
+        Indent();
+        this._writer.Write("}");
+    }
+
     private void WriteMapProperty(BinTreeMap map)
     {
+        if (map.Count is 0)
+        {
+            this._writer.Write("{}");
+            return;
+        }
+
         this._writer.WriteLine('{');
         IncreaseDepth();
         foreach (var (key, value) in map)
