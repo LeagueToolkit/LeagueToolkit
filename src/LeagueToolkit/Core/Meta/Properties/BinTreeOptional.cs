@@ -11,13 +11,26 @@ public sealed class BinTreeOptional : BinTreeProperty
     /// <inheritdoc/>
     public override BinPropertyType Type => BinPropertyType.Optional;
 
+    public BinPropertyType ValueType => this._valueType;
+    private BinPropertyType _valueType;
+
     /// <summary>
     /// Gets the optional value of the property
     /// </summary>
     /// <remarks>
     /// Set to <see langword="null"/> if there is no value
     /// </remarks>
-    public BinTreeProperty Value { get; set; }
+    public BinTreeProperty Value
+    {
+        get => this._value;
+        set
+        {
+            this._value = value;
+            if (value is not null)
+                this._valueType = value.Type;
+        }
+    }
+    private BinTreeProperty _value;
 
     /// <summary>
     /// Creates a new <see cref="BinTreeOptional"/> object with the specified parameters
@@ -28,16 +41,16 @@ public sealed class BinTreeOptional : BinTreeProperty
 
     internal BinTreeOptional(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
     {
-        BinPropertyType valueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
+        this._valueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         bool isSome = br.ReadBoolean();
 
         if (isSome)
-            this.Value = ReadPropertyContent(0, valueType, br, useLegacyType);
+            this.Value = ReadPropertyContent(0, this._valueType, br, useLegacyType);
     }
 
     protected override void WriteContent(BinaryWriter bw)
     {
-        bw.Write((byte)this.Value.Type);
+        bw.Write((byte)this.ValueType);
         bw.Write(this.Value is not null);
 
         this.Value?.Write(bw, false);
