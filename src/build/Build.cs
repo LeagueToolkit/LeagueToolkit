@@ -134,7 +134,9 @@ class Build : NukeBuild
                     DotNetPack(
                         s =>
                             s.SetProject(Solution)
-                                .SetOutputDirectory(ArtifactsDirectory)
+                                .SetProcessArgumentConfigurator(
+                                    c => c.Add("--property:PackageOutputPath={value}", ArtifactsDirectory)
+                                )
                                 .SetConfiguration(Configuration)
                                 .EnableNoRestore()
                                 .EnableNoBuild()
