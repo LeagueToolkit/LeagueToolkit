@@ -16,6 +16,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using GltfImage = SharpGLTF.Schema2.Image;
@@ -402,18 +403,15 @@ namespace LeagueToolkit.IO.SimpleSkinFile
                 new(textures.Select(x => new KeyValuePair<string, Stream>(x.Material, x.Texture)));
 
             Dictionary<string, Material> materials = new();
-            Parallel.ForEach(
-                skinnedMesh.Ranges,
-                range =>
-                {
-                    Material material = root.CreateMaterial(range.Material).WithUnlit().WithDoubleSide(true);
+            foreach (SkinnedMeshRange primitive in skinnedMesh.Ranges)
+            {
+                Material material = root.CreateMaterial(primitive.Material).WithUnlit().WithDoubleSide(true);
 
-                    if (textureLookup.TryGetValue(range.Material, out Stream textureStream))
-                        InitializeMaterialBaseColorChannel(root, material, textureStream);
+                if (textureLookup.TryGetValue(primitive.Material, out Stream textureStream))
+                    InitializeMaterialBaseColorChannel(root, material, textureStream);
 
-                    materials.Add(material.Name, material);
-                }
-            );
+                materials.Add(material.Name, material);
+            }
 
             return materials;
         }
@@ -427,11 +425,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             byte[] textureBuffer = new byte[textureStream.Length];
             textureStream.Read(textureBuffer);
 
-            lock (root)
-            {
-                GltfImage image = root.UseImage(new(textureBuffer));
-                material.WithChannelTexture("BaseColor", 0, image);
-            }
+            GltfImage image = root.UseImage(new(textureBuffer));
+            material.WithChannelTexture("BaseColor", 0, image);
         }
         #endregion
 
@@ -518,22 +513,16 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             Guard.IsNotNull(animations, nameof(animations));
 
             IReadOnlyList<Node> jointNodes = joints.ToArray();
-
-            object syncRoot = new();
-            Parallel.ForEach(
-                animations,
-                x =>
-                {
-                    CreateGltfAnimation(x.Name, x.Animation, jointNodes, syncRoot);
-                }
-            );
+            foreach (var (name, animation) in animations)
+            {
+                CreateGltfAnimation(name, animation, jointNodes);
+            }
         }
 
         private static void CreateGltfAnimation(
             string animationName,
             IAnimationAsset animation,
-            IReadOnlyList<Node> jointNodes,
-            object syncRoot
+            IReadOnlyList<Node> jointNodes
         )
         {
             Dictionary<uint, (Quaternion Rotation, Vector3 Translation, Vector3 Scale)> pose = new();
@@ -569,21 +558,18 @@ namespace LeagueToolkit.IO.SimpleSkinFile
             }
 
             // Create samplers for joints
-            lock (syncRoot)
+            foreach (Node jointNode in jointNodes)
             {
-                foreach (Node jointNode in jointNodes)
-                {
-                    uint jointHash = Elf.HashLower(jointNode.Name);
+                uint jointHash = Elf.HashLower(jointNode.Name);
 
-                    if (jointRotations.TryGetValue(jointHash, out var rotationFrames))
-                        jointNode.WithRotationAnimation(animationName, rotationFrames);
+                if (jointRotations.TryGetValue(jointHash, out var rotationFrames))
+                    jointNode.WithRotationAnimation(animationName, rotationFrames);
 
-                    if (jointTranslations.TryGetValue(jointHash, out var translationFrames))
-                        jointNode.WithTranslationAnimation(animationName, translationFrames);
+                if (jointTranslations.TryGetValue(jointHash, out var translationFrames))
+                    jointNode.WithTranslationAnimation(animationName, translationFrames);
 
-                    if (jointScales.TryGetValue(jointHash, out var scaleFrames))
-                        jointNode.WithScaleAnimation(animationName, scaleFrames);
-                }
+                if (jointScales.TryGetValue(jointHash, out var scaleFrames))
+                    jointNode.WithScaleAnimation(animationName, scaleFrames);
             }
         }
         #endregion

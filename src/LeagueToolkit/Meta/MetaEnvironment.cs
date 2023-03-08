@@ -10,27 +10,26 @@ namespace LeagueToolkit.Meta
 {
     public sealed class MetaEnvironment
     {
-        public IReadOnlyList<Type> RegisteredMetaClasses => this._registeredMetaClasses;
+        public IReadOnlyDictionary<uint, Type> RegisteredMetaClasses => this._registeredMetaClasses;
         public IReadOnlyDictionary<uint, IMetaClass> RegisteredObjects => this._registeredObjects;
 
-        private readonly List<Type> _registeredMetaClasses = new();
+        private readonly Dictionary<uint, Type> _registeredMetaClasses = new();
         private readonly Dictionary<uint, IMetaClass> _registeredObjects = new();
 
         internal MetaEnvironment(IEnumerable<Type> metaClasses)
         {
             Guard.IsNotNull(metaClasses, nameof(metaClasses));
 
-            this._registeredMetaClasses = new(metaClasses);
-
-            foreach (Type metaClass in this.RegisteredMetaClasses)
+            foreach (Type metaClass in metaClasses)
             {
-                if (
-                    metaClass.GetCustomAttribute(typeof(MetaClassAttribute))
-                    is not MetaClassAttribute metaClassAttribute
-                )
-                    ThrowHelper.ThrowInvalidOperationException(
-                        $"{metaClass.Name} does not have {nameof(MetaClassAttribute)}"
+                Attribute customAttribute = metaClass.GetCustomAttribute(typeof(MetaClassAttribute));
+                if (customAttribute is not MetaClassAttribute metaClassAttribute)
+                    throw new ArgumentException(
+                        $"{metaClass.Name} does not have {nameof(MetaClassAttribute)}",
+                        nameof(metaClasses)
                     );
+
+                this._registeredMetaClasses.Add(metaClassAttribute.NameHash, metaClass);
             }
         }
 
@@ -68,16 +67,8 @@ namespace LeagueToolkit.Meta
 
         public bool DeregisterObject(uint pathHash) => this._registeredObjects.Remove(pathHash);
 
-        public Type GetMetaClassType(uint classNameHash)
-        {
-            return this._registeredMetaClasses.FirstOrDefault(x =>
-            {
-                MetaClassAttribute metaClassAttribute =
-                    x.GetCustomAttribute(typeof(MetaClassAttribute)) as MetaClassAttribute;
-
-                return metaClassAttribute?.NameHash == classNameHash;
-            });
-        }
+        public Type GetMetaClassTypeOrDefault(uint classNameHash) =>
+            this._registeredMetaClasses.GetValueOrDefault(classNameHash);
 
         public T GetObject<T>(string path) where T : IMetaClass => GetObject<T>(Fnv1a.HashLower(path));
 

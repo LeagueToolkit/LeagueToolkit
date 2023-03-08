@@ -9,10 +9,12 @@ using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Wad;
+using LeagueToolkit.Hashing;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.IO.MapObjects;
 using LeagueToolkit.IO.SimpleSkinFile;
 using LeagueToolkit.Meta;
+using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
 using LeagueToolkit.Toolkit.Gltf;
@@ -39,6 +41,7 @@ class Program
 {
     static void Main(string[] args)
     {
+        ProfileMetaSerializer();
         List<(string, IAnimationAsset)> animations = LoadAnimations(
                 @"X:\lol\game\assets\characters\renekton\skins\skin26\animations"
             )
@@ -50,6 +53,22 @@ class Program
             "renekton_skin26.glb",
             animations
         );
+    }
+
+    static void ProfileMetaSerializer()
+    {
+        using FileStream animationsBinStream = File.OpenRead(@"X:\lol\game\data\characters\akali\animations\skin0.bin");
+        BinTree bin = new(animationsBinStream);
+
+        BinTreeObject animationGraphDataObject = bin.Objects
+            .FirstOrDefault(x => x.Value.ClassHash == Fnv1a.HashLower(nameof(AnimationGraphData)))
+            .Value;
+
+        MetaEnvironment metaEnvironment = MetaEnvironment.Create(
+            Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+        );
+
+        var kekek = MetaSerializer.Deserialize<AnimationGraphData>(metaEnvironment, animationGraphDataObject);
     }
 
     static void ProfileRitobinWriter()
