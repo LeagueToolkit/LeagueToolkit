@@ -17,6 +17,7 @@ using LeagueToolkit.Meta.Dump;
 using LeagueToolkit.Toolkit;
 using LeagueToolkit.Toolkit.Gltf;
 using LeagueToolkit.Toolkit.Ritobin;
+using LeagueToolkit.Utils;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -38,7 +39,17 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileRitobinWriter();
+        List<(string, IAnimationAsset)> animations = LoadAnimations(
+                @"X:\lol\game\assets\characters\renekton\skins\skin26\animations"
+            )
+            .ToList();
+
+        ProfileRiggedMeshToGltf(
+            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
+            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
+            "renekton_skin26.glb",
+            animations
+        );
     }
 
     static void ProfileRitobinWriter()
@@ -164,7 +175,23 @@ class Program
         using FileStream rigStream = File.OpenRead(sklPath);
         RigResource rig = new(rigStream);
 
-        skn.ToGltf(rig, new List<(string, Stream)>(), animations).Save(gltfPath);
+        List<(string, Stream)> textures = skn.Ranges
+            .Select(x =>
+            {
+                using FileStream textureFileStream = File.OpenRead(
+                    @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26_tx_cm.dds"
+                );
+                LeagueTexture texture = LeagueTexture.Load(textureFileStream);
+
+                MemoryStream pngStream = new();
+                texture.Mips[0].ToImage().SaveAsPng(pngStream);
+                pngStream.Position = 0;
+
+                return (x.Material, (Stream)pngStream);
+            })
+            .ToList();
+
+        skn.ToGltf(rig, textures, animations).Save(gltfPath);
     }
 
     static void ProfileRigResource()
