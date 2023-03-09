@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers;
-using LeagueToolkit.Helpers.Attributes;
+﻿using LeagueToolkit.IO.INI;
+using LeagueToolkit.Utils;
 using System.Globalization;
 using System.Numerics;
 using System.Reflection;
