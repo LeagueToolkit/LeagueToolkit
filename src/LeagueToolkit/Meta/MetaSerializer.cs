@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Meta.Properties;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
-using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.Meta.Attributes;
 using System.Collections;
 using System.Numerics;

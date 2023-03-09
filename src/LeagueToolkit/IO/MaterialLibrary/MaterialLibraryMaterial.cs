@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using LeagueToolkit.Helpers.Structures;
 using System.Globalization;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.IO.MaterialLibrary
 {
@@ -22,8 +22,17 @@ namespace LeagueToolkit.IO.MaterialLibrary
         public string Texture { get; private set; }
         public Color Color { get; private set; }
 
-        public MaterialLibraryMaterial(string name, MaterialFlags flags, Color emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
-            string shaderName, bool isSimpleShader, byte opacity, Color color)
+        public MaterialLibraryMaterial(
+            string name,
+            MaterialFlags flags,
+            Color emissiveColor,
+            float[] uvScroll,
+            bool isBackfaceCullingDisabled,
+            string shaderName,
+            bool isSimpleShader,
+            byte opacity,
+            Color color
+        )
         {
             this.Name = name;
             this.Flags = flags;
@@ -36,8 +45,18 @@ namespace LeagueToolkit.IO.MaterialLibrary
             this.Color = color;
         }
 
-        public MaterialLibraryMaterial(string name, MaterialFlags flags, Color emissiveColor, float[] uvScroll, bool isBackfaceCullingDisabled,
-            string shaderName, bool isSimpleShader, byte opacity, Color color, string texture)
+        public MaterialLibraryMaterial(
+            string name,
+            MaterialFlags flags,
+            Color emissiveColor,
+            float[] uvScroll,
+            bool isBackfaceCullingDisabled,
+            string shaderName,
+            bool isSimpleShader,
+            byte opacity,
+            Color color,
+            string texture
+        )
         {
             this.Name = name;
             this.Flags = flags;
@@ -54,7 +73,10 @@ namespace LeagueToolkit.IO.MaterialLibrary
         public MaterialLibraryMaterial(StreamReader sr)
         {
             string[] line;
-            while ((line = sr.ReadLine().Split(new char[] { ' ', '=' }, StringSplitOptions.RemoveEmptyEntries))[0] != "[MaterialEnd]")
+            while (
+                (line = sr.ReadLine().Split(new char[] { ' ', '=' }, StringSplitOptions.RemoveEmptyEntries))[0]
+                != "[MaterialEnd]"
+            )
             {
                 if (line[0] == "Name")
                 {
@@ -88,19 +110,18 @@ namespace LeagueToolkit.IO.MaterialLibrary
                     int r = int.Parse(line[1]);
                     int g = int.Parse(line[2]);
                     int b = int.Parse(line[3]);
-                    this.EmissiveColor = new Color
-                        (
+                    this.EmissiveColor = new Color(
                         (r == int.MinValue) ? (byte)~r : (byte)r,
                         (g == int.MinValue) ? (byte)~g : (byte)g,
                         (b == int.MinValue) ? (byte)~b : (byte)b
-                        );
+                    );
                 }
                 else if (line[0] == "UVScroll")
                 {
                     this.UVScroll = new float[]
                     {
-                            float.Parse(line[1], CultureInfo.InvariantCulture),
-                            float.Parse(line[2], CultureInfo.InvariantCulture)
+                        float.Parse(line[1], CultureInfo.InvariantCulture),
+                        float.Parse(line[2], CultureInfo.InvariantCulture)
                     };
                 }
                 else if (line[0] == "DisableBackfaceCulling")
@@ -128,12 +149,11 @@ namespace LeagueToolkit.IO.MaterialLibrary
                     int r = int.Parse(line[1]);
                     int g = int.Parse(line[2]);
                     int b = int.Parse(line[3]);
-                    this.Color = new Color
-                        (
+                    this.Color = new Color(
                         (r == int.MinValue) ? (byte)~r : (byte)r,
                         (g == int.MinValue) ? (byte)~g : (byte)g,
                         (b == int.MinValue) ? (byte)~b : (byte)b
-                        );
+                    );
                 }
             }
         }
@@ -165,7 +185,12 @@ namespace LeagueToolkit.IO.MaterialLibrary
             sw.WriteLine("[MaterialBegin]");
             sw.WriteLine("Name= " + this.Name);
             sw.WriteLine("Flags= " + flags);
-            sw.WriteLine("EmissiveColor= {0} {1} {2}", this.EmissiveColor.R, this.EmissiveColor.G, this.EmissiveColor.B);
+            sw.WriteLine(
+                "EmissiveColor= {0} {1} {2}",
+                this.EmissiveColor.R,
+                this.EmissiveColor.G,
+                this.EmissiveColor.B
+            );
             sw.WriteLine("UVScroll = {0} {1}", this.UVScroll[0], this.UVScroll[1]);
             sw.WriteLine("DisableBackfaceCulling = " + (this.IsBackfaceCullingDisabled == true ? "1" : "0"));
             sw.WriteLine("ShaderName = " + this.ShaderName);

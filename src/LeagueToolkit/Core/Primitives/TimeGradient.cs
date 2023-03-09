@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Numerics;
 
-namespace LeagueToolkit.Helpers.Structures
+namespace LeagueToolkit.Core.Primitives
 {
     /// <summary>
     /// Represents a Time Gradient

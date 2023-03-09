@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace LeagueToolkit.Helpers.Structures;
+namespace LeagueToolkit.Core.Primitives;
 
 [DebuggerDisplay("{R} {G} {B} {A}")]
 public struct Color : IEquatable<Color>

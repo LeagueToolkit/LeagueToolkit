@@ -1,6 +1,4 @@
-﻿using LeagueToolkit.Helpers.Structures;
-using LeagueToolkit.Utils.Extensions;
-using System.IO;
+﻿using LeagueToolkit.Utils.Extensions;
 using System.Numerics;
 
 namespace LeagueToolkit.IO.AiMesh

@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.Utils.Extensions;
 

@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
 using System;
 using System.Globalization;

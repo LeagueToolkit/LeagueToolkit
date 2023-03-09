@@ -2,8 +2,8 @@ using System.Numerics;
 using System.Collections.Generic;
 using LeagueToolkit.Meta.Attributes;
 using LeagueToolkit.Meta;
-using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.Meta.Classes
 {

@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
 using System.Globalization;
 using System.Numerics;

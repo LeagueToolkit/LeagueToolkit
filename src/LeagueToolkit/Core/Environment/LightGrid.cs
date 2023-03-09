@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
 using System;
 using System.IO;

@@ -2,7 +2,6 @@
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Helpers.Exceptions;
-using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.Utils.Extensions;
 using System.Globalization;
 using System.Numerics;

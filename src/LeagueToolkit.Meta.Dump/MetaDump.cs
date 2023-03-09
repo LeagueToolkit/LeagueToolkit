@@ -1,6 +1,6 @@
 ﻿using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
-using LeagueToolkit.Helpers.Structures;
 using LeagueToolkit.Meta.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -767,7 +767,7 @@ namespace LeagueToolkit.Meta.Dump
                 typeof(System.Numerics.Vector3),
                 typeof(System.Numerics.Vector4),
                 typeof(System.Numerics.Matrix4x4),
-                typeof(LeagueToolkit.Helpers.Structures.Color),
+                typeof(Color),
                 typeof(LeagueToolkit.Meta.MetaHash),
                 typeof(LeagueToolkit.Meta.MetaObjectLink),
                 typeof(LeagueToolkit.Meta.MetaWadEntryLink),
