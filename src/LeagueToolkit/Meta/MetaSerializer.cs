@@ -683,7 +683,7 @@ namespace LeagueToolkit.Meta
                     else if (genericTypeDefinition == typeof(MetaEmbedded<>))
                         return BinPropertyType.Embedded;
                     else
-                        throw new ArgumentException(nameof(type), "Failed to match with a valid property type");
+                        throw new ArgumentException("Failed to match with a valid property type", nameof(type));
                 }
                 else if (type.IsValueType is false && type.GetInterface(nameof(IMetaClass)) is not null)
                 {
@@ -691,7 +691,7 @@ namespace LeagueToolkit.Meta
                 }
                 else
                 {
-                    throw new ArgumentException(nameof(type), "Failed to match with a valid property type");
+                    throw new ArgumentException("Failed to match with a valid property type", nameof(type));
                 }
             }
         }
