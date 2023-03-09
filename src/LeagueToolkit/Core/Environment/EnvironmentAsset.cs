@@ -65,7 +65,7 @@ public sealed class EnvironmentAsset : IDisposable
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to read from</param>
     /// <exception cref="InvalidFileSignatureException">The header magic signature is invalid</exception>
-    /// <exception cref="UnsupportedFileVersionException">The version of the <see cref="EnvironmentAsset"/> file is not supported</exception>
+    /// <exception cref="InvalidFileVersionException">The version of the <see cref="EnvironmentAsset"/> file is not supported</exception>
     public EnvironmentAsset(Stream stream)
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
@@ -76,7 +76,7 @@ public sealed class EnvironmentAsset : IDisposable
 
         uint version = br.ReadUInt32();
         if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         bool useSeparatePointLights = version < 7 && br.ReadBoolean();
 
@@ -402,7 +402,7 @@ public sealed class EnvironmentAsset : IDisposable
         // I'm pretty sure there was version 6 for a short while before the transition to mapgeo
         uint version = br.ReadUInt32();
         if (version is not (5 or 4))
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         int modelCount = br.ReadInt32();
         uint faceCount = br.ReadUInt32();

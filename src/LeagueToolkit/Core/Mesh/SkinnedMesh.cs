@@ -73,7 +73,7 @@ public sealed class SkinnedMesh : IDisposable
         ushort major = br.ReadUInt16();
         ushort minor = br.ReadUInt16();
         if (major is not (0 or 2 or 4) && minor is not 1)
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         int indexCount = 0;
         int vertexCount = 0;

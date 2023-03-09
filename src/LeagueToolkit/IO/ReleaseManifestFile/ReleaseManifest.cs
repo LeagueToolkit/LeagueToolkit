@@ -30,7 +30,7 @@ public class ReleaseManifest
         byte minor = br.ReadByte();
         // NOTE: only check major because minor version are compatabile forwards-backwards
         if (major != 2)
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         //Could possibly be Compression Type
         byte unknown = br.ReadByte();

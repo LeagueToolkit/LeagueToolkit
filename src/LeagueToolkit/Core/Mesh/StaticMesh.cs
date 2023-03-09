@@ -73,7 +73,7 @@ public class StaticMesh
         ushort major = br.ReadUInt16();
         ushort minor = br.ReadUInt16();
         if (major is not (2 or 3) && minor is not 1) //There are versions [2][1] and [1][1] aswell
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         string name = br.ReadPaddedString(128);
 

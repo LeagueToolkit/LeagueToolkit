@@ -15,7 +15,7 @@ public class NavigationGridOverlay
         byte version = br.ReadByte();
         if (version != 1)
         {
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
         }
 
         byte regionCount = br.ReadByte();

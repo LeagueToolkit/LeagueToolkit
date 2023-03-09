@@ -68,7 +68,7 @@ public class WGTFile
             uint version = br.ReadUInt32();
             if (version != 1)
             {
-                throw new UnsupportedFileVersionException();
+                throw new InvalidFileVersionException();
             }
 
             uint skeletonId = br.ReadUInt32();

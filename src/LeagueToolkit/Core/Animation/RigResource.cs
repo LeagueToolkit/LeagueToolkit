@@ -173,7 +173,7 @@ public sealed class RigResource
 
         uint version = br.ReadUInt32();
         if (version is not (1 or 2))
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         uint skeletonID = br.ReadUInt32();
 

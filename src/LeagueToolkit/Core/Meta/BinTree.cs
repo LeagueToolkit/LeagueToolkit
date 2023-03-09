@@ -71,7 +71,7 @@ public sealed class BinTree
 
             uint overrideVersion = br.ReadUInt32();
             if (overrideVersion is not 1)
-                throw new UnsupportedFileVersionException();
+                throw new InvalidFileVersionException();
 
             // It might be possible to create an override property bin
             // and set the original file as a dependency
@@ -84,7 +84,7 @@ public sealed class BinTree
 
         uint version = br.ReadUInt32();
         if (version is not (1 or 2 or 3))
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
 
         // Read dependencies
         if (version >= 2)

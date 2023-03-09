@@ -24,7 +24,7 @@ public class FXFile
                 uint version = br.ReadUInt32();
                 if (version != 1)
                 {
-                    throw new UnsupportedFileVersionException();
+                    throw new InvalidFileVersionException();
                 }
 
                 uint flag = br.ReadUInt32();

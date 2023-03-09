@@ -44,7 +44,7 @@ public class AiMeshFile
             uint version = br.ReadUInt32();
             if (version != 2)
             {
-                throw new UnsupportedFileVersionException();
+                throw new InvalidFileVersionException();
             }
 
             uint cellCount = br.ReadUInt32();

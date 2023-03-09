@@ -50,7 +50,7 @@ public class MOBFile
         uint version = br.ReadUInt32();
         if (version != 2)
         {
-            throw new UnsupportedFileVersionException();
+            throw new InvalidFileVersionException();
         }
 
         uint objectCount = br.ReadUInt32();
