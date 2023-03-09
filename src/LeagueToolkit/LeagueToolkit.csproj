@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <FlatSharpSchema Include="IO\ReleaseManifestFile\ReleaseManifest*.fbs" />
+    <FlatSharpSchema Include="Core\Legacy\IO\ReleaseManifestFile\ReleaseManifest*.fbs" />
   </ItemGroup>
 
   <ItemGroup>
