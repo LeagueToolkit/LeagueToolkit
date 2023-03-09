@@ -6,7 +6,7 @@ using LeagueToolkit.Core.Environment.SimpleEnvironment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
-using LeagueToolkit.Helpers.Exceptions;
+using LeagueToolkit.Utils.Exceptions;
 using LeagueToolkit.Utils.Extensions;
 using System.Numerics;
 using System.Runtime.InteropServices;

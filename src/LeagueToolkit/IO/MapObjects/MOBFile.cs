@@ -1,98 +1,92 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using LeagueToolkit.Utils.Exceptions;
 using System.Text;
 
-namespace LeagueToolkit.IO.MapObjects
+namespace LeagueToolkit.IO.MapObjects;
+
+/// <summary>
+/// Represents a MapObjects.mob file
+/// </summary>
+public class MOBFile
 {
     /// <summary>
-    /// Represents a MapObjects.mob file
+    /// Objects of this <see cref="MOBFile"/>
     /// </summary>
-    public class MOBFile
+    public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
+
+    /// <summary>
+    /// Initializes an empty <see cref="MOBFile"/>
+    /// </summary>
+    public MOBFile() { }
+
+    /// <summary>
+    /// Initializes a new <see cref="MOBFile"/>
+    /// </summary>
+    /// <param name="objects">Objects of this <see cref="MOBFile"/></param>
+    public MOBFile(List<MOBObject> objects)
     {
-        /// <summary>
-        /// Objects of this <see cref="MOBFile"/>
-        /// </summary>
-        public List<MOBObject> Objects { get; private set; } = new List<MOBObject>();
+        this.Objects = objects;
+    }
 
-        /// <summary>
-        /// Initializes an empty <see cref="MOBFile"/>
-        /// </summary>
-        public MOBFile() { }
+    /// <summary>
+    /// Initializes a new <see cref="MOBFile"/> from the specified location
+    /// </summary>
+    /// <param name="fileLocation">Location to read from</param>
+    public MOBFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
 
-        /// <summary>
-        /// Initializes a new <see cref="MOBFile"/>
-        /// </summary>
-        /// <param name="objects">Objects of this <see cref="MOBFile"/></param>
-        public MOBFile(List<MOBObject> objects)
+    /// <summary>
+    /// Initalizes a new <see cref="MOBFile"/> from the specified <see cref="Stream"/>
+    /// </summary>
+    /// <param name="stream">The <see cref="Stream"/> to read from</param>
+    public MOBFile(Stream stream)
+    {
+        using BinaryReader br = new(stream);
+
+        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+        if (magic != "OPAM")
         {
-            this.Objects = objects;
+            throw new InvalidFileSignatureException();
         }
 
-        /// <summary>
-        /// Initializes a new <see cref="MOBFile"/> from the specified location
-        /// </summary>
-        /// <param name="fileLocation">Location to read from</param>
-        public MOBFile(string fileLocation) : this(File.OpenRead(fileLocation)) { }
-
-        /// <summary>
-        /// Initalizes a new <see cref="MOBFile"/> from the specified <see cref="Stream"/>
-        /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to read from</param>
-        public MOBFile(Stream stream)
+        uint version = br.ReadUInt32();
+        if (version != 2)
         {
-            using (BinaryReader br = new BinaryReader(stream))
-            {
-                string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-                if (magic != "OPAM")
-                {
-                    throw new InvalidFileSignatureException();
-                }
-
-                uint version = br.ReadUInt32();
-                if (version != 2)
-                {
-                    throw new UnsupportedFileVersionException();
-                }
-
-                uint objectCount = br.ReadUInt32();
-                br.ReadUInt32();
-
-                for (int i = 0; i < objectCount; i++)
-                {
-                    this.Objects.Add(new MOBObject(br));
-                }
-            }
+            throw new UnsupportedFileVersionException();
         }
 
-        /// <summary>
-        /// Writes this <see cref="MOBFile"/> to the spcified location
-        /// </summary>
-        /// <param name="fileLocation">Location to write to</param>
-        public void Write(string fileLocation)
+        uint objectCount = br.ReadUInt32();
+        br.ReadUInt32();
+
+        for (int i = 0; i < objectCount; i++)
         {
-            Write(File.Create(fileLocation));
+            this.Objects.Add(new MOBObject(br));
         }
+    }
 
-        /// <summary>
-        /// Writes this <see cref="MOBFile"/> into a <see cref="Stream"/>
-        /// </summary>
-        /// <param name="stream">The <see cref="Stream"/> to write to</param>
-        public void Write(Stream stream, bool leaveOpen = false)
+    /// <summary>
+    /// Writes this <see cref="MOBFile"/> to the spcified location
+    /// </summary>
+    /// <param name="fileLocation">Location to write to</param>
+    public void Write(string fileLocation)
+    {
+        Write(File.Create(fileLocation));
+    }
+
+    /// <summary>
+    /// Writes this <see cref="MOBFile"/> into a <see cref="Stream"/>
+    /// </summary>
+    /// <param name="stream">The <see cref="Stream"/> to write to</param>
+    public void Write(Stream stream, bool leaveOpen = false)
+    {
+        using BinaryWriter bw = new(stream, Encoding.UTF8, leaveOpen);
+
+        bw.Write(Encoding.ASCII.GetBytes("OPAM"));
+        bw.Write((uint)2);
+        bw.Write(this.Objects.Count);
+        bw.Write((uint)0);
+
+        foreach (MOBObject mobObject in this.Objects)
         {
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, leaveOpen))
-            {
-                bw.Write(Encoding.ASCII.GetBytes("OPAM"));
-                bw.Write((uint)2);
-                bw.Write(this.Objects.Count);
-                bw.Write((uint)0);
-
-                foreach (MOBObject mobObject in this.Objects)
-                {
-                    mobObject.Write(bw);
-                }
-            }
+            mobObject.Write(bw);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Exceptions;
+﻿using LeagueToolkit.Utils.Exceptions;
 using System.Text;
 
 namespace LeagueToolkit.IO.WGT;
