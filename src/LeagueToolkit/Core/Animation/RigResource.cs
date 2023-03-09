@@ -2,7 +2,7 @@
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
-using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Utils.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;

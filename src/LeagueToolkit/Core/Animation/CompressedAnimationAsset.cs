@@ -3,7 +3,7 @@ using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Helpers.Exceptions;
-using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Utils.Extensions;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;

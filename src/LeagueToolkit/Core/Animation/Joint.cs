@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Hashing;
-using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Utils.Extensions;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;

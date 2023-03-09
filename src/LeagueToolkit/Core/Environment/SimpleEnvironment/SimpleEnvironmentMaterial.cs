@@ -1,6 +1,6 @@
 ﻿using LeagueToolkit.Core.Memory;
-using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Utils.Extensions;
 using System.Diagnostics;
 using System.Numerics;
 

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Primitives;
-using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Utils.Extensions;
 using System.Numerics;
 
 namespace LeagueToolkit.Core.SceneGraph;

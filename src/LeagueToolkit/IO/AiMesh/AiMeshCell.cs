@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Utils.Extensions;
 using System.IO;
 using System.Numerics;
 
@@ -14,6 +14,7 @@ namespace LeagueToolkit.IO.AiMesh
         /// Vertices of this <see cref="AiMeshCell"/>
         /// </summary>
         public Vector3[] Vertices { get; set; }
+
         /// <summary>
         /// Links to other <see cref="AiMeshCell"/>
         /// </summary>

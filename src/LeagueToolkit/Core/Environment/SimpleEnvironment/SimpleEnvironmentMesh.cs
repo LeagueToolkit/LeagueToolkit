@@ -1,5 +1,5 @@
 ﻿using LeagueToolkit.Core.Primitives;
-using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Utils.Extensions;
 
 namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
 

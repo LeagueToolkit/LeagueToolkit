@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Helpers.Extensions;
 using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Utils.Extensions;
 using System.Globalization;
 using System.Numerics;
 

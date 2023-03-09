@@ -1,4 +1,4 @@
-﻿using LeagueToolkit.Helpers.Extensions;
+﻿using LeagueToolkit.Utils.Extensions;
 using System.Numerics;
 using System.Text;
 

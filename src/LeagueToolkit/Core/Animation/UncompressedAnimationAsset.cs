@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
-using LeagueToolkit.Helpers.Extensions;
+using LeagueToolkit.Utils.Extensions;
 using System.Numerics;
 using System.Text;
 

@@ -1,5 +1,5 @@
-﻿using LeagueToolkit.Helpers.Extensions;
-using LeagueToolkit.Helpers.Structures;
+﻿using LeagueToolkit.Helpers.Structures;
+using LeagueToolkit.Utils.Extensions;
 using System;
 using System.Globalization;
 using System.IO;
@@ -14,9 +14,17 @@ namespace LeagueToolkit.IO.LightEnvironment
         public int Unknown1 { get; private set; } //Seems to be a flag
         public int Unknown2 { get; private set; }
         public bool Unknown3 { get; private set; }
-        public float Opacity { get; private set; }//No idea what this might be but probably Opacity of the light since there is no alpha channel in color
+        public float Opacity { get; private set; } //No idea what this might be but probably Opacity of the light since there is no alpha channel in color
 
-        public LightEnvironmentLight(int[] position, Color color, Color color2, int unknown1, int unknown2, bool unknown3, float opacity)
+        public LightEnvironmentLight(
+            int[] position,
+            Color color,
+            Color color2,
+            int unknown1,
+            int unknown2,
+            bool unknown3,
+            float opacity
+        )
         {
             this.Position = position;
             this.Color = color;
@@ -29,7 +37,7 @@ namespace LeagueToolkit.IO.LightEnvironment
 
         public LightEnvironmentLight(StreamReader sr)
         {
-            string[] line = sr.ReadLine().Split(new char[] { ' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] line = sr.ReadLine().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             this.Position = new int[] { int.Parse(line[0]), int.Parse(line[1]), int.Parse(line[2]) };
             this.Color = new Color(byte.Parse(line[3]), byte.Parse(line[4]), byte.Parse(line[5]));
@@ -47,7 +55,13 @@ namespace LeagueToolkit.IO.LightEnvironment
             sw.Write(" ");
             sw.WriteColor(this.Color2, ColorFormat.RgbU8);
             sw.Write(" ");
-            sw.Write("{0} {1} {2} {3}" + Environment.NewLine, this.Unknown1, this.Unknown2, Convert.ToUInt16(this.Unknown3), this.Opacity);
+            sw.Write(
+                "{0} {1} {2} {3}" + Environment.NewLine,
+                this.Unknown1,
+                this.Unknown2,
+                Convert.ToUInt16(this.Unknown3),
+                this.Opacity
+            );
         }
     }
     /*
