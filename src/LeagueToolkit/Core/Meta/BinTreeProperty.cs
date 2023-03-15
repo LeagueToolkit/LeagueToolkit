@@ -1,4 +1,5 @@
-﻿using LeagueToolkit.Core.Meta.Properties;
+﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Meta.Properties;
 using LeagueToolkit.Hashing;
 
 namespace LeagueToolkit.Core.Meta;
@@ -91,6 +92,15 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
 
     internal abstract int GetSize(bool includeHeader);
 
+    public BinTreeProperty GetPathProperty(string path)
+    {
+        Guard.IsNotNullOrEmpty(path, nameof(path));
+
+        // TODO: From .NET 8 it will be possible to use MemoryExtensions.Split on a ReadOnlySpan<char>
+        string[] components = path.Split('.');
+    }
+
+    #region IEquatable
     public abstract bool Equals(BinTreeProperty other);
 
     public override bool Equals(object obj) =>
@@ -101,6 +111,7 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
         };
 
     public override int GetHashCode() => (int)this.NameHash;
+    #endregion
 
     protected virtual string GetDebuggerDisplayName() => string.Format("{0:x}: {1}", this.NameHash, this.Type);
 }
