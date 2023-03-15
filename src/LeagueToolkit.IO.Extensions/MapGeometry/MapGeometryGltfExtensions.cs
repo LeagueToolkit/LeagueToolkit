@@ -37,14 +37,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
     {
         private const string DEFAULT_MAP_NAME = "map";
 
-        private static readonly string[] DIFFUSE_SAMPLER_NAMES = new[]
-        {
-            "DiffuseTexture",
-            "Diffuse_Texture",
-            "GlowTexture",
-            "Mask_Textures"
-        };
-
         private static readonly string[] ALPHA_CLIP_PARAM_NAMES = new[] { "AlphaTestValue", "Opacity_Clip" };
         private static readonly string[] TINT_COLOR_PARAM_NAMES = new[] { "TintColor", "Tint_Color" };
 
@@ -422,9 +414,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
         private static MetaObjectLink GetDefaultTechniqueShaderLink(StaticMaterialDef material)
         {
-            StaticMaterialTechniqueDef technique = material.Techniques.FirstOrDefault(
-                x => x.Value.Name == material.DefaultTechnique
-            );
+            StaticMaterialTechniqueDef technique = material.Techniques.FirstOrDefault();
 
             return technique?.Passes.FirstOrDefault()?.Value.Shader ?? default;
         }
