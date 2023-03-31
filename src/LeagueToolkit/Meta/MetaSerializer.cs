@@ -324,8 +324,7 @@ public static class MetaSerializer
     )
     {
         Type structureType = structureObject.GetType();
-        if (structureType.GetCustomAttribute(typeof(MetaClassAttribute)) is not MetaClassAttribute metaClassAttribute)
-            throw new InvalidOperationException("The specified property does not have a MetaClass Attribute");
+        MetaClassAttribute metaClassAttribute = ValidateMetaClassType(structureType);
 
         // Create properties
         List<BinTreeProperty> properties = new();
