@@ -105,6 +105,35 @@ public class MetaSerializerTests
                 treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
             );
         }
+
+        [Fact]
+        public void Serializes_A_Map_Property()
+        {
+            var values = new KeyValuePair<string, uint>[] { new("test1", 0), new("test2", 1), new("test3", 2) };
+
+            var metaEnvironment = CreateMockMetaEnvironment();
+            BinTreeObject treeObject = MetaSerializer.Serialize(
+                metaEnvironment,
+                "test",
+                new TestMapMetaClass() { Test = new(values) }
+            );
+
+            Assert.Equal(
+                new BinTreeMap(
+                    TEST_PROPERTY_HASH,
+                    BinPropertyType.String,
+                    BinPropertyType.U32,
+                    values.Select(
+                        x =>
+                            new KeyValuePair<BinTreeProperty, BinTreeProperty>(
+                                new BinTreeString(0, x.Key),
+                                new BinTreeU32(0, x.Value)
+                            )
+                    )
+                ),
+                treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
+            );
+        }
     }
 
     internal static MetaEnvironment CreateMockMetaEnvironment() =>
@@ -115,6 +144,7 @@ public class MetaSerializerTests
                 typeof(TestI8MetaClass),
                 typeof(TestStringMetaClass),
                 typeof(TestContainerMetaClass),
+                typeof(TestMapMetaClass),
                 typeof(TestMetaClassWithPropertyWithoutAttribute)
             }
         );
@@ -145,6 +175,13 @@ public class MetaSerializerTests
     {
         [MetaProperty("test", BinPropertyType.Container, "", BinPropertyType.U32, BinPropertyType.None)]
         public MetaContainer<uint> Test { get; set; }
+    }
+
+    [MetaClass(nameof(TestMapMetaClass))]
+    private class TestMapMetaClass : IMetaClass
+    {
+        [MetaProperty("test", BinPropertyType.Map, "", BinPropertyType.String, BinPropertyType.U32)]
+        public Dictionary<string, uint> Test { get; set; }
     }
 
     private class TestMetaClassWithoutAttribute : IMetaClass { }
