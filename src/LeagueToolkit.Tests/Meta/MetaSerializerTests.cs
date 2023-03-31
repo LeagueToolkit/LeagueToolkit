@@ -87,6 +87,24 @@ public class MetaSerializerTests
                 treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
             );
         }
+
+        [Fact]
+        public void Serializes_A_Container_Property()
+        {
+            uint[] values = new[] { 0u, 1u, 2u };
+
+            var metaEnvironment = CreateMockMetaEnvironment();
+            BinTreeObject treeObject = MetaSerializer.Serialize(
+                metaEnvironment,
+                "test",
+                new TestContainerMetaClass() { Test = new(values) }
+            );
+
+            Assert.Equal(
+                new BinTreeContainer(TEST_PROPERTY_HASH, BinPropertyType.U32, values.Select(x => new BinTreeU32(0, x))),
+                treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
+            );
+        }
     }
 
     internal static MetaEnvironment CreateMockMetaEnvironment() =>
@@ -96,16 +114,10 @@ public class MetaSerializerTests
                 typeof(TestBoolMetaClass),
                 typeof(TestI8MetaClass),
                 typeof(TestStringMetaClass),
+                typeof(TestContainerMetaClass),
                 typeof(TestMetaClassWithPropertyWithoutAttribute)
             }
         );
-
-    [MetaClass("TestStringMetaClass")]
-    private class TestStringMetaClass : IMetaClass
-    {
-        [MetaProperty("test", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string Test { get; set; }
-    }
 
     [MetaClass(nameof(TestBoolMetaClass))]
     private class TestBoolMetaClass : IMetaClass
@@ -119,6 +131,20 @@ public class MetaSerializerTests
     {
         [MetaProperty("test", BinPropertyType.I8, "", BinPropertyType.None, BinPropertyType.None)]
         public sbyte Test { get; set; }
+    }
+
+    [MetaClass("TestStringMetaClass")]
+    private class TestStringMetaClass : IMetaClass
+    {
+        [MetaProperty("test", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string Test { get; set; }
+    }
+
+    [MetaClass(nameof(TestContainerMetaClass))]
+    private class TestContainerMetaClass : IMetaClass
+    {
+        [MetaProperty("test", BinPropertyType.Container, "", BinPropertyType.U32, BinPropertyType.None)]
+        public MetaContainer<uint> Test { get; set; }
     }
 
     private class TestMetaClassWithoutAttribute : IMetaClass { }

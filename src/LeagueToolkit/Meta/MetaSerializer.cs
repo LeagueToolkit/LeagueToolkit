@@ -293,7 +293,7 @@ public static class MetaSerializer
                     value as IEnumerable
                 ),
             _ when genericTypeDefinition == typeof(MetaContainer<>)
-                => CreateUnorderedContainerProperty(
+                => CreateContainerProperty(
                     environment,
                     nameHash,
                     valueType.GenericTypeArguments[0],
