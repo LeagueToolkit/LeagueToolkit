@@ -232,7 +232,7 @@ public static class MetaSerializer
         return valueType switch
         {
             _ when value is null => null,
-            _ when valueType == typeof(bool?) => new BinTreeBool(nameHash, (bool)value),
+            _ when valueType == typeof(bool) => new BinTreeBool(nameHash, (bool)value),
             _ when valueType == typeof(sbyte?) => new BinTreeI8(nameHash, (sbyte)value),
             _ when valueType == typeof(byte?) => new BinTreeU8(nameHash, (byte)value),
             _ when valueType == typeof(short?) => new BinTreeI16(nameHash, (short)value),
