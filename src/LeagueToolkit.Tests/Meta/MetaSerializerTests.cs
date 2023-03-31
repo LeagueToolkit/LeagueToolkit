@@ -53,6 +53,24 @@ public class MetaSerializerTests
         }
 
         [Fact]
+        public void Serializes_A_I8_Property()
+        {
+            sbyte value = -1;
+
+            var metaEnvironment = CreateMockMetaEnvironment();
+            BinTreeObject treeObject = MetaSerializer.Serialize(
+                metaEnvironment,
+                "test",
+                new TestI8MetaClass() { Test = value }
+            );
+
+            Assert.Equal(
+                new BinTreeI8(TEST_PROPERTY_HASH, value),
+                treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
+            );
+        }
+
+        [Fact]
         public void Serializes_A_String_Property()
         {
             var value = "test";
@@ -76,6 +94,7 @@ public class MetaSerializerTests
             new[]
             {
                 typeof(TestBoolMetaClass),
+                typeof(TestI8MetaClass),
                 typeof(TestStringMetaClass),
                 typeof(TestMetaClassWithPropertyWithoutAttribute)
             }
@@ -93,6 +112,13 @@ public class MetaSerializerTests
     {
         [MetaProperty("test", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool Test { get; set; }
+    }
+
+    [MetaClass(nameof(TestI8MetaClass))]
+    private class TestI8MetaClass : IMetaClass
+    {
+        [MetaProperty("test", BinPropertyType.I8, "", BinPropertyType.None, BinPropertyType.None)]
+        public sbyte Test { get; set; }
     }
 
     private class TestMetaClassWithoutAttribute : IMetaClass { }
