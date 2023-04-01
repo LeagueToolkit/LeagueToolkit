@@ -169,7 +169,7 @@ public sealed class WadFile : IDisposable
         using Stream decompressionStream = OpenChunk(chunk);
         MemoryOwner<byte> decompressedChunk = MemoryOwner<byte>.Allocate(chunk.UncompressedSize);
 
-        decompressionStream.ReadExactly(decompressedChunk.Span);
+        decompressionStream.ReadExact(decompressedChunk.Span);
 
         return decompressedChunk;
     }

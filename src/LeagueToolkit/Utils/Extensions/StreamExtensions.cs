@@ -2,7 +2,7 @@
 {
     public static class StreamExtensions
     {
-        public static void ReadExactly(this Stream stream, Span<byte> buffer)
+        public static void ReadExact(this Stream stream, Span<byte> buffer)
         {
             int totalBytesRead = 0;
             int bytesRead;
