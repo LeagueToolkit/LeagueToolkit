@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
+using LeagueToolkit.Utils.Extensions;
 using System.IO.Compression;
 using System.Text;
 using XXHash3NET;
@@ -168,18 +169,7 @@ public sealed class WadFile : IDisposable
         using Stream decompressionStream = OpenChunk(chunk);
         MemoryOwner<byte> decompressedChunk = MemoryOwner<byte>.Allocate(chunk.UncompressedSize);
 
-        int totalDecompressedBytes = 0;
-        while (true)
-        {
-            int decompressedBytes = decompressionStream.Read(decompressedChunk.Span[totalDecompressedBytes..]);
-            if (decompressedBytes == 0) break;
-            totalDecompressedBytes += decompressedBytes;
-        }
-
-        if (totalDecompressedBytes != chunk.UncompressedSize)
-            ThrowHelper.ThrowInvalidDataException(
-                $"Failed to decompress chunk data. decompressed: {totalDecompressedBytes}; actual: {chunk.UncompressedSize}"
-            );
+        decompressionStream.ReadExactly(decompressedChunk.Span);
 
         return decompressedChunk;
     }
