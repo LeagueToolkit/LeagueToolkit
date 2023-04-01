@@ -156,6 +156,28 @@ public class MetaSerializerTests
                 treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
             );
         }
+
+        [Fact]
+        public void Serializes_A_Struct_Property()
+        {
+            string value = "test";
+
+            var metaEnvironment = CreateMockMetaEnvironment();
+            BinTreeObject treeObject = MetaSerializer.Serialize(
+                metaEnvironment,
+                "test",
+                new TestStructMetaClass() { Test = new TestStringMetaClass() { Test = value } }
+            );
+
+            Assert.Equal(
+                new BinTreeStruct(
+                    TEST_PROPERTY_HASH,
+                    Fnv1a.HashLower(nameof(TestStringMetaClass)),
+                    new[] { new BinTreeString(Fnv1a.HashLower("test"), value) }
+                ),
+                treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
+            );
+        }
     }
 
     internal static MetaEnvironment CreateMockMetaEnvironment() =>
@@ -168,6 +190,7 @@ public class MetaSerializerTests
                 typeof(TestContainerMetaClass),
                 typeof(TestMapMetaClass),
                 typeof(TestEmbeddedMetaClass),
+                typeof(TestStructMetaClass),
                 typeof(TestMetaClassWithPropertyWithoutAttribute)
             }
         );
@@ -218,6 +241,19 @@ public class MetaSerializerTests
             BinPropertyType.None
         )]
         public MetaEmbedded<TestStringMetaClass> Test { get; set; }
+    }
+
+    [MetaClass(nameof(TestStructMetaClass))]
+    private class TestStructMetaClass : IMetaClass
+    {
+        [MetaProperty(
+            "test",
+            BinPropertyType.Struct,
+            nameof(TestStringMetaClass),
+            BinPropertyType.None,
+            BinPropertyType.None
+        )]
+        public TestStringMetaClass Test { get; set; }
     }
 
     private class TestMetaClassWithoutAttribute : IMetaClass { }
