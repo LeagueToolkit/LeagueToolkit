@@ -26,10 +26,7 @@ namespace LeagueToolkit.Meta
                 this._value = value;
         }
 
-        object IMetaEmbedded.GetValue()
-        {
-            return this.Value;
-        }
+        object IMetaEmbedded.GetValue() => this.Value;
 
         public static implicit operator T(MetaEmbedded<T> embedded) =>
             embedded switch
@@ -37,6 +34,8 @@ namespace LeagueToolkit.Meta
                 null => default,
                 _ => embedded.Value
             };
+
+        public static implicit operator MetaEmbedded<T>(T value) => new(value);
     }
 
     internal interface IMetaEmbedded

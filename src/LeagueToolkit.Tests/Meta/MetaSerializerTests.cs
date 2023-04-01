@@ -134,6 +134,28 @@ public class MetaSerializerTests
                 treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
             );
         }
+
+        [Fact]
+        public void Serializes_A_Embedded_Property()
+        {
+            string value = "test";
+
+            var metaEnvironment = CreateMockMetaEnvironment();
+            BinTreeObject treeObject = MetaSerializer.Serialize(
+                metaEnvironment,
+                "test",
+                new TestEmbeddedMetaClass() { Test = new TestStringMetaClass() { Test = value } }
+            );
+
+            Assert.Equal(
+                new BinTreeEmbedded(
+                    TEST_PROPERTY_HASH,
+                    Fnv1a.HashLower(nameof(TestStringMetaClass)),
+                    new[] { new BinTreeString(Fnv1a.HashLower("test"), value) }
+                ),
+                treeObject.Properties.GetValueOrDefault(TEST_PROPERTY_HASH)
+            );
+        }
     }
 
     internal static MetaEnvironment CreateMockMetaEnvironment() =>
@@ -145,6 +167,7 @@ public class MetaSerializerTests
                 typeof(TestStringMetaClass),
                 typeof(TestContainerMetaClass),
                 typeof(TestMapMetaClass),
+                typeof(TestEmbeddedMetaClass),
                 typeof(TestMetaClassWithPropertyWithoutAttribute)
             }
         );
@@ -163,7 +186,7 @@ public class MetaSerializerTests
         public sbyte Test { get; set; }
     }
 
-    [MetaClass("TestStringMetaClass")]
+    [MetaClass(nameof(TestStringMetaClass))]
     private class TestStringMetaClass : IMetaClass
     {
         [MetaProperty("test", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
@@ -182,6 +205,19 @@ public class MetaSerializerTests
     {
         [MetaProperty("test", BinPropertyType.Map, "", BinPropertyType.String, BinPropertyType.U32)]
         public Dictionary<string, uint> Test { get; set; }
+    }
+
+    [MetaClass("TestEmbeddedMetaClass")]
+    private class TestEmbeddedMetaClass : IMetaClass
+    {
+        [MetaProperty(
+            "test",
+            BinPropertyType.Embedded,
+            nameof(TestStringMetaClass),
+            BinPropertyType.None,
+            BinPropertyType.None
+        )]
+        public MetaEmbedded<TestStringMetaClass> Test { get; set; }
     }
 
     private class TestMetaClassWithoutAttribute : IMetaClass { }
