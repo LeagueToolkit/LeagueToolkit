@@ -1,6 +1,7 @@
 ﻿using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
+using SixLabors.ImageSharp.ColorSpaces;
 using System.Numerics;
 using System.Text;
 
@@ -59,6 +60,8 @@ public sealed class EnvironmentAssetMesh
     /// Tells the game on which Visibility Flags this mesh should be rendered
     /// </summary>
     public EnvironmentVisibility VisibilityFlags { get; private set; } = EnvironmentVisibility.AllLayers;
+
+    public EnvironmentVisibilityTransitionBehavior LayerTransitionBehavior { get; set; }
 
     /// <summary>Gets the render flags of the mesh</summary>
     public EnvironmentAssetMeshRenderFlags RenderFlags { get; private set; }
@@ -191,6 +194,9 @@ public sealed class EnvironmentAssetMesh
         if (version >= 7 && version <= 12)
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
 
+        if (version >= 14)
+            this.LayerTransitionBehavior = (EnvironmentVisibilityTransitionBehavior)br.ReadByte();
+
         if (version >= 11)
             this.RenderFlags = (EnvironmentAssetMeshRenderFlags)br.ReadByte();
 
@@ -249,6 +255,9 @@ public sealed class EnvironmentAssetMesh
 
         if (version >= 7 && version <= 12)
             bw.Write((byte)this.VisibilityFlags);
+
+        if (version >= 14)
+            bw.Write((byte)this.LayerTransitionBehavior);
 
         if (version >= 11)
             bw.Write((byte)this.RenderFlags);
@@ -340,4 +349,22 @@ public enum EnvironmentAssetMeshRenderFlags : byte
     /// If no eye candy flag is set, the mesh will always be rendered
     /// </remarks>
     RenderOnlyIfEyeCandyOff = 1 << 3 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
+}
+
+public enum EnvironmentVisibilityTransitionBehavior
+{
+    /// <summary>
+    /// Default - Only if mesh layer mask matches both CURRENT and NEW layer masks
+    /// </summary>
+    Unaffected = 0,
+
+    /// <summary>
+    /// Only if unfilteredMeshNewLayerMaskMatch == 0
+    /// </summary>
+    TurnInvisibleDoesNotMatchNewLayerFilter = 1,
+
+    /// <summary>
+    /// Only if unfilteredMeshNewLayerMaskMatch != 0
+    /// </summary>
+    TurnVisibleDoesMatchNewLayerFilter = 2
 }
