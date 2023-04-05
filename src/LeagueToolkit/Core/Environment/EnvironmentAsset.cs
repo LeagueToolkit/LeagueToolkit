@@ -75,7 +75,7 @@ public sealed class EnvironmentAsset : IDisposable
             throw new InvalidFileSignatureException();
 
         uint version = br.ReadUInt32();
-        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
+        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14))
             throw new InvalidFileVersionException();
 
         bool useSeparatePointLights = version < 7 && br.ReadBoolean();
