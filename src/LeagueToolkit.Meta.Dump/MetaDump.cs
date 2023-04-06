@@ -672,15 +672,14 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #region Numeric Primitive Initializer Creators
-        private ExpressionSyntax CreateFloatInitializerExpression(float value) =>
+        private static ExpressionSyntax CreateFloatInitializerExpression(float value) =>
             LiteralExpression(
                 SyntaxKind.NumericLiteralExpression,
                 Literal($"{value.ToString(NumberFormatInfo.InvariantInfo)}f", value)
             );
 
-        private ExpressionSyntax CreateVector2InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateVector2InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Vector2)),
                 ArgumentList(
                     SeparatedList(
@@ -689,11 +688,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateVector3InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateVector3InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Vector3)),
                 ArgumentList(
                     SeparatedList(
@@ -702,11 +699,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateVector4InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateVector4InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Vector4)),
                 ArgumentList(
                     SeparatedList(
@@ -715,11 +710,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateColorInitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateColorInitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Color)),
                 ArgumentList(
                     SeparatedList(
@@ -728,11 +721,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateMatrix4x4InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateMatrix4x4InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Matrix4x4)),
                 ArgumentList(
                     SeparatedList(
@@ -746,7 +737,6 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
         #endregion
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #endregion
