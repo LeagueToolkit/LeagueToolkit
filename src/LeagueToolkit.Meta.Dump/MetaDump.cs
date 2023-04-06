@@ -457,7 +457,7 @@ namespace LeagueToolkit.Meta.Dump
             };
 
             return GenericName(
-                Identifier(typeof(MetaOptional<object>).Name.Split('`')[0]),
+                Identifier(SanitizeNameOfGenericType(typeof(MetaOptional<object>))),
                 TypeArgumentList(SingletonSeparatedList(argumentTypeSyntax))
             );
         }
@@ -477,7 +477,7 @@ namespace LeagueToolkit.Meta.Dump
             };
 
             return GenericName(
-                Identifier(typeof(Dictionary<object, object>).Name.Split('`')[0]),
+                Identifier(SanitizeNameOfGenericType(typeof(Dictionary<object, object>))),
                 TypeArgumentList(SeparatedList(new TypeSyntax[] { keyDeclaration, valueDeclaration }))
             );
         }
