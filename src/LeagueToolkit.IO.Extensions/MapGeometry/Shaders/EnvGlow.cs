@@ -34,17 +34,10 @@ internal sealed class EnvGlow : IMaterialAdapter
 
     private static void InitializeMaterialRenderTechnique(Material gltfMaterial, StaticMaterialDef materialDef)
     {
-        // Resolve default technique
-        StaticMaterialTechniqueDef defaultTechnique = materialDef.Techniques.FirstOrDefault(
-            x => x.Value.Name == materialDef.DefaultTechnique
-        );
-        defaultTechnique ??= new();
+        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault() ?? new(new());
+        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault() ?? new(new());
 
-        // Get first render pass definition
-        StaticMaterialPassDef pass = defaultTechnique.Passes.FirstOrDefault();
-        pass ??= new();
-
-        if (pass.BlendEnable)
+        if (passDef.BlendEnable)
             gltfMaterial.Alpha = AlphaMode.BLEND;
     }
 

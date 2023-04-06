@@ -42,13 +42,8 @@ internal sealed class SrxBlendInfernalIsland : IMaterialAdapter
         );
         alphaTestDef ??= new() { Value = Vector4.Zero with { X = 0.3f } };
 
-        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault(
-            x => x.Value.Name == materialDef.DefaultTechnique
-        );
-        techniqueDef ??= new();
-
-        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault();
-        passDef ??= new();
+        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault() ?? new(new());
+        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault() ?? new(new());
 
         if (passDef.BlendEnable)
         {

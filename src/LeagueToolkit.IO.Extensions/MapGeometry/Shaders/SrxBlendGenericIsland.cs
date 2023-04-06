@@ -36,13 +36,8 @@ internal sealed class SrxBlendGenericIsland : IMaterialAdapter
 
     private static void InitializeMaterialRenderTechnique(Material gltfMaterial, StaticMaterialDef materialDef)
     {
-        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault(
-            x => x.Value.Name == materialDef.DefaultTechnique
-        );
-        techniqueDef ??= new();
-
-        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault();
-        passDef ??= new();
+        StaticMaterialTechniqueDef techniqueDef = materialDef.Techniques.FirstOrDefault() ?? new(new());
+        StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault() ?? new(new());
 
         if (passDef.BlendEnable)
         {
