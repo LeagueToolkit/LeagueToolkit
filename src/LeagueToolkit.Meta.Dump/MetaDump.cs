@@ -183,7 +183,7 @@ namespace LeagueToolkit.Meta.Dump
             return BaseList(SeparatedList<BaseTypeSyntax>(bases));
         }
 
-        private IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
+        private static IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
             string classHash,
             MetaDumpClass @class,
             IReadOnlyDictionary<uint, string> classes,
@@ -197,7 +197,7 @@ namespace LeagueToolkit.Meta.Dump
             }
         }
 
-        private PropertyDeclarationSyntax CreateMetaClassPropertyDeclaration(
+        private static PropertyDeclarationSyntax CreateMetaClassPropertyDeclaration(
             string classHash,
             MetaDumpClass @class,
             string propertyHash,
@@ -248,14 +248,13 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ---------------------------- PROPERTY ATTRIBUTE CREATION ----------------------------- */
         #region Property Attribute Creation
-        private SyntaxList<AttributeListSyntax> CreatePropertyAttributesSyntax(
+        private static SyntaxList<AttributeListSyntax> CreatePropertyAttributesSyntax(
             string propertyHash,
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes,
             IReadOnlyDictionary<uint, string> properties
-        )
-        {
-            return SingletonList(
+        ) =>
+            SingletonList(
                 AttributeList(
                     SingletonSeparatedList(
                         Attribute(
@@ -276,7 +275,6 @@ namespace LeagueToolkit.Meta.Dump
                     )
                 )
             );
-        }
 
         private static AttributeArgumentSyntax CreatePropertyNameAttributeArgument(
             string propertyHash,
@@ -293,7 +291,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property) =>
+        private static AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property) =>
             AttributeArgument(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -302,7 +300,7 @@ namespace LeagueToolkit.Meta.Dump
                 )
             );
 
-        private AttributeArgumentSyntax CreatePropertyOtherClassAttributeArgument(
+        private static AttributeArgumentSyntax CreatePropertyOtherClassAttributeArgument(
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes
         )
@@ -312,7 +310,7 @@ namespace LeagueToolkit.Meta.Dump
             return AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(otherClass)));
         }
 
-        private AttributeArgumentSyntax CreatePropertyPrimaryTypeAttributeArgument(MetaDumpProperty property)
+        private static AttributeArgumentSyntax CreatePropertyPrimaryTypeAttributeArgument(MetaDumpProperty property)
         {
             BinPropertyType secondaryType = property switch
             {
@@ -331,7 +329,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
+        private static AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
         {
             BinPropertyType primaryType = property switch
             {
@@ -353,7 +351,7 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ------------------------- PROPERTY TYPE DECLARATION CREATORS ------------------------- */
         #region Property Type Declaration Creators
-        private TypeSyntax CreatePropertyTypeDeclaration(
+        private static TypeSyntax CreatePropertyTypeDeclaration(
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes
         ) =>
@@ -406,7 +404,7 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        private GenericNameSyntax CreateContainerTypeDeclaration(
+        private static GenericNameSyntax CreateContainerTypeDeclaration(
             string elementClass,
             MetaDumpContainer container,
             bool isUnorderedContainer,
@@ -426,12 +424,12 @@ namespace LeagueToolkit.Meta.Dump
             return GenericName(identifier, TypeArgumentList(SingletonSeparatedList(argumentTypeSyntax)));
         }
 
-        private TypeSyntax CreateStructureTypeDeclaration(
+        private static TypeSyntax CreateStructureTypeDeclaration(
             string classNameHash,
             IReadOnlyDictionary<uint, string> classes
         ) => ParseTypeName(GetClassNameOrDefault(classNameHash, classes));
 
-        private GenericNameSyntax CreateEmbeddedTypeDeclaration(
+        private static GenericNameSyntax CreateEmbeddedTypeDeclaration(
             string classNameHash,
             IReadOnlyDictionary<uint, string> classes
         )
@@ -443,7 +441,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private GenericNameSyntax CreateOptionalTypeDeclaration(
+        private static GenericNameSyntax CreateOptionalTypeDeclaration(
             string otherClass,
             MetaDumpContainer container,
             IReadOnlyDictionary<uint, string> classes
@@ -462,7 +460,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private GenericNameSyntax CreateMapTypeDeclaration(
+        private static GenericNameSyntax CreateMapTypeDeclaration(
             string otherClass,
             MetaDumpMap map,
             IReadOnlyDictionary<uint, string> classes
