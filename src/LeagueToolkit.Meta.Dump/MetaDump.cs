@@ -421,8 +421,8 @@ namespace LeagueToolkit.Meta.Dump
             };
 
             SyntaxToken identifier = isUnorderedContainer
-                ? Identifier(typeof(MetaUnorderedContainer<IMetaClass>).Name.Split('`')[0])
-                : Identifier(typeof(MetaContainer<IMetaClass>).Name.Split('`')[0]);
+                ? Identifier(SanitizeNameOfGenericType(typeof(MetaUnorderedContainer<IMetaClass>)))
+                : Identifier(SanitizeNameOfGenericType(typeof(MetaContainer<IMetaClass>)));
             return GenericName(identifier, TypeArgumentList(SingletonSeparatedList(argumentTypeSyntax)));
         }
 
@@ -438,7 +438,7 @@ namespace LeagueToolkit.Meta.Dump
         {
             string argumentTypeIdentifier = GetClassNameOrDefault(classNameHash, classes);
             return GenericName(
-                Identifier(typeof(MetaEmbedded<IMetaClass>).Name.Split('`')[0]),
+                Identifier(SanitizeNameOfGenericType(typeof(MetaEmbedded<IMetaClass>))),
                 TypeArgumentList(SingletonSeparatedList(ParseTypeName(argumentTypeIdentifier, consumeFullText: true)))
             );
         }
