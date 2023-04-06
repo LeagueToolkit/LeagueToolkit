@@ -278,7 +278,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private AttributeArgumentSyntax CreatePropertyNameAttributeArgument(
+        private static AttributeArgumentSyntax CreatePropertyNameAttributeArgument(
             string propertyHash,
             IReadOnlyDictionary<uint, string> properties
         )
@@ -371,7 +371,7 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
 
-        private TypeSyntax CreatePrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
+        private static TypeSyntax CreatePrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
         {
             TypeSyntax typeDeclaration = type switch
             {
@@ -486,17 +486,17 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ----------------------------------- NAME UTILITIES ----------------------------------- */
         #region Name Utilities
-        private string GetClassNameOrDefault(string hash, IReadOnlyDictionary<uint, string> classNames)
+        private static string GetClassNameOrDefault(string hash, IReadOnlyDictionary<uint, string> classNames)
         {
             return classNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "Class" + hash);
         }
 
-        private string GetPropertyNameOrDefault(string hash, IReadOnlyDictionary<uint, string> propertyNames)
+        private static string GetPropertyNameOrDefault(string hash, IReadOnlyDictionary<uint, string> propertyNames)
         {
             return propertyNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "m" + Convert.ToUInt32(hash, 16));
         }
 
-        private string StylizePropertyName(string propertyName)
+        private static string StylizePropertyName(string propertyName)
         {
             if (propertyName[0] == 'm' && char.IsUpper(propertyName[1]))
             {
@@ -517,7 +517,10 @@ namespace LeagueToolkit.Meta.Dump
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
         #region Initializer Creators
 
-        private EqualsValueClauseSyntax CreatePropertyInitializer(JsonElement defaultValue, MetaDumpProperty property)
+        private static EqualsValueClauseSyntax CreatePropertyInitializer(
+            JsonElement defaultValue,
+            MetaDumpProperty property
+        )
         {
             ExpressionSyntax expression = defaultValue.ValueKind switch
             {
@@ -607,7 +610,7 @@ namespace LeagueToolkit.Meta.Dump
             return EqualsValueClause(expression);
         }
 
-        private ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, JsonElement value)
+        private static ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, JsonElement value)
         {
             TypeSyntax argumentTypeDeclaration = CreatePrimitivePropertyTypeDeclaration(property.Container.Type, false);
 
@@ -640,9 +643,11 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateCommonInitializerSyntax(BinPropertyType valueType, JsonElement defaultValue)
-        {
-            return defaultValue.ValueKind switch
+        private static ExpressionSyntax CreateCommonInitializerSyntax(
+            BinPropertyType valueType,
+            JsonElement defaultValue
+        ) =>
+            defaultValue.ValueKind switch
             {
                 JsonValueKind.String
                     => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(defaultValue.GetString())),
@@ -668,7 +673,6 @@ namespace LeagueToolkit.Meta.Dump
                     },
                 _ => throw new NotImplementedException()
             };
-        }
 
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #region Numeric Primitive Initializer Creators
@@ -744,13 +748,14 @@ namespace LeagueToolkit.Meta.Dump
 
         /* --------------------------- GENERIC TYPE NAME SANITIZATION --------------------------- */
         #region Generic Type Name Sanitization
-        private string SanitizeNameOfGenericType(Type genericType) => SanitizeNameOfGenericType(genericType.Name);
+        private static string SanitizeNameOfGenericType(Type genericType) =>
+            SanitizeNameOfGenericType(genericType.Name);
 
-        private string SanitizeNameOfGenericType(string nameOfGenericType) => nameOfGenericType.Split('`')[0];
+        private static string SanitizeNameOfGenericType(string nameOfGenericType) => nameOfGenericType.Split('`')[0];
         #endregion
         /* --------------------------- GENERIC TYPE NAME SANITIZATION --------------------------- */
 
-        private List<Type> GetRequiredTypes() =>
+        private static List<Type> GetRequiredTypes() =>
             new()
             {
                 typeof(System.Numerics.Vector2),
@@ -773,19 +778,15 @@ namespace LeagueToolkit.Meta.Dump
                 typeof(BinPropertyType)
             };
 
-        private List<string> GetRequiredNamespaces(List<Type> requiredTypes)
-        {
-            return requiredTypes.Select(x => x.Namespace).Distinct().ToList();
-        }
+        private static List<string> GetRequiredNamespaces(List<Type> requiredTypes) =>
+            requiredTypes.Select(x => x.Namespace).Distinct().ToList();
 
-        private IEnumerable<UsingDirectiveSyntax> TakeRequiredUsingDirectives(IEnumerable<Type> requiredTypes)
-        {
-            return requiredTypes
+        private static IEnumerable<UsingDirectiveSyntax> TakeRequiredUsingDirectives(IEnumerable<Type> requiredTypes) =>
+            requiredTypes
                 .Select(x => x.Namespace)
                 .Distinct()
                 .OrderByDescending(x => x)
                 .Select(requiredNamespace => UsingDirective(ParseName(requiredNamespace, consumeFullText: true)));
-        }
 
         public static MetaDump Deserialize(string dump) =>
             JsonSerializer.Deserialize<MetaDump>(
