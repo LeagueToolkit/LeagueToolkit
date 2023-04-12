@@ -94,11 +94,11 @@ public sealed class EnvironmentAsset : IDisposable
         long[] vertexBufferOffsets = new long[vertexBufferCount];
         for (int i = 0; i < vertexBufferCount; i++)
         {
-            if (version >= 13)
+            _ = version switch
             {
-                EnvironmentVisibility _ = (EnvironmentVisibility)br.ReadByte();
-            }
-
+                >= 13 => (EnvironmentVisibility)br.ReadByte(),
+                _ => EnvironmentVisibility.AllLayers
+            };
             uint bufferSize = br.ReadUInt32();
 
             vertexBufferOffsets[i] = br.BaseStream.Position;
@@ -109,19 +109,15 @@ public sealed class EnvironmentAsset : IDisposable
         this._indexBuffers = new IndexBuffer[indexBufferCount];
         for (int i = 0; i < indexBufferCount; i++)
         {
-            if (version >= 13)
+            _ = version switch
             {
-                EnvironmentVisibility _ = (EnvironmentVisibility)br.ReadByte();
-            }
-
+                >= 13 => (EnvironmentVisibility)br.ReadByte(),
+                _ => EnvironmentVisibility.AllLayers
+            };
             int bufferSize = br.ReadInt32();
-            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(bufferSize);
 
-            int bytesRead = br.Read(indexBufferOwner.Span);
-            if (bytesRead != bufferSize)
-                throw new IOException(
-                    $"Failed to read index buffer: {i} {nameof(bufferSize)}: {bufferSize} {nameof(bytesRead)}: {bytesRead}"
-                );
+            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(bufferSize);
+            br.BaseStream.ReadExact(indexBufferOwner.Span);
 
             this._indexBuffers[i] = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
         }
@@ -176,11 +172,7 @@ public sealed class EnvironmentAsset : IDisposable
 
         // Seek to the buffer offset, read it and seek back
         br.BaseStream.Seek(offset, SeekOrigin.Begin);
-        int bytesRead = br.Read(vertexBufferOwner.Span);
-        if (bytesRead != vertexBufferOwner.Length)
-            throw new IOException(
-                $"Failed to read vertex buffer: {id} size: {vertexBufferOwner.Length} {nameof(bytesRead)}: {bytesRead}"
-            );
+        br.BaseStream.ReadExact(vertexBufferOwner.Span);
         br.BaseStream.Seek(returnPosition, SeekOrigin.Begin);
 
         // Create the buffer, store it and return a view into it

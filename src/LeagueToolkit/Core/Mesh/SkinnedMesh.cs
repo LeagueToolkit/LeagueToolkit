@@ -77,7 +77,7 @@ public sealed class SkinnedMesh : IDisposable
 
         int indexCount = 0;
         int vertexCount = 0;
-        VertexBufferDescription vertexBufferDescription = SkinnedMeshVertex.BASIC;
+        VertexBufferDescription vertexDeclaration = SkinnedMeshVertex.BASIC;
         Box boundingBox = new();
         Sphere boundingSphere = Sphere.INFINITE;
         SkinnedMeshRange[] ranges;
@@ -109,7 +109,7 @@ public sealed class SkinnedMesh : IDisposable
             {
                 uint vertexSize = br.ReadUInt32();
                 SkinnedMeshVertexType vertexType = (SkinnedMeshVertexType)br.ReadUInt32();
-                vertexBufferDescription = (vertexSize, vertexType) switch
+                vertexDeclaration = (vertexSize, vertexType) switch
                 {
                     (52, SkinnedMeshVertexType.Basic) => SkinnedMeshVertex.BASIC,
                     (56, SkinnedMeshVertexType.Color) => SkinnedMeshVertex.COLOR,
@@ -128,7 +128,7 @@ public sealed class SkinnedMesh : IDisposable
 
         // Allocate buffer memory
         var indexBufferOwner = MemoryOwner<byte>.Allocate(indexCount * IndexBuffer.GetFormatSize(IndexFormat.U16));
-        var vertexBufferOwner = MemoryOwner<byte>.Allocate(vertexBufferDescription.GetVertexSize() * vertexCount);
+        var vertexBufferOwner = MemoryOwner<byte>.Allocate(vertexDeclaration.GetVertexSize() * vertexCount);
 
         // Read buffers
         br.BaseStream.ReadExact(indexBufferOwner.Span);
@@ -136,11 +136,7 @@ public sealed class SkinnedMesh : IDisposable
 
         // Create buffers
         var indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
-        var vertexBuffer = VertexBuffer.Create(
-            vertexBufferDescription.Usage,
-            vertexBufferDescription.Elements,
-            vertexBufferOwner
-        );
+        var vertexBuffer = VertexBuffer.Create(vertexDeclaration.Usage, vertexDeclaration.Elements, vertexBufferOwner);
 
         return new(ranges, vertexBuffer, indexBuffer);
     }
