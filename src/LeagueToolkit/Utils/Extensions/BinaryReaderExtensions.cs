@@ -6,6 +6,8 @@ namespace LeagueToolkit.Utils.Extensions;
 
 internal static class BinaryReaderColorExtensions
 {
+    public static void ReadExact(this BinaryReader reader, Span<byte> data) => reader.BaseStream.ReadExact(data);
+
     public static Color ReadColor(this BinaryReader reader, ColorFormat format)
     {
         Span<byte> buffer = stackalloc byte[Color.GetFormatSize(format)];
@@ -13,25 +15,16 @@ internal static class BinaryReaderColorExtensions
         return Color.Read(buffer, format);
     }
 
-    public static Vector2 ReadVector2(this BinaryReader reader)
-    {
-        return new Vector2(reader.ReadSingle(), reader.ReadSingle());
-    }
+    public static Vector2 ReadVector2(this BinaryReader reader) => new(reader.ReadSingle(), reader.ReadSingle());
 
-    public static Vector3 ReadVector3(this BinaryReader reader)
-    {
-        return new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-    }
+    public static Vector3 ReadVector3(this BinaryReader reader) =>
+        new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
-    public static Vector4 ReadVector4(this BinaryReader reader)
-    {
-        return new Vector4(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-    }
+    public static Vector4 ReadVector4(this BinaryReader reader) =>
+        new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
-    public static Quaternion ReadQuaternion(this BinaryReader reader)
-    {
-        return new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
-    }
+    public static Quaternion ReadQuaternion(this BinaryReader reader) =>
+        new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 
     public static Matrix4x4 ReadMatrix4x4RowMajor(this BinaryReader reader)
     {
@@ -56,10 +49,7 @@ internal static class BinaryReaderColorExtensions
         };
     }
 
-    public static Box ReadBox(this BinaryReader reader)
-    {
-        return new(reader.ReadVector3(), reader.ReadVector3());
-    }
+    public static Box ReadBox(this BinaryReader reader) => new(reader.ReadVector3(), reader.ReadVector3());
 
     public static Sphere ReadSphere(this BinaryReader reader)
     {
@@ -69,10 +59,8 @@ internal static class BinaryReaderColorExtensions
         return new(position, radius);
     }
 
-    public static string ReadPaddedString(this BinaryReader reader, int length)
-    {
-        return Encoding.ASCII.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
-    }
+    public static string ReadPaddedString(this BinaryReader reader, int length) =>
+        Encoding.ASCII.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
 
     public static string ReadNullTerminatedString(this BinaryReader reader)
     {
