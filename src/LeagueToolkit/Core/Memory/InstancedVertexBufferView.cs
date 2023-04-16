@@ -37,7 +37,7 @@ namespace LeagueToolkit.Core.Memory
             this.Buffers = buffers;
         }
 
-        private void ValidateBuffers(int vertexCount, IReadOnlyList<IVertexBufferView> vertexBuffers)
+        private static void ValidateBuffers(int vertexCount, IReadOnlyList<IVertexBufferView> vertexBuffers)
         {
             Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
             Guard.HasSizeGreaterThanOrEqualTo(vertexBuffers, 1, nameof(vertexBuffers));

@@ -111,22 +111,20 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
         // Read joint hashes
         br.BaseStream.Seek(jointNameHashesOffset + 12, SeekOrigin.Begin);
         this._joints = MemoryOwner<uint>.Allocate(jointCount);
-        Span<byte> jointsRawBuffer = MemoryMarshal.Cast<uint, byte>(this._joints.Span);
-        br.Read(jointsRawBuffer);
+        br.ReadExact(MemoryMarshal.Cast<uint, byte>(this._joints.Span));
 
         this._evaluator = new(this._joints.Length);
 
         // Read frames
         br.BaseStream.Seek(framesOffset + 12, SeekOrigin.Begin);
         this._frames = MemoryOwner<CompressedFrame>.Allocate(frameCount);
-        Span<byte> framesRawBuffer = MemoryMarshal.Cast<CompressedFrame, byte>(this._frames.Span);
-        br.Read(framesRawBuffer);
+        br.ReadExact(MemoryMarshal.Cast<CompressedFrame, byte>(this._frames.Span));
 
         // Read jump caches
         int jumpFrameSize = frameCount < 0x10001 ? 24 : 48;
         br.BaseStream.Seek(jumpCachesOffset + 12, SeekOrigin.Begin);
         this._jumpCaches = MemoryOwner<byte>.Allocate(jumpFrameSize * jointCount * this._jumpCacheCount);
-        br.Read(this._jumpCaches.Span);
+        br.ReadExact(this._jumpCaches.Span);
     }
 
     /// <inheritdoc/>

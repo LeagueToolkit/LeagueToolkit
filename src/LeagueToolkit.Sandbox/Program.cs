@@ -41,18 +41,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMetaSerializer();
-        List<(string, IAnimationAsset)> animations = LoadAnimations(
-                @"X:\lol\game\assets\characters\renekton\skins\skin26\animations"
-            )
-            .ToList();
-
-        ProfileRiggedMeshToGltf(
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skn",
-            @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26.skl",
-            "renekton_skin26.glb",
-            animations
-        );
+        ProfileMapgeoToGltf();
     }
 
     static void ProfileMetaSerializer()
@@ -241,7 +230,7 @@ class Program
                         GameDataPath = "X:/lol/game",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
-                        TextureQuality = MapGeometryGltfTextureQuality.High
+                        TextureQuality = MapGeometryGltfTextureQuality.Low
                     }
                 )
             )

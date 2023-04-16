@@ -77,7 +77,7 @@ public sealed class SkinnedMesh : IDisposable
 
         int indexCount = 0;
         int vertexCount = 0;
-        VertexBufferDescription vertexBufferDescription = SkinnedMeshVertex.BASIC;
+        VertexBufferDescription vertexDeclaration = SkinnedMeshVertex.BASIC;
         Box boundingBox = new();
         Sphere boundingSphere = Sphere.INFINITE;
         SkinnedMeshRange[] ranges;
@@ -109,7 +109,7 @@ public sealed class SkinnedMesh : IDisposable
             {
                 uint vertexSize = br.ReadUInt32();
                 SkinnedMeshVertexType vertexType = (SkinnedMeshVertexType)br.ReadUInt32();
-                vertexBufferDescription = (vertexSize, vertexType) switch
+                vertexDeclaration = (vertexSize, vertexType) switch
                 {
                     (52, SkinnedMeshVertexType.Basic) => SkinnedMeshVertex.BASIC,
                     (56, SkinnedMeshVertexType.Color) => SkinnedMeshVertex.COLOR,
@@ -126,35 +126,17 @@ public sealed class SkinnedMesh : IDisposable
             }
         }
 
-        MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(
-            indexCount * IndexBuffer.GetFormatSize(IndexFormat.U16)
-        );
-        MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
-            vertexBufferDescription.GetVertexSize() * vertexCount
-        );
+        // Allocate buffer memory
+        var indexBufferOwner = MemoryOwner<byte>.Allocate(indexCount * IndexBuffer.GetFormatSize(IndexFormat.U16));
+        var vertexBufferOwner = MemoryOwner<byte>.Allocate(vertexDeclaration.GetVertexSize() * vertexCount);
 
-        // Read index buffer
-        int indexBufferBytesRead = br.Read(indexBufferOwner.Span);
-        if (indexBufferBytesRead != indexBufferOwner.Length)
-            throw new IOException(
-                $"Failed to read index buffer: {nameof(indexBufferOwner.Length)}: {indexBufferOwner.Length}"
-                    + $" {nameof(indexBufferBytesRead)}: {indexBufferBytesRead}"
-            );
+        // Read buffers
+        br.BaseStream.ReadExact(indexBufferOwner.Span);
+        br.BaseStream.ReadExact(vertexBufferOwner.Span);
 
-        // Read vertex buffer
-        int vertexBufferBytesRead = br.Read(vertexBufferOwner.Span);
-        if (vertexBufferBytesRead != vertexBufferOwner.Length)
-            throw new IOException(
-                $"Failed to read vertex buffer: {nameof(vertexBufferOwner.Length)}: {vertexBufferOwner.Length}"
-                    + $" {nameof(vertexBufferBytesRead)}: {vertexBufferBytesRead}"
-            );
-
-        IndexBuffer indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
-        VertexBuffer vertexBuffer = VertexBuffer.Create(
-            vertexBufferDescription.Usage,
-            vertexBufferDescription.Elements,
-            vertexBufferOwner
-        );
+        // Create buffers
+        var indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
+        var vertexBuffer = VertexBuffer.Create(vertexDeclaration.Usage, vertexDeclaration.Elements, vertexBufferOwner);
 
         return new(ranges, vertexBuffer, indexBuffer);
     }

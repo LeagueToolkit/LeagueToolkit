@@ -171,7 +171,7 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         br.BaseStream.Seek(quatPaletteOffset + 12, SeekOrigin.Begin);
         for (int i = 0; i < quatCount; i++)
         {
-            br.Read(quantizedRotation);
+            br.ReadExact(quantizedRotation);
             this._quatPalette[i] = Quaternion.Normalize(QuantizedQuaternion.Decompress(quantizedRotation));
         }
 
