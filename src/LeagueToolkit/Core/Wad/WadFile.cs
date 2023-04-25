@@ -17,6 +17,7 @@ namespace LeagueToolkit.Core.Wad;
 public sealed class WadFile : IDisposable
 {
     internal const int HEADER_SIZE_V3 = 272;
+    private const string GAME_DIRECTORY_NAME = "Game";
 
     /// <summary>
     /// Gets the chunks
@@ -25,6 +26,7 @@ public sealed class WadFile : IDisposable
     private readonly Dictionary<ulong, WadChunk> _chunks;
 
     private readonly FileStream _stream;
+    private readonly string _subchunkTocPath;
 
     /// <summary>
     /// Gets a value indicating whether the archive has been disposed of
@@ -51,6 +53,13 @@ public sealed class WadFile : IDisposable
         Guard.IsNotNull(stream, nameof(stream));
 
         this._stream = stream;
+        this._subchunkTocPath = Path.ChangeExtension(
+            stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME) + GAME_DIRECTORY_NAME.Length + 1)..]
+                .ToLower()
+                .Replace(Path.DirectorySeparatorChar, '/'),
+            "subchunktoc"
+        );
+
         using BinaryReader br = new(this._stream, Encoding.UTF8, true);
 
         string magic = Encoding.ASCII.GetString(br.ReadBytes(2));

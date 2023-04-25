@@ -41,7 +41,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMapgeoToGltf();
+        using WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\Maps\Shipping\Map11.wad.client");
     }
 
     static void ProfileMetaSerializer()
