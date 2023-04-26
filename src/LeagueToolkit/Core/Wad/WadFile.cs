@@ -53,6 +53,8 @@ public sealed class WadFile : IDisposable
         Guard.IsNotNull(stream, nameof(stream));
 
         this._stream = stream;
+
+        // May this substring not crash till the end of times, amen :^)
         this._subchunkTocPath = Path.ChangeExtension(
             stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME) + GAME_DIRECTORY_NAME.Length + 1)..]
                 .ToLower()
