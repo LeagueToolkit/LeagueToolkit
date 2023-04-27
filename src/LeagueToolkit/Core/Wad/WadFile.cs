@@ -2,6 +2,7 @@
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Utils.Extensions;
+using System;
 using System.IO.Compression;
 using System.Text;
 using XXHash3NET;
@@ -25,8 +26,11 @@ public sealed class WadFile : IDisposable
     public IReadOnlyDictionary<ulong, WadChunk> Chunks => this._chunks;
     private readonly Dictionary<ulong, WadChunk> _chunks;
 
+    public ReadOnlyMemory<WadSubchunk> Subchunks => this._subchunkTocMemory.Memory.Cast<byte, WadSubchunk>();
+    private readonly MemoryOwner<byte> _subchunkTocMemory;
+
     private readonly FileStream _stream;
-    private readonly string _subchunkTocPath;
+    private readonly ZstdSharp.Decompressor _zstdDecompressor = new();
 
     /// <summary>
     /// Gets a value indicating whether the archive has been disposed of
@@ -53,15 +57,6 @@ public sealed class WadFile : IDisposable
         Guard.IsNotNull(stream, nameof(stream));
 
         this._stream = stream;
-
-        // May this substring not crash till the end of times, amen :^)
-        this._subchunkTocPath = Path.ChangeExtension(
-            stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME) + GAME_DIRECTORY_NAME.Length + 1)..]
-                .ToLower()
-                .Replace(Path.DirectorySeparatorChar, '/'),
-            "subchunktoc"
-        );
-
         using BinaryReader br = new(this._stream, Encoding.UTF8, true);
 
         string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
@@ -104,6 +99,17 @@ public sealed class WadFile : IDisposable
             if (!this._chunks.TryAdd(chunk.PathHash, chunk))
                 ThrowHelper.ThrowInvalidDataException($"Tried to read a chunk which already exists: {chunk.PathHash}");
         }
+
+        // Read subchunk table
+        // May this substring not crash till the end of times, amen :^)
+        string subchunkTocPath = Path.ChangeExtension(
+            stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME) + GAME_DIRECTORY_NAME.Length + 1)..]
+                .ToLower()
+                .Replace(Path.DirectorySeparatorChar, '/'),
+            "subchunktoc"
+        );
+        if (this._chunks.TryGetValue(XXHash64.Compute(subchunkTocPath), out WadChunk subchunkTocChunk))
+            this._subchunkTocMemory = LoadChunkDecompressed(subchunkTocChunk);
     }
 
     internal void WriteDescriptor(Stream stream)
@@ -214,10 +220,9 @@ public sealed class WadFile : IDisposable
             WadChunkCompression.GZip => new GZipStream(chunkData.AsStream(), CompressionMode.Decompress),
             WadChunkCompression.Satellite
                 => throw new NotImplementedException("Opening satellite chunks is not supported"),
-            // zstd handles frames for us so we can ignore chunks
-            WadChunkCompression.Zstd
-            or WadChunkCompression.ZstdChunked
-                => new ZstdSharp.DecompressionStream(chunkData.AsStream()),
+            WadChunkCompression.Zstd => new ZstdSharp.DecompressionStream(chunkData.AsStream()),
+            WadChunkCompression.ZstdChunked => DecompressZstdChunkedChunk(chunk, chunkData).AsStream(),
+
             _ => throw new InvalidOperationException($"Invalid chunk compression type: {chunk.Compression}")
         };
     }
@@ -247,6 +252,47 @@ public sealed class WadFile : IDisposable
         return chunk;
     }
 
+    private MemoryOwner<byte> DecompressZstdChunkedChunk(WadChunk chunk, MemoryOwner<byte> chunkData)
+    {
+        var decompressedData = MemoryOwner<byte>.Allocate(chunk.UncompressedSize);
+        ReadOnlySpan<WadSubchunk> subchunks = this.Subchunks.Span.Slice(chunk.StartSubChunk, chunk.SubChunkCount);
+
+        int rawOffset = 0;
+        int decompressedOffset = 0;
+        for (int i = 0; i < subchunks.Length; i++)
+        {
+            WadSubchunk subchunk = subchunks[i];
+
+            // Try decompressing subchunk
+            bool successfullyDecompressed = this._zstdDecompressor.TryUnwrap(
+                chunkData.Span.Slice(rawOffset, subchunk.CompressedSize),
+                decompressedData.Span[decompressedOffset..],
+                out _
+            );
+
+            // If decompression failed, copy raw data to output buffer
+            if (successfullyDecompressed is not true)
+                chunkData.Span.CopyTo(decompressedData.Span[decompressedOffset..]);
+
+            rawOffset += subchunk.CompressedSize;
+            decompressedOffset += subchunk.UncompressedSize;
+        }
+
+        // Dispose of raw chunk data
+        chunkData.Dispose();
+
+        return decompressedData;
+    }
+
+    /// <summary>
+    /// Disposes the <see cref="WadFile"/> object and the wrapped <see cref="Stream"/> instance
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
     private void Dispose(bool disposing)
     {
         if (this.IsDisposed)
@@ -255,17 +301,9 @@ public sealed class WadFile : IDisposable
         if (disposing)
         {
             this._stream?.Dispose();
+            this._subchunkTocMemory?.Dispose();
         }
 
         this.IsDisposed = true;
-    }
-
-    /// <summary>
-    /// Disposes the <see cref="WadFile"/> object and the wrapped <see cref="Stream"/> instance
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 }
