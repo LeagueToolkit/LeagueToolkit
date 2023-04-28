@@ -41,7 +41,12 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMapgeoToGltf();
+        using WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\UI.wad.client");
+
+        foreach (var (_, chunk) in wad.Chunks.Where(x => x.Value.SubChunkCount != 0))
+        {
+            wad.LoadChunkDecompressed(chunk);
+        }
     }
 
     static void ProfileMetaSerializer()
