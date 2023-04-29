@@ -270,7 +270,6 @@ class Program
         skinnedMesh.ToGltf(new List<(string, Stream)>()).WriteGLB(File.OpenWrite("akali.glb"));
     }
 
-#if DEBUG
     static async Task TestMetaRoslynCodegen(string metaJsonFile, string outputFile)
     {
         using HttpClient client = new();
@@ -290,7 +289,6 @@ class Program
 
         MetaDump.Deserialize(File.ReadAllText(metaJsonFile)).WriteMetaClasses(outputFile, classes, properties);
     }
-#endif
 
     static void ProfileMetaSerialization()
     {
