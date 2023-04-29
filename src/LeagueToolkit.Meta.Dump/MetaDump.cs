@@ -29,7 +29,7 @@ namespace LeagueToolkit.Meta.Dump
         /* -------------------------------- PUBLIC DUMPING API -------------------------------- */
         #region Public Dumping API
         public void WriteMetaClasses(string file, IEnumerable<string> classes, IEnumerable<string> properties) =>
-            WriteMetaClasses(File.OpenWrite(file), classes, properties);
+            WriteMetaClasses(File.Create(file), classes, properties);
 
         public void WriteMetaClasses(Stream stream, IEnumerable<string> classes, IEnumerable<string> properties)
         {
@@ -54,7 +54,7 @@ namespace LeagueToolkit.Meta.Dump
             string file,
             IReadOnlyDictionary<uint, string> classes,
             IReadOnlyDictionary<uint, string> properties
-        ) => WriteMetaClasses(File.OpenWrite(file), classes, properties);
+        ) => WriteMetaClasses(File.Create(file), classes, properties);
 
         public void WriteMetaClasses(
             Stream stream,
