@@ -102,12 +102,22 @@ namespace LeagueToolkit.Meta.Dump
         )
         {
             List<SyntaxToken> modifiers = new() { Token(SyntaxKind.PublicKeyword) };
-            if (@class.Is.Interface)
+
+            TypeDeclarationSyntax syntax;
+            if (@class.Is.SecondaryBase)
             {
-                modifiers.Add(Token(SyntaxKind.AbstractKeyword));
+                syntax = InterfaceDeclaration(GetClassNameOrDefault(classHash, classes));
+            }
+            else
+            {
+                syntax = ClassDeclaration(GetClassNameOrDefault(classHash, classes));
+                if (@class.Is.Interface)
+                {
+                    modifiers.Add(Token(SyntaxKind.AbstractKeyword));
+                }
             }
 
-            return ClassDeclaration(GetClassNameOrDefault(classHash, classes))
+            return syntax
                 // Add attributes
                 .WithAttributeLists(SingletonList(CreateMetaClassAttributeList(classHash, classes)))
                 // Add modifiers
