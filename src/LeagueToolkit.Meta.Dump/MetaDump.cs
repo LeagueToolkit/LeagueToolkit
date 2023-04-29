@@ -29,7 +29,7 @@ namespace LeagueToolkit.Meta.Dump
         /* -------------------------------- PUBLIC DUMPING API -------------------------------- */
         #region Public Dumping API
         public void WriteMetaClasses(string file, IEnumerable<string> classes, IEnumerable<string> properties) =>
-            WriteMetaClasses(File.OpenWrite(file), classes, properties);
+            WriteMetaClasses(File.Create(file), classes, properties);
 
         public void WriteMetaClasses(Stream stream, IEnumerable<string> classes, IEnumerable<string> properties)
         {
@@ -54,7 +54,7 @@ namespace LeagueToolkit.Meta.Dump
             string file,
             IReadOnlyDictionary<uint, string> classes,
             IReadOnlyDictionary<uint, string> properties
-        ) => WriteMetaClasses(File.OpenWrite(file), classes, properties);
+        ) => WriteMetaClasses(File.Create(file), classes, properties);
 
         public void WriteMetaClasses(
             Stream stream,
@@ -102,12 +102,17 @@ namespace LeagueToolkit.Meta.Dump
         )
         {
             List<SyntaxToken> modifiers = new() { Token(SyntaxKind.PublicKeyword) };
-            if (@class.Is.Interface)
-            {
-                modifiers.Add(Token(SyntaxKind.AbstractKeyword));
-            }
 
-            return ClassDeclaration(GetClassNameOrDefault(classHash, classes))
+            TypeDeclarationSyntax declarationSyntax = @class.Is.SecondaryBase switch
+            {
+                true => InterfaceDeclaration(GetClassNameOrDefault(classHash, classes)),
+                false => ClassDeclaration(GetClassNameOrDefault(classHash, classes))
+            };
+
+            if (@class.Is.SecondaryBase is false && @class.Is.Interface)
+                modifiers.Add(Token(SyntaxKind.AbstractKeyword));
+
+            return declarationSyntax
                 // Add attributes
                 .WithAttributeLists(SingletonList(CreateMetaClassAttributeList(classHash, classes)))
                 // Add modifiers
@@ -183,7 +188,7 @@ namespace LeagueToolkit.Meta.Dump
             return BaseList(SeparatedList<BaseTypeSyntax>(bases));
         }
 
-        private IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
+        private static IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
             string classHash,
             MetaDumpClass @class,
             IReadOnlyDictionary<uint, string> classes,
@@ -197,7 +202,7 @@ namespace LeagueToolkit.Meta.Dump
             }
         }
 
-        private PropertyDeclarationSyntax CreateMetaClassPropertyDeclaration(
+        private static PropertyDeclarationSyntax CreateMetaClassPropertyDeclaration(
             string classHash,
             MetaDumpClass @class,
             string propertyHash,
@@ -248,14 +253,13 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ---------------------------- PROPERTY ATTRIBUTE CREATION ----------------------------- */
         #region Property Attribute Creation
-        private SyntaxList<AttributeListSyntax> CreatePropertyAttributesSyntax(
+        private static SyntaxList<AttributeListSyntax> CreatePropertyAttributesSyntax(
             string propertyHash,
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes,
             IReadOnlyDictionary<uint, string> properties
-        )
-        {
-            return SingletonList(
+        ) =>
+            SingletonList(
                 AttributeList(
                     SingletonSeparatedList(
                         Attribute(
@@ -276,9 +280,8 @@ namespace LeagueToolkit.Meta.Dump
                     )
                 )
             );
-        }
 
-        private AttributeArgumentSyntax CreatePropertyNameAttributeArgument(
+        private static AttributeArgumentSyntax CreatePropertyNameAttributeArgument(
             string propertyHash,
             IReadOnlyDictionary<uint, string> properties
         )
@@ -293,7 +296,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property) =>
+        private static AttributeArgumentSyntax CreatePropertyTypeAttributeArgument(MetaDumpProperty property) =>
             AttributeArgument(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
@@ -302,7 +305,7 @@ namespace LeagueToolkit.Meta.Dump
                 )
             );
 
-        private AttributeArgumentSyntax CreatePropertyOtherClassAttributeArgument(
+        private static AttributeArgumentSyntax CreatePropertyOtherClassAttributeArgument(
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes
         )
@@ -312,7 +315,7 @@ namespace LeagueToolkit.Meta.Dump
             return AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(otherClass)));
         }
 
-        private AttributeArgumentSyntax CreatePropertyPrimaryTypeAttributeArgument(MetaDumpProperty property)
+        private static AttributeArgumentSyntax CreatePropertyPrimaryTypeAttributeArgument(MetaDumpProperty property)
         {
             BinPropertyType secondaryType = property switch
             {
@@ -331,7 +334,7 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
+        private static AttributeArgumentSyntax CreatePropertySecondaryTypeAttributeArgument(MetaDumpProperty property)
         {
             BinPropertyType primaryType = property switch
             {
@@ -353,7 +356,7 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ------------------------- PROPERTY TYPE DECLARATION CREATORS ------------------------- */
         #region Property Type Declaration Creators
-        private TypeSyntax CreatePropertyTypeDeclaration(
+        private static TypeSyntax CreatePropertyTypeDeclaration(
             MetaDumpProperty property,
             IReadOnlyDictionary<uint, string> classes
         ) =>
@@ -371,7 +374,7 @@ namespace LeagueToolkit.Meta.Dump
                 BinPropertyType type => CreatePrimitivePropertyTypeDeclaration(type, false)
             };
 
-        private TypeSyntax CreatePrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
+        private static TypeSyntax CreatePrimitivePropertyTypeDeclaration(BinPropertyType type, bool nullable)
         {
             TypeSyntax typeDeclaration = type switch
             {
@@ -406,7 +409,7 @@ namespace LeagueToolkit.Meta.Dump
             };
         }
 
-        private GenericNameSyntax CreateContainerTypeDeclaration(
+        private static GenericNameSyntax CreateContainerTypeDeclaration(
             string elementClass,
             MetaDumpContainer container,
             bool isUnorderedContainer,
@@ -421,29 +424,29 @@ namespace LeagueToolkit.Meta.Dump
             };
 
             SyntaxToken identifier = isUnorderedContainer
-                ? Identifier(typeof(MetaUnorderedContainer<IMetaClass>).Name.Split('`')[0])
-                : Identifier(typeof(MetaContainer<IMetaClass>).Name.Split('`')[0]);
+                ? Identifier(SanitizeNameOfGenericType(typeof(MetaUnorderedContainer<IMetaClass>)))
+                : Identifier(SanitizeNameOfGenericType(typeof(MetaContainer<IMetaClass>)));
             return GenericName(identifier, TypeArgumentList(SingletonSeparatedList(argumentTypeSyntax)));
         }
 
-        private TypeSyntax CreateStructureTypeDeclaration(
+        private static TypeSyntax CreateStructureTypeDeclaration(
             string classNameHash,
             IReadOnlyDictionary<uint, string> classes
         ) => ParseTypeName(GetClassNameOrDefault(classNameHash, classes));
 
-        private GenericNameSyntax CreateEmbeddedTypeDeclaration(
+        private static GenericNameSyntax CreateEmbeddedTypeDeclaration(
             string classNameHash,
             IReadOnlyDictionary<uint, string> classes
         )
         {
             string argumentTypeIdentifier = GetClassNameOrDefault(classNameHash, classes);
             return GenericName(
-                Identifier(typeof(MetaEmbedded<IMetaClass>).Name.Split('`')[0]),
+                Identifier(SanitizeNameOfGenericType(typeof(MetaEmbedded<IMetaClass>))),
                 TypeArgumentList(SingletonSeparatedList(ParseTypeName(argumentTypeIdentifier, consumeFullText: true)))
             );
         }
 
-        private GenericNameSyntax CreateOptionalTypeDeclaration(
+        private static GenericNameSyntax CreateOptionalTypeDeclaration(
             string otherClass,
             MetaDumpContainer container,
             IReadOnlyDictionary<uint, string> classes
@@ -457,12 +460,12 @@ namespace LeagueToolkit.Meta.Dump
             };
 
             return GenericName(
-                Identifier(typeof(MetaOptional<object>).Name.Split('`')[0]),
+                Identifier(SanitizeNameOfGenericType(typeof(MetaOptional<object>))),
                 TypeArgumentList(SingletonSeparatedList(argumentTypeSyntax))
             );
         }
 
-        private GenericNameSyntax CreateMapTypeDeclaration(
+        private static GenericNameSyntax CreateMapTypeDeclaration(
             string otherClass,
             MetaDumpMap map,
             IReadOnlyDictionary<uint, string> classes
@@ -477,7 +480,7 @@ namespace LeagueToolkit.Meta.Dump
             };
 
             return GenericName(
-                Identifier(typeof(Dictionary<object, object>).Name.Split('`')[0]),
+                Identifier(SanitizeNameOfGenericType(typeof(Dictionary<object, object>))),
                 TypeArgumentList(SeparatedList(new TypeSyntax[] { keyDeclaration, valueDeclaration }))
             );
         }
@@ -486,17 +489,17 @@ namespace LeagueToolkit.Meta.Dump
 
         /* ----------------------------------- NAME UTILITIES ----------------------------------- */
         #region Name Utilities
-        private string GetClassNameOrDefault(string hash, IReadOnlyDictionary<uint, string> classNames)
+        private static string GetClassNameOrDefault(string hash, IReadOnlyDictionary<uint, string> classNames)
         {
             return classNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "Class" + hash);
         }
 
-        private string GetPropertyNameOrDefault(string hash, IReadOnlyDictionary<uint, string> propertyNames)
+        private static string GetPropertyNameOrDefault(string hash, IReadOnlyDictionary<uint, string> propertyNames)
         {
             return propertyNames.GetValueOrDefault(Convert.ToUInt32(hash, 16), "m" + Convert.ToUInt32(hash, 16));
         }
 
-        private string StylizePropertyName(string propertyName)
+        private static string StylizePropertyName(string propertyName)
         {
             if (propertyName[0] == 'm' && char.IsUpper(propertyName[1]))
             {
@@ -517,7 +520,10 @@ namespace LeagueToolkit.Meta.Dump
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
         #region Initializer Creators
 
-        private EqualsValueClauseSyntax CreatePropertyInitializer(JsonElement defaultValue, MetaDumpProperty property)
+        private static EqualsValueClauseSyntax CreatePropertyInitializer(
+            JsonElement defaultValue,
+            MetaDumpProperty property
+        )
         {
             ExpressionSyntax expression = defaultValue.ValueKind switch
             {
@@ -607,7 +613,7 @@ namespace LeagueToolkit.Meta.Dump
             return EqualsValueClause(expression);
         }
 
-        private ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, JsonElement value)
+        private static ExpressionSyntax CreateNullableInitializerSyntax(MetaDumpProperty property, JsonElement value)
         {
             TypeSyntax argumentTypeDeclaration = CreatePrimitivePropertyTypeDeclaration(property.Container.Type, false);
 
@@ -640,9 +646,11 @@ namespace LeagueToolkit.Meta.Dump
             );
         }
 
-        private ExpressionSyntax CreateCommonInitializerSyntax(BinPropertyType valueType, JsonElement defaultValue)
-        {
-            return defaultValue.ValueKind switch
+        private static ExpressionSyntax CreateCommonInitializerSyntax(
+            BinPropertyType valueType,
+            JsonElement defaultValue
+        ) =>
+            defaultValue.ValueKind switch
             {
                 JsonValueKind.String
                     => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(defaultValue.GetString())),
@@ -668,19 +676,17 @@ namespace LeagueToolkit.Meta.Dump
                     },
                 _ => throw new NotImplementedException()
             };
-        }
 
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #region Numeric Primitive Initializer Creators
-        private ExpressionSyntax CreateFloatInitializerExpression(float value) =>
+        private static ExpressionSyntax CreateFloatInitializerExpression(float value) =>
             LiteralExpression(
                 SyntaxKind.NumericLiteralExpression,
                 Literal($"{value.ToString(NumberFormatInfo.InvariantInfo)}f", value)
             );
 
-        private ExpressionSyntax CreateVector2InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateVector2InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Vector2)),
                 ArgumentList(
                     SeparatedList(
@@ -689,11 +695,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateVector3InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateVector3InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Vector3)),
                 ArgumentList(
                     SeparatedList(
@@ -702,11 +706,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateVector4InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateVector4InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Vector4)),
                 ArgumentList(
                     SeparatedList(
@@ -715,11 +717,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateColorInitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateColorInitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Color)),
                 ArgumentList(
                     SeparatedList(
@@ -728,11 +728,9 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
 
-        private ExpressionSyntax CreateMatrix4x4InitializerExpression(IEnumerable<JsonElement> elements)
-        {
-            return ObjectCreationExpression(
+        private static ExpressionSyntax CreateMatrix4x4InitializerExpression(IEnumerable<JsonElement> elements) =>
+            ObjectCreationExpression(
                 IdentifierName(nameof(Matrix4x4)),
                 ArgumentList(
                     SeparatedList(
@@ -746,7 +744,6 @@ namespace LeagueToolkit.Meta.Dump
                 ),
                 null
             );
-        }
         #endregion
         /* ----------------------- NUMERIC PRIMITIVE INITIALIZER CREATORS ----------------------- */
         #endregion
@@ -754,13 +751,14 @@ namespace LeagueToolkit.Meta.Dump
 
         /* --------------------------- GENERIC TYPE NAME SANITIZATION --------------------------- */
         #region Generic Type Name Sanitization
-        private string SanitizeNameOfGenericType(Type genericType) => SanitizeNameOfGenericType(genericType.Name);
+        private static string SanitizeNameOfGenericType(Type genericType) =>
+            SanitizeNameOfGenericType(genericType.Name);
 
-        private string SanitizeNameOfGenericType(string nameOfGenericType) => nameOfGenericType.Split('`')[0];
+        private static string SanitizeNameOfGenericType(string nameOfGenericType) => nameOfGenericType.Split('`')[0];
         #endregion
         /* --------------------------- GENERIC TYPE NAME SANITIZATION --------------------------- */
 
-        private List<Type> GetRequiredTypes() =>
+        private static List<Type> GetRequiredTypes() =>
             new()
             {
                 typeof(System.Numerics.Vector2),
@@ -783,19 +781,15 @@ namespace LeagueToolkit.Meta.Dump
                 typeof(BinPropertyType)
             };
 
-        private List<string> GetRequiredNamespaces(List<Type> requiredTypes)
-        {
-            return requiredTypes.Select(x => x.Namespace).Distinct().ToList();
-        }
+        private static List<string> GetRequiredNamespaces(List<Type> requiredTypes) =>
+            requiredTypes.Select(x => x.Namespace).Distinct().ToList();
 
-        private IEnumerable<UsingDirectiveSyntax> TakeRequiredUsingDirectives(IEnumerable<Type> requiredTypes)
-        {
-            return requiredTypes
+        private static IEnumerable<UsingDirectiveSyntax> TakeRequiredUsingDirectives(IEnumerable<Type> requiredTypes) =>
+            requiredTypes
                 .Select(x => x.Namespace)
                 .Distinct()
                 .OrderByDescending(x => x)
                 .Select(requiredNamespace => UsingDirective(ParseName(requiredNamespace, consumeFullText: true)));
-        }
 
         public static MetaDump Deserialize(string dump) =>
             JsonSerializer.Deserialize<MetaDump>(

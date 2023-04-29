@@ -3,7 +3,7 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <InformationalVersion>13.3.490.3613</InformationalVersion>
+    <InformationalVersion>13.8.505.1214</InformationalVersion>
     <Description>Pre-generated C# meta classes</Description>
   </PropertyGroup>
 
