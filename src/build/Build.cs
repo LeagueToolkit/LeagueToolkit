@@ -28,6 +28,7 @@ using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using ProductHeaderValue = Octokit.ProductHeaderValue;
 
 [GitHubActions(
     "ci",
@@ -39,9 +40,9 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     OnPullRequestBranches = new[] { "main" },
     OnPushTags = new[]
     {
-        "\"[0-9]+.[0-9]+.[0-9]+\"",
-        "\"[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+\"",
-        "\"[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+\""
+        "[0-9]+.[0-9]+.[0-9]+",
+        "[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+",
+        "[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+"
     },
     ImportSecrets = new[] { nameof(NuGetApiKey) },
     InvokedTargets = new[] { nameof(Release) }
@@ -84,7 +85,7 @@ class Build : NukeBuild
                 {
                     DotNetClean(s => s.SetProject(Solution));
 
-                    EnsureCleanDirectory(ArtifactsDirectory);
+                    ArtifactsDirectory.CreateOrCleanDirectory();
                 });
 
     Target Restore =>
@@ -182,7 +183,7 @@ class Build : NukeBuild
                         }
                     );
 
-                    GlobFiles(ArtifactsDirectory, "*.nupkg")
+                    ArtifactsDirectory.GlobFiles("*.nupkg")
                         .ForEach(async x => await UploadReleaseAssetToGithub(createdRelease, x));
                 });
 
@@ -193,7 +194,7 @@ class Build : NukeBuild
                 .OnlyWhenStatic(() => GitRepository.Tags.Any())
                 .Executes(() =>
                 {
-                    GlobFiles(ArtifactsDirectory, "*.nupkg")
+                    ArtifactsDirectory.GlobFiles("*.nupkg")
                         .ForEach(x =>
                         {
                             DotNetNuGetPush(

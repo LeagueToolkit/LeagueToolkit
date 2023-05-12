@@ -16,17 +16,17 @@
 
   <!-- package references -->
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.1.0" />
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.1.0" />
-    <PackageReference Include="FlatSharp.Compiler" Version="7.0.2">
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.2.0" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.0" />
+    <PackageReference Include="FlatSharp.Compiler" Version="7.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FlatSharp.Runtime" Version="7.0.2" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0028" />
+    <PackageReference Include="FlatSharp.Runtime" Version="7.1.1" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0029" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="XXHash3.NET" Version="2.1.0" />
-    <PackageReference Include="ZstdSharp.Port" Version="0.6.7" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.7.1" />
   </ItemGroup>
 
   <ItemGroup>
