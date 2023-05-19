@@ -59,9 +59,9 @@
       },
       "ZstdSharp.Port": {
         "type": "Direct",
-        "requested": "[0.7.1, )",
-        "resolved": "0.7.1",
-        "contentHash": "Idgg+mJEyAujqDPzA3APy9dNoyw0YQcNA65GgYjktDRtJ+nvx/hv+J+m6Eax3JJMGEYGy04oc5YNP6ZvQ3Y1vQ=="
+        "requested": "[0.7.2, )",
+        "resolved": "0.7.2",
+        "contentHash": "mT6Pb7qzDGapJ2ic4dAFqbzHpM+qgnasQIGR/Sofrk0fmKTQSTljG55OFXHbDJczLZWnUAFsg4bKR81uHiKzPg=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
