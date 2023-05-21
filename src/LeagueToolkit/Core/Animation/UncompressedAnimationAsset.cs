@@ -204,30 +204,38 @@ public sealed class UncompressedAnimationAsset : IAnimationAsset
         uint skeletonId = br.ReadUInt32();
 
         int trackCount = br.ReadInt32();
-        int frameCount = br.ReadInt32();
+        this._frameCount = br.ReadInt32();
         this.Fps = br.ReadInt32();
-        this.Duration = frameCount / this.Fps;
+        this.Duration = this._frameCount / this.Fps;
 
-        float frameDuration = 1.0f / this.Fps;
+        this._jointFrames = new Dictionary<uint, UncompressedFrame[]>(trackCount);
+        this._quatPalette = new Quaternion[this._frameCount * trackCount];
+        this._vectorPalette = new Vector3[this._frameCount * trackCount + 1];
+        this._vectorPalette[0] = Vector3.One; // add artificial static scale vector
 
-        ThrowHelper.ThrowNotSupportedException("Reading legacy animations is not supported");
-        // TODO
-        //for (int i = 0; i < trackCount; i++)
-        //{
-        //    string trackName = br.ReadPaddedString(32);
-        //    uint flags = br.ReadUInt32();
-        //
-        //    AnimationTrack track = new(Elf.HashLower(trackName));
-        //
-        //    for (int j = 0; j < frameCount; j++)
-        //    {
-        //        float frameTime = frameDuration * j;
-        //
-        //        track.Rotations.Add(frameTime, br.ReadQuaternion());
-        //        track.Translations.Add(frameTime, br.ReadVector3());
-        //        track.Scales.Add(frameTime, new Vector3(1, 1, 1));
-        //    }
-        //}
+        for (int i = 0; i < trackCount; i++)
+        {
+            string trackName = br.ReadPaddedString(32);
+            uint flags = br.ReadUInt32();
+
+            uint jointHash = Elf.HashLower(trackName);
+            UncompressedFrame[] jointFrames = new UncompressedFrame[this._frameCount];
+            this._jointFrames[jointHash] = jointFrames;
+
+            for (int j = 0; j < this._frameCount; j++)
+            {
+                int index = i * this._frameCount + j;
+                this._quatPalette[index] = br.ReadQuaternion();
+                this._vectorPalette[index + 1] = br.ReadVector3();
+
+                jointFrames[j] = new UncompressedFrame
+                {
+                    RotationId = (ushort)index,
+                    ScaleId = 0,
+                    TranslationId = (ushort)(index + 1)
+                };
+            }
+        }
     }
 
     /// <inheritdoc/>
