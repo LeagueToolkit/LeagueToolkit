@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance.Buffers;
 using System.IO.Compression;
 using XXHash3NET;
 
@@ -77,10 +76,7 @@ public static class WadBuilder
         int compressedSize = (int)compressedFileStream.Length;
         if (isDuplicated is false)
         {
-            using MemoryOwner<byte> chunkDataOwner = MemoryOwner<byte>.Allocate(compressedSize);
-
-            compressedFileStream.Read(chunkDataOwner.Span);
-            bakedWadStream.Write(chunkDataOwner.Span);
+            compressedFileStream.CopyTo(bakedWadStream);
         }
 
         // Create chunk
