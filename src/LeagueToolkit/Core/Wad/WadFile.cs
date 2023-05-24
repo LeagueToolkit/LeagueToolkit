@@ -264,15 +264,18 @@ public sealed class WadFile : IDisposable
             WadSubchunk subchunk = subchunks[i];
 
             // Try decompressing subchunk
-            bool successfullyDecompressed = this._zstdDecompressor.TryUnwrap(
-                chunkData.Span.Slice(rawOffset, subchunk.CompressedSize),
-                decompressedData.Span[decompressedOffset..],
-                out _
-            );
-
-            // If decompression failed, copy raw data to output buffer
-            if (successfullyDecompressed is not true)
+            try
+            {
+                this._zstdDecompressor.Unwrap(
+                    chunkData.Span.Slice(rawOffset, subchunk.CompressedSize),
+                    decompressedData.Span[decompressedOffset..]
+                );
+            }
+            catch (ZstdSharp.ZstdException)
+            {
+                // If decompression failed, copy raw data to output buffer
                 chunkData.Span.CopyTo(decompressedData.Span[decompressedOffset..]);
+            }
 
             rawOffset += subchunk.CompressedSize;
             decompressedOffset += subchunk.UncompressedSize;
