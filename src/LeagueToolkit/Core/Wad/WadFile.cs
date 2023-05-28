@@ -3,6 +3,7 @@ using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Utils.Extensions;
 using System;
+using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using XXHash3NET;
@@ -103,8 +104,8 @@ public sealed class WadFile : IDisposable
         // Read subchunk table
         // May this substring not crash till the end of times, amen :^)
         string subchunkTocPath = Path.ChangeExtension(
-            stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME) + GAME_DIRECTORY_NAME.Length + 1)..]
-                .ToLower()
+            stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME, StringComparison.Ordinal) + GAME_DIRECTORY_NAME.Length + 1)..]
+                .ToLowerInvariant()
                 .Replace(Path.DirectorySeparatorChar, '/'),
             "subchunktoc"
         );
@@ -236,7 +237,7 @@ public sealed class WadFile : IDisposable
     {
         Guard.IsNotNullOrEmpty(path, nameof(path));
 
-        return FindChunk(XXHash64.Compute(path.ToLower()));
+        return FindChunk(XXHash64.Compute(path.ToLowerInvariant()));
     }
 
     /// <summary>

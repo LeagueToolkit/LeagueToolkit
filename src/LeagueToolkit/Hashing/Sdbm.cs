@@ -49,11 +49,11 @@ namespace LeagueToolkit.Hashing
             return hash;
         }
 
-        public static uint HashLower(string value) => Hash(value.ToLower());
+        public static uint HashLower(string value) => Hash(value.ToLowerInvariant());
 
-        public static uint HashLower(string key, string value) => Hash(key.ToLower(), value.ToLower());
+        public static uint HashLower(string key, string value) => Hash(key.ToLowerInvariant(), value.ToLowerInvariant());
 
         public static uint HashLowerWithDelimiter(string key, string value, char delimiter) =>
-            HashWithDelimiter(key.ToLower(), value.ToLower(), delimiter);
+            HashWithDelimiter(key.ToLowerInvariant(), value.ToLowerInvariant(), delimiter);
     }
 }

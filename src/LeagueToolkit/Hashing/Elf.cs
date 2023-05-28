@@ -27,6 +27,6 @@
             return hash;
         }
 
-        public static uint HashLower(string value) => Hash(value.ToLower());
+        public static uint HashLower(string value) => Hash(value.ToLowerInvariant());
     }
 }

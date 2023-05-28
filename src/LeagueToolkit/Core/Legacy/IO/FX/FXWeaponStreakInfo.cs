@@ -30,7 +30,7 @@ namespace LeagueToolkit.IO.FX
             this.TextureMapMode = br.ReadInt32();
 
             this.Texture = Encoding.ASCII.GetString(br.ReadBytes(64));
-            this.Texture = this.Texture.Remove(this.Texture.IndexOf(this.Texture.Contains("\0") ? '\u0000' : '?'));
+            this.Texture = this.Texture.Remove(this.Texture.IndexOf(this.Texture.Contains('\0') ? '\u0000' : '?'));
 
             this.ColorOverTime = new TimeGradient(br);
             this.WidthOverTime = new TimeGradient(br);
