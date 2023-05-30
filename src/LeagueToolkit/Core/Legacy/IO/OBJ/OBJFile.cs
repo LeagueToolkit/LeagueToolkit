@@ -16,7 +16,7 @@ namespace LeagueToolkit.IO.OBJ
         public List<Vector3> Normals { get; set; } = new List<Vector3>();
         public List<OBJGroup> Groups { get; set; } = new List<OBJGroup>();
         public string MaterialsFile { get; set; } = "";
-        public bool IsSmooth { get; set; } = false;
+        public bool IsSmooth { get; set; }
 
         // TODO: Refactor this garbage API
         public OBJFile(List<Vector3> vertices, List<uint> indices)
@@ -192,7 +192,7 @@ namespace LeagueToolkit.IO.OBJ
                     string format = string.Format(NumberFormatInfo.InvariantInfo, "vt {0} {1}", uv.X, 1 - uv.Y);
 
                     // Fixes issues with programs which cannot read the infinity symbol.
-                    if (format.Contains("∞"))
+                    if (format.Contains('∞'))
                     {
                         format = "vt -Infinity NaN";
                     }

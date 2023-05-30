@@ -115,14 +115,14 @@ public readonly struct StaticMeshFace
 
     internal void WriteAscii(StreamWriter sw)
     {
-        string uvs = string.Format(
+        string uvs = string.Format(NumberFormatInfo.InvariantInfo,
             "{0} {1} {2} {3} {4} {5}",
-            this.UV0.X.ToString(CultureInfo.InvariantCulture),
-            this.UV1.X.ToString(CultureInfo.InvariantCulture),
-            this.UV2.X.ToString(CultureInfo.InvariantCulture),
-            this.UV0.Y.ToString(CultureInfo.InvariantCulture),
-            this.UV1.Y.ToString(CultureInfo.InvariantCulture),
-            this.UV2.Y.ToString(CultureInfo.InvariantCulture)
+            this.UV0.X,
+            this.UV1.X,
+            this.UV2.X,
+            this.UV0.Y,
+            this.UV1.Y,
+            this.UV2.Y
         );
 
         sw.WriteLine(

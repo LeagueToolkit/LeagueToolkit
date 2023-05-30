@@ -25,8 +25,8 @@ namespace LeagueToolkit.IO.FX
             this.Particle = Encoding.ASCII.GetString(br.ReadBytes(64));
             this.Bone = Encoding.ASCII.GetString(br.ReadBytes(64));
 
-            this.Particle = this.Particle.Remove(this.Particle.IndexOf(this.Particle.Contains("\0") ? '\u0000' : '?'));
-            this.Bone = this.Bone.Remove(this.Bone.IndexOf(this.Bone.Contains("\0") ? '\u0000' : '?'));
+            this.Particle = this.Particle.Remove(this.Particle.IndexOf(this.Particle.Contains('\0') ? '\u0000' : '?'));
+            this.Bone = this.Bone.Remove(this.Bone.IndexOf(this.Bone.Contains('\0') ? '\u0000' : '?'));
 
             this.SpawnOffset = br.ReadVector3();
             this.StreakInfo = new FXWeaponStreakInfo(br);

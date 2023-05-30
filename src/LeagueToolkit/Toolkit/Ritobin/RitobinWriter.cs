@@ -107,7 +107,7 @@ public sealed class RitobinWriter : IDisposable
     private void WritePropertyValue(BinTreeProperty property)
     {
         if (property is BinTreeBool boolProperty)
-            this._writer.Write(boolProperty.Value.ToString().ToLower());
+            this._writer.Write(boolProperty.Value.ToString().ToLowerInvariant());
         else if (property is BinTreeI8 i8)
             this._writer.Write(i8);
         else if (property is BinTreeU8 u8)
@@ -157,7 +157,7 @@ public sealed class RitobinWriter : IDisposable
         else if (property is BinTreeMap map)
             WriteMapProperty(map);
         else if (property is BinTreeBitBool bitBool)
-            this._writer.Write(bitBool.Value.ToString().ToLower());
+            this._writer.Write(bitBool.Value.ToString().ToLowerInvariant());
     }
 
     private void WriteVector2Property(BinTreeVector2 property) =>

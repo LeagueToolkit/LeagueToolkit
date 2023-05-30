@@ -5,6 +5,12 @@
   <PropertyGroup>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisModeGlobalization>Recommended</AnalysisModeGlobalization>
+    <AnalysisModeMaintainability>All</AnalysisModeMaintainability>
+    <AnalysisModePerformance>Recommended</AnalysisModePerformance>
+    <AnalysisModeReliability>All</AnalysisModeReliability>
+    <AnalysisModeUsage>Recommended</AnalysisModeUsage>
+    <NoWarn>$(NoWarn);CA1305</NoWarn>
   </PropertyGroup>
 
   <!-- information about the assembly/project/package -->

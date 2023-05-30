@@ -135,7 +135,7 @@ public class ObjectConfigObject
         this.VOSkinName = voSkinName;
         this.SwapModelOnDeathTime = swapModelOnDeathTime;
         this.DestroyedTowerSkin = destroyedTowerSkin;
-        this.DestroyedTowerSkinID = DestroyedTowerSkinID;
+        this.DestroyedTowerSkinID = destroyedTowerSkinID;
         this.WarningDecalOffset = warningDecalOffset;
         this.WarningDecalSizeFactor = warningDecalSizeFactor;
 

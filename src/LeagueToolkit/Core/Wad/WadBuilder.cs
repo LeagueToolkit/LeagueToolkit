@@ -50,7 +50,7 @@ public static class WadBuilder
 
         // Seek to start and write actual descriptor
         bakedWadStream.Seek(0, SeekOrigin.Begin);
-        WadFile bakedWad = new(context.Chunks);
+        using WadFile bakedWad = new(context.Chunks);
         bakedWad.WriteDescriptor(bakedWadStream);
     }
 
@@ -82,7 +82,7 @@ public static class WadBuilder
         // Create chunk
         string chunkPath = Path.GetRelativePath(context.RootDirectory, filePath)
             .Replace(Path.DirectorySeparatorChar, '/')
-            .ToLower();
+            .ToLowerInvariant();
 
         WadChunk chunk =
             new(

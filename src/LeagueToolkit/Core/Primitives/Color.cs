@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace LeagueToolkit.Core.Primitives;
@@ -15,7 +16,7 @@ public struct Color : IEquatable<Color>
         set
         {
             if (value < 0 || value > 1)
-                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                throw new ArgumentOutOfRangeException(nameof(value), "value must be in 0-1 range");
             else
                 this._r = value;
         }
@@ -26,7 +27,7 @@ public struct Color : IEquatable<Color>
         set
         {
             if (value < 0 || value > 1)
-                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                throw new ArgumentOutOfRangeException(nameof(value), "value must be in 0-1 range");
             else
                 this._g = value;
         }
@@ -37,7 +38,7 @@ public struct Color : IEquatable<Color>
         set
         {
             if (value < 0 || value > 1)
-                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                throw new ArgumentOutOfRangeException(nameof(value), "value must be in 0-1 range");
             else
                 this._b = value;
         }
@@ -48,7 +49,7 @@ public struct Color : IEquatable<Color>
         set
         {
             if (value < 0 || value > 1)
-                throw new ArgumentOutOfRangeException("value", "value must be in 0-1 range");
+                throw new ArgumentOutOfRangeException(nameof(value), "value must be in 0-1 range");
             else
                 this._a = value;
         }
@@ -177,7 +178,7 @@ public struct Color : IEquatable<Color>
         }
         else
         {
-            throw new ArgumentException(nameof(format), $"Unsupported color format: {format}");
+            throw new ArgumentException($"Unsupported color format: {format}", nameof(format));
         }
     }
 
@@ -275,19 +276,19 @@ public struct Color : IEquatable<Color>
         }
         else if (format == ColorFormat.RgbF32)
         {
-            return string.Format("{0} {1} {2}", this.R, this.G, this.B);
+            return string.Format(NumberFormatInfo.InvariantInfo, "{0} {1} {2}", this.R, this.G, this.B);
         }
         else if (format == ColorFormat.RgbaF32)
         {
-            return string.Format("{0} {1} {2} {3}", this.R, this.G, this.B, this.A);
+            return string.Format(NumberFormatInfo.InvariantInfo, "{0} {1} {2} {3}", this.R, this.G, this.B, this.A);
         }
         else if (format == ColorFormat.BgrF32)
         {
-            return string.Format("{0} {1} {2}", this.B, this.G, this.R);
+            return string.Format(NumberFormatInfo.InvariantInfo, "{0} {1} {2}", this.B, this.G, this.R);
         }
         else if (format == ColorFormat.BgraF32)
         {
-            return string.Format("{0} {1} {2} {3}", this.B, this.G, this.R, this.A);
+            return string.Format(NumberFormatInfo.InvariantInfo, "{0} {1} {2} {3}", this.B, this.G, this.R, this.A);
         }
         else
         {

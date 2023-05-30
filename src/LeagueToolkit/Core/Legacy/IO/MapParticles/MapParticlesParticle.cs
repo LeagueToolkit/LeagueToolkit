@@ -83,7 +83,7 @@ namespace LeagueToolkit.IO.MapParticles
         /// <param name="sw">The <see cref="StreamWriter"/> to write to</param>
         public void Write(StreamWriter sw)
         {
-            string write = string.Format("{0} {1} {2} {3} {4} {5} {6} {7}",
+            string write = string.Format(NumberFormatInfo.InvariantInfo, "{0} {1} {2} {3} {4} {5} {6} {7}",
                 this.Name,
                 this.Position.X,
                 this.Position.Y,
