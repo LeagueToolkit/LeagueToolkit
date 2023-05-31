@@ -53,16 +53,17 @@ public class ReleaseManifest
         }
 
         using var decompressor = new ZstdSharp.Decompressor();
-        var uncompressedFile = decompressor.Unwrap(compressedFile).ToArray();
+        byte[] decompressedBuffer = new byte[uncompressedContentSize];
+        decompressor.Unwrap(compressedFile, decompressedBuffer);
 
-        this._body = ReleaseManifestBody.Serializer.Parse(uncompressedFile);
+        this._body = ReleaseManifestBody.Serializer.Parse(decompressedBuffer);
     }
 
     public void Write(string fileLocation) => Write(File.Create(fileLocation));
 
     public void Write(Stream stream, bool leaveOpen = false)
     {
-        byte[] magic = Encoding.ASCII.GetBytes("RMAN");
+        ReadOnlySpan<byte> magic = "RMAN"u8;
         byte major = 2;
         byte minor = 0;
         byte unknown = 0;
@@ -71,10 +72,9 @@ public class ReleaseManifest
 
         byte[] uncompressedFile = new byte[ReleaseManifestBody.Serializer.GetMaxSize(this._body)];
         int uncompressedContentSize = ReleaseManifestBody.Serializer.Write(uncompressedFile, this._body);
-        Array.Resize(ref uncompressedFile, uncompressedContentSize);
 
         using var compressor = new ZstdSharp.Compressor();
-        var compressedFile = compressor.Wrap(uncompressedFile).ToArray();
+        var compressedFile = compressor.Wrap(new Span<byte>(uncompressedFile, 0, uncompressedContentSize));
 
         int compressedContentSize = compressedFile.Length;
 
