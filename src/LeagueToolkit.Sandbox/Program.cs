@@ -79,7 +79,8 @@ class Program
                 new Dictionary<uint, string>(),
                 new Dictionary<uint, string>(),
                 new Dictionary<uint, string>(),
-                new Dictionary<uint, string>()
+                new Dictionary<uint, string>(),
+                new Dictionary<ulong, string>()
             );
 
         writer.WritePropertyBin(bin);
