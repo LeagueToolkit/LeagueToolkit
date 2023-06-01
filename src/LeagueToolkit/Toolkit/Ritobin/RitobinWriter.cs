@@ -12,7 +12,8 @@ public sealed class RitobinWriter : IDisposable
     private readonly Dictionary<uint, string> _objects;
     private readonly Dictionary<uint, string> _classes;
     private readonly Dictionary<uint, string> _properties;
-    private readonly Dictionary<uint, string> _hashes;
+    private readonly Dictionary<uint, string> _binHashes;
+    private readonly Dictionary<ulong, string> _wadHashes;
 
     private readonly StreamWriter _writer;
 
@@ -23,8 +24,8 @@ public sealed class RitobinWriter : IDisposable
         IEnumerable<KeyValuePair<uint, string>> objects,
         IEnumerable<KeyValuePair<uint, string>> classes,
         IEnumerable<KeyValuePair<uint, string>> properties,
-        IEnumerable<KeyValuePair<uint, string>> hashes
-    )
+        IEnumerable<KeyValuePair<uint, string>> binHashes,
+        IEnumerable<KeyValuePair<ulong, string>> wadHashes)
     {
         Guard.IsNotNull(stream, nameof(stream));
 
@@ -33,7 +34,8 @@ public sealed class RitobinWriter : IDisposable
         this._objects = new(objects);
         this._classes = new(classes);
         this._properties = new(properties);
-        this._hashes = new(hashes);
+        this._binHashes = new(binHashes);
+        this._wadHashes = new(wadHashes);
     }
 
     public void WritePropertyBin(BinTree bin)
@@ -139,9 +141,9 @@ public sealed class RitobinWriter : IDisposable
         else if (property is BinTreeString stringProperty)
             this._writer.Write($@"""{stringProperty.Value}""");
         else if (property is BinTreeHash hash)
-            WriteHashProperty(hash);
+            WriteBinHashProperty(hash);
         else if (property is BinTreeWadChunkLink chunkLink)
-            this._writer.Write(string.Format("0x{0:x}", chunkLink.Value));
+            WriteWadChunkLinkProperty(chunkLink);
         else if (property is BinTreeUnorderedContainer unorderedContainer)
             WriteContainerProperty(unorderedContainer);
         else if (property is BinTreeContainer container)
@@ -211,12 +213,23 @@ public sealed class RitobinWriter : IDisposable
         this._writer.Write("}");
     }
 
-    private void WriteHashProperty(BinTreeHash hash)
+    private void WriteBinHashProperty(BinTreeHash hash)
     {
-        string value = this._hashes.TryGetValue(hash.Value, out string hashValue) switch
+        string value = this._binHashes.TryGetValue(hash.Value, out string hashValue) switch
         {
             true => $@"""{hashValue}""",
             false => string.Format("0x{0:x}", hash.Value)
+        };
+
+        this._writer.Write(value);
+    }
+
+    private void WriteWadChunkLinkProperty(BinTreeWadChunkLink chunkLink)
+    {
+        string value = this._wadHashes.TryGetValue(chunkLink.Value, out string hashValue) switch
+        {
+            true => $@"""{hashValue}""",
+            false => string.Format("0x{0:x}", chunkLink.Value)
         };
 
         this._writer.Write(value);
