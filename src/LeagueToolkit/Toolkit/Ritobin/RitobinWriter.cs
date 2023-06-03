@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Meta;
+﻿using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Meta.Properties;
 using System.Globalization;
 
@@ -14,21 +13,18 @@ public sealed class RitobinWriter : IDisposable
     private readonly Dictionary<uint, string> _properties;
     private readonly Dictionary<uint, string> _hashes;
 
-    private readonly StreamWriter _writer;
+    private readonly StringWriter _writer;
 
     public bool IsDisposed { get; private set; }
 
     public RitobinWriter(
-        Stream stream,
         IEnumerable<KeyValuePair<uint, string>> objects,
         IEnumerable<KeyValuePair<uint, string>> classes,
         IEnumerable<KeyValuePair<uint, string>> properties,
         IEnumerable<KeyValuePair<uint, string>> hashes
     )
     {
-        Guard.IsNotNull(stream, nameof(stream));
-
-        this._writer = new StreamWriter(stream, leaveOpen: true);
+        this._writer = new StringWriter(CultureInfo.InvariantCulture);
 
         this._objects = new(objects);
         this._classes = new(classes);
@@ -36,13 +32,17 @@ public sealed class RitobinWriter : IDisposable
         this._hashes = new(hashes);
     }
 
-    public void WritePropertyBin(BinTree bin)
+    public string WritePropertyBin(BinTree bin)
     {
+        this._writer.GetStringBuilder().Clear();
+
         WriteHeader();
         WriteFileType();
         WriteVersion();
         WriteDependencies(bin.Dependencies);
         WriteObjects(bin.Objects);
+
+        return this._writer.ToString();
     }
 
     private void WriteHeader() => this._writer.WriteLine("#PROP_text");
