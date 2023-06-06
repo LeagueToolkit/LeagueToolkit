@@ -77,7 +77,8 @@ class Program
                 new Dictionary<uint, string>(),
                 new Dictionary<uint, string>(),
                 new Dictionary<uint, string>(),
-                new Dictionary<uint, string>()
+                new Dictionary<uint, string>(),
+                new Dictionary<ulong, string>()
             );
 
         File.WriteAllText("ritobintest.txt", writer.WritePropertyBin(bin));
