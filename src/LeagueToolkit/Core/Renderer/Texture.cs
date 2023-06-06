@@ -96,7 +96,7 @@ namespace LeagueToolkit.Core.Renderer
                 // Calculate dimensions of current mipmap
                 int currentWidth = Math.Max(width >> i, 1);
                 int currentHeight = Math.Max(height >> i, 1);
-                decoder.GetBlockCount(currentWidth, currentHeight, out int widthInBlocks, out int heightInBlocks);
+                CalculateBlockCount(format, currentWidth, currentHeight, out int widthInBlocks, out int heightInBlocks);
 
                 int mipMapSize = widthInBlocks * heightInBlocks * blockSize;
                 using MemoryOwner<byte> mipMapBufferOwner = MemoryOwner<byte>.Allocate(mipMapSize);
@@ -183,6 +183,19 @@ namespace LeagueToolkit.Core.Renderer
             stream.Position -= 4;
 
             return magic == 0x00584554; // "TEX\0"
+        }
+
+        private static void CalculateBlockCount(
+            ExtendedTextureFormat format,
+            int pixelWidth,
+            int pixelHeight,
+            out int blocksWidth,
+            out int blocksHeight
+            )
+        {
+            int blockLength = format == ExtendedTextureFormat.RGBA8 ? 1 : 4;
+            blocksWidth = (pixelWidth + blockLength - 1) / blockLength;
+            blocksHeight = (pixelHeight + blockLength - 1) / blockLength;
         }
     }
 
