@@ -72,17 +72,16 @@ class Program
         );
         BinTree bin = new(binFile);
 
-        FileStream ritobinStream = File.Create("ritobintest.txt");
         using RitobinWriter writer =
             new(
-                ritobinStream,
                 new Dictionary<uint, string>(),
                 new Dictionary<uint, string>(),
                 new Dictionary<uint, string>(),
-                new Dictionary<uint, string>()
+                new Dictionary<uint, string>(),
+                new Dictionary<ulong, string>()
             );
 
-        writer.WritePropertyBin(bin);
+        File.WriteAllText("ritobintest.txt", writer.WritePropertyBin(bin));
     }
 
     static void ProfileNvrToEnvironmentAsset()
