@@ -185,17 +185,17 @@ namespace LeagueToolkit.Core.Renderer
             return magic == 0x00584554; // "TEX\0"
         }
 
-        private static (int blockWidth, int blockHeight) CalculateBlockCount(
+        private static (int widthInBlocks, int heightInBlocks) CalculateBlockCount(
             ExtendedTextureFormat format,
             int pixelWidth,
             int pixelHeight
-            )
+        )
         {
             int blockLength = format == ExtendedTextureFormat.RGBA8 ? 1 : 4;
-            int blockWidth = (pixelWidth + blockLength - 1) / blockLength;
-            int blockHeight = (pixelHeight + blockLength - 1) / blockLength;
+            int widthInBlocks = (pixelWidth + blockLength - 1) / blockLength;
+            int heightInBlocks = (pixelHeight + blockLength - 1) / blockLength;
 
-            return (blockWidth, blockHeight);
+            return (widthInBlocks, heightInBlocks);
         }
     }
 
