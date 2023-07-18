@@ -5,8 +5,8 @@ using LeagueToolkit.Utils.Extensions;
 using System;
 using System.Globalization;
 using System.IO.Compression;
+using System.IO.Hashing;
 using System.Text;
-using XXHash3NET;
 
 namespace LeagueToolkit.Core.Wad;
 
@@ -101,16 +101,19 @@ public sealed class WadFile : IDisposable
                 ThrowHelper.ThrowInvalidDataException($"Tried to read a chunk which already exists: {chunk.PathHash}");
         }
 
-        // Read subchunk table
-        // May this substring not crash till the end of times, amen :^)
-        string subchunkTocPath = Path.ChangeExtension(
-            stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME, StringComparison.Ordinal) + GAME_DIRECTORY_NAME.Length + 1)..]
-                .ToLowerInvariant()
-                .Replace(Path.DirectorySeparatorChar, '/'),
-            "subchunktoc"
-        );
-        if (this._chunks.TryGetValue(XXHash64.Compute(subchunkTocPath), out WadChunk subchunkTocChunk))
-            this._subchunkTocMemory = LoadChunkDecompressed(subchunkTocChunk);
+        if (stream.Name.Contains(GAME_DIRECTORY_NAME))
+        {
+            // Read subchunk table
+            // May this substring not crash till the end of times, amen :^)
+            string subchunkTocPath = Path.ChangeExtension(
+                stream.Name[(stream.Name.LastIndexOf(GAME_DIRECTORY_NAME, StringComparison.Ordinal) + GAME_DIRECTORY_NAME.Length + 1)..]
+                    .ToLowerInvariant()
+                    .Replace(Path.DirectorySeparatorChar, '/'),
+                "subchunktoc"
+            );
+            if (this._chunks.TryGetValue(XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(subchunkTocPath)), out WadChunk subchunkTocChunk))
+                this._subchunkTocMemory = LoadChunkDecompressed(subchunkTocChunk);
+        }
     }
 
     internal void WriteDescriptor(Stream stream)
@@ -237,13 +240,13 @@ public sealed class WadFile : IDisposable
     {
         Guard.IsNotNullOrEmpty(path, nameof(path));
 
-        return FindChunk(XXHash64.Compute(path.ToLowerInvariant()));
+        return FindChunk(XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(path.ToLowerInvariant())));
     }
 
     /// <summary>
     /// Searches for a chunk with the specified path hash
     /// </summary>
-    /// <param name="pathHash">The lowercase path of the <see cref="WadChunk"/> hashed using <see cref="XXHash64"/></param>
+    /// <param name="pathHash">The lowercase path of the <see cref="WadChunk"/> hashed using <see cref="XxHash64"/></param>
     /// <returns>The found chunk</returns>
     public WadChunk FindChunk(ulong pathHash)
     {

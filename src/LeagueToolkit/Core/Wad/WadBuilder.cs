@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using System.IO.Compression;
-using XXHash3NET;
+using System.IO.Hashing;
+using System.Text;
 
 namespace LeagueToolkit.Core.Wad;
 
@@ -86,7 +87,7 @@ public static class WadBuilder
 
         WadChunk chunk =
             new(
-                XXHash64.Compute(chunkPath),
+                XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(chunkPath)),
                 dataOffset,
                 compressedSize,
                 uncompressedSize,
@@ -124,10 +125,11 @@ public static class WadBuilder
     private static ulong CreateChunkChecksum(Stream compressedStream)
     {
         compressedStream.Seek(0, SeekOrigin.Begin);
-        ulong checksum = XXHash3.Hash64(compressedStream);
-        compressedStream.Seek(0, SeekOrigin.Begin);
+        XxHash3 xxHash3 = new();
+        xxHash3.Append(compressedStream);
 
-        return checksum;
+        compressedStream.Seek(0, SeekOrigin.Begin);
+        return xxHash3.GetCurrentHashAsUInt64();
     }
 }
 
