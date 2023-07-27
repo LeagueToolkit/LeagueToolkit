@@ -1,6 +1,4 @@
-﻿using XXHash3NET;
-
-namespace LeagueToolkit.Core.Wad;
+﻿namespace LeagueToolkit.Core.Wad;
 
 /// <summary>
 /// Represents a file entry in a <see cref="WadFile"/>
@@ -10,7 +8,7 @@ public readonly struct WadChunk
     internal const int TOC_SIZE_V3 = 32;
 
     /// <summary>
-    /// Gets the lowercase path of the chunk hashed using <see cref="XXHash64"/>
+    /// Gets the lowercase path of the chunk hashed using <see cref="System.IO.Hashing.XxHash64"/>
     /// </summary>
     public ulong PathHash { get; }
 
