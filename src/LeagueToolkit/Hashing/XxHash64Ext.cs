@@ -6,6 +6,10 @@ namespace LeagueToolkit.Hashing;
 
 public static class XxHash64Ext
 {
+    /// <summary>Computes the XxHash64 hash of the provided data.</summary>
+    /// <param name="source">The data to hash.</param>
+    /// <param name="seed">The seed value for this hash computation.</param>
+    /// <returns>The computed XxHash64 hash.</returns>
     public static ulong Hash(ReadOnlySpan<char> source, long seed = 0)
     {
         int utf8ByteCount = Encoding.UTF8.GetByteCount(source);
