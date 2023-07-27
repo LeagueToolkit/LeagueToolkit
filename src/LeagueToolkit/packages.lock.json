@@ -48,14 +48,11 @@
           "System.Text.Encoding.CodePages": "5.0.0"
         }
       },
-      "XXHash3.NET": {
+      "System.IO.Hashing": {
         "type": "Direct",
-        "requested": "[2.1.0, )",
-        "resolved": "2.1.0",
-        "contentHash": "lLCpCFIb7Uwun3TaMcb8W2RMmMXATjwwNOD97Cmo3iXhnlrhSfGfWVOEFwRn6Ngcc3qTexPaIVDOgmPRe1mSmw==",
-        "dependencies": {
-          "CommunityToolkit.Diagnostics": "8.0.0"
-        }
+        "requested": "[8.0.0-preview.6.23329.7, )",
+        "resolved": "8.0.0-preview.6.23329.7",
+        "contentHash": "whPq88G1DHc4PkehklafnOGPwECVG9bM9QAQihYF/uq/5+N0DBZSh+M5gGIKgant6g3F0dq1K8cST7omF0wKzw=="
       },
       "ZstdSharp.Port": {
         "type": "Direct",
