@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Hashing;
 using System.IO.Compression;
-using XXHash3NET;
+using System.IO.Hashing;
 
 namespace LeagueToolkit.Core.Wad;
 
@@ -40,13 +41,15 @@ public static class WadBuilder
 
     private static void BakeFiles(WadBuildContext context)
     {
+        XxHash64 hasher = new();
+
         // Write the descriptor template
         using FileStream bakedWadStream = File.Create(context.Output);
         bakedWadStream.Seek(WadFile.HEADER_SIZE_V3 + (WadChunk.TOC_SIZE_V3 * context.Files.Length), SeekOrigin.Begin);
 
         // Create chunks
         foreach (string filePath in context.Files)
-            CreateChunk(filePath, bakedWadStream, context);
+            CreateChunk(filePath, bakedWadStream, hasher, context);
 
         // Seek to start and write actual descriptor
         bakedWadStream.Seek(0, SeekOrigin.Begin);
@@ -54,14 +57,14 @@ public static class WadBuilder
         bakedWad.WriteDescriptor(bakedWadStream);
     }
 
-    private static void CreateChunk(string filePath, Stream bakedWadStream, WadBuildContext context)
+    private static void CreateChunk(string filePath, Stream bakedWadStream, XxHash64 hasher, WadBuildContext context)
     {
         using FileStream fileStream = File.OpenRead(filePath);
         WadChunkCompression chunkCompression = WadUtils.GetExtensionCompression(Path.GetExtension(fileStream.Name));
         using Stream compressedFileStream = CreateChunkStream(fileStream, chunkCompression);
 
         // Get the stream checksum and check for duplication
-        ulong streamChecksum = CreateChunkChecksum(compressedFileStream);
+        ulong streamChecksum = CreateChunkChecksum(compressedFileStream, hasher);
         var (dataOffset, isDuplicated) = context.ChecksumOffsetLookup.TryGetValue(
             streamChecksum,
             out long existingChunkOffset
@@ -86,7 +89,7 @@ public static class WadBuilder
 
         WadChunk chunk =
             new(
-                XXHash64.Compute(chunkPath),
+                XxHash64Ext.Hash(chunkPath),
                 dataOffset,
                 compressedSize,
                 uncompressedSize,
@@ -121,12 +124,15 @@ public static class WadBuilder
         return compressedStream;
     }
 
-    private static ulong CreateChunkChecksum(Stream compressedStream)
+    private static ulong CreateChunkChecksum(Stream compressedStream, XxHash64 hasher)
     {
         compressedStream.Seek(0, SeekOrigin.Begin);
-        ulong checksum = XXHash3.Hash64(compressedStream);
+        hasher.Append(compressedStream);
         compressedStream.Seek(0, SeekOrigin.Begin);
 
+        ulong checksum = hasher.GetCurrentHashAsUInt64();
+
+        hasher.Reset();
         return checksum;
     }
 }
