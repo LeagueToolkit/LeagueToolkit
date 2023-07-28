@@ -1,4 +1,5 @@
-﻿using FlatSharp;
+﻿using CommunityToolkit.HighPerformance.Buffers;
+using FlatSharp;
 using LeagueToolkit.Utils.Exceptions;
 using System.Text;
 
@@ -41,10 +42,11 @@ public class ReleaseManifest
         uint contentOffset = br.ReadUInt32();
         uint compressedContentSize = br.ReadUInt32();
         this.ID = br.ReadUInt64();
-        uint uncompressedContentSize = br.ReadUInt32();
+        uint decompressedContentSize = br.ReadUInt32();
 
         br.BaseStream.Seek(contentOffset, SeekOrigin.Begin);
-        byte[] compressedFile = br.ReadBytes((int)compressedContentSize);
+        using MemoryOwner<byte> compressedData = MemoryOwner<byte>.Allocate((int)compressedContentSize);
+        var _ = br.Read(compressedData.Span);
 
         if (signatureType != 0)
         {
@@ -53,28 +55,28 @@ public class ReleaseManifest
         }
 
         using var decompressor = new ZstdSharp.Decompressor();
-        var uncompressedFile = decompressor.Unwrap(compressedFile).ToArray();
+        using MemoryOwner<byte> decompressedData = MemoryOwner<byte>.Allocate((int)decompressedContentSize);
+        decompressor.Unwrap(compressedData.Span, decompressedData.Span);
 
-        this._body = ReleaseManifestBody.Serializer.Parse(uncompressedFile);
+        this._body = ReleaseManifestBody.Serializer.Parse(decompressedData.Memory);
     }
 
     public void Write(string fileLocation) => Write(File.Create(fileLocation));
 
     public void Write(Stream stream, bool leaveOpen = false)
     {
-        byte[] magic = Encoding.ASCII.GetBytes("RMAN");
+        ReadOnlySpan<byte> magic = "RMAN"u8;
         byte major = 2;
         byte minor = 0;
         byte unknown = 0;
         byte signatureType = 0;
         int contentOffset = 4 + 4 + 4 + 4 + 8 + 4;
 
-        byte[] uncompressedFile = new byte[ReleaseManifestBody.Serializer.GetMaxSize(this._body)];
-        int uncompressedContentSize = ReleaseManifestBody.Serializer.Write(uncompressedFile, this._body);
-        Array.Resize(ref uncompressedFile, uncompressedContentSize);
+        using MemoryOwner<byte> decompressedData = MemoryOwner<byte>.Allocate(ReleaseManifestBody.Serializer.GetMaxSize(this._body));
+        int decompressedContentSize = ReleaseManifestBody.Serializer.Write(decompressedData.Span, this._body);
 
         using var compressor = new ZstdSharp.Compressor();
-        var compressedFile = compressor.Wrap(uncompressedFile).ToArray();
+        var compressedFile = compressor.Wrap(decompressedData.Span[..decompressedContentSize]);
 
         int compressedContentSize = compressedFile.Length;
 
@@ -88,7 +90,7 @@ public class ReleaseManifest
         bw.Write(contentOffset);
         bw.Write(compressedContentSize);
         bw.Write(this.ID);
-        bw.Write(uncompressedContentSize);
+        bw.Write(decompressedContentSize);
         bw.Write(compressedFile);
     }
 }
