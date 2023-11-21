@@ -37,20 +37,25 @@ using RigResource = LeagueToolkit.Core.Animation.RigResource;
 
 namespace LeagueToolkit.Sandbox;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        using WadFile wad = new(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\UI.wad.client");
+class Program {
+    static void Main(string[] args) {
+        using EnvironmentAsset mgeo = new(File.OpenRead(@"X:\lol\testing\data\maps\mapgeometry\map11\base_srx.mapgeo"));
+        BinTree materialsBin = new(File.OpenRead(@"X:\lol\testing\data\maps\mapgeometry\map11\base_srx.materials.bin"));
 
-        foreach (var (_, chunk) in wad.Chunks.Where(x => x.Value.SubChunkCount != 0))
+        mgeo.ToGltf(materialsBin, new()
         {
-            wad.LoadChunkDecompressed(chunk);
-        }
+            MetaEnvironment = MetaEnvironment.Create(
+                Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
+            ),
+            Settings = new() {
+                FlipAcrossX = true,
+                GameDataPath = @"X:\lol\testing",
+                TextureQuality = MapGeometryGltfTextureQuality.High
+            }
+        }).SaveGLB("C:/Users/Filip/Desktop/test.glb");
     }
 
-    static void ProfileMetaSerializer()
-    {
+    static void ProfileMetaSerializer() {
         using FileStream animationsBinStream = File.OpenRead(@"X:\lol\game\data\characters\akali\animations\skin0.bin");
         BinTree bin = new(animationsBinStream);
 
@@ -65,8 +70,7 @@ class Program
         var kekek = MetaSerializer.Deserialize<AnimationGraphData>(metaEnvironment, animationGraphDataObject);
     }
 
-    static void ProfileRitobinWriter()
-    {
+    static void ProfileRitobinWriter() {
         using FileStream binFile = File.OpenRead(
             @"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"
         );
@@ -84,13 +88,12 @@ class Program
         File.WriteAllText("ritobintest.txt", writer.WritePropertyBin(bin));
     }
 
-    static void ProfileNvrToEnvironmentAsset()
-    {
+    static void ProfileNvrToEnvironmentAsset() {
         using FileStream stream = File.OpenRead(@"X:\lol\old_backup\Map10\scene\room.nvr");
         EnvironmentAsset nvr = EnvironmentAsset.LoadSimpleEnvironment(stream);
 
         using FileStream writeStream = File.Create("TT_room.nvr.mapgeo");
-        nvr.Write(writeStream, 13);
+        nvr.Write(writeStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
@@ -100,8 +103,7 @@ class Program
                 null,
                 new(
                     metaEnvironment,
-                    new()
-                    {
+                    new() {
                         GameDataPath = @"X:\lol\old_backup\Map10\scene\Textures",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Ignore,
@@ -112,11 +114,9 @@ class Program
             .SaveGLB("twistedtreeline.glb");
     }
 
-    static void ExtractWad(string wadPath, string extractTo)
-    {
+    static void ExtractWad(string wadPath, string extractTo) {
         Dictionary<ulong, string> hashtable = new();
-        foreach (string line in File.ReadLines(@"X:\lol\tools\Obsidian\GAME_HASHTABLE.txt"))
-        {
+        foreach (string line in File.ReadLines(@"X:\lol\tools\Obsidian\GAME_HASHTABLE.txt")) {
             string[] split = line.Split(' ', StringSplitOptions.TrimEntries);
 
             hashtable.Add(Convert.ToUInt64(split[0], 16), split[1]);
@@ -124,10 +124,8 @@ class Program
 
         using WadFile wad = new(wadPath);
 
-        foreach (var (chunkHash, chunk) in wad.Chunks)
-        {
-            if (hashtable.TryGetValue(chunkHash, out string chunkPath))
-            {
+        foreach (var (chunkHash, chunk) in wad.Chunks) {
+            if (hashtable.TryGetValue(chunkHash, out string chunkPath)) {
                 using FileStream chunkFileStream = File.Create(Path.Join(extractTo, chunkPath));
                 using Stream chunkStream = wad.OpenChunk(chunk);
 
@@ -136,8 +134,7 @@ class Program
         }
     }
 
-    static void ProfileWadFile(string path)
-    {
+    static void ProfileWadFile(string path) {
         using WadFile wad = new(path);
 
         using MemoryOwner<byte> chunkData = wad.LoadChunkDecompressed(
@@ -149,8 +146,7 @@ class Program
         chunkFile.Write(chunkData.Span);
     }
 
-    static void ProfileWadBuilder()
-    {
+    static void ProfileWadBuilder() {
         IEnumerable<string> files = Directory.EnumerateFiles(
             @"X:\sandbox\lol\wadbaketest",
             "*.*",
@@ -164,8 +160,7 @@ class Program
         );
     }
 
-    static void ProfileGltfToRiggedMesh(string gltfPath, string sknPath, string sklPath)
-    {
+    static void ProfileGltfToRiggedMesh(string gltfPath, string sknPath, string sklPath) {
         ModelRoot gltf = ModelRoot.Load(gltfPath);
 
         var (convertedMesh, convertedRig) = gltf.ToRiggedMesh();
@@ -180,16 +175,14 @@ class Program
         string sklPath,
         string gltfPath,
         IEnumerable<(string, IAnimationAsset)> animations
-    )
-    {
+    ) {
         SkinnedMesh skn = SkinnedMesh.ReadFromSimpleSkin(sknPath);
 
         using FileStream rigStream = File.OpenRead(sklPath);
         RigResource rig = new(rigStream);
 
         List<(string, Stream)> textures = skn.Ranges
-            .Select(x =>
-            {
+            .Select(x => {
                 using FileStream textureFileStream = File.OpenRead(
                     @"X:\lol\game\assets\characters\renekton\skins\skin26\renekton_skin26_tx_cm.dds"
                 );
@@ -206,13 +199,11 @@ class Program
         skn.ToGltf(rig, textures, animations).Save(gltfPath);
     }
 
-    static void ProfileRigResource()
-    {
+    static void ProfileRigResource() {
         RigResource skeleton = new(File.OpenRead("Brand.skl"));
     }
 
-    static void ProfileMapgeoToGltf()
-    {
+    static void ProfileMapgeoToGltf() {
         using FileStream materialsBinStream = File.OpenRead(
             @"X:\lol\game\data\maps\mapgeometry\sr\worlds_trophyonly.materials.bin"
         );
@@ -229,8 +220,7 @@ class Program
                 materialsBin,
                 new(
                     metaEnvironment,
-                    new()
-                    {
+                    new() {
                         GameDataPath = "X:/lol/game",
                         FlipAcrossX = false,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
@@ -241,8 +231,7 @@ class Program
             .SaveGLB("testnewshaders.glb");
     }
 
-    static void ProfileTexture()
-    {
+    static void ProfileTexture() {
         LeagueTexture texture = LeagueTexture.Load(File.OpenRead("grasstint_srx_infernal.dds"));
 
         ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
@@ -252,14 +241,12 @@ class Program
         image.SaveAsPng("grasstint_srx_infernal.dds.png");
     }
 
-    static void ProfileSkinnedMesh()
-    {
+    static void ProfileSkinnedMesh() {
         using SkinnedMesh skinnedMesh = SkinnedMesh.ReadFromSimpleSkin("akali.skn");
         RigResource skeleton = new(File.OpenRead("akali.skl"));
 
         List<(string name, IAnimationAsset animation)> animations = new();
-        foreach (string animationFile in Directory.EnumerateFiles("animations"))
-        {
+        foreach (string animationFile in Directory.EnumerateFiles("animations")) {
             using FileStream stream = File.OpenRead(animationFile);
             IAnimationAsset animation = AnimationAsset.Load(stream);
 
@@ -269,8 +256,7 @@ class Program
         skinnedMesh.ToGltf(new List<(string, Stream)>()).WriteGLB(File.OpenWrite("akali.glb"));
     }
 
-    static async Task TestMetaRoslynCodegen(string metaJsonFile, string outputFile)
-    {
+    static async Task TestMetaRoslynCodegen(string metaJsonFile, string outputFile) {
         using HttpClient client = new();
 
         byte[] binTypesBuffer = await client.GetByteArrayAsync(
@@ -289,32 +275,33 @@ class Program
         MetaDump.Deserialize(File.ReadAllText(metaJsonFile)).WriteMetaClasses(outputFile, classes, properties);
     }
 
-    static void ProfileMetaSerialization()
-    {
+    static void ProfileMetaSerialization() {
         using FileStream materialsBinStream = File.OpenRead("base_srx.materials.bin");
         BinTree binTree = new(materialsBinStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
         );
+
+
     }
 
-    static void ProfileMapgeo(string toRead, string rewriteTo)
-    {
+    static void ProfileMapgeo(string toRead, string rewriteTo) {
         using FileStream mapgeoStream = File.OpenRead(toRead);
         using EnvironmentAsset mgeo = new(mapgeoStream);
         //mgeo.ToGLTF().WriteGLB(File.OpenWrite("instanced.glb"));
         //mgeo.Write(Path.ChangeExtension(rewriteTo, "instanced.mapgeo"), 13);
 
         EnvironmentAssetBuilder mapBuilder = new EnvironmentAssetBuilder()
-            .WithSceneGraph(mgeo.SceneGraph)
             .WithBakedTerrainSamplers(mgeo.BakedTerrainSamplers);
+
+        foreach (var sceneGraph in mgeo.SceneGraphs)
+            mapBuilder.WithSceneGraph(sceneGraph);
 
         Dictionary<ElementName, int> elementOrder =
             new() { { ElementName.Texcoord0, 0 }, { ElementName.Normal, 1 }, { ElementName.Position, 2 } };
 
-        foreach (EnvironmentAssetMesh mesh in mgeo.Meshes)
-        {
+        foreach (EnvironmentAssetMesh mesh in mgeo.Meshes) {
             var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
                 VertexBufferUsage.Static,
                 mesh.VerticesView.Buffers
@@ -355,10 +342,9 @@ class Program
         using EnvironmentAsset builtMap = mapBuilder.Build();
 
         using FileStream rewriteToStream = File.Create(rewriteTo);
-        builtMap.Write(rewriteToStream, 13);
+        builtMap.Write(rewriteToStream);
 
-        static void RewriteVertexBuffer(EnvironmentAssetMesh mesh, VertexBufferWriter writer)
-        {
+        static void RewriteVertexBuffer(EnvironmentAssetMesh mesh, VertexBufferWriter writer) {
             bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
             bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
             bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.PrimaryColor, out var baseColorAccessor);
@@ -374,13 +360,11 @@ class Program
             VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : new();
             VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs ? lightmapUvAccessor.AsVector2Array() : new();
 
-            for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
-            {
+            for (int i = 0; i < mesh.VerticesView.VertexCount; i++) {
                 writer.WriteVector3(i, ElementName.Position, positionsArray[i]);
                 if (hasNormals)
                     writer.WriteVector3(i, ElementName.Normal, normalsArray[i]);
-                if (hasBaseColor)
-                {
+                if (hasBaseColor) {
                     var (b, g, r, a) = baseColorArray[i];
                     writer.WriteColorBgraU8(i, ElementName.PrimaryColor, new(r, g, b, a));
                 }
@@ -392,10 +376,8 @@ class Program
         }
     }
 
-    static IEnumerable<(string, IAnimationAsset)> LoadAnimations(string path)
-    {
-        foreach (string animationFile in Directory.EnumerateFiles(path))
-        {
+    static IEnumerable<(string, IAnimationAsset)> LoadAnimations(string path) {
+        foreach (string animationFile in Directory.EnumerateFiles(path)) {
             using FileStream stream = File.OpenRead(animationFile);
             IAnimationAsset animation = AnimationAsset.Load(stream);
 

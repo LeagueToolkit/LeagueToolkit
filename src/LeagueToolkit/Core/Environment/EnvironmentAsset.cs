@@ -24,8 +24,11 @@ public sealed class EnvironmentAsset : IDisposable
     public IReadOnlyList<EnvironmentAssetMesh> Meshes => this._meshes;
     private readonly List<EnvironmentAssetMesh> _meshes = new();
 
+    public int Unk1 { get; private set; }
+
     /// <summary>Gets the <see cref="BucketedGeometry"/> scene graph for the environment asset</summary>
-    public BucketedGeometry SceneGraph { get; private set; }
+    public IReadOnlyList<BucketedGeometry> SceneGraphs => this._sceneGraphs;
+    public readonly List<BucketedGeometry> _sceneGraphs = new();
 
     /// <summary>Gets a read-only list of the planar reflectors used by the environment asset</summary>
     public IReadOnlyList<PlanarReflector> PlanarReflectors => this._planarReflectors;
@@ -39,21 +42,21 @@ public sealed class EnvironmentAsset : IDisposable
     internal EnvironmentAsset(
         EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
         IEnumerable<EnvironmentAssetMesh> meshes,
-        BucketedGeometry sceneGraph,
+        IEnumerable<BucketedGeometry> sceneGraphs,
         IEnumerable<PlanarReflector> planarReflectors,
         IEnumerable<VertexBuffer> vertexBuffers,
         IEnumerable<IndexBuffer> indexBuffers
     )
     {
         Guard.IsNotNull(meshes, nameof(meshes));
-        Guard.IsNotNull(sceneGraph, nameof(sceneGraph));
+        Guard.IsNotNull(sceneGraphs, nameof(sceneGraphs));
         Guard.IsNotNull(planarReflectors, nameof(planarReflectors));
         Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
         Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
 
         this.BakedTerrainSamplers = bakedTerrainSamplers;
         this._meshes = new(meshes);
-        this.SceneGraph = sceneGraph;
+        this._sceneGraphs = new(sceneGraphs);
         this._planarReflectors = new(planarReflectors);
 
         this._vertexBuffers = vertexBuffers.ToArray();
@@ -75,7 +78,7 @@ public sealed class EnvironmentAsset : IDisposable
             throw new InvalidFileSignatureException();
 
         uint version = br.ReadUInt32();
-        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14))
+        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14 or 15))
             throw new InvalidFileVersionException();
 
         bool useSeparatePointLights = version < 7 && br.ReadBoolean();
@@ -130,7 +133,19 @@ public sealed class EnvironmentAsset : IDisposable
             );
 
         // Read bucketed geometry
-        this.SceneGraph = new(br);
+        if (version >= 15)
+        {
+            int sceneGraphCount = br.ReadInt32();
+            for (int i = 0; i < sceneGraphCount; i++)
+            {
+                this._sceneGraphs.Add(new(br));
+            }
+        }
+        else
+        {
+            this._sceneGraphs = new() { new(br) };
+        }
+
 
         if (version >= 13)
         {
@@ -187,47 +202,36 @@ public sealed class EnvironmentAsset : IDisposable
     /// Writes this <see cref="EnvironmentAsset"/> instance into <paramref name="stream"/>
     /// </summary>
     /// <param name="stream">The <see cref="Stream"/> to write to</param>
-    /// <param name="version">The version of the written <see cref="EnvironmentAsset"/> file</param>
     /// <exception cref="ArgumentException"></exception>
-    public void Write(Stream stream, uint version)
+    public void Write(Stream stream)
     {
-        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13))
-            throw new ArgumentException($"Unsupported version: {version}", nameof(version));
-
         using BinaryWriter bw = new(stream, Encoding.UTF8, true);
 
         bw.Write(Encoding.ASCII.GetBytes("OEGM"));
-        bw.Write(version);
+        bw.Write(15);
 
-        bool usesSeparatePointLights = false;
-        if (version < 7)
-        {
-            usesSeparatePointLights = this._meshes.Any(mesh => mesh.PointLight is not null);
-            bw.Write(usesSeparatePointLights);
-        }
-
-        WriteBakedTerrainSamplers(bw, version);
+        WriteSampler(bw, this.BakedTerrainSamplers.Primary);
+        WriteSampler(bw, this.BakedTerrainSamplers.Secondary);
 
         List<VertexBufferDescription> vertexDeclarations = GenerateVertexBufferDescriptions();
         bw.Write(vertexDeclarations.Count);
         foreach (VertexBufferDescription vertexDeclaration in vertexDeclarations)
             vertexDeclaration.WriteToMapGeometry(bw);
 
-        WriteVertexBuffers(bw, version);
-        WriteIndexBuffers(bw, version);
+        WriteVertexBuffers(bw);
+        WriteIndexBuffers(bw);
 
         bw.Write(this._meshes.Count);
         foreach (EnvironmentAssetMesh model in this._meshes)
-            model.Write(bw, usesSeparatePointLights, version);
+            model.Write(bw);
 
-        this.SceneGraph.Write(bw);
+        bw.Write(this._sceneGraphs.Count);
+        foreach (var sceneGraph in this._sceneGraphs)
+            sceneGraph.Write(bw);
 
-        if (version >= 13)
-        {
-            bw.Write(this.PlanarReflectors.Count);
-            foreach (PlanarReflector planarReflector in this.PlanarReflectors)
-                planarReflector.WriteToMapGeometry(bw);
-        }
+        bw.Write(this.PlanarReflectors.Count);
+        foreach (PlanarReflector planarReflector in this.PlanarReflectors)
+            planarReflector.WriteToMapGeometry(bw);
     }
 
     // TODO: Instanced Vertex Buffers
@@ -254,34 +258,21 @@ public sealed class EnvironmentAsset : IDisposable
         return descriptions;
     }
 
-    private void WriteBakedTerrainSamplers(BinaryWriter bw, uint version)
+    private static void WriteSampler(BinaryWriter bw, string sampler)
     {
-        if (version >= 9)
+        if (string.IsNullOrEmpty(sampler))
         {
-            WriteSampler(this.BakedTerrainSamplers.Primary);
-
-            if (version >= 11)
-            {
-                WriteSampler(this.BakedTerrainSamplers.Secondary);
-            }
+            bw.Write(0); // Length
         }
-
-        void WriteSampler(string sampler)
+        else
         {
-            if (string.IsNullOrEmpty(sampler))
-            {
-                bw.Write(0); // Length
-            }
-            else
-            {
-                bw.Write(sampler.Length);
-                bw.Write(Encoding.ASCII.GetBytes(sampler));
-            }
+            bw.Write(sampler.Length);
+            bw.Write(Encoding.ASCII.GetBytes(sampler));
         }
     }
 
     // TODO: Vertex Buffer instancing
-    private void WriteVertexBuffers(BinaryWriter bw, uint version)
+    private void WriteVertexBuffers(BinaryWriter bw)
     {
         // Get vertex buffer IDs for each mesh
         List<int[]> bufferIdsOfMeshes = new(this._meshes.Select(GetMeshVertexBufferIds));
@@ -309,14 +300,13 @@ public sealed class EnvironmentAsset : IDisposable
         {
             VertexBuffer vertexBuffer = this._vertexBuffers[i];
 
-            if (version >= 13)
-                bw.Write((byte)visibilityFlagsOfBuffers[i]);
+            bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(vertexBuffer.View.Length);
             bw.Write(vertexBuffer.View.Span);
         }
     }
 
-    private void WriteIndexBuffers(BinaryWriter bw, uint version)
+    private void WriteIndexBuffers(BinaryWriter bw)
     {
         // Get index buffer id for each mesh
         List<int> bufferIdOfMeshes = new(this._meshes.Select(GetMeshIndexBufferId));
@@ -343,8 +333,7 @@ public sealed class EnvironmentAsset : IDisposable
         {
             ReadOnlyMemory<byte> indexBuffer = this._indexBuffers[i].Buffer;
 
-            if (version >= 13)
-                bw.Write((byte)visibilityFlagsOfBuffers[i]);
+            bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(indexBuffer.Length);
             bw.Write(indexBuffer.Span);
         }
@@ -406,13 +395,15 @@ public sealed class EnvironmentAsset : IDisposable
         for (int i = 0; i < modelCount; i++)
             meshes[i] = ReadWorldGeometryMesh(br, i, vertexBuffers, indexBuffers);
 
-        BucketedGeometry sceneGraph = version switch
-        {
-            5 => new(br),
-            _ => new()
+        BucketedGeometry[] sceneGraphs = {
+            version switch
+            {
+                5 => new(br, legacy: true),
+                _ => new()
+            }
         };
 
-        return new(new(), meshes, sceneGraph, Array.Empty<PlanarReflector>(), vertexBuffers, indexBuffers);
+        return new(new(), meshes, sceneGraphs, Array.Empty<PlanarReflector>(), vertexBuffers, indexBuffers);
     }
 
     private static EnvironmentAssetMesh ReadWorldGeometryMesh(
@@ -465,7 +456,7 @@ public sealed class EnvironmentAsset : IDisposable
         return new(
             id,
             vertexBuffer,
-            indexBuffer.AsArray(),
+            indexBuffer.AsArray(), 0,
             primitives,
             Matrix4x4.Identity,
             disableBackfaceCulling: false,
@@ -605,6 +596,7 @@ public sealed class EnvironmentAsset : IDisposable
                 meshId,
                 vertexBuffer,
                 indexBuffer.AsArray(),
+                0,
                 new[]
                 {
                     new EnvironmentAssetMeshPrimitive(
@@ -628,7 +620,7 @@ public sealed class EnvironmentAsset : IDisposable
             );
         }
 
-        return new(new(), meshes, new(), Array.Empty<PlanarReflector>(), meshVertexBuffers, meshIndexBuffers);
+        return new(new(), meshes, Array.Empty<BucketedGeometry>(), Array.Empty<PlanarReflector>(), meshVertexBuffers, meshIndexBuffers);
     }
     #endregion
 

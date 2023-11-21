@@ -36,6 +36,11 @@ public sealed class EnvironmentAssetMesh
     private readonly List<EnvironmentAssetMeshPrimitive> _submeshes = new();
 
     /// <summary>
+    /// Gets the path hash of the scene graph that this mesh belongs to
+    /// </summary>
+    public uint SceneGraphPathHash { get; private set; }
+
+    /// <summary>
     /// Gets whether to disable backface culling for the mesh
     /// </summary>
     public bool DisableBackfaceCulling { get; private set; }
@@ -106,6 +111,7 @@ public sealed class EnvironmentAssetMesh
         int id,
         IVertexBufferView vertexBufferView,
         IndexArray indexBufferView,
+        uint sceneGraphPathHash,
         IEnumerable<EnvironmentAssetMeshPrimitive> submeshes,
         Matrix4x4 transform,
         bool disableBackfaceCulling,
@@ -121,6 +127,7 @@ public sealed class EnvironmentAssetMesh
 
         this.VerticesView = new(vertexBufferView.VertexCount, new[] { vertexBufferView });
         this.Indices = indexBufferView;
+        this.SceneGraphPathHash = sceneGraphPathHash;
         this._submeshes = new(submeshes);
 
         this.Transform = transform;
@@ -179,6 +186,7 @@ public sealed class EnvironmentAssetMesh
         if (version >= 13)
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
 
+        this.SceneGraphPathHash = br.ReadUInt32();
         uint submeshCount = br.ReadUInt32();
         for (int i = 0; i < submeshCount; i++)
             this._submeshes.Add(new(br));
@@ -220,68 +228,35 @@ public sealed class EnvironmentAssetMesh
         }
     }
 
-    internal void Write(BinaryWriter bw, bool useSeparatePointLights, uint version)
+    internal void Write(BinaryWriter bw)
     {
-        if (version <= 11)
-        {
-            bw.Write(this.Name.Length);
-            bw.Write(Encoding.ASCII.GetBytes(this.Name));
-        }
-
         bw.Write(this.VerticesView.VertexCount);
         bw.Write(this._vertexBufferIds.Length);
         bw.Write(this._baseVertexBufferDescriptionId);
-
         foreach (int vertexBufferId in this._vertexBufferIds)
             bw.Write(vertexBufferId);
 
         bw.Write(this.Indices.Count);
         bw.Write(this._indexBufferId);
 
-        if (version >= 13)
-            bw.Write((byte)this.VisibilityFlags);
+        bw.Write((byte)this.VisibilityFlags);
+        bw.Write(this.SceneGraphPathHash);
 
         bw.Write(this._submeshes.Count);
         foreach (EnvironmentAssetMeshPrimitive submesh in this._submeshes)
             submesh.Write(bw);
 
-        if (version != 5)
-            bw.Write(this.DisableBackfaceCulling);
-
+        bw.Write(this.DisableBackfaceCulling);
         bw.WriteBox(this.BoundingBox);
         bw.WriteMatrix4x4RowMajor(this.Transform);
+
         bw.Write((byte)this.EnvironmentQualityFilter);
+        bw.Write((byte)this.LayerTransitionBehavior);
+        bw.Write((byte)this.RenderFlags);
 
-        if (version >= 7 && version <= 12)
-            bw.Write((byte)this.VisibilityFlags);
-
-        if (version >= 14)
-            bw.Write((byte)this.LayerTransitionBehavior);
-
-        if (version >= 11)
-            bw.Write((byte)this.RenderFlags);
-
-        if (version < 9)
-        {
-            if (useSeparatePointLights)
-                bw.WriteVector3(this.PointLight ?? Vector3.Zero);
-
-            foreach (Vector3 sphericalHarmonic in this.SphericalHarmonics)
-                bw.WriteVector3(sphericalHarmonic);
-
-            for (int i = 0; i < 9 - this.SphericalHarmonics.Count; i++)
-                bw.WriteVector3(Vector3.Zero);
-
-            this.BakedLight.Write(bw);
-        }
-        else
-        {
-            this.BakedLight.Write(bw);
-            this.StationaryLight.Write(bw);
-
-            if (version >= 12)
-                this.BakedPaint.Write(bw);
-        }
+        this.BakedLight.Write(bw);
+        this.StationaryLight.Write(bw);
+        this.BakedPaint.Write(bw);
     }
 
     /// <summary>
