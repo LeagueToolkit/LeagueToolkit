@@ -132,7 +132,7 @@ namespace LeagueToolkit.Core.Renderer
                 2 or 3 => ExtendedTextureFormat.ETC2_EAC,
                 10 or 11 => ExtendedTextureFormat.BC1,
                 12 => ExtendedTextureFormat.BC3,
-                20 => ExtendedTextureFormat.RGBA8,
+                20 => ExtendedTextureFormat.BGRA8,
                 _ => throw new NotImplementedException($"Unsupported extended texture format: {format}")
             };
         }
@@ -141,7 +141,7 @@ namespace LeagueToolkit.Core.Renderer
         {
             return extendedFormat switch
             {
-                ExtendedTextureFormat.RGBA8 => CompressionFormat.Rgba,
+                ExtendedTextureFormat.BGRA8 => CompressionFormat.Bgra,
                 ExtendedTextureFormat.ETC1 => throw new NotImplementedException(),
                 ExtendedTextureFormat.ETC2_EAC => throw new NotImplementedException(),
                 ExtendedTextureFormat.BC1 => CompressionFormat.Bc1,
@@ -191,7 +191,7 @@ namespace LeagueToolkit.Core.Renderer
             int pixelHeight
         )
         {
-            int blockLength = format == ExtendedTextureFormat.RGBA8 ? 1 : 4;
+            int blockLength = format == ExtendedTextureFormat.BGRA8 ? 1 : 4;
             int widthInBlocks = (pixelWidth + blockLength - 1) / blockLength;
             int heightInBlocks = (pixelHeight + blockLength - 1) / blockLength;
 
@@ -222,7 +222,7 @@ namespace LeagueToolkit.Core.Renderer
 
     internal enum ExtendedTextureFormat
     {
-        RGBA8,
+        BGRA8,
         ETC1,
         ETC2_EAC,
         BC1,
