@@ -15,7 +15,7 @@ public static class XxHash64Ext
         int utf8ByteCount = Encoding.UTF8.GetByteCount(source);
         if(utf8ByteCount > 512)
         {
-            using var sourceUtf8Owner = SpanOwner<byte>.Allocate(utf8ByteCount);
+            using var sourceUtf8Owner = MemoryOwner<byte>.Allocate(utf8ByteCount);
 
             return HashUtf8Data(source, sourceUtf8Owner.Span, seed);
         }

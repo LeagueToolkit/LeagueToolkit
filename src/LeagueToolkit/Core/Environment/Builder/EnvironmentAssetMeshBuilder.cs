@@ -10,6 +10,8 @@ namespace LeagueToolkit.Core.Environment.Builder;
 /// </summary>
 public sealed class EnvironmentAssetMeshBuilder
 {
+    private uint _sceneGraphPathHash;
+
     private Matrix4x4 _transform;
 
     private bool _disableBackfaceCulling;
@@ -44,6 +46,7 @@ public sealed class EnvironmentAssetMeshBuilder
             meshId,
             this._vertexBuffer,
             this._indexBuffer,
+            this._sceneGraphPathHash,
             this._ranges,
             this._transform,
             this._disableBackfaceCulling,
@@ -75,6 +78,17 @@ public sealed class EnvironmentAssetMeshBuilder
         this._indexBuffer = indexBuffer;
         this._ranges = CreateRanges(primitives, this._indexBuffer, this._vertexBuffer.VertexCount).ToArray();
 
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the scene graph path hash
+    /// </summary>
+    /// <param name="sceneGraphPathHash">The scene graph path hash to use</param>
+    /// <returns></returns>
+    public EnvironmentAssetMeshBuilder WithSceneGraph(uint sceneGraphPathHash)
+    {
+        this._sceneGraphPathHash = sceneGraphPathHash;
         return this;
     }
 

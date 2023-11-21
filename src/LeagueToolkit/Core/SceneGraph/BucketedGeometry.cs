@@ -11,6 +11,11 @@ namespace LeagueToolkit.Core.SceneGraph;
 /// </summary>
 public class BucketedGeometry
 {
+    /// <summary>
+    /// Gets the path hash
+    /// </summary>
+    public uint PathHash { get; }
+
     /// <summary>Gets the Min X bound</summary>
     public float MinX { get; }
 
@@ -66,8 +71,11 @@ public class BucketedGeometry
         this._indices = Array.Empty<ushort>();
     }
 
-    internal BucketedGeometry(BinaryReader br)
+    internal BucketedGeometry(BinaryReader br, bool legacy = false)
     {
+        if(legacy is false)
+            this.PathHash = br.ReadUInt32();
+
         this.MinX = br.ReadSingle();
         this.MinZ = br.ReadSingle();
         this.MaxX = br.ReadSingle();
@@ -113,6 +121,8 @@ public class BucketedGeometry
 
     internal void Write(BinaryWriter bw)
     {
+        bw.Write(this.PathHash);
+
         bw.Write(this.MinX);
         bw.Write(this.MinZ);
 

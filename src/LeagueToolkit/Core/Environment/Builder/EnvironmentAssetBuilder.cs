@@ -12,7 +12,7 @@ public sealed class EnvironmentAssetBuilder
 {
     private EnvironmentAssetBakedTerrainSamplers _bakedTerrainSamplers;
     private readonly List<EnvironmentAssetMeshBuilder> _meshes = new();
-    private BucketedGeometry _sceneGraph;
+    private readonly List<BucketedGeometry> _sceneGraphs;
     private readonly List<PlanarReflector> _planarReflectors = new();
 
     private readonly List<VertexBuffer> _vertexBuffers = new();
@@ -32,7 +32,7 @@ public sealed class EnvironmentAssetBuilder
         return new(
             this._bakedTerrainSamplers,
             this._meshes.Select((mesh, id) => mesh.Build(id)),
-            this._sceneGraph,
+            this._sceneGraphs,
             this._planarReflectors,
             this._vertexBuffers,
             this._indexBuffers
@@ -62,14 +62,14 @@ public sealed class EnvironmentAssetBuilder
     }
 
     /// <summary>
-    /// Sets the specified <see cref="BucketedGeometry"/> scene graph to be used by the environment asset
+    /// Adds the specified <see cref="BucketedGeometry"/> scene graph to be used by the environment asset
     /// </summary>
     /// <param name="sceneGraph">The <see cref="BucketedGeometry"/> scene graph to add</param>
     public EnvironmentAssetBuilder WithSceneGraph(BucketedGeometry sceneGraph)
     {
         Guard.IsNotNull(sceneGraph, nameof(sceneGraph));
 
-        this._sceneGraph = sceneGraph;
+        this._sceneGraphs.Add(sceneGraph);
         return this;
     }
 

@@ -338,7 +338,11 @@ namespace LeagueToolkit.IO.MapGeometryFile
             uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
             if (MATERIAL_ADAPTERS.TryGetValue(defaultTechniqueShader, out IMaterialAdapter techniqueAdapter))
             {
-                techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+                try
+                {
+                    techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+                }
+                catch (Exception) { }
             }
             else
             {
