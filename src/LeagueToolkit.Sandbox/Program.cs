@@ -38,22 +38,7 @@ using RigResource = LeagueToolkit.Core.Animation.RigResource;
 namespace LeagueToolkit.Sandbox;
 
 class Program {
-    static void Main(string[] args) {
-        using EnvironmentAsset mgeo = new(File.OpenRead(@"X:\lol\testing\data\maps\mapgeometry\map11\base_srx.mapgeo"));
-        BinTree materialsBin = new(File.OpenRead(@"X:\lol\testing\data\maps\mapgeometry\map11\base_srx.materials.bin"));
-
-        mgeo.ToGltf(materialsBin, new()
-        {
-            MetaEnvironment = MetaEnvironment.Create(
-                Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
-            ),
-            Settings = new() {
-                FlipAcrossX = true,
-                GameDataPath = @"X:\lol\testing",
-                TextureQuality = MapGeometryGltfTextureQuality.High
-            }
-        }).SaveGLB("C:/Users/Filip/Desktop/test.glb");
-    }
+    static async Task Main(string[] args) => await TestMetaRoslynCodegen(@"X:\lol\meta\14.4_meta.json", "Classes.cs");
 
     static void ProfileMetaSerializer() {
         using FileStream animationsBinStream = File.OpenRead(@"X:\lol\game\data\characters\akali\animations\skin0.bin");
@@ -260,10 +245,10 @@ class Program {
         using HttpClient client = new();
 
         byte[] binTypesBuffer = await client.GetByteArrayAsync(
-            "https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/hashes.bintypes.txt"
+            "https://github.com/CommunityDragon/Data/raw/master/hashes/lol/hashes.bintypes.txt"
         );
         byte[] binFieldsBuffer = await client.GetByteArrayAsync(
-            "https://raw.githubusercontent.com/CommunityDragon/CDTB/master/cdragontoolbox/hashes.binfields.txt"
+            "https://github.com/CommunityDragon/Data/raw/master/hashes/lol/hashes.binfields.txt"
         );
 
         File.WriteAllBytes("hashes.bintypes.txt", binTypesBuffer);
