@@ -221,7 +221,16 @@ namespace LeagueToolkit.Meta.Dump
                 name = $"m{name}";
             }
 
-            PropertyDeclarationSyntax propertyDeclaration = PropertyDeclaration(typeSyntax, name)
+            // TODO: this seems to be broken
+            // https://github.com/Crauzer/lolmetadumper3/blob/80ad1f9a957324904b5eecb0dbda9584a33797ac/src/meta_dump.rs#L242
+            //if (@class.Defaults is not null)
+            //{
+            //    propertyDeclaration = propertyDeclaration
+            //        .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property))
+            //        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            //}
+
+            return PropertyDeclaration(typeSyntax, name)
                 // Add attribute
                 .WithAttributeLists(CreatePropertyAttributesSyntax(propertyHash, property, classes, properties))
                 // Add visibility
@@ -240,15 +249,6 @@ namespace LeagueToolkit.Meta.Dump
                         )
                     )
                 );
-
-            if (@class.Defaults is not null)
-            {
-                propertyDeclaration = propertyDeclaration
-                    .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property))
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-            }
-
-            return propertyDeclaration;
         }
 
         /* ---------------------------- PROPERTY ATTRIBUTE CREATION ----------------------------- */
