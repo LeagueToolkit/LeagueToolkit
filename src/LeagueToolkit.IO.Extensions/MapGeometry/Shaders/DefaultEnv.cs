@@ -1,4 +1,8 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.MapGeometryFile;
@@ -6,10 +10,6 @@ using LeagueToolkit.Meta.Classes;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.IO;
-using System.Linq;
-using System.Numerics;
 using GltfImage = SharpGLTF.Schema2.Image;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
@@ -40,8 +40,8 @@ internal sealed class DefaultEnv : IMaterialAdapter
         StaticMaterialPassDef passDef = techniqueDef.Passes.FirstOrDefault() ?? new(new());
 
         // Try to get alpha cutoff, if it doesn't exist then assign default one
-        StaticMaterialShaderParamDef alphaCutoffParameter = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Overlay_TEST"
+        StaticMaterialShaderParamDef alphaCutoffParameter = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Overlay_TEST"
         );
 
         if (alphaCutoffParameter is not null)
@@ -72,8 +72,8 @@ internal sealed class DefaultEnv : IMaterialAdapter
         Guard.IsNotNull(materialDef, nameof(materialDef));
 
         // Resolve diffuse sampler definition, return if not found
-        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "DiffuseTexture"
+        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.SamplerName is "DiffuseTexture"
         );
         if (samplerDef is null)
             return;
@@ -81,10 +81,13 @@ internal sealed class DefaultEnv : IMaterialAdapter
         // Figure out texcoord id and sampler transform
         int texcoordId = 0;
         EnvironmentAssetChannel sampler = new();
-        if (!string.IsNullOrEmpty(mesh.BakedPaint.Texture))
+        var bakedPaintTexture = mesh
+            .BakedPaintChannelDefs.FirstOrDefault(new EnvironmentAssetBakedPaintChannelDef(0, string.Empty))
+            .Texture;
+        if (!string.IsNullOrEmpty(bakedPaintTexture))
         {
             texcoordId = 1;
-            sampler = mesh.BakedPaint;
+            sampler = new(bakedPaintTexture, mesh.BakedPaintScale, mesh.BakedPaintBias);
         }
         else if (!string.IsNullOrEmpty(samplerDef.TextureName))
         {
@@ -121,11 +124,11 @@ internal sealed class DefaultEnv : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        StaticMaterialShaderParamDef emissiveColorParamDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Emissive_Color"
+        StaticMaterialShaderParamDef emissiveColorParamDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Emissive_Color"
         );
-        StaticMaterialShaderParamDef emissiveIntensityParamDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Emissive_Intensity"
+        StaticMaterialShaderParamDef emissiveIntensityParamDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Emissive_Intensity"
         );
 
         MaterialChannel emissiveChannel = gltfMaterial.FindChannel("Emissive").Value;
@@ -152,8 +155,8 @@ internal sealed class DefaultEnv : IMaterialAdapter
     )
     {
         // Find specular glossiness sampler
-        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "Material"
+        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.SamplerName is "Material"
         );
         MaterialChannel channel = gltfMaterial.FindChannel("MetallicRoughness").Value;
 
@@ -165,13 +168,13 @@ internal sealed class DefaultEnv : IMaterialAdapter
         }
 
         // Resolve gloss factor parameter
-        StaticMaterialShaderParamDef glossParamDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Gloss"
+        StaticMaterialShaderParamDef glossParamDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Gloss"
         );
 
         // Resolve specular factor parameter
-        StaticMaterialShaderParamDef specularFactorParamDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "SpecularColor_Multiplier"
+        StaticMaterialShaderParamDef specularFactorParamDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "SpecularColor_Multiplier"
         );
 
         // Convert specular glossiness map to roughness

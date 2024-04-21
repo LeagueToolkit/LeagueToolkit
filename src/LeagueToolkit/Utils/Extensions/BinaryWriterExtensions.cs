@@ -1,6 +1,6 @@
-﻿using LeagueToolkit.Core.Primitives;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.Utils.Extensions;
 
@@ -72,6 +72,15 @@ internal static class BinaryWriterExtensions
     {
         writer.WriteVector3(sphere.Position);
         writer.Write(sphere.Radius);
+    }
+
+    public static void WriteSizedString(this BinaryWriter writer, string value)
+    {
+        writer.Write(value?.Length ?? 0);
+        if (value is not null)
+        {
+            writer.Write(value.AsSpan());
+        }
     }
 
     public static void WritePaddedString(this BinaryWriter writer, string value, int length)
