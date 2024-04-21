@@ -1,8 +1,8 @@
-﻿using LeagueToolkit.Core.Primitives;
+﻿using System.Numerics;
+using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
-using System.Numerics;
 
-namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
+namespace LeagueToolkit.Core.Environment;
 
 internal class QuadTreeNode
 {

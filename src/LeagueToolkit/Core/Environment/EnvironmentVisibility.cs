@@ -4,7 +4,7 @@
 /// Used for specifying the visibility of environment objects
 /// </summary>
 [Flags]
-public enum EnvironmentVisibility : byte
+public enum EnvironmentVisibility : ushort
 {
     /// <summary>
     /// Not visible on any layer

@@ -1,8 +1,8 @@
-﻿using LeagueToolkit.Core.Memory;
+﻿using System.Numerics;
+using System.Text;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
-using System.Numerics;
-using System.Text;
 
 namespace LeagueToolkit.Core.Environment;
 
@@ -33,7 +33,7 @@ public sealed class EnvironmentAssetMesh
     /// Gets a read-only collection of the mesh's primitives
     /// </summary>
     public IReadOnlyList<EnvironmentAssetMeshPrimitive> Submeshes => this._submeshes;
-    private readonly List<EnvironmentAssetMeshPrimitive> _submeshes = new();
+    private readonly List<EnvironmentAssetMeshPrimitive> _submeshes = [];
 
     /// <summary>
     /// Gets the path hash of the scene graph that this mesh belongs to
@@ -94,9 +94,11 @@ public sealed class EnvironmentAssetMesh
     /// <remarks>Usually contains a lightmap texture (baked from scene point lights)</remarks>
     public EnvironmentAssetChannel BakedLight { get; private set; }
 
-    /// <summary>Gets the <c>"BAKED_PAINT"</c> sampler data</summary>
-    /// <remarks>Usually contains a texture with baked diffuse and lightmap data</remarks>
-    public EnvironmentAssetChannel BakedPaint { get; private set; }
+    public IReadOnlyList<EnvironmentAssetBakedPaintChannelDef> BakedPaintChannelDefs => _bakedPaintChannelDefs;
+    private readonly List<EnvironmentAssetBakedPaintChannelDef> _bakedPaintChannelDefs = [];
+
+    public Vector2 BakedPaintScale { get; private set; }
+    public Vector2 BakedPaintBias { get; private set; }
 
     internal int _baseVertexBufferDescriptionId;
     internal int[] _vertexBufferIds;
@@ -120,7 +122,9 @@ public sealed class EnvironmentAssetMesh
         EnvironmentAssetMeshRenderFlags renderFlags,
         EnvironmentAssetChannel stationaryLight,
         EnvironmentAssetChannel bakedLight,
-        EnvironmentAssetChannel bakedPaint
+        IEnumerable<EnvironmentAssetBakedPaintChannelDef> bakedPaintChannelDefs,
+        Vector2 bakedPaintScale,
+        Vector2 bakedPaintBias
     )
     {
         this.Name = CreateName(id);
@@ -139,7 +143,9 @@ public sealed class EnvironmentAssetMesh
 
         this.StationaryLight = stationaryLight;
         this.BakedLight = bakedLight;
-        this.BakedPaint = bakedPaint;
+        this._bakedPaintChannelDefs = new(bakedPaintChannelDefs);
+        this.BakedPaintScale = bakedPaintScale;
+        this.BakedPaintBias = bakedPaintBias;
 
         this.BoundingBox = Box.FromVertices(vertexBufferView.GetAccessor(ElementName.Position).AsVector3Array());
     }
@@ -151,7 +157,7 @@ public sealed class EnvironmentAssetMesh
         IReadOnlyList<VertexBufferDescription> vertexDeclarations,
         IReadOnlyList<long> vertexBufferOffsets,
         bool useSeparatePointLights,
-        uint version
+        int version
     )
     {
         this.Name = version <= 11 ? Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32())) : CreateName(id);
@@ -168,7 +174,7 @@ public sealed class EnvironmentAssetMesh
         for (int i = 0; i < vertexDeclarationCount; i++)
         {
             int vertexBufferId = br.ReadInt32();
-            vertexBufferViews[i] = environmentAsset.ReflectVertexBuffer(
+            vertexBufferViews[i] = environmentAsset.ProvideVertexBuffer(
                 vertexBufferId,
                 vertexDeclarations[vertexDeclarationId + i],
                 vertexCount,
@@ -181,12 +187,16 @@ public sealed class EnvironmentAssetMesh
 
         uint indexCount = br.ReadUInt32();
         int indexBufferId = br.ReadInt32();
-        this.Indices = environmentAsset.ReflectIndexBuffer(indexBufferId);
+        this.Indices = environmentAsset.ProvideIndexBuffer(indexBufferId);
 
         if (version >= 13)
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
 
-        this.SceneGraphPathHash = br.ReadUInt32();
+        if (version >= 15)
+        {
+            this.SceneGraphPathHash = br.ReadUInt32();
+        }
+
         uint submeshCount = br.ReadUInt32();
         for (int i = 0; i < submeshCount; i++)
             this._submeshes.Add(new(br));
@@ -201,11 +211,21 @@ public sealed class EnvironmentAssetMesh
         if (version >= 7 && version <= 12)
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
 
-        if (version >= 14)
-            this.LayerTransitionBehavior = (EnvironmentVisibilityTransitionBehavior)br.ReadByte();
-
-        if (version >= 11)
+        if (version >= 11 && version < 14)
+        {
             this.RenderFlags = (EnvironmentAssetMeshRenderFlags)br.ReadByte();
+            this.LayerTransitionBehavior = this.RenderFlags.HasFlag(EnvironmentAssetMeshRenderFlags.IsDecal)
+                ? EnvironmentVisibilityTransitionBehavior.TurnVisibleDoesMatchNewLayerFilter
+                : EnvironmentVisibilityTransitionBehavior.Unaffected;
+        }
+        else if (version >= 14)
+        {
+            this.LayerTransitionBehavior = (EnvironmentVisibilityTransitionBehavior)br.ReadByte();
+            this.RenderFlags =
+                version < 16
+                    ? (EnvironmentAssetMeshRenderFlags)br.ReadByte()
+                    : (EnvironmentAssetMeshRenderFlags)br.ReadUInt16();
+        }
 
         if (useSeparatePointLights && version < 7)
             this.PointLight = br.ReadVector3();
@@ -217,14 +237,28 @@ public sealed class EnvironmentAssetMesh
                 this._sphericalHarmonics[i] = br.ReadVector3();
 
             this.BakedLight = EnvironmentAssetChannel.Read(br);
+            return;
         }
-        else
-        {
-            this.BakedLight = EnvironmentAssetChannel.Read(br);
-            this.StationaryLight = EnvironmentAssetChannel.Read(br);
 
-            if (version >= 12)
-                this.BakedPaint = EnvironmentAssetChannel.Read(br);
+        this.BakedLight = EnvironmentAssetChannel.Read(br);
+        this.StationaryLight = EnvironmentAssetChannel.Read(br);
+
+        if (version >= 12 && version < 17)
+        {
+            var bakedPaint = EnvironmentAssetChannel.Read(br);
+            this._bakedPaintChannelDefs.Add(new(0, bakedPaint.Texture));
+        }
+
+        if (version >= 17)
+        {
+            var bakedPaintDefCount = br.ReadInt32();
+            for (int i = 0; i < bakedPaintDefCount; i++)
+            {
+                this._bakedPaintChannelDefs.Add(EnvironmentAssetBakedPaintChannelDef.Read(br));
+            }
+
+            this.BakedPaintScale = br.ReadVector2();
+            this.BakedPaintBias = br.ReadVector2();
         }
     }
 
@@ -233,7 +267,7 @@ public sealed class EnvironmentAssetMesh
         bw.Write(this.VerticesView.VertexCount);
         bw.Write(this._vertexBufferIds.Length);
         bw.Write(this._baseVertexBufferDescriptionId);
-        foreach (int vertexBufferId in this._vertexBufferIds)
+        foreach (var vertexBufferId in this._vertexBufferIds)
             bw.Write(vertexBufferId);
 
         bw.Write(this.Indices.Count);
@@ -243,7 +277,7 @@ public sealed class EnvironmentAssetMesh
         bw.Write(this.SceneGraphPathHash);
 
         bw.Write(this._submeshes.Count);
-        foreach (EnvironmentAssetMeshPrimitive submesh in this._submeshes)
+        foreach (var submesh in this._submeshes)
             submesh.Write(bw);
 
         bw.Write(this.DisableBackfaceCulling);
@@ -252,11 +286,14 @@ public sealed class EnvironmentAssetMesh
 
         bw.Write((byte)this.EnvironmentQualityFilter);
         bw.Write((byte)this.LayerTransitionBehavior);
-        bw.Write((byte)this.RenderFlags);
+        bw.Write((ushort)this.RenderFlags);
 
         this.BakedLight.Write(bw);
         this.StationaryLight.Write(bw);
-        this.BakedPaint.Write(bw);
+
+        bw.Write(this._bakedPaintChannelDefs.Count);
+        foreach (var bakedPaintChannelDef in this._bakedPaintChannelDefs)
+            bakedPaintChannelDef.Write(bw);
     }
 
     /// <summary>
@@ -293,20 +330,19 @@ public enum EnvironmentQuality : byte
 /// General render flags
 /// </summary>
 [Flags]
-public enum EnvironmentAssetMeshRenderFlags : byte
+public enum EnvironmentAssetMeshRenderFlags : ushort
 {
     Default = 0,
 
     /// <summary>
     /// The renderer will treat the <see cref="EnvironmentAssetMesh"/> as a decal
     /// </summary>
-    Decal = 1 << 0,
+    IsDecal = 1,
 
     /// <summary>
-    /// ⚠️ SPECULATIVE ⚠️<br></br>
     /// Tells the renderer to render distortion effects of a mesh's material into a separate buffer
     /// </summary>
-    UseEnvironmentDistortionEffectBuffer = 1 << 1,
+    HasEnvironmentDistortion = 2,
 
     /// <summary>
     /// Mesh will be rendered only if "Hide Eye Candy" option is unchecked
@@ -314,7 +350,7 @@ public enum EnvironmentAssetMeshRenderFlags : byte
     /// <remarks>
     /// If no eye candy flag is set, the mesh will always be rendered
     /// </remarks>
-    RenderOnlyIfEyeCandyOn = 1 << 2, // (meshTypeFlags & 4) == 0 || envSettingsFlags)
+    RenderOnlyIfEyeCandyOn = 4,
 
     /// <summary>
     /// Mesh will be rendered only if "Hide Eye Candy" option is checked
@@ -322,7 +358,15 @@ public enum EnvironmentAssetMeshRenderFlags : byte
     /// <remarks>
     /// If no eye candy flag is set, the mesh will always be rendered
     /// </remarks>
-    RenderOnlyIfEyeCandyOff = 1 << 3 // ((meshTypeFlags & 8) == 0 || envSettingsFlags != 1)
+    RenderOnlyIfEyeCandyOff = 8,
+
+    CreateShadowBuffer = 16,
+    CreateShadowMapMaterial = 32,
+    UnkCreateDepthBuffer2 = 64,
+    CreateDepthBuffer = 128,
+
+    CreateShadowTransitionBuffer =
+        CreateShadowBuffer | CreateShadowMapMaterial | UnkCreateDepthBuffer2 | CreateDepthBuffer
 }
 
 public enum EnvironmentVisibilityTransitionBehavior

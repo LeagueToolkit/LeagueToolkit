@@ -10,7 +10,7 @@ namespace LeagueToolkit.Core.Environment.Builder;
 /// <summary>Exposes an API for building a <see cref="EnvironmentAsset"/> object</summary>
 public sealed class EnvironmentAssetBuilder
 {
-    private EnvironmentAssetBakedTerrainSamplers _bakedTerrainSamplers;
+    private readonly List<EnvironmentAssetSamplerDef> _samplerDefs = new();
     private readonly List<EnvironmentAssetMeshBuilder> _meshes = new();
     private readonly List<BucketedGeometry> _sceneGraphs;
     private readonly List<PlanarReflector> _planarReflectors = new();
@@ -30,7 +30,7 @@ public sealed class EnvironmentAssetBuilder
     public EnvironmentAsset Build()
     {
         return new(
-            this._bakedTerrainSamplers,
+            this._samplerDefs,
             this._meshes.Select((mesh, id) => mesh.Build(id)),
             this._sceneGraphs,
             this._planarReflectors,
@@ -40,12 +40,12 @@ public sealed class EnvironmentAssetBuilder
     }
 
     /// <summary>
-    /// Sets the specified <see cref="EnvironmentAssetBakedTerrainSamplers"/> to be used by the environment asset
+    /// Adds the specified <see cref="EnvironmentAssetSamplerDef"/> into the environment asset
     /// </summary>
-    /// <param name="bakedTerrainSamplers">The <see cref="EnvironmentAssetBakedTerrainSamplers"/> to use</param>
-    public EnvironmentAssetBuilder WithBakedTerrainSamplers(EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers)
+    /// <param name="samplerDef">The <see cref="EnvironmentAssetSamplerDef"/> to add</param>
+    public EnvironmentAssetBuilder WithSamplerDef(EnvironmentAssetSamplerDef samplerDef)
     {
-        this._bakedTerrainSamplers = bakedTerrainSamplers;
+        this._samplerDefs.Add(samplerDef);
         return this;
     }
 

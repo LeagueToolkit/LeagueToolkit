@@ -1,10 +1,11 @@
-﻿using LeagueToolkit.Core.Memory;
+﻿using System.Diagnostics;
+using System.Numerics;
+using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
-using System.Diagnostics;
-using System.Numerics;
+using static LeagueToolkit.Core.Environment.SimpleEnvironment;
 
-namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
+namespace LeagueToolkit.Core.Environment;
 
 [DebuggerDisplay("Type: {Type} Flags: {Flags}", Name = "{Name}")]
 internal readonly struct SimpleEnvironmentMaterial
