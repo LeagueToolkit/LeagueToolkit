@@ -28,4 +28,7 @@
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LeagueToolkit\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
 </Project>

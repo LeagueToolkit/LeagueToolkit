@@ -1,10 +1,19 @@
-﻿using BCnEncoder.Shared;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Memory;
+using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Hashing;
+using LeagueToolkit.IO.Extensions.MapGeometry;
+using LeagueToolkit.IO.Extensions.MapGeometry.Shaders;
+using LeagueToolkit.IO.Extensions.Utils;
 using LeagueToolkit.Meta;
 using LeagueToolkit.Meta.Classes;
 using LeagueToolkit.Toolkit;
@@ -12,12 +21,8 @@ using SharpGLTF.IO;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
 using GltfImage = SharpGLTF.Schema2.Image;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
@@ -25,11 +30,6 @@ using VisibilityNodeRegistry = System.Collections.Generic.Dictionary<
     LeagueToolkit.Core.Environment.EnvironmentVisibility,
     SharpGLTF.Schema2.Node
 >;
-using LeagueToolkit.IO.Extensions.Utils;
-using LeagueToolkit.Core.Meta;
-using SixLabors.ImageSharp.Advanced;
-using LeagueToolkit.IO.Extensions.MapGeometry;
-using LeagueToolkit.IO.Extensions.MapGeometry.Shaders;
 
 namespace LeagueToolkit.IO.MapGeometryFile
 {
@@ -141,7 +141,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 // Create materials
                 Dictionary<string, Material> materials = CreateGltfMeshMaterials(
                     mesh,
-                    mapGeometry.BakedTerrainSamplers,
+                    mapGeometry.SamplerDefs.ToList(),
                     root,
                     materialsBin,
                     textureRegistry,
@@ -189,8 +189,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
 
             gltfMesh.Extras = JsonContent.Serialize(CreateGltfMeshExtras(mesh));
 
-            MemoryAccessor[] meshVertexMemoryAccessors = mesh.VerticesView.Buffers
-                .SelectMany(GltfUtils.CreateVertexMemoryAccessors)
+            MemoryAccessor[] meshVertexMemoryAccessors = mesh
+                .VerticesView.Buffers.SelectMany(GltfUtils.CreateVertexMemoryAccessors)
                 .ToArray();
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
             GltfUtils.SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
@@ -228,7 +228,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 QualityFlags = (int)mesh.EnvironmentQualityFilter,
                 StationaryLight = mesh.StationaryLight,
                 BakedLight = mesh.BakedLight,
-                BakedPaint = mesh.BakedPaint,
+                BakedPaint = new(
+                    mesh.BakedPaintChannelDefs.FirstOrDefault(
+                        new EnvironmentAssetBakedPaintChannelDef(0, string.Empty)
+                    ).Texture,
+                    mesh.BakedPaintScale,
+                    mesh.BakedPaintBias
+                ),
             };
 
         private static void PlaceGltfMeshIntoScene(
@@ -283,7 +289,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         #region Material Creation
         private static Dictionary<string, Material> CreateGltfMeshMaterials(
             EnvironmentAssetMesh mesh,
-            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
+            List<EnvironmentAssetSamplerDef> samplerDefs,
             ModelRoot root,
             BinTree materialsBin,
             TextureRegistry textureRegistry,
@@ -302,7 +308,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
                     .WithPBRMetallicRoughness()
                     .WithDoubleSide(mesh.DisableBackfaceCulling);
 
-                InitializeMaterial(material, mesh, bakedTerrainSamplers, root, materialsBin, textureRegistry, context);
+                InitializeMaterial(material, mesh, samplerDefs, root, materialsBin, textureRegistry, context);
 
                 materials.TryAdd(material.Name, material);
             }
@@ -313,7 +319,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private static void InitializeMaterial(
             Material gltfMaterial,
             EnvironmentAssetMesh mesh,
-            EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
+            List<EnvironmentAssetSamplerDef> samplerDefs,
             ModelRoot root,
             BinTree materialsBin,
             TextureRegistry textureRegistry,
@@ -340,7 +346,14 @@ namespace LeagueToolkit.IO.MapGeometryFile
             {
                 try
                 {
-                    techniqueAdapter.InitializeMaterial(gltfMaterial, materialDef, mesh, textureRegistry, root, context);
+                    techniqueAdapter.InitializeMaterial(
+                        gltfMaterial,
+                        materialDef,
+                        mesh,
+                        textureRegistry,
+                        root,
+                        context
+                    );
                 }
                 catch (Exception) { }
             }

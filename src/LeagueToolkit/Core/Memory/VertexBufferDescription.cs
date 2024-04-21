@@ -45,7 +45,7 @@ namespace LeagueToolkit.Core.Memory
             this.DescriptionFlags = GetElementFlags(this._elements.Select(elem => elem.Name));
         }
 
-        internal static VertexBufferDescription ReadFromMapGeometry(BinaryReader br)
+        internal static VertexBufferDescription ReadFromMapGeometry(BinaryReader br, int version)
         {
             VertexBufferUsage usage = (VertexBufferUsage)br.ReadUInt32();
             uint vertexElementCount = br.ReadUInt32();
@@ -66,7 +66,6 @@ namespace LeagueToolkit.Core.Memory
 
         internal void WriteToMapGeometry(BinaryWriter bw)
         {
-            bw.Write((uint)this.Usage);
             bw.Write(this._elements.Length);
 
             foreach (VertexElement vertexElement in this._elements)

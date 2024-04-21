@@ -1,30 +1,26 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System.Numerics;
+using System.Text;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
-using LeagueToolkit.Core.Environment.Builder;
-using LeagueToolkit.Core.Environment.SimpleEnvironment;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Core.SceneGraph;
 using LeagueToolkit.Utils.Exceptions;
 using LeagueToolkit.Utils.Extensions;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LeagueToolkit.Core.Environment;
 
 /// <summary>Represents an environment asset</summary>
 public sealed class EnvironmentAsset : IDisposable
 {
-    /// <summary>Gets the baked terrain samplers used for this environment asset</summary>
-    public EnvironmentAssetBakedTerrainSamplers BakedTerrainSamplers { get; private set; }
+    /// <summary>Gets the sampler defs used for this environment asset</summary>
+    public IReadOnlyList<EnvironmentAssetSamplerDef> SamplerDefs => this._samplerDefs;
+    private readonly List<EnvironmentAssetSamplerDef> _samplerDefs = new();
 
     /// <summary>Gets a read-only list of the meshes used by this environment asset</summary>
     public IReadOnlyList<EnvironmentAssetMesh> Meshes => this._meshes;
     private readonly List<EnvironmentAssetMesh> _meshes = new();
-
-    public int Unk1 { get; private set; }
 
     /// <summary>Gets the <see cref="BucketedGeometry"/> scene graph for the environment asset</summary>
     public IReadOnlyList<BucketedGeometry> SceneGraphs => this._sceneGraphs;
@@ -40,7 +36,7 @@ public sealed class EnvironmentAsset : IDisposable
     public bool IsDisposed { get; private set; }
 
     internal EnvironmentAsset(
-        EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers,
+        IEnumerable<EnvironmentAssetSamplerDef> samplerDefs,
         IEnumerable<EnvironmentAssetMesh> meshes,
         IEnumerable<BucketedGeometry> sceneGraphs,
         IEnumerable<PlanarReflector> planarReflectors,
@@ -54,7 +50,7 @@ public sealed class EnvironmentAsset : IDisposable
         Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
         Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
 
-        this.BakedTerrainSamplers = bakedTerrainSamplers;
+        this._samplerDefs = new(samplerDefs);
         this._meshes = new(meshes);
         this._sceneGraphs = new(sceneGraphs);
         this._planarReflectors = new(planarReflectors);
@@ -77,19 +73,19 @@ public sealed class EnvironmentAsset : IDisposable
         if (magic != "OEGM")
             throw new InvalidFileSignatureException();
 
-        uint version = br.ReadUInt32();
-        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14 or 15))
+        var version = br.ReadInt32();
+        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14 or 15 or 17))
             throw new InvalidFileVersionException();
 
         bool useSeparatePointLights = version < 7 && br.ReadBoolean();
 
-        ReadBakedTerrainSamplers(br, version);
+        ReadSamplerDefs(br, version);
 
         // Read vertex declarations
         uint vertexDeclarationCount = br.ReadUInt32();
         VertexBufferDescription[] vertexDeclarations = new VertexBufferDescription[vertexDeclarationCount];
         for (int i = 0; i < vertexDeclarationCount; i++)
-            vertexDeclarations[i] = VertexBufferDescription.ReadFromMapGeometry(br);
+            vertexDeclarations[i] = VertexBufferDescription.ReadFromMapGeometry(br, version);
 
         // Reading of vertex buffers is deferred until we start reading meshes
         uint vertexBufferCount = br.ReadUInt32();
@@ -143,9 +139,8 @@ public sealed class EnvironmentAsset : IDisposable
         }
         else
         {
-            this._sceneGraphs = new() { new(br) };
+            this._sceneGraphs = new() { new(br, legacy: true) };
         }
-
 
         if (version >= 13)
         {
@@ -156,20 +151,25 @@ public sealed class EnvironmentAsset : IDisposable
         }
     }
 
-    internal void ReadBakedTerrainSamplers(BinaryReader br, uint version)
+    internal void ReadSamplerDefs(BinaryReader br, int version)
     {
-        EnvironmentAssetBakedTerrainSamplers bakedTerrainSamplers = new();
+        if (version >= 17)
+        {
+            int count = br.ReadInt32();
+            for (int i = 0; i < count; i++)
+                this._samplerDefs.Add(EnvironmentAssetSamplerDef.Read(br));
+
+            return;
+        }
 
         if (version >= 9)
-            bakedTerrainSamplers.Primary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+            this._samplerDefs.Add(new(0, br.ReadSizedString()));
 
         if (version >= 11)
-            bakedTerrainSamplers.Secondary = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-
-        this.BakedTerrainSamplers = bakedTerrainSamplers;
+            this._samplerDefs.Add(new(1, br.ReadSizedString()));
     }
 
-    internal IVertexBufferView ReflectVertexBuffer(
+    internal IVertexBufferView ProvideVertexBuffer(
         int id,
         VertexBufferDescription description,
         int vertexCount,
@@ -196,7 +196,7 @@ public sealed class EnvironmentAsset : IDisposable
         return vertexBuffer;
     }
 
-    internal IndexArray ReflectIndexBuffer(int id) => this._indexBuffers[id].AsArray();
+    internal IndexArray ProvideIndexBuffer(int id) => this._indexBuffers[id].AsArray();
 
     /// <summary>
     /// Writes this <see cref="EnvironmentAsset"/> instance into <paramref name="stream"/>
@@ -208,12 +208,11 @@ public sealed class EnvironmentAsset : IDisposable
         using BinaryWriter bw = new(stream, Encoding.UTF8, true);
 
         bw.Write(Encoding.ASCII.GetBytes("OEGM"));
-        bw.Write(15);
+        bw.Write(17);
 
-        WriteSampler(bw, this.BakedTerrainSamplers.Primary);
-        WriteSampler(bw, this.BakedTerrainSamplers.Secondary);
+        WriteSamplers(bw);
 
-        List<VertexBufferDescription> vertexDeclarations = GenerateVertexBufferDescriptions();
+        var vertexDeclarations = GenerateVertexBufferDescriptions();
         bw.Write(vertexDeclarations.Count);
         foreach (VertexBufferDescription vertexDeclaration in vertexDeclarations)
             vertexDeclaration.WriteToMapGeometry(bw);
@@ -242,8 +241,8 @@ public sealed class EnvironmentAsset : IDisposable
         foreach (EnvironmentAssetMesh mesh in this.Meshes)
         {
             // Find base descriptor index, if it doesn't exist, create it
-            IEnumerable<VertexBufferDescription> meshDescriptions = mesh.VerticesView.Buffers.Select(
-                buffer => buffer.Description
+            IEnumerable<VertexBufferDescription> meshDescriptions = mesh.VerticesView.Buffers.Select(buffer =>
+                buffer.Description
             );
             int baseDescriptionId = descriptions.IndexOf(meshDescriptions);
             if (baseDescriptionId == -1)
@@ -258,16 +257,12 @@ public sealed class EnvironmentAsset : IDisposable
         return descriptions;
     }
 
-    private static void WriteSampler(BinaryWriter bw, string sampler)
+    private void WriteSamplers(BinaryWriter bw)
     {
-        if (string.IsNullOrEmpty(sampler))
+        bw.Write(this._samplerDefs.Count);
+        foreach (var sampler in this._samplerDefs)
         {
-            bw.Write(0); // Length
-        }
-        else
-        {
-            bw.Write(sampler.Length);
-            bw.Write(Encoding.ASCII.GetBytes(sampler));
+            sampler.Write(bw);
         }
     }
 
@@ -366,264 +361,6 @@ public sealed class EnvironmentAsset : IDisposable
         };
     }
 
-    #region World Geometry
-    /// <summary>
-    /// Reads a World Geometry (.wgeo) file from the specified stream
-    /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <returns>The created <see cref="EnvironmentAsset"/> object</returns>
-    public static EnvironmentAsset LoadWorldGeometry(Stream stream)
-    {
-        using BinaryReader br = new(stream, Encoding.UTF8, true);
-
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
-        if (magic is not "WGEO")
-            throw new InvalidFileSignatureException();
-
-        // I'm pretty sure there was version 6 for a short while before the transition to mapgeo
-        uint version = br.ReadUInt32();
-        if (version is not (5 or 4))
-            throw new InvalidFileVersionException();
-
-        int modelCount = br.ReadInt32();
-        uint faceCount = br.ReadUInt32();
-
-        List<VertexBuffer> vertexBuffers = new(modelCount);
-        List<IndexBuffer> indexBuffers = new(modelCount);
-        EnvironmentAssetMesh[] meshes = new EnvironmentAssetMesh[modelCount];
-
-        for (int i = 0; i < modelCount; i++)
-            meshes[i] = ReadWorldGeometryMesh(br, i, vertexBuffers, indexBuffers);
-
-        BucketedGeometry[] sceneGraphs = {
-            version switch
-            {
-                5 => new(br, legacy: true),
-                _ => new()
-            }
-        };
-
-        return new(new(), meshes, sceneGraphs, Array.Empty<PlanarReflector>(), vertexBuffers, indexBuffers);
-    }
-
-    private static EnvironmentAssetMesh ReadWorldGeometryMesh(
-        BinaryReader br,
-        int id,
-        List<VertexBuffer> vertexBuffers,
-        List<IndexBuffer> indexBuffers
-    )
-    {
-        string texture = br.ReadPaddedString(260);
-        string material = br.ReadPaddedString(64);
-        Sphere sphere = br.ReadSphere();
-        Box aabb = br.ReadBox();
-
-        int vertexCount = br.ReadInt32();
-        int indexCount = br.ReadInt32();
-
-        // Create vertex buffer memory
-        VertexBufferDescription vertexDeclaration =
-            new(VertexBufferUsage.Static, BakedEnvironmentVertexDescription.BASIC);
-        int vertexSize = vertexDeclaration.GetVertexSize();
-        MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(vertexCount * vertexSize);
-
-        // Create index buffer memory
-        IndexFormat indexFormat = indexCount <= ushort.MaxValue + 1 ? IndexFormat.U16 : IndexFormat.U32;
-        int indexFormatSize = IndexBuffer.GetFormatSize(indexFormat);
-        MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(indexCount * indexFormatSize);
-
-        // Read buffers
-        br.Read(vertexBufferOwner.Span);
-        br.Read(indexBufferOwner.Span);
-
-        // Create buffers
-        IndexBuffer indexBuffer = IndexBuffer.Create(indexFormat, indexBufferOwner);
-        VertexBuffer vertexBuffer = VertexBuffer.Create(
-            VertexBufferUsage.Static,
-            vertexDeclaration.Elements,
-            vertexBufferOwner
-        );
-
-        indexBuffers.Add(indexBuffer);
-        vertexBuffers.Add(vertexBuffer);
-
-        // Create primitive
-        EnvironmentAssetMeshPrimitive[] primitives = new[]
-        {
-            new EnvironmentAssetMeshPrimitive(material, 0, indexCount, 0, vertexCount - 1)
-        };
-
-        return new(
-            id,
-            vertexBuffer,
-            indexBuffer.AsArray(), 0,
-            primitives,
-            Matrix4x4.Identity,
-            disableBackfaceCulling: false,
-            EnvironmentQuality.AllQualities,
-            EnvironmentVisibility.AllLayers,
-            EnvironmentAssetMeshRenderFlags.Default,
-            new(texture, Vector2.One, Vector2.Zero),
-            new(),
-            new()
-        );
-    }
-    #endregion
-
-    #region Simple Environment
-    public static EnvironmentAsset LoadSimpleEnvironment(Stream stream)
-    {
-        using BinaryReader br = new(stream, Encoding.UTF8, true);
-
-        string magic = Encoding.UTF8.GetString(br.ReadBytes(4));
-        if (magic is not "NVR\0")
-            throw new InvalidFileSignatureException();
-
-        ushort major = br.ReadUInt16();
-        ushort minor = br.ReadUInt16();
-
-        int materialsCount = br.ReadInt32();
-        int vertexBufferCount = br.ReadInt32();
-        int indexBufferCount = br.ReadInt32();
-        int meshCount = br.ReadInt32();
-        int nodesCount = br.ReadInt32();
-
-        SimpleEnvironmentMaterial[] materials = new SimpleEnvironmentMaterial[materialsCount];
-        long[] vertexBufferOffsets = new long[vertexBufferCount];
-        IndexBuffer[] nvrIndexBuffers = new IndexBuffer[indexBufferCount];
-        SimpleEnvironmentMesh[] nvrMeshes = new SimpleEnvironmentMesh[meshCount];
-
-        // Read materials
-        for (int i = 0; i < materialsCount; i++)
-        {
-            materials[i] = (major, minor) switch
-            {
-                (8, 1) => SimpleEnvironmentMaterial.ReadOld(br),
-                _ => SimpleEnvironmentMaterial.Read(br)
-            };
-        }
-
-        // Store vertex buffer offsets
-        for (int i = 0; i < vertexBufferCount; i++)
-        {
-            int vertexBufferSize = br.ReadInt32();
-            vertexBufferOffsets[i] = br.BaseStream.Position;
-
-            br.BaseStream.Seek(vertexBufferSize, SeekOrigin.Current);
-        }
-
-        // Read index buffers
-        for (int i = 0; i < indexBufferCount; i++)
-        {
-            int indexBufferSize = br.ReadInt32();
-            int indexFormat = br.ReadInt32();
-            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(indexBufferSize);
-
-            br.Read(indexBufferOwner.Span);
-
-            nvrIndexBuffers[i] = IndexBuffer.Create(
-                indexFormat is 0x65 ? IndexFormat.U16 : IndexFormat.U32,
-                indexBufferOwner
-            );
-        }
-
-        // Read meshes
-        for (int i = 0; i < meshCount; i++)
-        {
-            nvrMeshes[i] = (major, minor) switch
-            {
-                (8, 1) => SimpleEnvironmentMesh.ReadOld(br),
-                _ => SimpleEnvironmentMesh.Read(br)
-            };
-        }
-
-        EnvironmentAssetMesh[] meshes = new EnvironmentAssetMesh[meshCount];
-        VertexBuffer[] meshVertexBuffers = new VertexBuffer[meshCount];
-        IndexBuffer[] meshIndexBuffers = new IndexBuffer[meshCount];
-        for (int meshId = 0; meshId < nvrMeshes.Length; meshId++)
-        {
-            SimpleEnvironmentMesh nvrMesh = nvrMeshes[meshId];
-            SimpleEnvironmentMaterial nvrMeshMaterial = materials[nvrMesh.MaterialId];
-            SimpleEnvironmentMeshPrimitive nvrMeshPrimitive = nvrMesh.Primitives[0];
-            SimpleEnvironmentMeshPrimitive nvrComplexPrimitive = nvrMesh.Primitives[1];
-
-            EnvironmentAssetMeshBuilder meshBuilder = new();
-
-            meshBuilder.WithVisibilityFlags(EnvironmentVisibility.AllLayers);
-
-            if (nvrMeshMaterial.Type is SimpleEnvironmentMaterialType.Decal)
-                meshBuilder.WithRenderFlags(EnvironmentAssetMeshRenderFlags.Decal);
-
-            VertexBufferDescription vertexDeclaration = nvrMeshMaterial.GetVertexDeclaration();
-            MemoryOwner<byte> vertexBufferOwner = MemoryOwner<byte>.Allocate(
-                nvrMeshPrimitive.VertexCount * vertexDeclaration.GetVertexSize()
-            );
-
-            MemoryOwner<byte> indexBufferOwner = MemoryOwner<byte>.Allocate(
-                nvrMeshPrimitive.IndexCount * sizeof(ushort)
-            );
-
-            // Seek to vertex buffer + offset to first vertex
-            br.BaseStream.Seek(
-                vertexBufferOffsets[nvrMeshPrimitive.VertexBufferId]
-                    + (nvrMeshPrimitive.StartVertex * vertexDeclaration.GetVertexSize()),
-                SeekOrigin.Begin
-            );
-            br.Read(vertexBufferOwner.Span);
-
-            // Copy and normalize indices
-            IndexArray nvrMeshIndexArray = nvrIndexBuffers[nvrMeshPrimitive.IndexBufferId]
-                .AsArray()
-                .Slice(nvrMeshPrimitive.StartIndex, nvrMeshPrimitive.IndexCount);
-
-            uint minVertex = nvrMeshIndexArray.Min();
-            for (int i = 0; i < nvrMeshPrimitive.IndexCount; i++)
-            {
-                ushort normalizedIndex = (ushort)(nvrMeshIndexArray[i] - minVertex);
-                MemoryMarshal.Write(indexBufferOwner.Span[(i * sizeof(ushort))..], ref normalizedIndex);
-            }
-
-            VertexBuffer vertexBuffer = VertexBuffer.Create(
-                vertexDeclaration.Usage,
-                vertexDeclaration.Elements,
-                vertexBufferOwner
-            );
-            IndexBuffer indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
-
-            meshVertexBuffers[meshId] = vertexBuffer;
-            meshIndexBuffers[meshId] = indexBuffer;
-            meshes[meshId] = new(
-                meshId,
-                vertexBuffer,
-                indexBuffer.AsArray(),
-                0,
-                new[]
-                {
-                    new EnvironmentAssetMeshPrimitive(
-                        nvrMeshMaterial.GetFormattedName(),
-                        0,
-                        nvrMeshPrimitive.IndexCount,
-                        0,
-                        nvrMeshPrimitive.VertexCount - 1
-                    )
-                },
-                Matrix4x4.Identity,
-                false,
-                EnvironmentQuality.AllQualities,
-                EnvironmentVisibility.AllLayers,
-                nvrMeshMaterial.Type is SimpleEnvironmentMaterialType.Decal
-                    ? EnvironmentAssetMeshRenderFlags.Decal
-                    : EnvironmentAssetMeshRenderFlags.Default,
-                new(nvrMeshMaterial.Channels[0].Texture, Vector2.One, Vector2.Zero),
-                new(),
-                new()
-            );
-        }
-
-        return new(new(), meshes, Array.Empty<BucketedGeometry>(), Array.Empty<PlanarReflector>(), meshVertexBuffers, meshIndexBuffers);
-    }
-    #endregion
-
     #region IDisposable
     public void Dispose()
     {
@@ -654,36 +391,4 @@ public sealed class EnvironmentAsset : IDisposable
         this.IsDisposed = true;
     }
     #endregion
-}
-
-internal static class BakedEnvironmentVertexDescription
-{
-    public static readonly VertexElement[] BASIC = new[] { VertexElement.POSITION, VertexElement.TEXCOORD_0 };
-}
-
-internal static class SimpleEnvironmentVertexDescription
-{
-    public static readonly VertexElement[] DEFAULT = new[]
-    {
-        VertexElement.POSITION,
-        VertexElement.NORMAL,
-        VertexElement.TEXCOORD_0,
-        VertexElement.PRIMARY_COLOR
-    };
-    public static readonly VertexElement[] FOUR_BLEND = new[]
-    {
-        VertexElement.POSITION,
-        VertexElement.NORMAL,
-        VertexElement.TEXCOORD_0,
-        VertexElement.TEXCOORD_7,
-        VertexElement.PRIMARY_COLOR
-    };
-    public static readonly VertexElement[] DUAL_VERTEX_COLOR = new[]
-    {
-        VertexElement.POSITION,
-        VertexElement.NORMAL,
-        VertexElement.TEXCOORD_0,
-        VertexElement.PRIMARY_COLOR,
-        VertexElement.SECONDARY_COLOR
-    };
 }

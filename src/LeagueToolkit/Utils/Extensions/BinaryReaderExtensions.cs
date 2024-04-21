@@ -1,6 +1,6 @@
-﻿using LeagueToolkit.Core.Primitives;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.Utils.Extensions;
 
@@ -59,8 +59,11 @@ internal static class BinaryReaderColorExtensions
         return new(position, radius);
     }
 
+    public static string ReadSizedString(this BinaryReader reader) =>
+        Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadInt32()));
+
     public static string ReadPaddedString(this BinaryReader reader, int length) =>
-        Encoding.ASCII.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
+        Encoding.UTF8.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
 
     public static string ReadNullTerminatedString(this BinaryReader reader)
     {

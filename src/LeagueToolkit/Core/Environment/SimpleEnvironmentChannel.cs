@@ -1,9 +1,9 @@
-﻿using LeagueToolkit.Core.Primitives;
-using LeagueToolkit.Utils.Extensions;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Numerics;
+using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Utils.Extensions;
 
-namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
+namespace LeagueToolkit.Core.Environment;
 
 [DebuggerDisplay("{Name}")]
 internal readonly struct SimpleEnvironmentChannel

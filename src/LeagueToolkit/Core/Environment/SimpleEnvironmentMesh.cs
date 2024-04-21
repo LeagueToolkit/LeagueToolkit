@@ -1,7 +1,7 @@
 ﻿using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
 
-namespace LeagueToolkit.Core.Environment.SimpleEnvironment;
+namespace LeagueToolkit.Core.Environment;
 
 internal readonly struct SimpleEnvironmentMesh
 {

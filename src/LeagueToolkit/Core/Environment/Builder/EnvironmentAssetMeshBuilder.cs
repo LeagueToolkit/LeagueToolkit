@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Memory;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Numerics;
+using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Memory;
 
 namespace LeagueToolkit.Core.Environment.Builder;
 
@@ -21,7 +21,9 @@ public sealed class EnvironmentAssetMeshBuilder
 
     private EnvironmentAssetChannel _stationaryLight;
     private EnvironmentAssetChannel _bakedLight;
-    private EnvironmentAssetChannel _bakedPaint;
+    private EnvironmentAssetBakedPaintChannelDef[] _bakedPaintChannelDefs = [];
+    private Vector2 _bakedPaintScale;
+    private Vector2 _bakedPaintBias;
 
     private EnvironmentAssetMeshPrimitive[] _ranges;
 
@@ -55,7 +57,9 @@ public sealed class EnvironmentAssetMeshBuilder
             this._renderFlags,
             this._stationaryLight,
             this._bakedLight,
-            this._bakedPaint
+            this._bakedPaintChannelDefs,
+            this._bakedPaintScale,
+            this._bakedPaintBias
         );
     }
 
@@ -141,10 +145,16 @@ public sealed class EnvironmentAssetMeshBuilder
         return this;
     }
 
-    /// <summary>Sets the specified Baked Paint sampler for the <see cref="EnvironmentAssetMesh"/></summary>
-    public EnvironmentAssetMeshBuilder WithBakedPaintSampler(EnvironmentAssetChannel bakedPaint)
+    /// <summary>Sets the specified Baked Paint channel defs for the <see cref="EnvironmentAssetMesh"/></summary>
+    public EnvironmentAssetMeshBuilder WithBakedPaintChannelDefs(
+        IEnumerable<EnvironmentAssetBakedPaintChannelDef> bakedPaintChannelDefs,
+        Vector2 scale,
+        Vector2 bias
+    )
     {
-        this._bakedPaint = bakedPaint;
+        this._bakedPaintChannelDefs = bakedPaintChannelDefs.ToArray();
+        this._bakedPaintScale = scale;
+        this._bakedPaintBias = bias;
         return this;
     }
 
