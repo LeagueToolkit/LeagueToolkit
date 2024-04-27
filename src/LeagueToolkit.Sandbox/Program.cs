@@ -41,6 +41,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        ProfileMapgeoToGltf();
+
         foreach (
             var mapgeoPath in Directory.EnumerateFiles(
                 @"X:\lol\game\data\maps\mapgeometry",
