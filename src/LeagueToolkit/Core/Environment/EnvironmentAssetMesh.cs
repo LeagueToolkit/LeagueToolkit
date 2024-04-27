@@ -94,8 +94,8 @@ public sealed class EnvironmentAssetMesh
     /// <remarks>Usually contains a lightmap texture (baked from scene point lights)</remarks>
     public EnvironmentAssetChannel BakedLight { get; private set; }
 
-    public IReadOnlyList<EnvironmentAssetBakedPaintChannelDef> BakedPaintChannelDefs => _bakedPaintChannelDefs;
-    private readonly List<EnvironmentAssetBakedPaintChannelDef> _bakedPaintChannelDefs = [];
+    public IReadOnlyList<EnvironmentAssetMeshTextureOverride> TextureOverrides => _textureOverrides;
+    private readonly List<EnvironmentAssetMeshTextureOverride> _textureOverrides = [];
 
     public Vector2 BakedPaintScale { get; private set; }
     public Vector2 BakedPaintBias { get; private set; }
@@ -122,7 +122,7 @@ public sealed class EnvironmentAssetMesh
         EnvironmentAssetMeshRenderFlags renderFlags,
         EnvironmentAssetChannel stationaryLight,
         EnvironmentAssetChannel bakedLight,
-        IEnumerable<EnvironmentAssetBakedPaintChannelDef> bakedPaintChannelDefs,
+        IEnumerable<EnvironmentAssetMeshTextureOverride> bakedPaintChannelDefs,
         Vector2 bakedPaintScale,
         Vector2 bakedPaintBias
     )
@@ -143,7 +143,7 @@ public sealed class EnvironmentAssetMesh
 
         this.StationaryLight = stationaryLight;
         this.BakedLight = bakedLight;
-        this._bakedPaintChannelDefs = new(bakedPaintChannelDefs);
+        this._textureOverrides = new(bakedPaintChannelDefs);
         this.BakedPaintScale = bakedPaintScale;
         this.BakedPaintBias = bakedPaintBias;
 
@@ -246,15 +246,15 @@ public sealed class EnvironmentAssetMesh
         if (version >= 12 && version < 17)
         {
             var bakedPaint = EnvironmentAssetChannel.Read(br);
-            this._bakedPaintChannelDefs.Add(new(0, bakedPaint.Texture));
+            this._textureOverrides.Add(new(0, bakedPaint.Texture));
         }
 
         if (version >= 17)
         {
-            var bakedPaintDefCount = br.ReadInt32();
-            for (int i = 0; i < bakedPaintDefCount; i++)
+            var textureOverrideCount = br.ReadInt32();
+            for (int i = 0; i < textureOverrideCount; i++)
             {
-                this._bakedPaintChannelDefs.Add(EnvironmentAssetBakedPaintChannelDef.Read(br));
+                this._textureOverrides.Add(EnvironmentAssetMeshTextureOverride.Read(br));
             }
 
             this.BakedPaintScale = br.ReadVector2();
@@ -291,8 +291,8 @@ public sealed class EnvironmentAssetMesh
         this.BakedLight.Write(bw);
         this.StationaryLight.Write(bw);
 
-        bw.Write(this._bakedPaintChannelDefs.Count);
-        foreach (var bakedPaintChannelDef in this._bakedPaintChannelDefs)
+        bw.Write(this._textureOverrides.Count);
+        foreach (var bakedPaintChannelDef in this._textureOverrides)
             bakedPaintChannelDef.Write(bw);
     }
 

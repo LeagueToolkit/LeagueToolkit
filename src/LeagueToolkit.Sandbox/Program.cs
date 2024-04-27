@@ -41,13 +41,22 @@ class Program
 {
     static void Main(string[] args)
     {
-        var texture = LeagueTexture.LoadTex(
-            File.OpenRead(@"X:\lol\temp-dump\map30\assets\maps\bakedpaint\maps\mapgeometry\map30\arenaa\0.tex")
-        );
+        foreach (
+            var mapgeoPath in Directory.EnumerateFiles(
+                @"X:\lol\game\data\maps\mapgeometry",
+                "*.mapgeo",
+                SearchOption.AllDirectories
+            )
+        )
+        {
+            using var environmentAsset = new EnvironmentAsset(File.OpenRead(mapgeoPath));
 
-        texture.Mips[0].ToImage().SaveAsPng("0.tex.png");
-
-        ProfileMapgeoToGltf();
+            var ddffd = environmentAsset.Meshes.Where(x => x.TextureOverrides.Count > 1).ToList();
+            if (ddffd.Count > 1)
+            {
+                ;
+            }
+        }
     }
 
     static void ProfileMetaSerializer()
@@ -311,7 +320,7 @@ class Program
 
         EnvironmentAssetBuilder mapBuilder = new EnvironmentAssetBuilder();
 
-        foreach (var samplerDef in mgeo.SamplerDefs)
+        foreach (var samplerDef in mgeo.ShaderTextureOverrides)
             mapBuilder.WithSamplerDef(samplerDef);
 
         foreach (var sceneGraph in mgeo.SceneGraphs)
@@ -346,7 +355,7 @@ class Program
                 .WithRenderFlags(mesh.RenderFlags)
                 .WithStationaryLightSampler(mesh.StationaryLight)
                 .WithBakedLightSampler(mesh.BakedLight)
-                .WithBakedPaintChannelDefs(mesh.BakedPaintChannelDefs, mesh.BakedPaintScale, mesh.BakedPaintBias)
+                .WithTextureOverrides(mesh.TextureOverrides, mesh.BakedPaintScale, mesh.BakedPaintBias)
                 .WithGeometry(
                     mesh.Submeshes.Select(submesh => new MeshPrimitiveBuilder(
                         EnvironmentAssetMeshPrimitive.MISSING_MATERIAL,
