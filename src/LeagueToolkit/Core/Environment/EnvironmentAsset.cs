@@ -14,9 +14,9 @@ namespace LeagueToolkit.Core.Environment;
 /// <summary>Represents an environment asset</summary>
 public sealed class EnvironmentAsset : IDisposable
 {
-    /// <summary>Gets the sampler defs used for this environment asset</summary>
-    public IReadOnlyList<EnvironmentAssetSamplerDef> SamplerDefs => this._samplerDefs;
-    private readonly List<EnvironmentAssetSamplerDef> _samplerDefs = new();
+    /// <summary>Gets the shader texture overrides used for this environment asset</summary>
+    public IReadOnlyList<EnvironmentAssetShaderTextureOverride> ShaderTextureOverrides => this._shaderTextureOverrides;
+    private readonly List<EnvironmentAssetShaderTextureOverride> _shaderTextureOverrides = new();
 
     /// <summary>Gets a read-only list of the meshes used by this environment asset</summary>
     public IReadOnlyList<EnvironmentAssetMesh> Meshes => this._meshes;
@@ -36,7 +36,7 @@ public sealed class EnvironmentAsset : IDisposable
     public bool IsDisposed { get; private set; }
 
     internal EnvironmentAsset(
-        IEnumerable<EnvironmentAssetSamplerDef> samplerDefs,
+        IEnumerable<EnvironmentAssetShaderTextureOverride> shaderTextureOverrides,
         IEnumerable<EnvironmentAssetMesh> meshes,
         IEnumerable<BucketedGeometry> sceneGraphs,
         IEnumerable<PlanarReflector> planarReflectors,
@@ -50,7 +50,7 @@ public sealed class EnvironmentAsset : IDisposable
         Guard.IsNotNull(vertexBuffers, nameof(vertexBuffers));
         Guard.IsNotNull(indexBuffers, nameof(indexBuffers));
 
-        this._samplerDefs = new(samplerDefs);
+        this._shaderTextureOverrides = new(shaderTextureOverrides);
         this._meshes = new(meshes);
         this._sceneGraphs = new(sceneGraphs);
         this._planarReflectors = new(planarReflectors);
@@ -157,16 +157,16 @@ public sealed class EnvironmentAsset : IDisposable
         {
             int count = br.ReadInt32();
             for (int i = 0; i < count; i++)
-                this._samplerDefs.Add(EnvironmentAssetSamplerDef.Read(br));
+                this._shaderTextureOverrides.Add(EnvironmentAssetShaderTextureOverride.Read(br));
 
             return;
         }
 
         if (version >= 9)
-            this._samplerDefs.Add(new(0, br.ReadSizedString()));
+            this._shaderTextureOverrides.Add(new(0, br.ReadSizedString()));
 
         if (version >= 11)
-            this._samplerDefs.Add(new(1, br.ReadSizedString()));
+            this._shaderTextureOverrides.Add(new(1, br.ReadSizedString()));
     }
 
     internal IVertexBufferView ProvideVertexBuffer(
@@ -259,8 +259,8 @@ public sealed class EnvironmentAsset : IDisposable
 
     private void WriteSamplers(BinaryWriter bw)
     {
-        bw.Write(this._samplerDefs.Count);
-        foreach (var sampler in this._samplerDefs)
+        bw.Write(this._shaderTextureOverrides.Count);
+        foreach (var sampler in this._shaderTextureOverrides)
         {
             sampler.Write(bw);
         }

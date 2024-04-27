@@ -51,9 +51,9 @@ internal readonly struct SimpleEnvironmentMaterial
         string diffuseName = br.ReadPaddedString(260);
         channels[0] = new(diffuseName, diffuseColor, Matrix4x4.Identity);
 
-        Color emmisiveColor = br.ReadColor(ColorFormat.RgbaF32);
+        Color emissiveColor = br.ReadColor(ColorFormat.RgbaF32);
         string emissiveName = br.ReadPaddedString(260);
-        channels[1] = new(emissiveName, emmisiveColor, Matrix4x4.Identity);
+        channels[1] = new(emissiveName, emissiveColor, Matrix4x4.Identity);
 
         return new(name, type, 0, channels);
     }
