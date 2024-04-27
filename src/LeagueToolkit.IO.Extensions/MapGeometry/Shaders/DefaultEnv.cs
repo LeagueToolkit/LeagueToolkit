@@ -82,7 +82,7 @@ internal sealed class DefaultEnv : IMaterialAdapter
         int texcoordId = 0;
         EnvironmentAssetChannel sampler = new();
         var bakedPaintTexture = mesh
-            .BakedPaintChannelDefs.FirstOrDefault(new EnvironmentAssetBakedPaintChannelDef(0, string.Empty))
+            .TextureOverrides.FirstOrDefault(new EnvironmentAssetMeshTextureOverride(0, string.Empty))
             .Texture;
         if (!string.IsNullOrEmpty(bakedPaintTexture))
         {

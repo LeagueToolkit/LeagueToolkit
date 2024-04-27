@@ -10,7 +10,7 @@ namespace LeagueToolkit.Core.Environment.Builder;
 /// <summary>Exposes an API for building a <see cref="EnvironmentAsset"/> object</summary>
 public sealed class EnvironmentAssetBuilder
 {
-    private readonly List<EnvironmentAssetSamplerDef> _samplerDefs = new();
+    private readonly List<EnvironmentAssetShaderTextureOverride> _samplerDefs = new();
     private readonly List<EnvironmentAssetMeshBuilder> _meshes = new();
     private readonly List<BucketedGeometry> _sceneGraphs;
     private readonly List<PlanarReflector> _planarReflectors = new();
@@ -40,10 +40,10 @@ public sealed class EnvironmentAssetBuilder
     }
 
     /// <summary>
-    /// Adds the specified <see cref="EnvironmentAssetSamplerDef"/> into the environment asset
+    /// Adds the specified <see cref="EnvironmentAssetShaderTextureOverride"/> into the environment asset
     /// </summary>
-    /// <param name="samplerDef">The <see cref="EnvironmentAssetSamplerDef"/> to add</param>
-    public EnvironmentAssetBuilder WithSamplerDef(EnvironmentAssetSamplerDef samplerDef)
+    /// <param name="samplerDef">The <see cref="EnvironmentAssetShaderTextureOverride"/> to add</param>
+    public EnvironmentAssetBuilder WithSamplerDef(EnvironmentAssetShaderTextureOverride samplerDef)
     {
         this._samplerDefs.Add(samplerDef);
         return this;
