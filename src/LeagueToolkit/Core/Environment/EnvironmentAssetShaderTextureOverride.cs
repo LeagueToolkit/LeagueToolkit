@@ -2,24 +2,24 @@
 
 namespace LeagueToolkit.Core.Environment;
 
-public struct EnvironmentAssetSamplerDef
+public struct EnvironmentAssetShaderTextureOverride
 {
     public int Index { get; set; }
     public string Name { get; set; }
 
-    public EnvironmentAssetSamplerDef()
+    public EnvironmentAssetShaderTextureOverride()
     {
         this.Index = 0;
         this.Name = string.Empty;
     }
 
-    public EnvironmentAssetSamplerDef(int index, string name)
+    public EnvironmentAssetShaderTextureOverride(int index, string name)
     {
         this.Index = index;
         this.Name = name;
     }
 
-    public static EnvironmentAssetSamplerDef Read(BinaryReader br)
+    public static EnvironmentAssetShaderTextureOverride Read(BinaryReader br)
     {
         var index = br.ReadInt32();
         var name = br.ReadSizedString();

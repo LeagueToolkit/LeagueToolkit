@@ -21,7 +21,7 @@ public sealed class EnvironmentAssetMeshBuilder
 
     private EnvironmentAssetChannel _stationaryLight;
     private EnvironmentAssetChannel _bakedLight;
-    private EnvironmentAssetBakedPaintChannelDef[] _bakedPaintChannelDefs = [];
+    private EnvironmentAssetMeshTextureOverride[] _textureOverrides = [];
     private Vector2 _bakedPaintScale;
     private Vector2 _bakedPaintBias;
 
@@ -57,7 +57,7 @@ public sealed class EnvironmentAssetMeshBuilder
             this._renderFlags,
             this._stationaryLight,
             this._bakedLight,
-            this._bakedPaintChannelDefs,
+            this._textureOverrides,
             this._bakedPaintScale,
             this._bakedPaintBias
         );
@@ -145,14 +145,14 @@ public sealed class EnvironmentAssetMeshBuilder
         return this;
     }
 
-    /// <summary>Sets the specified Baked Paint channel defs for the <see cref="EnvironmentAssetMesh"/></summary>
-    public EnvironmentAssetMeshBuilder WithBakedPaintChannelDefs(
-        IEnumerable<EnvironmentAssetBakedPaintChannelDef> bakedPaintChannelDefs,
+    /// <summary>Sets the specified texture overrides for the <see cref="EnvironmentAssetMesh"/></summary>
+    public EnvironmentAssetMeshBuilder WithTextureOverrides(
+        IEnumerable<EnvironmentAssetMeshTextureOverride> textureOverrides,
         Vector2 scale,
         Vector2 bias
     )
     {
-        this._bakedPaintChannelDefs = bakedPaintChannelDefs.ToArray();
+        this._textureOverrides = textureOverrides.ToArray();
         this._bakedPaintScale = scale;
         this._bakedPaintBias = bias;
         return this;

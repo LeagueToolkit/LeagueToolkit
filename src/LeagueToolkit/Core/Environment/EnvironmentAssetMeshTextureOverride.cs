@@ -2,24 +2,24 @@
 
 namespace LeagueToolkit.Core.Environment;
 
-public struct EnvironmentAssetBakedPaintChannelDef
+public struct EnvironmentAssetMeshTextureOverride
 {
     public int Index { get; set; }
     public string Texture { get; set; }
 
-    public EnvironmentAssetBakedPaintChannelDef()
+    public EnvironmentAssetMeshTextureOverride()
     {
         this.Index = 0;
         this.Texture = string.Empty;
     }
 
-    public EnvironmentAssetBakedPaintChannelDef(int index, string texture)
+    public EnvironmentAssetMeshTextureOverride(int index, string texture)
     {
         this.Index = index;
         this.Texture = texture;
     }
 
-    public static EnvironmentAssetBakedPaintChannelDef Read(BinaryReader br)
+    public static EnvironmentAssetMeshTextureOverride Read(BinaryReader br)
     {
         var index = br.ReadInt32();
         var name = br.ReadSizedString();

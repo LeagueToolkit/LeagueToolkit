@@ -135,13 +135,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
             VisibilityNodeRegistry visibilityNodeRegistry = CreateIndividualVisibilityFlagsNodeRegistry(mapNode);
 
             // Create meshes
-            TextureRegistry textureRegistry = new();
+            TextureRegistry textureRegistry = [];
             foreach (EnvironmentAssetMesh mesh in mapGeometry.Meshes)
             {
                 // Create materials
                 Dictionary<string, Material> materials = CreateGltfMeshMaterials(
                     mesh,
-                    mapGeometry.SamplerDefs.ToList(),
+                    [.. mapGeometry.ShaderTextureOverrides],
                     root,
                     materialsBin,
                     textureRegistry,
@@ -149,9 +149,13 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 );
 
                 // Create mesh
-                Mesh gltfMesh = CreateGltfMesh(root, mesh, materials);
-
-                PlaceGltfMeshIntoScene(gltfMesh, mesh, mapNode, visibilityNodeRegistry, context);
+                PlaceGltfMeshIntoScene(
+                    CreateGltfMesh(root, mesh, materials),
+                    mesh,
+                    mapNode,
+                    visibilityNodeRegistry,
+                    context
+                );
             }
 
             root.MergeImages();
@@ -229,8 +233,8 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 StationaryLight = mesh.StationaryLight,
                 BakedLight = mesh.BakedLight,
                 BakedPaint = new(
-                    mesh.BakedPaintChannelDefs.FirstOrDefault(
-                        new EnvironmentAssetBakedPaintChannelDef(0, string.Empty)
+                    mesh.TextureOverrides.FirstOrDefault(
+                        new EnvironmentAssetMeshTextureOverride(0, string.Empty)
                     ).Texture,
                     mesh.BakedPaintScale,
                     mesh.BakedPaintBias
@@ -289,7 +293,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         #region Material Creation
         private static Dictionary<string, Material> CreateGltfMeshMaterials(
             EnvironmentAssetMesh mesh,
-            List<EnvironmentAssetSamplerDef> samplerDefs,
+            List<EnvironmentAssetShaderTextureOverride> samplerDefs,
             ModelRoot root,
             BinTree materialsBin,
             TextureRegistry textureRegistry,
@@ -319,7 +323,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         private static void InitializeMaterial(
             Material gltfMaterial,
             EnvironmentAssetMesh mesh,
-            List<EnvironmentAssetSamplerDef> samplerDefs,
+            List<EnvironmentAssetShaderTextureOverride> samplerDefs,
             ModelRoot root,
             BinTree materialsBin,
             TextureRegistry textureRegistry,
