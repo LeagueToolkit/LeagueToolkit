@@ -251,6 +251,12 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             if (context.Settings.LayerGroupingPolicy is MapGeometryGltfLayerGroupingPolicy.Default)
             {
+                if (mesh.VisibilityFlags == EnvironmentVisibility.AllLayers)
+                {
+                    PlaceGltfMeshIntoNode(gltfMesh, mesh, mapNode, mesh.Name);
+                    return;
+                }
+
                 PlaceGltfMeshIntoVisibilityNodes(gltfMesh, mesh, mapNode, visibilityNodeRegistry);
             }
             else if (context.Settings.LayerGroupingPolicy is MapGeometryGltfLayerGroupingPolicy.Ignore)
