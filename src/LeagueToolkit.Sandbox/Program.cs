@@ -41,6 +41,8 @@ class Program
 {
     static void Main(string[] args)
     {
+        using var _ = new EnvironmentAsset(File.OpenRead(@"X:\lol\game\data\maps\mapgeometry\map11\base_srx.mapgeo"));
+
         ProfileMapgeoToGltf();
 
         foreach (

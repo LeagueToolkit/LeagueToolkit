@@ -139,7 +139,7 @@ public sealed class EnvironmentAsset : IDisposable
         }
         else
         {
-            this._sceneGraphs = new() { new(br, legacy: true) };
+            this._sceneGraphs = [new(br, legacy: true)];
         }
 
         if (version >= 13)

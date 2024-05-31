@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using System.Numerics;
+using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Environment;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
-using System.Numerics;
 
 namespace LeagueToolkit.Core.SceneGraph;
 
@@ -14,7 +14,7 @@ public class BucketedGeometry
     /// <summary>
     /// Gets the path hash
     /// </summary>
-    public uint PathHash { get; }
+    public uint VisibilityControllerPathHash { get; }
 
     /// <summary>Gets the Min X bound</summary>
     public float MinX { get; }
@@ -73,8 +73,8 @@ public class BucketedGeometry
 
     internal BucketedGeometry(BinaryReader br, bool legacy = false)
     {
-        if(legacy is false)
-            this.PathHash = br.ReadUInt32();
+        if (legacy is false)
+            this.VisibilityControllerPathHash = br.ReadUInt32();
 
         this.MinX = br.ReadSingle();
         this.MinZ = br.ReadSingle();
@@ -106,8 +106,8 @@ public class BucketedGeometry
 
         this._buckets = new GeometryBucket[bucketsPerSide, bucketsPerSide];
         for (int i = 0; i < bucketsPerSide; i++)
-            for (int j = 0; j < bucketsPerSide; j++)
-                this._buckets[i, j] = new(br);
+        for (int j = 0; j < bucketsPerSide; j++)
+            this._buckets[i, j] = new(br);
 
         if (flags.HasFlag(BucketedGeometryFlags.HasFaceVisibilityFlags))
         {
@@ -121,7 +121,7 @@ public class BucketedGeometry
 
     internal void Write(BinaryWriter bw)
     {
-        bw.Write(this.PathHash);
+        bw.Write(this.VisibilityControllerPathHash);
 
         bw.Write(this.MinX);
         bw.Write(this.MinZ);
@@ -156,8 +156,8 @@ public class BucketedGeometry
             bw.Write(index);
 
         for (int i = 0; i < bucketsPerSide; i++)
-            for (int j = 0; j < bucketsPerSide; j++)
-                this._buckets[i, j].Write(bw);
+        for (int j = 0; j < bucketsPerSide; j++)
+            this._buckets[i, j].Write(bw);
 
         if (flags.HasFlag(BucketedGeometryFlags.HasFaceVisibilityFlags) && this.FaceVisibilityFlags is not null)
         {

@@ -38,7 +38,7 @@ public sealed class EnvironmentAssetMesh
     /// <summary>
     /// Gets the path hash of the scene graph that this mesh belongs to
     /// </summary>
-    public uint SceneGraphPathHash { get; private set; }
+    public uint VisibilityControllerPathHash { get; private set; }
 
     /// <summary>
     /// Gets whether to disable backface culling for the mesh
@@ -113,7 +113,7 @@ public sealed class EnvironmentAssetMesh
         int id,
         IVertexBufferView vertexBufferView,
         IndexArray indexBufferView,
-        uint sceneGraphPathHash,
+        uint visibilityControllerPathHash,
         IEnumerable<EnvironmentAssetMeshPrimitive> submeshes,
         Matrix4x4 transform,
         bool disableBackfaceCulling,
@@ -131,7 +131,7 @@ public sealed class EnvironmentAssetMesh
 
         this.VerticesView = new(vertexBufferView.VertexCount, new[] { vertexBufferView });
         this.Indices = indexBufferView;
-        this.SceneGraphPathHash = sceneGraphPathHash;
+        this.VisibilityControllerPathHash = visibilityControllerPathHash;
         this._submeshes = new(submeshes);
 
         this.Transform = transform;
@@ -194,7 +194,7 @@ public sealed class EnvironmentAssetMesh
 
         if (version >= 15)
         {
-            this.SceneGraphPathHash = br.ReadUInt32();
+            this.VisibilityControllerPathHash = br.ReadUInt32();
         }
 
         uint submeshCount = br.ReadUInt32();
@@ -274,7 +274,7 @@ public sealed class EnvironmentAssetMesh
         bw.Write(this._indexBufferId);
 
         bw.Write((byte)this.VisibilityFlags);
-        bw.Write(this.SceneGraphPathHash);
+        bw.Write(this.VisibilityControllerPathHash);
 
         bw.Write(this._submeshes.Count);
         foreach (var submesh in this._submeshes)

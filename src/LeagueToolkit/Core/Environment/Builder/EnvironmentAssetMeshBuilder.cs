@@ -10,7 +10,7 @@ namespace LeagueToolkit.Core.Environment.Builder;
 /// </summary>
 public sealed class EnvironmentAssetMeshBuilder
 {
-    private uint _sceneGraphPathHash;
+    private uint _visibilityControllerPathHash;
 
     private Matrix4x4 _transform;
 
@@ -48,7 +48,7 @@ public sealed class EnvironmentAssetMeshBuilder
             meshId,
             this._vertexBuffer,
             this._indexBuffer,
-            this._sceneGraphPathHash,
+            this._visibilityControllerPathHash,
             this._ranges,
             this._transform,
             this._disableBackfaceCulling,
@@ -86,13 +86,13 @@ public sealed class EnvironmentAssetMeshBuilder
     }
 
     /// <summary>
-    /// Sets the scene graph path hash
+    /// Sets the visibility controller path hash
     /// </summary>
-    /// <param name="sceneGraphPathHash">The scene graph path hash to use</param>
+    /// <param name="visibilityControllerPathHash">The visibility controller path hash to use</param>
     /// <returns></returns>
-    public EnvironmentAssetMeshBuilder WithSceneGraph(uint sceneGraphPathHash)
+    public EnvironmentAssetMeshBuilder WithVisibilityController(uint visibilityControllerPathHash)
     {
-        this._sceneGraphPathHash = sceneGraphPathHash;
+        this._visibilityControllerPathHash = visibilityControllerPathHash;
         return this;
     }
 
