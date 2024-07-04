@@ -292,10 +292,10 @@ class Program
         using HttpClient client = new();
 
         byte[] binTypesBuffer = await client.GetByteArrayAsync(
-            "https://github.com/Crauzer/LeagueHashes/raw/master/hashes/hashes.bintypes.txt"
+            "https://github.com/LeagueToolkit/LeagueHashes/raw/master/hashes/hashes.bintypes.txt"
         );
         byte[] binFieldsBuffer = await client.GetByteArrayAsync(
-            "https://github.com/Crauzer/LeagueHashes/raw/master/hashes/hashes.binfields.txt"
+            "https://github.com/LeagueToolkit/LeagueHashes/raw/master/hashes/hashes.binfields.txt"
         );
 
         File.WriteAllBytes("hashes.bintypes.txt", binTypesBuffer);
