@@ -240,7 +240,7 @@ namespace LeagueToolkit.Meta.Dump
                     )
                 );
 
-            if (@class.Defaults is not null)
+            if (@class.Defaults is not null && @class.Defaults.ContainsKey(propertyHash))
             {
                 propertyDeclaration = propertyDeclaration
                     .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property))
