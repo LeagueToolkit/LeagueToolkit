@@ -1,17 +1,17 @@
-﻿using LeagueToolkit.Core.Meta;
-using LeagueToolkit.Core.Primitives;
-using LeagueToolkit.Hashing;
-using LeagueToolkit.Meta.Attributes;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.Json;
+using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Primitives;
+using LeagueToolkit.Hashing;
+using LeagueToolkit.Meta.Attributes;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace LeagueToolkit.Meta.Dump
@@ -166,9 +166,8 @@ namespace LeagueToolkit.Meta.Dump
                 .TakeSecondaryBases(this.Classes, false)
                 // Special case - Class has defined both Base and Secondary Base - write only primary base (ex: StaticMaterialDef)
                 .SkipWhile(x => @class.SecondaryBases.Count > 0 && !string.IsNullOrEmpty(@class.Base))
-                .Select(
-                    secondaryBaseHash =>
-                        SimpleBaseType(IdentifierName(GetClassNameOrDefault(secondaryBaseHash, classes)))
+                .Select(secondaryBaseHash =>
+                    SimpleBaseType(IdentifierName(GetClassNameOrDefault(secondaryBaseHash, classes)))
                 );
 
             SimpleBaseTypeSyntax @base = SimpleBaseType(
@@ -188,7 +187,7 @@ namespace LeagueToolkit.Meta.Dump
             return BaseList(SeparatedList<BaseTypeSyntax>(bases));
         }
 
-        private static IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
+        private IEnumerable<PropertyDeclarationSyntax> TakeMetaClassPropertyDeclarations(
             string classHash,
             MetaDumpClass @class,
             IReadOnlyDictionary<uint, string> classes,
@@ -202,7 +201,7 @@ namespace LeagueToolkit.Meta.Dump
             }
         }
 
-        private static PropertyDeclarationSyntax CreateMetaClassPropertyDeclaration(
+        private PropertyDeclarationSyntax CreateMetaClassPropertyDeclaration(
             string classHash,
             MetaDumpClass @class,
             string propertyHash,
@@ -221,16 +220,7 @@ namespace LeagueToolkit.Meta.Dump
                 name = $"m{name}";
             }
 
-            // TODO: this seems to be broken
-            // https://github.com/Crauzer/lolmetadumper3/blob/80ad1f9a957324904b5eecb0dbda9584a33797ac/src/meta_dump.rs#L242
-            //if (@class.Defaults is not null)
-            //{
-            //    propertyDeclaration = propertyDeclaration
-            //        .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property))
-            //        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-            //}
-
-            return PropertyDeclaration(typeSyntax, name)
+            var propertyDeclaration = PropertyDeclaration(typeSyntax, name)
                 // Add attribute
                 .WithAttributeLists(CreatePropertyAttributesSyntax(propertyHash, property, classes, properties))
                 // Add visibility
@@ -249,6 +239,15 @@ namespace LeagueToolkit.Meta.Dump
                         )
                     )
                 );
+
+            if (@class.Defaults is not null)
+            {
+                propertyDeclaration = propertyDeclaration
+                    .WithInitializer(CreatePropertyInitializer(@class.Defaults[propertyHash], property))
+                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+            }
+
+            return propertyDeclaration;
         }
 
         /* ---------------------------- PROPERTY ATTRIBUTE CREATION ----------------------------- */
@@ -520,10 +519,7 @@ namespace LeagueToolkit.Meta.Dump
         /* -------------------------------- INITIALIZER CREATORS -------------------------------- */
         #region Initializer Creators
 
-        private static EqualsValueClauseSyntax CreatePropertyInitializer(
-            JsonElement defaultValue,
-            MetaDumpProperty property
-        )
+        private EqualsValueClauseSyntax CreatePropertyInitializer(JsonElement defaultValue, MetaDumpProperty property)
         {
             ExpressionSyntax expression = defaultValue.ValueKind switch
             {
@@ -602,6 +598,9 @@ namespace LeagueToolkit.Meta.Dump
                     ),
                 // null
                 JsonValueKind.Null when (property.Type == BinPropertyType.Struct)
+                    => LiteralExpression(SyntaxKind.NullLiteralExpression),
+                JsonValueKind.Object
+                    when (property.Type == BinPropertyType.Struct && this.Classes[property.OtherClass].Is.Interface)
                     => LiteralExpression(SyntaxKind.NullLiteralExpression),
                 // new MetaOptional<T>(default(T), false)
                 // new MetaOptional<T>(nullableValue, true)
@@ -734,11 +733,10 @@ namespace LeagueToolkit.Meta.Dump
                 IdentifierName(nameof(Matrix4x4)),
                 ArgumentList(
                     SeparatedList(
-                        elements.SelectMany(
-                            arrayElement =>
-                                arrayElement
-                                    .EnumerateArray()
-                                    .Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
+                        elements.SelectMany(arrayElement =>
+                            arrayElement
+                                .EnumerateArray()
+                                .Select(element => Argument(CreateFloatInitializerExpression(element.GetSingle())))
                         )
                     )
                 ),
