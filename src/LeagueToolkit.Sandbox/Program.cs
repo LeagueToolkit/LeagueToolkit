@@ -33,6 +33,7 @@ using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
+using MetaClass = LeagueToolkit.Meta.Classes;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
 
 namespace LeagueToolkit.Sandbox;
