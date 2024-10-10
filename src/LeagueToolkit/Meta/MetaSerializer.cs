@@ -1,18 +1,19 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System.Collections;
+using System.Numerics;
+using System.Reflection;
+using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Core.Meta;
 using LeagueToolkit.Core.Meta.Properties;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.Meta.Attributes;
-using System.Collections;
-using System.Numerics;
-using System.Reflection;
 
 namespace LeagueToolkit.Meta;
 
 public static class MetaSerializer
 {
-    public static T Deserialize<T>(MetaEnvironment environment, BinTreeObject treeObject) where T : IMetaClass
+    public static T Deserialize<T>(MetaEnvironment environment, BinTreeObject treeObject)
+        where T : IMetaClass
     {
         // If object is already registered, return it
         if (environment.RegisteredObjects.TryGetValue(treeObject.PathHash, out IMetaClass existingObject))
@@ -196,9 +197,11 @@ public static class MetaSerializer
     private static object DeserializeOptional(MetaEnvironment environment, Type propertyType, BinTreeOptional optional)
     {
         bool isSome = optional.Value is not null;
-        object value = isSome ? DeserializeTreeProperty(environment, optional.Value) : GetTypeDefault(propertyType);
+        object value = isSome
+            ? DeserializeTreeProperty(environment, optional.Value)
+            : GetTypeDefault(propertyType.GenericTypeArguments[0]);
 
-        return Activator.CreateInstance(propertyType, new[] { value, isSome });
+        return Activator.CreateInstance(propertyType, new object[] { value, isSome });
     }
 
     // ------------ SERIALIZATION ------------ \\
