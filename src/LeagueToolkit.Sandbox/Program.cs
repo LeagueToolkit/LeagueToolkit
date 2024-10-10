@@ -39,31 +39,7 @@ namespace LeagueToolkit.Sandbox;
 
 class Program
 {
-    static async Task Main(string[] args)
-    {
-        await TestMetaRoslynCodegen(@"X:\lol\meta\14.4_meta.json", "Classes.cs");
-
-        using var _ = new EnvironmentAsset(File.OpenRead(@"X:\lol\game\data\maps\mapgeometry\map11\base_srx.mapgeo"));
-
-        ProfileMapgeoToGltf();
-
-        foreach (
-            var mapgeoPath in Directory.EnumerateFiles(
-                @"X:\lol\game\data\maps\mapgeometry",
-                "*.mapgeo",
-                SearchOption.AllDirectories
-            )
-        )
-        {
-            using var environmentAsset = new EnvironmentAsset(File.OpenRead(mapgeoPath));
-
-            var ddffd = environmentAsset.Meshes.Where(x => x.TextureOverrides.Count > 1).ToList();
-            if (ddffd.Count > 1)
-            {
-                ;
-            }
-        }
-    }
+    static void Main(string[] args) { }
 
     static void ProfileMetaSerializer()
     {
