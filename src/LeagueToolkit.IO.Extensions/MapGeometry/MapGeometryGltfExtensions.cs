@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
@@ -191,7 +194,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
         {
             Mesh gltfMesh = root.CreateMesh(mesh.Name);
 
-            gltfMesh.Extras = JsonContent.Serialize(CreateGltfMeshExtras(mesh));
+            gltfMesh.Extras = CreateGltfMeshExtras(mesh);
 
             MemoryAccessor[] meshVertexMemoryAccessors = mesh
                 .VerticesView.Buffers.SelectMany(GltfUtils.CreateVertexMemoryAccessors)
@@ -223,23 +226,27 @@ namespace LeagueToolkit.IO.MapGeometryFile
             return gltfMesh;
         }
 
-        private static GltfMeshExtras CreateGltfMeshExtras(EnvironmentAssetMesh mesh) =>
-            new()
-            {
-                Name = mesh.Name,
-                VisibilityFlags = (int)mesh.VisibilityFlags,
-                RenderFlags = (int)mesh.RenderFlags,
-                QualityFlags = (int)mesh.EnvironmentQualityFilter,
-                StationaryLight = mesh.StationaryLight,
-                BakedLight = mesh.BakedLight,
-                BakedPaint = new(
-                    mesh.TextureOverrides.FirstOrDefault(
-                        new EnvironmentAssetMeshTextureOverride(0, string.Empty)
-                    ).Texture,
-                    mesh.BakedPaintScale,
-                    mesh.BakedPaintBias
-                ),
-            };
+        private static JsonObject CreateGltfMeshExtras(EnvironmentAssetMesh mesh) =>
+            JsonSerializer.Deserialize<JsonObject>(
+                JsonSerializer.Serialize(
+                    new GltfMeshExtras()
+                    {
+                        Name = mesh.Name,
+                        VisibilityFlags = (int)mesh.VisibilityFlags,
+                        RenderFlags = (int)mesh.RenderFlags,
+                        QualityFlags = (int)mesh.EnvironmentQualityFilter,
+                        StationaryLight = mesh.StationaryLight,
+                        BakedLight = mesh.BakedLight,
+                        BakedPaint = new(
+                            mesh.TextureOverrides.FirstOrDefault(
+                                new EnvironmentAssetMeshTextureOverride(0, string.Empty)
+                            ).Texture,
+                            mesh.BakedPaintScale,
+                            mesh.BakedPaintBias
+                        ),
+                    }
+                )
+            );
 
         private static void PlaceGltfMeshIntoScene(
             Mesh gltfMesh,
@@ -348,7 +355,7 @@ namespace LeagueToolkit.IO.MapGeometryFile
             };
 
             // Include material metadata
-            gltfMaterial.Extras = JsonContent.Serialize(new GltfMaterialExtras() { Name = gltfMaterial.Name });
+            gltfMaterial.Extras = new JsonObject() { ["name"] = gltfMaterial.Name };
 
             // Initialize only if there is an adapter for the shader
             uint defaultTechniqueShader = GetDefaultTechniqueShaderLink(materialDef);
