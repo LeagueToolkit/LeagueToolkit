@@ -17,6 +17,7 @@ using LeagueToolkit.Core.Environment.Builder;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.Core.Meta;
+using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.Core.Wad;
 using LeagueToolkit.Hashing;
 using LeagueToolkit.IO.MapGeometryFile;
@@ -40,7 +41,12 @@ namespace LeagueToolkit.Sandbox;
 
 class Program
 {
-    static void Main(string[] args) { }
+    static void Main(string[] args)
+    {
+        var shaderToc = new ShaderToc(
+            File.OpenRead(@"C:\lol\shaders\assets\shaders\generated\shaders\staticmesh\defaultenv_metal.vs.dx11")
+        );
+    }
 
     static void ProfileMetaSerializer()
     {
