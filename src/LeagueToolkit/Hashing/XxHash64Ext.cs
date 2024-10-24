@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.HighPerformance.Buffers;
-using System.IO.Hashing;
+﻿using System.IO.Hashing;
 using System.Text;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace LeagueToolkit.Hashing;
 
@@ -13,7 +13,7 @@ public static class XxHash64Ext
     public static ulong Hash(ReadOnlySpan<char> source, long seed = 0)
     {
         int utf8ByteCount = Encoding.UTF8.GetByteCount(source);
-        if(utf8ByteCount > 512)
+        if (utf8ByteCount > 512)
         {
             using var sourceUtf8Owner = MemoryOwner<byte>.Allocate(utf8ByteCount);
 

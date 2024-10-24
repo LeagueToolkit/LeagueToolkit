@@ -46,6 +46,16 @@ class Program
         var shaderToc = new ShaderToc(
             File.OpenRead(@"C:\lol\shaders\assets\shaders\generated\shaders\staticmesh\defaultenv_metal.vs.dx11")
         );
+
+        var wad = new WadFile(@"C:\Riot Games\League of Legends\Game\DATA\FINAL\ShaderCache.dx11.wad.client");
+
+        ShaderLoader.ResolveShaderBytecode(
+            "assets/shaders/generated/shaders/staticmesh/defaultenv_metal",
+            ShaderType.Vertex,
+            GraphicsPlatform.Dx11,
+            [new("FEATURE_WORLD_POSITION", "1")],
+            wad
+        );
     }
 
     static void ProfileMetaSerializer()

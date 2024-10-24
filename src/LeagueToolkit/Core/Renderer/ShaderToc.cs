@@ -77,7 +77,7 @@ public class ShaderToc
 }
 
 [DebuggerDisplay("{Name} = {Value}")]
-public struct ShaderMacroDefinition(string name, string value) : IEquatable<ShaderMacroDefinition>
+public readonly struct ShaderMacroDefinition(string name, string value) : IEquatable<ShaderMacroDefinition>
 {
     public string Name { get; init; } = name;
     public string Value { get; init; } = value;
@@ -91,5 +91,15 @@ public struct ShaderMacroDefinition(string name, string value) : IEquatable<Shad
         return new ShaderMacroDefinition(name, value);
     }
 
+    public override readonly string ToString() => $"{this.Name}={this.Value}";
+
     public readonly bool Equals(ShaderMacroDefinition other) => this.Hash == other.Hash;
+
+    public override bool Equals(object obj) => obj is ShaderMacroDefinition definition && Equals(definition);
+
+    public static bool operator ==(ShaderMacroDefinition left, ShaderMacroDefinition right) => left.Equals(right);
+
+    public static bool operator !=(ShaderMacroDefinition left, ShaderMacroDefinition right) => !(left == right);
+
+    public override int GetHashCode() => this.Hash.GetHashCode();
 }
