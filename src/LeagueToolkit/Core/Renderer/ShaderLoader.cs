@@ -28,7 +28,7 @@ public class ShaderLoader
         var shaderObject = new ShaderToc(wad.LoadChunkDecompressed(shaderObjectPath).AsStream());
 
         var filteredDefines = shaderObject.BaseDefines.Intersect(defines);
-        var filteredDefinesFormatted = string.Join("", filteredDefines.Select(x => x.ToString()));
+        var filteredDefinesFormatted = string.Join("", filteredDefines.OrderBy(x => x.Name).Select(x => x.ToString()));
         var filteredDefinesHash = XxHash64Ext.Hash(filteredDefinesFormatted);
 
         var shaderIndex = shaderObject.ShaderHashes.IndexOf(filteredDefinesHash);
