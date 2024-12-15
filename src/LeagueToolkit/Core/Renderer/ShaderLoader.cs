@@ -14,6 +14,16 @@ namespace LeagueToolkit.Core.Renderer;
 
 public class ShaderLoader
 {
+    /// <summary>
+    /// Loads the bytecode for a shader.
+    /// </summary>
+    /// <param name="shaderObjectPath">The path to the shader object.</param>
+    /// <param name="shaderType">The type of the shader.</param>
+    /// <param name="platform">The platform of the shader.</param>
+    /// <param name="defines">The defines to use for the shader.</param>
+    /// <param name="wad">The WAD file containing the shader.</param>
+    /// <returns>The bytecode for the shader.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the shader is not found.</exception>
     public static byte[] LoadBytecode(
         string shaderObjectPath,
         ShaderType shaderType,
