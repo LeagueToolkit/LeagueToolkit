@@ -164,13 +164,24 @@ internal static class GltfUtils
         for (int i = 0; i < positionsArray.Count; i++)
         {
             Vector3 normal = normalsArray[i];
-
-            if (normal == Vector3.Zero)
-                normal = positionsArray[i];
-
             float length = normal.Length();
-            if (length < 0.99f || length > 0.01f)
+
+            // If normal is zero or has invalid values, use normalized position as fallback
+            if (length < 0.0001f || float.IsInfinity(length) || float.IsNaN(length))
+            {
+                Vector3 position = positionsArray[i];
+                float posLength = position.Length();
+
+                normal = posLength switch
+                {
+                    > 0.0001f when !float.IsInfinity(posLength) && !float.IsNaN(posLength) => Vector3.Normalize(position),
+                    _ => Vector3.UnitY // Default fallback if position is also invalid
+                };
+            }
+            else
+            {
                 normal = Vector3.Normalize(normal);
+            }
 
             normalsArray[i] = normal;
         }
