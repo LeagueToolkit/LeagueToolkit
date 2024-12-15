@@ -27,9 +27,9 @@ public class ShaderToc
         IEnumerable<uint> shaderIds
     )
     {
-        this._baseDefines = baseDefines.ToList();
-        this._shaderHashes = shaderHashes.ToArray();
-        this._shaderIds = shaderIds.ToArray();
+        this._baseDefines = [.. baseDefines];
+        this._shaderHashes = [.. shaderHashes];
+        this._shaderIds = [.. shaderIds];
     }
 
     public ShaderToc(Stream stream)
@@ -81,7 +81,14 @@ public readonly struct ShaderMacroDefinition(string name, string value) : IEquat
 {
     public string Name { get; init; } = name;
     public string Value { get; init; } = value;
-    public uint Hash { get; init; } = Fnv1a.HashLower(name);
+    public uint Hash { get; init; } =
+        Fnv1a.HashLower(
+            string.IsNullOrEmpty(value) switch
+            {
+                true => name,
+                false => $"{name}={value}"
+            }
+        );
 
     internal static ShaderMacroDefinition Read(BinaryReader reader)
     {

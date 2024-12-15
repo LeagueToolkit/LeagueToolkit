@@ -14,7 +14,7 @@ namespace LeagueToolkit.Core.Renderer;
 
 public class ShaderLoader
 {
-    public static byte[] ResolveShaderBytecode(
+    public static byte[] LoadBytecode(
         string shaderObjectPath,
         ShaderType shaderType,
         GraphicsPlatform platform,
@@ -25,10 +25,10 @@ public class ShaderLoader
         shaderObjectPath =
             $"{shaderObjectPath}.{GetShaderTypeExtension(shaderType)}.{GetGraphicsPlatformExtension(platform)}";
 
-        var shaderObject = new ShaderToc(wad.LoadChunkDecompressed(shaderObjectPath).AsStream());
+        using var shaderObjectStream = wad.LoadChunkDecompressed(shaderObjectPath).AsStream();
+        var shaderObject = new ShaderToc(shaderObjectStream);
 
-        var filteredDefines = shaderObject.BaseDefines.Intersect(defines);
-        var filteredDefinesFormatted = string.Join("", filteredDefines.OrderBy(x => x.Name).Select(x => x.ToString()));
+        var filteredDefinesFormatted = FilterDefines(defines, shaderObject.BaseDefines);
         var filteredDefinesHash = XxHash64Ext.Hash(filteredDefinesFormatted);
 
         var shaderIndex = shaderObject.ShaderHashes.IndexOf(filteredDefinesHash);
@@ -40,10 +40,11 @@ public class ShaderLoader
         var shaderId = shaderObject.ShaderIds[shaderIndex];
         var shaderBundleId = 100 * (shaderId / 100);
         var shaderIndexInBundle = shaderId % 100;
-        var shaderBundlePath = $"{shaderObjectPath}_{shaderIndexInBundle}";
+        var shaderBundlePath = $"{shaderObjectPath}_{shaderBundleId}";
 
         using var shaderBundleStream = wad.LoadChunkDecompressed(shaderBundlePath).AsStream();
         using var shaderBundleReader = new BinaryReader(shaderBundleStream);
+
         for (int i = 0; i < shaderIndexInBundle; i++)
         {
             var shaderSize = shaderBundleReader.ReadUInt32();
@@ -52,6 +53,25 @@ public class ShaderLoader
 
         var requestedShaderSize = shaderBundleReader.ReadInt32();
         return shaderBundleReader.ReadBytes(requestedShaderSize);
+    }
+
+    private static string FilterDefines(
+        IEnumerable<ShaderMacroDefinition> defines,
+        IEnumerable<ShaderMacroDefinition> baseDefines
+    )
+    {
+        // Filter and override defines based on base defines
+        var filteredDefines = new List<ShaderMacroDefinition>();
+        foreach (var requestedDefine in defines)
+        {
+            var matchingBaseDefine = baseDefines.FirstOrDefault(x => x.Hash == requestedDefine.Hash);
+            if (!string.IsNullOrEmpty(matchingBaseDefine.Name))
+            {
+                filteredDefines.Add(requestedDefine);
+            }
+        }
+
+        return string.Join("", filteredDefines.OrderBy(x => x.Name).Select(x => x.ToString()));
     }
 
     public static string GetShaderTypeExtension(ShaderType shaderType) =>

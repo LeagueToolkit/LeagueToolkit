@@ -49,18 +49,18 @@ class Program
 
         var wad = new WadFile(@"X:\lol\tools\rman\bin\DATA\FINAL\ShaderCache.glsl.wad.client");
 
-        var shaderBytes = ShaderLoader.ResolveShaderBytecode(
+        var shaderBytes = ShaderLoader.LoadBytecode(
             "assets/shaders/generated/shaders/staticmesh/defaultenv_metal",
             ShaderType.Vertex,
             GraphicsPlatform.Glsl,
             [
-                new("FOW_FADE_TO_FOGGED", "1"),
-                new("CLOUD_SHADOWS", "1"),
+                //new("FOW_FADE_TO_FOGGED", "1"),
+                //new("CLOUD_SHADOWS", "1"),
                 new("DISABLE_SHADOWS", "1"),
                 new("FEATURE_WORLD_POSITION", "1"),
                 new("NO_BAKED_LIGHTING", "1"),
-                new("DISABLE_FOW", "1"),
-                new("LOW_QUALITY_MODE", "1")
+                //new("DISABLE_FOW", "1"),
+                //new("LOW_QUALITY_MODE", "1")
             ],
             wad
         );
