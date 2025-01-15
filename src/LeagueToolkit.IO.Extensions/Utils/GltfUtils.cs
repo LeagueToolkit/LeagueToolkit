@@ -1,14 +1,14 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Mesh;
 using LeagueToolkit.IO.MapGeometryFile;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 
 namespace LeagueToolkit.IO.Extensions.Utils;
 
@@ -118,7 +118,34 @@ internal static class GltfUtils
         VertexElementArray<Vector3> accessorArray = accessor.AsVector3Array();
         Vector3Array gltfArray = gltfAccessor.AsVector3Array();
 
-        gltfArray.Fill(accessorArray);
+        // Special handling for normals
+        if (accessor.Element.Name == ElementName.Normal)
+        {
+            for (int i = 0; i < accessorArray.Count; i++)
+            {
+                Vector3 normal = accessorArray[i];
+
+                // Check for NaN values
+                if (float.IsNaN(normal.X) || float.IsNaN(normal.Y) || float.IsNaN(normal.Z))
+                {
+                    gltfArray[i] = Vector3.UnitY;
+                    continue;
+                }
+
+                float length = normal.Length();
+                if (length < 0.0001f || float.IsInfinity(length))
+                {
+                    gltfArray[i] = Vector3.UnitY;
+                    continue;
+                }
+
+                gltfArray[i] = Vector3.Normalize(normal);
+            }
+        }
+        else
+        {
+            gltfArray.Fill(accessorArray);
+        }
     }
 
     private static void WriteMemoryAccessorVector4(MemoryAccessor gltfAccessor, VertexElementAccessor accessor)
@@ -143,37 +170,6 @@ internal static class GltfUtils
         Vector4Array gltfArray = gltfAccessor.AsVector4Array();
 
         gltfArray.Fill(accessorArray.Select(x => new Vector4(x.x, x.y, x.z, x.w)));
-    }
-
-    internal static void SanitizeVertexMemoryAccessors(MemoryAccessor[] memoryAccessors)
-    {
-        SanitizeVertexNormalMemoryAccessor(memoryAccessors);
-    }
-
-    private static void SanitizeVertexNormalMemoryAccessor(MemoryAccessor[] memoryAccessors)
-    {
-        MemoryAccessor normalAccessor = memoryAccessors.FirstOrDefault(x => x.Attribute.Name == "NORMAL");
-        if (normalAccessor is null)
-            return;
-
-        MemoryAccessor positionAccessor = memoryAccessors.First(x => x.Attribute.Name == "POSITION");
-
-        Vector3Array positionsArray = positionAccessor.AsVector3Array();
-        Vector3Array normalsArray = normalAccessor.AsVector3Array();
-
-        for (int i = 0; i < positionsArray.Count; i++)
-        {
-            Vector3 normal = normalsArray[i];
-
-            if (normal == Vector3.Zero)
-                normal = positionsArray[i];
-
-            float length = normal.Length();
-            if (length < 0.99f || length > 0.01f)
-                normal = Vector3.Normalize(normal);
-
-            normalsArray[i] = normal;
-        }
     }
 
     internal static bool TryGetElementMemoryAccessInfo(

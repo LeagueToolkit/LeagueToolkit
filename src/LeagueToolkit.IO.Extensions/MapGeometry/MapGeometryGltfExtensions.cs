@@ -200,7 +200,6 @@ namespace LeagueToolkit.IO.MapGeometryFile
                 .VerticesView.Buffers.SelectMany(GltfUtils.CreateVertexMemoryAccessors)
                 .ToArray();
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
-            GltfUtils.SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
 
             foreach (EnvironmentAssetMeshPrimitive range in mesh.Submeshes)
             {

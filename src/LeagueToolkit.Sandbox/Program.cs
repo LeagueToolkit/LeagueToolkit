@@ -41,32 +41,7 @@ namespace LeagueToolkit.Sandbox;
 
 class Program
 {
-    static void Main(string[] args)
-    {
-        var shaderToc = new ShaderToc(
-            File.OpenRead(@"C:\lol\shaders\assets\shaders\generated\shaders\staticmesh\defaultenv_metal.vs.dx11")
-        );
-
-        var wad = new WadFile(@"X:\lol\tools\rman\bin\DATA\FINAL\ShaderCache.glsl.wad.client");
-
-        var shaderBytes = ShaderLoader.LoadBytecode(
-            "assets/shaders/generated/shaders/staticmesh/defaultenv_metal",
-            ShaderType.Vertex,
-            GraphicsPlatform.Glsl,
-            [
-                //new("FOW_FADE_TO_FOGGED", "1"),
-                //new("CLOUD_SHADOWS", "1"),
-                new("DISABLE_SHADOWS", "1"),
-                new("FEATURE_WORLD_POSITION", "1"),
-                new("NO_BAKED_LIGHTING", "1"),
-                //new("DISABLE_FOW", "1"),
-                //new("LOW_QUALITY_MODE", "1")
-            ],
-            wad
-        );
-
-        File.WriteAllBytes("alldefines.txt", shaderBytes);
-    }
+    static void Main(string[] args) { }
 
     static void ProfileMetaSerializer()
     {

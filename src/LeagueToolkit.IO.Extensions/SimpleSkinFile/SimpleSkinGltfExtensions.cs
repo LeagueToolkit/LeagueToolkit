@@ -1,4 +1,13 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Animation;
@@ -10,15 +19,6 @@ using LeagueToolkit.IO.Extensions.Utils;
 using LeagueToolkit.Utils.Extensions;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 using GltfImage = SharpGLTF.Schema2.Image;
 
 namespace LeagueToolkit.IO.SimpleSkinFile
@@ -319,13 +319,14 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
             Mesh gltfMesh = root.CreateMesh();
 
-            MemoryAccessor[] meshVertexMemoryAccessors = GltfUtils
-                .CreateVertexMemoryAccessors(skinnedMesh.VerticesView)
-                .Where(x => influenceLookup is not null || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_0")))
-                .ToArray();
+            MemoryAccessor[] meshVertexMemoryAccessors =
+            [
+                .. GltfUtils
+                    .CreateVertexMemoryAccessors(skinnedMesh.VerticesView)
+                    .Where(x => influenceLookup is not null || (x.Attribute.Name is not ("JOINTS_0" or "WEIGHTS_0")))
+            ];
 
             MemoryAccessor.SanitizeVertexAttributes(meshVertexMemoryAccessors);
-            GltfUtils.SanitizeVertexMemoryAccessors(meshVertexMemoryAccessors);
 
             if (influenceLookup is not null)
                 SanitizeVertexSkinningAttributes(meshVertexMemoryAccessors, influenceLookup);
@@ -679,8 +680,8 @@ namespace LeagueToolkit.IO.SimpleSkinFile
 
         private static IEnumerable<Node> TraverseJointNodes(Node node)
         {
-            IEnumerable<Node> jointNodes = node.VisualChildren.Where(
-                node => node.Skin is null && node.Mesh is null && node.Camera is null
+            IEnumerable<Node> jointNodes = node.VisualChildren.Where(node =>
+                node.Skin is null && node.Mesh is null && node.Camera is null
             );
             foreach (Node joint in jointNodes)
             {
