@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Diagnostics;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Diagnostics;
 
 namespace LeagueToolkit.Core.Meta.Properties;
 
@@ -62,7 +62,8 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
         BinPropertyType keyType,
         BinPropertyType valueType,
         IEnumerable<KeyValuePair<BinTreeProperty, BinTreeProperty>> map
-    ) : base(nameHash)
+    )
+        : base(nameHash)
     {
         Guard.IsNotNull(map, nameof(map));
 
@@ -80,7 +81,8 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
         }
     }
 
-    internal BinTreeMap(BinaryReader br, uint nameHash, bool useLegacyType = false) : base(nameHash)
+    internal BinTreeMap(BinaryReader br, uint nameHash, bool useLegacyType = false)
+        : base(nameHash)
     {
         this.KeyType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         this.ValueType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
@@ -89,10 +91,18 @@ public sealed class BinTreeMap : BinTreeProperty, IDictionary<BinTreeProperty, B
 
         uint valueCount = br.ReadUInt32();
         for (int i = 0; i < valueCount; i++)
-            this._map.Add(
-                ReadPropertyContent(0, this.KeyType, br, useLegacyType),
-                ReadPropertyContent(0, this.ValueType, br, useLegacyType)
-            );
+        {
+            var key = ReadPropertyContent(0, this.KeyType, br, useLegacyType);
+            var value = ReadPropertyContent(0, this.ValueType, br, useLegacyType);
+
+            // discard duplicate keys ?
+            if (this._map.ContainsKey(key))
+            {
+                continue;
+            }
+
+            this._map.Add(key, value);
+        }
 
         if (br.BaseStream.Position != contentOffset + size)
             ThrowHelper.ThrowInvalidDataException(

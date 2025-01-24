@@ -41,7 +41,10 @@ namespace LeagueToolkit.Sandbox;
 
 class Program
 {
-    static void Main(string[] args) { }
+    static void Main(string[] args)
+    {
+        var bin = new BinTree(File.OpenRead(@"C:\lol\ksante\data\characters\ksante\animations\skin1.bin"));
+    }
 
     static void ProfileMetaSerializer()
     {
