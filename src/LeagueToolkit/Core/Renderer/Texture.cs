@@ -1,12 +1,12 @@
-﻿using BCnEncoder.Decoder;
+﻿using System;
+using System.IO;
+using System.Text;
+using BCnEncoder.Decoder;
 using BCnEncoder.Shared;
 using BCnEncoder.Shared.ImageFiles;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
-using System;
-using System.IO;
-using System.Text;
 
 namespace LeagueToolkit.Core.Renderer
 {
@@ -144,7 +144,7 @@ namespace LeagueToolkit.Core.Renderer
                 ExtendedTextureFormat.BGRA8 => CompressionFormat.Bgra,
                 ExtendedTextureFormat.ETC1 => throw new NotImplementedException(),
                 ExtendedTextureFormat.ETC2_EAC => throw new NotImplementedException(),
-                ExtendedTextureFormat.BC1 => CompressionFormat.Bc1,
+                ExtendedTextureFormat.BC1 => CompressionFormat.Bc1WithAlpha,
                 ExtendedTextureFormat.BC3 => CompressionFormat.Bc3,
                 _ => throw new NotImplementedException($"Unsupported extended texture format: {extendedFormat}")
             };
