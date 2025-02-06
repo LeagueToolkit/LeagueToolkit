@@ -77,6 +77,11 @@ namespace LeagueToolkit.Core.Memory
                 ElementFormat.BGRA_Packed8888 => 4,
                 ElementFormat.ZYXW_Packed8888 => 4,
                 ElementFormat.RGBA_Packed8888 => 4,
+                ElementFormat.XY_Packed1616 => 4,
+                ElementFormat.XYZ_Packed161616 => 8,
+                ElementFormat.XYZW_Packed16161616 => 8,
+                ElementFormat.XY_Packed88 => 2,
+                ElementFormat.XYZ_Packed888 => 3,
                 ElementFormat.XYZW_Packed8888 => 4,
                 _ => throw new NotImplementedException($"Unsupported {nameof(VertexElement)} format: {format}")
             };
@@ -140,6 +145,13 @@ namespace LeagueToolkit.Core.Memory
         BGRA_Packed8888,
         ZYXW_Packed8888,
         RGBA_Packed8888,
+        XY_Packed1616,
+        XYZ_Packed161616,
+        XYZW_Packed16161616,
+
+        // These are placeholders
+        XY_Packed88,
+        XYZ_Packed888,
         XYZW_Packed8888
     }
 }

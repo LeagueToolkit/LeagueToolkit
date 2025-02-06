@@ -72,25 +72,45 @@ internal static class GltfUtils
             VertexElementAccessor elementAccessor = vertexBuffer.GetAccessor(element.Name);
 
             if (element.Name == ElementName.Position)
+            {
                 WriteMemoryAccessorVector3(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.BlendWeight)
+            {
                 WriteMemoryAccessorVector4(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.Normal)
-                WriteMemoryAccessorVector3(gltfMemoryAccessor, elementAccessor);
+            {
+                WriteNormalMemoryAccessor(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.PrimaryColor)
+            {
                 WriteMemoryAccessorBgraU8(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.SecondaryColor)
+            {
                 WriteMemoryAccessorBgraU8(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.BlendIndex)
+            {
                 WriteMemoryAccessorXyzwU8(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.Texcoord0)
-                WriteMemoryAccessorVector2(gltfMemoryAccessor, elementAccessor);
+            {
+                WriteTexcoordMemoryAccessor(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.Texcoord7)
-                WriteMemoryAccessorVector2(gltfMemoryAccessor, elementAccessor);
+            {
+                WriteTexcoordMemoryAccessor(gltfMemoryAccessor, elementAccessor);
+            }
             else if (element.Name == ElementName.Tangent)
+            {
                 WriteMemoryAccessorVector4(gltfMemoryAccessor, elementAccessor);
+            }
             else
+            {
                 ThrowHelper.ThrowInvalidOperationException($"Cannot write element: {element.Name}");
+            }
 
             yield return gltfMemoryAccessor;
         }
@@ -170,6 +190,83 @@ internal static class GltfUtils
         Vector4Array gltfArray = gltfAccessor.AsVector4Array();
 
         gltfArray.Fill(accessorArray.Select(x => new Vector4(x.x, x.y, x.z, x.w)));
+    }
+
+    private static void WriteNormalMemoryAccessor(MemoryAccessor gltfAccessor, VertexElementAccessor accessor)
+    {
+        Vector3[] accessorArray = accessor.Element.Format switch
+        {
+            ElementFormat.XYZ_Float32 => [.. accessor.AsVector3Array()],
+            ElementFormat.XYZ_Packed161616 => ConvertHalfVector3Array(accessor),
+            _ => throw new InvalidOperationException()
+        };
+        Vector3Array gltfArray = gltfAccessor.AsVector3Array();
+
+        for (int i = 0; i < accessorArray.Length; i++)
+        {
+            Vector3 normal = accessorArray[i];
+
+            // Check for NaN values
+            if (float.IsNaN(normal.X) || float.IsNaN(normal.Y) || float.IsNaN(normal.Z))
+            {
+                gltfArray[i] = Vector3.UnitY;
+                continue;
+            }
+
+            float length = normal.Length();
+            if (length < 0.0001f || float.IsInfinity(length))
+            {
+                gltfArray[i] = Vector3.UnitY;
+                continue;
+            }
+
+            gltfArray[i] = Vector3.Normalize(normal);
+        }
+    }
+
+    private static void WriteTexcoordMemoryAccessor(MemoryAccessor gltfAccessor, VertexElementAccessor accessor)
+    {
+        Vector2[] accessorArray = accessor.Element.Format switch
+        {
+            ElementFormat.XY_Float32 => [.. accessor.AsVector2Array()],
+            ElementFormat.XY_Packed1616 => ConvertHalfVector2Array(accessor),
+            _ => throw new InvalidOperationException()
+        };
+
+        gltfAccessor.AsVector2Array().Fill(accessorArray);
+    }
+
+    internal static Vector2[] ConvertHalfVector2Array(VertexElementAccessor accessor)
+    {
+        var accessorArray = new Vector2[accessor.VertexCount];
+        for (int i = 0; i < accessor.VertexCount; i++)
+        {
+            var elementData = accessor.DecodeAt(i);
+
+            var x = BitConverter.ToHalf(elementData[0..2]);
+            var y = BitConverter.ToHalf(elementData[2..4]);
+
+            accessorArray[i] = new Vector2((float)x, (float)y);
+        }
+
+        return accessorArray;
+    }
+
+    internal static Vector3[] ConvertHalfVector3Array(VertexElementAccessor accessor)
+    {
+        var accessorArray = new Vector3[accessor.VertexCount];
+        for (int i = 0; i < accessor.VertexCount; i++)
+        {
+            var elementData = accessor.DecodeAt(i);
+
+            var x = BitConverter.ToHalf(elementData[0..2]);
+            var y = BitConverter.ToHalf(elementData[2..4]);
+            var z = BitConverter.ToHalf(elementData[4..6]);
+
+            accessorArray[i] = new Vector3((float)x, (float)y, (float)z);
+        }
+
+        return accessorArray;
     }
 
     internal static bool TryGetElementMemoryAccessInfo(

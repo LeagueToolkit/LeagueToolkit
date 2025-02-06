@@ -2,3 +2,6 @@
 
 # IDE0008: Use explicit type
 csharp_style_var_elsewhere = true
+
+# IDE0009: Member access should be qualified.
+dotnet_style_qualification_for_method = false

@@ -8,7 +8,8 @@ namespace LeagueToolkit.Core.Memory
     /// Provides an read-only interface for indexing and enumerating vertex element values described by <see cref="VertexElementAccessor"/>
     /// </summary>
     /// <typeparam name="TElement">The type of the serialized element value</typeparam>
-    public readonly struct VertexElementArray<TElement> : IReadOnlyList<TElement> where TElement : struct
+    public readonly struct VertexElementArray<TElement> : IReadOnlyList<TElement>
+        where TElement : struct
     {
         public int Count => this.Accessor.VertexCount;
 
@@ -27,8 +28,13 @@ namespace LeagueToolkit.Core.Memory
             this.Accessor = accessor;
         }
 
-        private TElement ReadElement(int offset) =>
-            MemoryMarshal.Read<TElement>(this.Accessor.BufferView.Span[offset..]);
+        private TElement ReadElement(int offset)
+        {
+            var elementSize = this.Accessor.Element.GetSize();
+            var elementMemory = this.Accessor.BufferView.Span.Slice(offset, elementSize);
+
+            return MemoryMarshal.Read<TElement>(elementMemory);
+        }
 
         public TElement this[int index] =>
             ReadElement(this.Accessor.VertexStride * index + this.Accessor.ElementOffset);

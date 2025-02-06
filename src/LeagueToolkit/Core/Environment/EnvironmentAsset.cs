@@ -273,18 +273,20 @@ public sealed class EnvironmentAsset : IDisposable
         List<int[]> bufferIdsOfMeshes = new(this._meshes.Select(GetMeshVertexBufferIds));
 
         // Set the vertex buffer IDs for each mesh and collect visibility flags for each vertex buffer
-        EnvironmentVisibility[] visibilityFlagsOfBuffers = new EnvironmentVisibility[this._vertexBuffers.Length];
+        var visibilityFlagsOfBuffers = new EnvironmentVisibility[this._vertexBuffers.Length];
         for (int meshId = 0; meshId < bufferIdsOfMeshes.Count; meshId++)
         {
-            EnvironmentAssetMesh mesh = this._meshes[meshId];
+            var mesh = this._meshes[meshId];
 
             // It would be better to pass this into the mesh writing function
-            int[] currentMeshBufferIds = bufferIdsOfMeshes[meshId];
+            var currentMeshBufferIds = bufferIdsOfMeshes[meshId];
             mesh._vertexBufferIds = currentMeshBufferIds;
 
             // Merge flags
             for (int i = 0; i < currentMeshBufferIds.Length; i++)
+            {
                 visibilityFlagsOfBuffers[currentMeshBufferIds[i]] |= mesh.VisibilityFlags;
+            }
         }
 
         // Write count of buffers
@@ -293,7 +295,7 @@ public sealed class EnvironmentAsset : IDisposable
         // Write buffer data
         for (int i = 0; i < this._vertexBuffers.Length; i++)
         {
-            VertexBuffer vertexBuffer = this._vertexBuffers[i];
+            var vertexBuffer = this._vertexBuffers[i];
 
             bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(vertexBuffer.View.Length);
@@ -307,13 +309,13 @@ public sealed class EnvironmentAsset : IDisposable
         List<int> bufferIdOfMeshes = new(this._meshes.Select(GetMeshIndexBufferId));
 
         // Set the index buffer id for each mesh and collect visibility flags for each buffer
-        EnvironmentVisibility[] visibilityFlagsOfBuffers = new EnvironmentVisibility[this._indexBuffers.Length];
+        var visibilityFlagsOfBuffers = new EnvironmentVisibility[this._indexBuffers.Length];
         for (int meshId = 0; meshId < bufferIdOfMeshes.Count; meshId++)
         {
-            EnvironmentAssetMesh mesh = this._meshes[meshId];
+            var mesh = this._meshes[meshId];
 
             // It would be better to pass this into the mesh writing function
-            int meshIndexBufferId = bufferIdOfMeshes[meshId];
+            var meshIndexBufferId = bufferIdOfMeshes[meshId];
             mesh._indexBufferId = meshIndexBufferId;
 
             // Merge flags
@@ -326,7 +328,7 @@ public sealed class EnvironmentAsset : IDisposable
         // Write buffer data
         for (int i = 0; i < this._indexBuffers.Length; i++)
         {
-            ReadOnlyMemory<byte> indexBuffer = this._indexBuffers[i].Buffer;
+            var indexBuffer = this._indexBuffers[i].Buffer;
 
             bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(indexBuffer.Length);
@@ -371,21 +373,27 @@ public sealed class EnvironmentAsset : IDisposable
     private void Dispose(bool disposing)
     {
         if (this.IsDisposed)
+        {
             return;
+        }
 
         if (disposing)
         {
             if (this._vertexBuffers is not null)
+            {
                 foreach (VertexBuffer vertexBuffer in this._vertexBuffers)
                 {
                     vertexBuffer?.Dispose();
                 }
+            }
 
             if (this._indexBuffers is not null)
+            {
                 foreach (IndexBuffer indexBuffer in this._indexBuffers)
                 {
                     indexBuffer?.Dispose();
                 }
+            }
         }
 
         this.IsDisposed = true;

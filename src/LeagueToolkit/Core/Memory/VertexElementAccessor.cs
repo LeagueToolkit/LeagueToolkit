@@ -1,6 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
-using System;
+﻿using System;
 using System.Numerics;
+using CommunityToolkit.Diagnostics;
 
 namespace LeagueToolkit.Core.Memory
 {
@@ -35,6 +35,11 @@ namespace LeagueToolkit.Core.Memory
         public int ElementOffset { get; }
 
         /// <summary>
+        /// The size of the element described by this accessor
+        /// </summary>
+        public int ElementSize { get; }
+
+        /// <summary>
         /// Creates a new <see cref="VertexElementAccessor"/> for the specified <paramref name="element"/> inside of <paramref name="buffer"/>
         /// </summary>
         /// <param name="element">The element this accessor should describe</param>
@@ -50,6 +55,12 @@ namespace LeagueToolkit.Core.Memory
             this.VertexStride = stride;
             this.VertexCount = buffer.Length / stride;
             this.ElementOffset = elementOffset;
+            this.ElementSize = element.GetSize();
+        }
+
+        public ReadOnlySpan<byte> DecodeAt(int index)
+        {
+            return this.BufferView.Span.Slice(this.VertexStride * index + this.ElementOffset, this.ElementSize);
         }
 
         /// <summary> Creates an array for accessing the element described by this accessor</summary>
@@ -115,6 +126,12 @@ namespace LeagueToolkit.Core.Memory
             return AsArray<(byte z, byte y, byte x, byte w)>();
         }
 
+        public VertexElementArray<(Half, Half)> AsXyF16Array()
+        {
+            ValidateAccessFormat(ElementFormat.XY_Packed1616);
+            return AsArray<(Half, Half)>();
+        }
+
         /// <summary> Creates an array for accessing the element described by this accessor</summary>
         /// <returns>An array of elements with <see cref="ElementFormat.XYZW_Packed8888"/></returns>
         /// <remarks>Throws an <see cref="InvalidOperationException"/> if the format of the described element does not match</remarks>
@@ -124,7 +141,14 @@ namespace LeagueToolkit.Core.Memory
             return AsArray<(byte x, byte y, byte z, byte w)>();
         }
 
-        private VertexElementArray<TElement> AsArray<TElement>() where TElement : struct => new(this);
+        public VertexElementArray<(Half, Half, Half)> AsXyzF16Array()
+        {
+            ValidateAccessFormat(ElementFormat.XYZ_Packed161616);
+            return AsArray<(Half, Half, Half)>();
+        }
+
+        private VertexElementArray<TElement> AsArray<TElement>()
+            where TElement : struct => new(this);
 
         private void ValidateAccessFormat(ElementFormat accessFormat)
         {
