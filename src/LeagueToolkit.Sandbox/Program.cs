@@ -43,38 +43,23 @@ class Program
 {
     static void Main(string[] args)
     {
-        var texture = LeagueTexture.Load(
-            File.OpenRead(
-                @"C:\lol\new-map11\assets\maps\kitpieces\srs\boba\textures\boba_chaos_bot_b_1bitalpha.boba_env.tex"
-            )
-        );
-
-        texture.Mips[0].ToImage().SaveAsPng("boba_chaos_bot_b_1bitalpha.boba_env.png");
-
         ProfileMapgeoToGltf();
     }
 
     static void ProfileMetaSerializer()
     {
-        using FileStream animationsBinStream = File.OpenRead(
-            @"X:\lol\game\data\characters\akali\animations\skin0.bin"
-        );
+        using FileStream animationsBinStream = File.OpenRead(@"X:\lol\game\data\characters\akali\animations\skin0.bin");
         BinTree bin = new(animationsBinStream);
 
         BinTreeObject animationGraphDataObject = bin
-            .Objects.FirstOrDefault(x =>
-                x.Value.ClassHash == Fnv1a.HashLower(nameof(AnimationGraphData))
-            )
+            .Objects.FirstOrDefault(x => x.Value.ClassHash == Fnv1a.HashLower(nameof(AnimationGraphData)))
             .Value;
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
             Assembly.Load("LeagueToolkit.Meta.Classes").GetExportedTypes().Where(x => x.IsClass)
         );
 
-        var kekek = MetaSerializer.Deserialize<AnimationGraphData>(
-            metaEnvironment,
-            animationGraphDataObject
-        );
+        var kekek = MetaSerializer.Deserialize<AnimationGraphData>(metaEnvironment, animationGraphDataObject);
     }
 
     static void ProfileRitobinWriter()
@@ -225,14 +210,10 @@ class Program
 
     static void ProfileMapgeoToGltf()
     {
-        using FileStream materialsBinStream = File.OpenRead(
-            @"C:\lol\new-map11\data\maps\mapgeometry\map11\boba_srs.materials.bin"
-        );
+        using FileStream materialsBinStream = File.OpenRead(@"C:\lol\carousel_set10.materials.bin");
         BinTree materialsBin = new(materialsBinStream);
 
-        using FileStream mapgeoStream = File.OpenRead(
-            @"C:\lol\new-map11\data\maps\mapgeometry\map11\boba_srs.mapgeo"
-        );
+        using FileStream mapgeoStream = File.OpenRead(@"C:\lol\carousel_set10.mapgeo");
         using EnvironmentAsset mgeo = new(mapgeoStream);
 
         MetaEnvironment metaEnvironment = MetaEnvironment.Create(
@@ -245,14 +226,13 @@ class Program
                     metaEnvironment,
                     new()
                     {
-                        GameDataPath = @"C:\lol\new-map11",
                         FlipAcrossX = true,
                         LayerGroupingPolicy = MapGeometryGltfLayerGroupingPolicy.Default,
                         TextureQuality = MapGeometryGltfTextureQuality.High
                     }
                 )
             )
-            .SaveGLB("boba_srs.glb");
+            .SaveGLB("carousel_set10.glb");
     }
 
     static void ProfileTexture()
@@ -297,14 +277,10 @@ class Program
         File.WriteAllBytes("hashes.bintypes.txt", binTypesBuffer);
         File.WriteAllBytes("hashes.binfields.txt", binFieldsBuffer);
 
-        IEnumerable<string> classes = File.ReadLines("hashes.bintypes.txt")
-            .Select(line => line.Split(' ')[1]);
-        IEnumerable<string> properties = File.ReadLines("hashes.binfields.txt")
-            .Select(line => line.Split(' ')[1]);
+        IEnumerable<string> classes = File.ReadLines("hashes.bintypes.txt").Select(line => line.Split(' ')[1]);
+        IEnumerable<string> properties = File.ReadLines("hashes.binfields.txt").Select(line => line.Split(' ')[1]);
 
-        MetaDump
-            .Deserialize(File.ReadAllText(metaJsonFile))
-            .WriteMetaClasses(outputFile, classes, properties);
+        MetaDump.Deserialize(File.ReadAllText(metaJsonFile)).WriteMetaClasses(outputFile, classes, properties);
     }
 
     static void ProfileMetaSerialization()
@@ -344,9 +320,7 @@ class Program
         {
             var (vertexBuffer, vertexBufferWriter) = mapBuilder.UseVertexBuffer(
                 VertexBufferUsage.Static,
-                mesh.VerticesView.Buffers.SelectMany(vertexBuffer =>
-                        vertexBuffer.Description.Elements
-                    )
+                mesh.VerticesView.Buffers.SelectMany(vertexBuffer => vertexBuffer.Description.Elements)
                     .OrderBy(element => element.Name),
                 mesh.VerticesView.VertexCount
             );
@@ -363,11 +337,7 @@ class Program
                 .WithRenderFlags(mesh.RenderFlags)
                 .WithStationaryLightSampler(mesh.StationaryLight)
                 .WithBakedLightSampler(mesh.BakedLight)
-                .WithTextureOverrides(
-                    mesh.TextureOverrides,
-                    mesh.BakedPaintScale,
-                    mesh.BakedPaintBias
-                )
+                .WithTextureOverrides(mesh.TextureOverrides, mesh.BakedPaintScale, mesh.BakedPaintBias)
                 .WithGeometry(
                     mesh.Submeshes.Select(submesh => new MeshPrimitiveBuilder(
                         EnvironmentAssetMeshPrimitive.MISSING_MATERIAL,
@@ -388,43 +358,20 @@ class Program
 
         static void RewriteVertexBuffer(EnvironmentAssetMesh mesh, VertexBufferWriter writer)
         {
-            bool hasPositions = mesh.VerticesView.TryGetAccessor(
-                ElementName.Position,
-                out var positionAccessor
-            );
-            bool hasNormals = mesh.VerticesView.TryGetAccessor(
-                ElementName.Normal,
-                out var normalAccessor
-            );
-            bool hasBaseColor = mesh.VerticesView.TryGetAccessor(
-                ElementName.PrimaryColor,
-                out var baseColorAccessor
-            );
-            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(
-                ElementName.Texcoord0,
-                out var diffuseUvAccessor
-            );
-            bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(
-                ElementName.Texcoord7,
-                out var lightmapUvAccessor
-            );
+            bool hasPositions = mesh.VerticesView.TryGetAccessor(ElementName.Position, out var positionAccessor);
+            bool hasNormals = mesh.VerticesView.TryGetAccessor(ElementName.Normal, out var normalAccessor);
+            bool hasBaseColor = mesh.VerticesView.TryGetAccessor(ElementName.PrimaryColor, out var baseColorAccessor);
+            bool hasDiffuseUvs = mesh.VerticesView.TryGetAccessor(ElementName.Texcoord0, out var diffuseUvAccessor);
+            bool hasLightmapUvs = mesh.VerticesView.TryGetAccessor(ElementName.Texcoord7, out var lightmapUvAccessor);
 
             if (hasPositions is false)
-                ThrowHelper.ThrowInvalidOperationException(
-                    $"Mesh: {mesh.Name} does not have vertex positions"
-                );
+                ThrowHelper.ThrowInvalidOperationException($"Mesh: {mesh.Name} does not have vertex positions");
 
             VertexElementArray<Vector3> positionsArray = positionAccessor.AsVector3Array();
-            VertexElementArray<Vector3> normalsArray = hasNormals
-                ? normalAccessor.AsVector3Array()
-                : new();
+            VertexElementArray<Vector3> normalsArray = hasNormals ? normalAccessor.AsVector3Array() : new();
             var baseColorArray = hasBaseColor ? baseColorAccessor.AsBgraU8Array() : new();
-            VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs
-                ? diffuseUvAccessor.AsVector2Array()
-                : new();
-            VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs
-                ? lightmapUvAccessor.AsVector2Array()
-                : new();
+            VertexElementArray<Vector2> diffuseUvsArray = hasDiffuseUvs ? diffuseUvAccessor.AsVector2Array() : new();
+            VertexElementArray<Vector2> lightmapUvsArray = hasLightmapUvs ? lightmapUvAccessor.AsVector2Array() : new();
 
             for (int i = 0; i < mesh.VerticesView.VertexCount; i++)
             {

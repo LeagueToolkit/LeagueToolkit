@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.HighPerformance.Buffers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommunityToolkit.Diagnostics;
+using CommunityToolkit.HighPerformance.Buffers;
 
 namespace LeagueToolkit.Core.Memory
 {
@@ -18,7 +18,7 @@ namespace LeagueToolkit.Core.Memory
         public VertexBufferDescription Description { get; }
 
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
-        private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
+        private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = [];
 
         public ReadOnlyMemory<byte> View => this._buffer.Memory;
 
@@ -173,15 +173,9 @@ namespace LeagueToolkit.Core.Memory
         }
     }
 
-    public readonly struct VertexBufferElementDescriptor
+    public readonly struct VertexBufferElementDescriptor(VertexElement element, int offset)
     {
-        public VertexElement Element { get; }
-        public int Offset { get; }
-
-        public VertexBufferElementDescriptor(VertexElement element, int offset)
-        {
-            this.Element = element;
-            this.Offset = offset;
-        }
+        public VertexElement Element { get; } = element;
+        public int Offset { get; } = offset;
     }
 }

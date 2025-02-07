@@ -1,10 +1,10 @@
-﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Primitives;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Primitives;
 
 namespace LeagueToolkit.Core.Memory
 {
@@ -17,7 +17,7 @@ namespace LeagueToolkit.Core.Memory
         /// The elements of a vertex inside <see cref="_buffer"/>
         /// </summary>
         public IReadOnlyDictionary<ElementName, VertexBufferElementDescriptor> Elements => this._elements;
-        private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = new();
+        private readonly Dictionary<ElementName, VertexBufferElementDescriptor> _elements = [];
 
         /// <summary>
         /// The size of a vertex inside <see cref="_buffer"/>
@@ -155,7 +155,8 @@ namespace LeagueToolkit.Core.Memory
             Write(index, element, stackalloc byte[4] { value.x, value.y, value.z, value.w });
         }
 
-        private void Write<TValue>(int index, ElementName element, TValue value) where TValue : struct
+        private void Write<TValue>(int index, ElementName element, TValue value)
+            where TValue : struct
         {
             int offset = this.VertexStride * index + this.Elements[element].Offset;
             MemoryMarshal.Write(this._buffer[offset..].Span, ref value);
