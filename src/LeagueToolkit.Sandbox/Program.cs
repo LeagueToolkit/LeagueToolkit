@@ -43,7 +43,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        ProfileMapgeoToGltf();
+        TestMetaRoslynCodegen(@"X:\lol\meta\15.2.json", "Classes.cs");
     }
 
     static void ProfileMetaSerializer()
@@ -263,22 +263,12 @@ class Program
         skinnedMesh.ToGltf(new List<(string, Stream)>()).WriteGLB(File.OpenWrite("akali.glb"));
     }
 
-    static async Task TestMetaRoslynCodegen(string metaJsonFile, string outputFile)
+    static void TestMetaRoslynCodegen(string metaJsonFile, string outputFile)
     {
-        using HttpClient client = new();
-
-        byte[] binTypesBuffer = await client.GetByteArrayAsync(
-            "https://github.com/LeagueToolkit/LeagueHashes/raw/master/hashes/hashes.bintypes.txt"
-        );
-        byte[] binFieldsBuffer = await client.GetByteArrayAsync(
-            "https://github.com/LeagueToolkit/LeagueHashes/raw/master/hashes/hashes.binfields.txt"
-        );
-
-        File.WriteAllBytes("hashes.bintypes.txt", binTypesBuffer);
-        File.WriteAllBytes("hashes.binfields.txt", binFieldsBuffer);
-
-        IEnumerable<string> classes = File.ReadLines("hashes.bintypes.txt").Select(line => line.Split(' ')[1]);
-        IEnumerable<string> properties = File.ReadLines("hashes.binfields.txt").Select(line => line.Split(' ')[1]);
+        IEnumerable<string> classes = File.ReadLines(@"X:\lol\tools\ritobin\hashes\hashes.bintypes.txt")
+            .Select(line => line.Split(' ')[1]);
+        IEnumerable<string> properties = File.ReadLines(@"X:\lol\tools\ritobin\hashes\hashes.binfields.txt")
+            .Select(line => line.Split(' ')[1]);
 
         MetaDump.Deserialize(File.ReadAllText(metaJsonFile)).WriteMetaClasses(outputFile, classes, properties);
     }
