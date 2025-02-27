@@ -153,6 +153,19 @@ namespace LeagueToolkit.Meta.Classes
         public Dictionary<uint, MetaEmbedded<Class0x58ae628f>> m4252232672 { get; set; } = new();
     }
 
+    [MetaClassAttribute(290346475U)]
+    public class Class0x114e55eb : IGameModeConfig
+    {
+        [MetaPropertyAttribute("properties", BinPropertyType.Map, "Class0xf130d63c", BinPropertyType.String, BinPropertyType.Embedded)]
+        public Dictionary<string, MetaEmbedded<Class0xf130d63c>> Properties { get; set; } = new();
+
+        [MetaPropertyAttribute(3830391293U, BinPropertyType.Embedded, "Class0xdbdfb69", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xdbdfb69> m3830391293 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(3873349473U, BinPropertyType.Embedded, "Class0xdbdfb69", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xdbdfb69> m3873349473 { get; set; } = new(new());
+    }
+
     [MetaClassAttribute("TftCutsceneBasePostFxClip")]
     public abstract class TftCutsceneBasePostFxClip : TftCutsceneClip
     {
@@ -691,43 +704,6 @@ namespace LeagueToolkit.Meta.Classes
         public float CurrentPercentHealth { get; set; } = 0f;
     }
 
-    [MetaClassAttribute("TftTeamPlannerMemberData")]
-    public class TftTeamPlannerMemberData : IMetaClass
-    {
-        [MetaPropertyAttribute("ChampionIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ChampionIcon { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("SnapshotHighlight", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash SnapshotHighlight { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("Button", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Button { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("Group", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Group { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("HoverEffectGlowChampion", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash HoverEffectGlowChampion { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("traits", BinPropertyType.Container, "TftTeamPlannerMemberDisplayTrait", BinPropertyType.Embedded, BinPropertyType.None)]
-        public MetaContainer<MetaEmbedded<TftTeamPlannerMemberDisplayTrait>> Traits { get; set; } = new();
-
-        [MetaPropertyAttribute("HoverEffectGlowTier", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash HoverEffectGlowTier { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("FrameIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash FrameIcon { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("Text", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Text { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("HoverEffectGlowTraitBackgrounds", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
-        public MetaContainer<MetaHash> HoverEffectGlowTraitBackgrounds { get; set; } = new();
-
-        [MetaPropertyAttribute("HoverEffectGlowTraitIcons", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
-        public MetaContainer<MetaHash> HoverEffectGlowTraitIcons { get; set; } = new();
-    }
-
     [MetaClassAttribute(332861570U)]
     public interface Class0x13d71082 : IMetaClass
     {
@@ -1026,6 +1002,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaUnorderedContainer<MetaHash> Value { get; set; } = new();
     }
 
+    [MetaClassAttribute(367017717U)]
+    public class Class0x15e03ef5 : IMetaClass
+    {
+        [MetaPropertyAttribute(3983620101U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3983620101 { get; set; } = "";
+    }
+
     [MetaClassAttribute(367766172U)]
     public class Class0x15ebaa9c : IScriptBlock
     {
@@ -1039,6 +1022,9 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("TFTCharacterRoleData")]
     public class TFTCharacterRoleData : IMetaClass
     {
+        [MetaPropertyAttribute(18267547U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m18267547 { get; set; } = "";
+
         [MetaPropertyAttribute("ItemRoleNameTra", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string ItemRoleNameTra { get; set; } = "";
 
@@ -1048,8 +1034,14 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("CharacterRoleNameTra", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string CharacterRoleNameTra { get; set; } = "";
 
+        [MetaPropertyAttribute(2288772113U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2288772113 { get; set; } = "";
+
         [MetaPropertyAttribute("name", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string Name { get; set; } = "";
+
+        [MetaPropertyAttribute(2712507047U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2712507047 { get; set; } = "";
 
         [MetaPropertyAttribute("Icon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Icon { get; set; } = new(0U);
@@ -1067,6 +1059,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("border", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Border { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(562639998U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m562639998 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("Mastery", BinPropertyType.Embedded, "LoadingScreenChampionMasteryData", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<LoadingScreenChampionMasteryData> Mastery { get; set; } = new(new());
 
@@ -1081,9 +1076,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("Regalia", BinPropertyType.Embedded, "LoadingScreenRegaliaData", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<LoadingScreenRegaliaData> Regalia { get; set; } = new(new());
-
-        [MetaPropertyAttribute("BorderScene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash BorderScene { get; set; } = new(0U);
 
         [MetaPropertyAttribute("SummonerTitle", BinPropertyType.Embedded, "LoadingScreenSummonerTitleData", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<LoadingScreenSummonerTitleData> SummonerTitle { get; set; } = new(new());
@@ -2119,6 +2111,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(889180349U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m889180349 { get; set; } = false;
 
+        [MetaPropertyAttribute(1069208505U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1069208505 { get; set; } = false;
+
         [MetaPropertyAttribute("NavGridConfig", BinPropertyType.ObjectLink, "NavGridConfig", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink NavGridConfig { get; set; } = new(0U);
 
@@ -2280,6 +2275,19 @@ namespace LeagueToolkit.Meta.Classes
         public MetaObjectLink Object { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(30382133U)]
+    public class Class0x1cf9835 : ISequenceAction
+    {
+        [MetaPropertyAttribute(1480104U, BinPropertyType.Struct, "Class0x90e924a6", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x90e924a6 m1480104 { get; set; } = null;
+
+        [MetaPropertyAttribute(426817855U, BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation m426817855 { get; set; } = null;
+
+        [MetaPropertyAttribute(4180452382U, BinPropertyType.Embedded, "Class0x641e4225", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x641e4225> m4180452382 { get; set; } = new(new());
+    }
+
     [MetaClassAttribute("PropertyOverrideLoadable")]
     public class PropertyOverrideLoadable : IMetaClass
     {
@@ -2386,6 +2394,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("mBotLoadoutConfig", BinPropertyType.ObjectLink, "TFTBotLoadoutConfiguration", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink BotLoadoutConfig { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1588029945U, BinPropertyType.ObjectLink, "TFTBotLoadoutConfiguration", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m1588029945 { get; set; } = new(0U);
+
         [MetaPropertyAttribute(1615207103U, BinPropertyType.UnorderedContainer, "", BinPropertyType.Hash, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaHash> m1615207103 { get; set; } = new();
 
@@ -2477,6 +2488,9 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("deltaIn", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float DeltaIn { get; set; } = 0f;
+
+        [MetaPropertyAttribute(1005680316U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m1005680316 { get; set; } = 0;
 
         [MetaPropertyAttribute("beginIn", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float BeginIn { get; set; } = 0f;
@@ -2670,6 +2684,16 @@ namespace LeagueToolkit.Meta.Classes
         public Color PulseStartColor { get; set; } = new Color(193f, 251f, 255f, 255f);
     }
 
+    [MetaClassAttribute(512654153U)]
+    public class Class0x1e8e7b49 : LoadoutGridButtonData
+    {
+        [MetaPropertyAttribute("FavoriteIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash FavoriteIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("RarityIcon", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
+        public MetaContainer<MetaHash> RarityIcon { get; set; } = new();
+    }
+
     [MetaClassAttribute(512801890U)]
     public class Class0x1e90bc62 : Class0x760ad40
     {
@@ -2785,6 +2809,25 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("duration", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float Duration { get; set; } = 0f;
+    }
+
+    [MetaClassAttribute(525132615U)]
+    public class Class0x1f4ce347 : ISequenceAction
+    {
+        [MetaPropertyAttribute("Target", BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink Target { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("ParameterName", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ParameterName { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("FromValue", BinPropertyType.Vector4, "", BinPropertyType.None, BinPropertyType.None)]
+        public Vector4 FromValue { get; set; } = new Vector4(0f, 0f, 0f, 0f);
+
+        [MetaPropertyAttribute("EasingType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte EasingType { get; set; } = 0;
+
+        [MetaPropertyAttribute("ToValue", BinPropertyType.Vector4, "", BinPropertyType.None, BinPropertyType.None)]
+        public Vector4 ToValue { get; set; } = new Vector4(1f, 1f, 1f, 1f);
     }
 
     [MetaClassAttribute("MinimapIcon")]
@@ -2949,17 +2992,11 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("enabled", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool Enabled { get; set; } = true;
 
-        [MetaPropertyAttribute("nexus", BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink Nexus { get; set; } = new(0U);
-
         [MetaPropertyAttribute(2517486591U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m2517486591 { get; set; } = new(0U);
 
         [MetaPropertyAttribute(3521473764U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3521473764 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3797917449U, BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m3797917449 { get; set; } = new(0U);
 
         [MetaPropertyAttribute(3919156762U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3919156762 { get; set; } = new(0U);
@@ -3034,6 +3071,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(1095816518U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m1095816518 { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1152251207U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1152251207 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("loadoutsButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash LoadoutsButton { get; set; } = new(0U);
 
@@ -3043,8 +3083,14 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("Group", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Group { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1613451068U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1613451068 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("KickButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash KickButton { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("Warning", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Warning { get; set; } = new(0U);
 
         [MetaPropertyAttribute(2126772653U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m2126772653 { get; set; } = new(0U);
@@ -3060,6 +3106,12 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("LittleLegendIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash LittleLegendIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2746188161U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2746188161 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2764526224U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2764526224 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("EditButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash EditButton { get; set; } = new(0U);
@@ -3078,6 +3130,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("UseLeaderControlsModal", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool UseLeaderControlsModal { get; set; } = false;
+
+        [MetaPropertyAttribute(3831496492U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3831496492 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("DamageSkinIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash DamageSkinIcon { get; set; } = new(0U);
@@ -3224,6 +3279,19 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(546598872U)]
     public class Class0x20946fd8 : Class0xfaf91113
     {
+    }
+
+    [MetaClassAttribute(546602404U)]
+    public class Class0x20947da4 : Class0xa2913bfb
+    {
+        [MetaPropertyAttribute(292685121U, BinPropertyType.Struct, "ISplineInfo", BinPropertyType.None, BinPropertyType.None)]
+        public ISplineInfo m292685121 { get; set; } = null;
+
+        [MetaPropertyAttribute(1982714233U, BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x94e82d1f m1982714233 { get; set; } = null;
+
+        [MetaPropertyAttribute(2056434840U, BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x94e82d1f m2056434840 { get; set; } = null;
     }
 
     [MetaClassAttribute("BuffModifier")]
@@ -3942,6 +4010,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash DefaultLogo { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(593754896U)]
+    public class Class0x2363fb10 : IContextualCondition
+    {
+        [MetaPropertyAttribute("animationName", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash AnimationName { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute(596740309U)]
     public class Class0x239188d5 : IMetaClass
     {
@@ -3961,6 +4036,13 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(596884813U)]
     public abstract class Class0x2393bd4d : IX3dShadingModel
     {
+    }
+
+    [MetaClassAttribute(599183972U)]
+    public class Class0x23b6d264 : Class0x1375d0b
+    {
+        [MetaPropertyAttribute(81848013U, BinPropertyType.UnorderedContainer, "Class0x93b1be1", BinPropertyType.ObjectLink, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaObjectLink> m81848013 { get; set; } = new();
     }
 
     [MetaClassAttribute(601252399U)]
@@ -4047,7 +4129,7 @@ namespace LeagueToolkit.Meta.Classes
         public Dictionary<MetaHash, IGameCalculation> CharacterCalculations { get; set; } = new();
 
         [MetaPropertyAttribute("onKillEvent", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
-        public uint OnKillEvent { get; set; } = 396;
+        public uint OnKillEvent { get; set; } = 407;
 
         [MetaPropertyAttribute("baseDamage", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float BaseDamage { get; set; } = 10f;
@@ -4086,7 +4168,7 @@ namespace LeagueToolkit.Meta.Classes
         public float HoverLineIndicatorWidthMinimap { get; set; } = 100f;
 
         [MetaPropertyAttribute("onKillEventForSpectator", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
-        public uint OnKillEventForSpectator { get; set; } = 396;
+        public uint OnKillEventForSpectator { get; set; } = 407;
 
         [MetaPropertyAttribute("mPreferredPerkStyle", BinPropertyType.ObjectLink, "PerkStyle", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink PreferredPerkStyle { get; set; } = new(0U);
@@ -4230,7 +4312,7 @@ namespace LeagueToolkit.Meta.Classes
         public MetaContainer<int> AbilitySlotCC { get; set; } = new();
 
         [MetaPropertyAttribute("OnKillEventSteal", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
-        public uint OnKillEventSteal { get; set; } = 396;
+        public uint OnKillEventSteal { get; set; } = 407;
 
         [MetaPropertyAttribute("healthBarHeight", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float HealthBarHeight { get; set; } = 100f;
@@ -4978,6 +5060,11 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash MobileLoadable { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(613361377U)]
+    public class Class0x248f26e1 : MissileTriggerSpec
+    {
+    }
+
     [MetaClassAttribute("TFTLobbyViewController")]
     public class TFTLobbyViewController : LobbyViewController
     {
@@ -5004,6 +5091,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("RatedOnlyTraKey", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string RatedOnlyTraKey { get; set; } = "";
+
+        [MetaPropertyAttribute(2305025850U, BinPropertyType.Map, "Class0x470b636c", BinPropertyType.U8, BinPropertyType.Embedded)]
+        public Dictionary<byte, MetaEmbedded<Class0x470b636c>> m2305025850 { get; set; } = new();
 
         [MetaPropertyAttribute("RankOnlyTraKey", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string RankOnlyTraKey { get; set; } = "";
@@ -5345,13 +5435,6 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash m4272974184 { get; set; } = new(0U);
     }
 
-    [MetaClassAttribute(632969698U)]
-    public class Class0x25ba59e2 : IPictureInPictureSource
-    {
-        [MetaPropertyAttribute("UnitProperty", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash UnitProperty { get; set; } = new(0U);
-    }
-
     [MetaClassAttribute(39582290U)]
     public class Class0x25bfa52 : IScriptBlock
     {
@@ -5530,6 +5613,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(891191810U, BinPropertyType.UnorderedContainer, "", BinPropertyType.Hash, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaHash> m891191810 { get; set; } = new();
+
+        [MetaPropertyAttribute(1272803835U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1272803835 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("ItemDragRegion", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ItemDragRegion { get; set; } = new(0U);
@@ -5932,6 +6018,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("AudioBankPaths", BinPropertyType.UnorderedContainer, "", BinPropertyType.String, BinPropertyType.None)]
         public MetaUnorderedContainer<string> AudioBankPaths { get; set; } = new();
 
+        [MetaPropertyAttribute("StandaloneLoadoutsIcon", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string StandaloneLoadoutsIcon { get; set; } = "";
+
         [MetaPropertyAttribute("rarity", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
         public uint Rarity { get; set; } = 0;
 
@@ -5940,6 +6029,12 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("VfxResourceResolver", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash VfxResourceResolver { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("StandaloneLoadoutsLargeIcon", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string StandaloneLoadoutsLargeIcon { get; set; } = "";
+
+        [MetaPropertyAttribute("GroupLink", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string GroupLink { get; set; } = "";
     }
 
     [MetaClassAttribute(660116394U)]
@@ -6484,7 +6579,7 @@ namespace LeagueToolkit.Meta.Classes
     }
 
     [MetaClassAttribute("OptionTemplateHotkeys")]
-    public class OptionTemplateHotkeys : IOptionTemplate
+    public class OptionTemplateHotkeys : Class0xa91b85e3
     {
         [MetaPropertyAttribute("QuickCastButtonPos", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash QuickCastButtonPos { get; set; } = new(0U);
@@ -6603,6 +6698,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("PreloadTextures", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool PreloadTextures { get; set; } = true;
+
+        [MetaPropertyAttribute(3022404259U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m3022404259 { get; set; } = new Color(255f, 255f, 255f, 255f);
 
         [MetaPropertyAttribute("mDefaultTextureName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string DefaultTextureName { get; set; } = "2DLevelMiniMap.dds";
@@ -7172,14 +7270,89 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(47526381U)]
     public class Class0x2d531ed : IMetaClass
     {
+        [MetaPropertyAttribute(560675370U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m560675370 { get; set; } = "";
+
+        [MetaPropertyAttribute(820848601U, BinPropertyType.UnorderedContainer, "", BinPropertyType.Hash, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaHash> m820848601 { get; set; } = new();
+
+        [MetaPropertyAttribute(999986501U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m999986501 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1034238592U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1034238592 { get; set; } = "";
+
+        [MetaPropertyAttribute(1142451933U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1142451933 { get; set; } = "";
+
+        [MetaPropertyAttribute(1244969096U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1244969096 { get; set; } = "";
+
+        [MetaPropertyAttribute(1354424158U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1354424158 { get; set; } = "";
+
+        [MetaPropertyAttribute(1525240943U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float m1525240943 { get; set; } = 4f;
+
+        [MetaPropertyAttribute(1582973905U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float m1582973905 { get; set; } = 1f;
+
+        [MetaPropertyAttribute(1610095070U, BinPropertyType.Map, "", BinPropertyType.I32, BinPropertyType.U8)]
+        public Dictionary<int, byte> m1610095070 { get; set; } = new();
+
+        [MetaPropertyAttribute(1679819999U, BinPropertyType.Embedded, "Class0xd03de37f", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xd03de37f> m1679819999 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(1707897856U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1707897856 { get; set; } = "";
+
+        [MetaPropertyAttribute(1908110967U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1908110967 { get; set; } = "";
+
+        [MetaPropertyAttribute(1991278731U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1991278731 { get; set; } = "";
+
         [MetaPropertyAttribute(2088308155U, BinPropertyType.UnorderedContainer, "Class0x978883b6", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<Class0x978883b6>> m2088308155 { get; set; } = new();
 
-        [MetaPropertyAttribute("Cooldown", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
-        public byte Cooldown { get; set; } = 2;
+        [MetaPropertyAttribute(2445358720U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2445358720 { get; set; } = "";
+
+        [MetaPropertyAttribute(2493493485U, BinPropertyType.Embedded, "Class0x15e03ef5", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x15e03ef5> m2493493485 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(163087808U, BinPropertyType.Embedded, "Class0x15e03ef5", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x15e03ef5> m163087808 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(2647069758U, BinPropertyType.Embedded, "Class0x15e03ef5", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x15e03ef5> m2647069758 { get; set; } = new(new());
 
         [MetaPropertyAttribute(2701830113U, BinPropertyType.UnorderedContainer, "Class0x978883b6", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<Class0x978883b6>> m2701830113 { get; set; } = new();
+
+        [MetaPropertyAttribute(2731513724U, BinPropertyType.ObjectLink, "TftCharacter", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m2731513724 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3204919233U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3204919233 { get; set; } = "";
+
+        [MetaPropertyAttribute(3278105992U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3278105992 { get; set; } = "";
+
+        [MetaPropertyAttribute(3297935455U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3297935455 { get; set; } = "";
+
+        [MetaPropertyAttribute(3525385609U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3525385609 { get; set; } = "";
+
+        [MetaPropertyAttribute(3651820742U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3651820742 { get; set; } = "";
+
+        [MetaPropertyAttribute(3801099626U, BinPropertyType.Embedded, "Class0xd03de37f", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xd03de37f> m3801099626 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(4287013980U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m4287013980 { get; set; } = "";
     }
 
     [MetaClassAttribute("EsportsBannerData")]
@@ -7306,6 +7479,11 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("probabilityTables", BinPropertyType.Container, "VfxProbabilityTableData", BinPropertyType.Struct, BinPropertyType.None)]
         public MetaContainer<VfxProbabilityTableData> ProbabilityTables { get; set; } = new();
+    }
+
+    [MetaClassAttribute(773332840U)]
+    public class Class0x2e181f68 : Class0xbe07ec3f
+    {
     }
 
     [MetaClassAttribute("ItemRecommendationMatrix")]
@@ -7518,8 +7696,14 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(73929030U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m73929030 { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1514380964U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1514380964 { get; set; } = new(0U);
+
         [MetaPropertyAttribute(1857778510U, BinPropertyType.ObjectLink, "BinFileContainer", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink m1857778510 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1950846669U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1950846669 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("IconPath", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string IconPath { get; set; } = "";
@@ -7767,6 +7951,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(3960685346U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string m3960685346 { get; set; } = "";
+    }
+
+    [MetaClassAttribute(826122316U)]
+    public class Class0x313da04c : IMetaClass
+    {
+        [MetaPropertyAttribute("ItemIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ItemIcon { get; set; } = new(0U);
     }
 
     [MetaClassAttribute(829999553U)]
@@ -8425,6 +8616,11 @@ namespace LeagueToolkit.Meta.Classes
         public uint SpellSlot { get; set; } = 0;
     }
 
+    [MetaClassAttribute(882372815U)]
+    public abstract class Class0x3497f0cf : IMetaClass
+    {
+    }
+
     [MetaClassAttribute(882394585U)]
     public class Class0x349845d9 : ViewControllerFilterI
     {
@@ -8555,6 +8751,11 @@ namespace LeagueToolkit.Meta.Classes
 
     [MetaClassAttribute("PingRadialViewController")]
     public class PingRadialViewController : PingRadialBaseViewController
+    {
+    }
+
+    [MetaClassAttribute(895527571U)]
+    public class Class0x3560aa93 : Class0xbe07ec3f
     {
     }
 
@@ -9052,6 +9253,11 @@ namespace LeagueToolkit.Meta.Classes
     {
     }
 
+    [MetaClassAttribute(950227006U)]
+    public class Class0x38a3503e : Class0x3497f0cf
+    {
+    }
+
     [MetaClassAttribute(950875284U)]
     public class Class0x38ad3494 : Class0xfaf91113
     {
@@ -9132,6 +9338,9 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(3494514662U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3494514662 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3551073382U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3551073382 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("SlotTemplate", BinPropertyType.Embedded, "Class0x5841e5bd", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<Class0x5841e5bd> SlotTemplate { get; set; } = new(new());
@@ -10038,6 +10247,11 @@ namespace LeagueToolkit.Meta.Classes
     {
     }
 
+    [MetaClassAttribute(1063681406U)]
+    public class Class0x3f667d7e : Class0xbe07ec3f
+    {
+    }
+
     [MetaClassAttribute(1063793313U)]
     public class Class0x3f6832a1 : MapScriptLocator
     {
@@ -10150,14 +10364,20 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("LobbyBottomButtons")]
     public class LobbyBottomButtons : IMetaClass
     {
-        [MetaPropertyAttribute("Warning", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Warning { get; set; } = new(0U);
+        [MetaPropertyAttribute(1031226870U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1031226870 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1503645038U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1503645038 { get; set; } = "";
+
+        [MetaPropertyAttribute(1529225261U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1529225261 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("VietnameseRatingLabel", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash VietnameseRatingLabel { get; set; } = new(0U);
 
-        [MetaPropertyAttribute("WarningText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash WarningText { get; set; } = new(0U);
+        [MetaPropertyAttribute(2135852704U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2135852704 { get; set; } = "";
 
         [MetaPropertyAttribute("TeamPlannerButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash TeamPlannerButton { get; set; } = new(0U);
@@ -10167,6 +10387,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("StartButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash StartButton { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("RestrictionIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash RestrictionIcon { get; set; } = new(0U);
 
         [MetaPropertyAttribute("InviteButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash InviteButton { get; set; } = new(0U);
@@ -10364,6 +10587,28 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("mChildCondition", BinPropertyType.Struct, "IContextualCondition", BinPropertyType.None, BinPropertyType.None)]
         public IContextualCondition ChildCondition { get; set; } = null;
+    }
+
+    [MetaClassAttribute(1108230973U)]
+    public class Class0x420e433d : ILoadoutInfoPanel
+    {
+        [MetaPropertyAttribute("GamePassIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash GamePassIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("ItemLockIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ItemLockIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("RarityIcon", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
+        public MetaContainer<MetaHash> RarityIcon { get; set; } = new();
+
+        [MetaPropertyAttribute("ItemIconText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ItemIconText { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("ItemIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ItemIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3997326812U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3997326812 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("UiElementEffectGlowingRotatingIconData")]
@@ -10592,6 +10837,9 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(1021388770U, BinPropertyType.UnorderedContainer, "Class0x2b6fac9a", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<Class0x2b6fac9a>> m1021388770 { get; set; } = new();
+
+        [MetaPropertyAttribute(1786256404U, BinPropertyType.UnorderedContainer, "", BinPropertyType.I32, BinPropertyType.None)]
+        public MetaUnorderedContainer<int> m1786256404 { get; set; } = new();
 
         [MetaPropertyAttribute(1923728007U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float m1923728007 { get; set; } = 1f;
@@ -11246,6 +11494,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("UnitShopUiOverride", BinPropertyType.Struct, "Class0x2483c715", BinPropertyType.None, BinPropertyType.None)]
         public Class0x2483c715 UnitShopUiOverride { get; set; } = null;
 
+        [MetaPropertyAttribute(701128328U, BinPropertyType.I32, "", BinPropertyType.None, BinPropertyType.None)]
+        public int m701128328 { get; set; } = 3;
+
         [MetaPropertyAttribute("DropRateTables", BinPropertyType.Map, "TftDropRateTable", BinPropertyType.String, BinPropertyType.ObjectLink)]
         public Dictionary<string, MetaObjectLink> DropRateTables { get; set; } = new();
 
@@ -11254,6 +11505,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(53141008U, BinPropertyType.Map, "Class0xdb7bbf5f", BinPropertyType.String, BinPropertyType.ObjectLink)]
         public Dictionary<string, MetaObjectLink> m53141008 { get; set; } = new();
+
+        [MetaPropertyAttribute(938306648U, BinPropertyType.Map, "TFTSetData", BinPropertyType.String, BinPropertyType.ObjectLink)]
+        public Dictionary<string, MetaObjectLink> m938306648 { get; set; } = new();
 
         [MetaPropertyAttribute("BotSkillData", BinPropertyType.Map, "TftBotSkillData", BinPropertyType.U8, BinPropertyType.ObjectLink)]
         public Dictionary<byte, MetaObjectLink> BotSkillData { get; set; } = new();
@@ -11380,6 +11634,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("ArmoryUiOverride", BinPropertyType.Struct, "Class0x2483c715", BinPropertyType.None, BinPropertyType.None)]
         public Class0x2483c715 ArmoryUiOverride { get; set; } = null;
+
+        [MetaPropertyAttribute(4000366036U, BinPropertyType.UnorderedContainer, "", BinPropertyType.Hash, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaHash> m4000366036 { get; set; } = new();
 
         [MetaPropertyAttribute(257718593U, BinPropertyType.Struct, "Class0x2483c715", BinPropertyType.None, BinPropertyType.None)]
         public Class0x2483c715 m257718593 { get; set; } = null;
@@ -11512,11 +11769,17 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("FilterArenaToggle", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash FilterArenaToggle { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1120613116U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1120613116 { get; set; } = new(0U);
+
         [MetaPropertyAttribute(1267782717U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m1267782717 { get; set; } = new(0U);
 
         [MetaPropertyAttribute(1382378938U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m1382378938 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1477462749U, BinPropertyType.UnorderedContainer, "Class0x69bf9d05", BinPropertyType.Embedded, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaEmbedded<Class0x69bf9d05>> m1477462749 { get; set; } = new();
 
         [MetaPropertyAttribute("MythicView", BinPropertyType.Struct, "StoreViewMythic", BinPropertyType.None, BinPropertyType.None)]
         public StoreViewMythic MythicView { get; set; } = null;
@@ -11571,6 +11834,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("StoreCategoryButtons", BinPropertyType.Container, "StoreCategoryButtonDefinition", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaContainer<MetaEmbedded<StoreCategoryButtonDefinition>> StoreCategoryButtons { get; set; } = new();
+
+        [MetaPropertyAttribute(4073305022U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4073305022 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("UiPositionRect")]
@@ -11862,6 +12128,11 @@ namespace LeagueToolkit.Meta.Classes
         public float VisibilityRadius { get; set; } = 250f;
     }
 
+    [MetaClassAttribute(73228384U)]
+    public class Class0x45d6060 : Class0xbe07ec3f
+    {
+    }
+
     [MetaClassAttribute("SwitchMaterialDriverElement")]
     public class SwitchMaterialDriverElement : IMetaClass
     {
@@ -12025,13 +12296,6 @@ namespace LeagueToolkit.Meta.Classes
         public Vector4 Color { get; set; } = new Vector4(1f, 0f, 0f, 1f);
     }
 
-    [MetaClassAttribute(1181773993U)]
-    public class Class0x467070a9 : IScriptCondition
-    {
-        [MetaPropertyAttribute("value", BinPropertyType.Struct, "ScriptTableGet", BinPropertyType.None, BinPropertyType.None)]
-        public ScriptTableGet Value { get; set; } = null;
-    }
-
     [MetaClassAttribute("ItemRecommendationItemList")]
     public class ItemRecommendationItemList : IMetaClass
     {
@@ -12093,6 +12357,16 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(3688768136U, BinPropertyType.UnorderedContainer, "Class0xb0e5f5b6", BinPropertyType.Struct, BinPropertyType.None)]
         public MetaUnorderedContainer<Class0xb0e5f5b6> m3688768136 { get; set; }
+    }
+
+    [MetaClassAttribute(1191928684U)]
+    public class Class0x470b636c : IMetaClass
+    {
+        [MetaPropertyAttribute("priority", BinPropertyType.I8, "", BinPropertyType.None, BinPropertyType.None)]
+        public sbyte Priority { get; set; } = 0;
+
+        [MetaPropertyAttribute(3910152786U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3910152786 { get; set; } = "";
     }
 
     [MetaClassAttribute("CharacterVars")]
@@ -12317,6 +12591,11 @@ namespace LeagueToolkit.Meta.Classes
         public float MaxXBottom { get; set; } = 0f;
     }
 
+    [MetaClassAttribute(1208338802U)]
+    public class Class0x4805c972 : ISequenceActionInstance
+    {
+    }
+
     [MetaClassAttribute("ChampionNameUiData")]
     public class ChampionNameUiData : IMetaClass
     {
@@ -12413,6 +12692,19 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("groups", BinPropertyType.Container, "", BinPropertyType.String, BinPropertyType.None)]
         public MetaContainer<string> Groups { get; set; } = new();
+    }
+
+    [MetaClassAttribute(76378891U)]
+    public class Class0x48d730b : Class0x99320e3c
+    {
+        [MetaPropertyAttribute(292685121U, BinPropertyType.Struct, "ISplineInfo", BinPropertyType.None, BinPropertyType.None)]
+        public ISplineInfo m292685121 { get; set; } = null;
+
+        [MetaPropertyAttribute(1982714233U, BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation m1982714233 { get; set; } = null;
+
+        [MetaPropertyAttribute(2056434840U, BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation m2056434840 { get; set; } = null;
     }
 
     [MetaClassAttribute("GDSMapObjectExtraInfo")]
@@ -12555,6 +12847,11 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("Location", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
         public byte Location { get; set; } = 0;
+    }
+
+    [MetaClassAttribute(76690344U)]
+    public abstract class Class0x49233a8 : IMetaClass
+    {
     }
 
     [MetaClassAttribute("OptionTemplateButton")]
@@ -12722,6 +13019,16 @@ namespace LeagueToolkit.Meta.Classes
         public MetaContainer<MetaEmbedded<SelectorPairData>> SelectorPairDataList { get; set; } = new();
     }
 
+    [MetaClassAttribute(1242465727U)]
+    public class Class0x4a0e85bf : IGameModeConfig
+    {
+        [MetaPropertyAttribute(950898931U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float m950898931 { get; set; } = 3000f;
+
+        [MetaPropertyAttribute(3163859876U, BinPropertyType.ObjectLink, "LolSpellScript", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m3163859876 { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute("ItemSlotDetailedUiData")]
     public class ItemSlotDetailedUiData : IMetaClass
     {
@@ -12875,13 +13182,6 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("ParametricMovementType")]
     public abstract class ParametricMovementType : IMetaClass
     {
-    }
-
-    [MetaClassAttribute(1252541550U)]
-    public class Class0x4aa8446e : Sequence
-    {
-        [MetaPropertyAttribute("parameters", BinPropertyType.Map, "IScriptValueGet", BinPropertyType.Hash, BinPropertyType.Struct)]
-        public Dictionary<MetaHash, IScriptValueGet> Parameters { get; set; } = new();
     }
 
     [MetaClassAttribute(1253273269U)]
@@ -14231,6 +14531,21 @@ namespace LeagueToolkit.Meta.Classes
     {
     }
 
+    [MetaClassAttribute(1374925039U)]
+    public class Class0x51f3b0ef : Class0x5ba190cc
+    {
+        [MetaPropertyAttribute("SpellSlot", BinPropertyType.Embedded, "Class0x5f011348", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x5f011348> SpellSlot { get; set; } = new(new());
+
+        [MetaPropertyAttribute(4064860553U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m4064860553 { get; set; } = new(0U);
+    }
+
+    [MetaClassAttribute(85934016U)]
+    public class Class0x51f3fc0 : Class0x9fffbec6
+    {
+    }
+
     [MetaClassAttribute("TftHudTraitUnitSlotBorders")]
     public class TftHudTraitUnitSlotBorders : IMetaClass
     {
@@ -14333,9 +14648,6 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("UiRotationalStoreItemTileData")]
     public class UiRotationalStoreItemTileData : IMetaClass
     {
-        [MetaPropertyAttribute("OwnedIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash OwnedIcon { get; set; } = new(0U);
-
         [MetaPropertyAttribute(661391255U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
         public Color m661391255 { get; set; } = new Color(0f, 0f, 0f, 255f);
 
@@ -14359,6 +14671,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("PriceText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash PriceText { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(174589424U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m174589424 { get; set; } = new Color(0f, 0f, 0f, 255f);
 
         [MetaPropertyAttribute("Icon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Icon { get; set; } = new(0U);
@@ -15576,6 +15891,22 @@ namespace LeagueToolkit.Meta.Classes
         public byte VisibilityFlags { get; set; } = 255;
     }
 
+    [MetaClassAttribute(1502507766U)]
+    public class Class0x598e72f6 : Class0x99320e3c
+    {
+        [MetaPropertyAttribute("MidpointEvent", BinPropertyType.Embedded, "Class0x8dc06cbc", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x8dc06cbc> MidpointEvent { get; set; } = new(new());
+
+        [MetaPropertyAttribute(426817855U, BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation m426817855 { get; set; } = null;
+
+        [MetaPropertyAttribute(1011603944U, BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation m1011603944 { get; set; } = null;
+
+        [MetaPropertyAttribute("EndpointEvent", BinPropertyType.Embedded, "Class0x8dc06cbc", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x8dc06cbc> EndpointEvent { get; set; } = new(new());
+    }
+
     [MetaClassAttribute("TftCutscenePosVfxClip")]
     public class TftCutscenePosVfxClip : TftCutsceneVfxClip
     {
@@ -15587,6 +15918,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(2196392535U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m2196392535 { get; set; } = false;
+    }
+
+    [MetaClassAttribute(1505960707U)]
+    public class Class0x59c32303 : ILogicBoolDriver
+    {
+        [MetaPropertyAttribute("Key", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Key { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("UiPerksStats")]
@@ -15642,6 +15980,25 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("definition", BinPropertyType.ObjectLink, "TftUnitPropertyDefinition", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink Definition { get; set; } = new(0U);
+    }
+
+    [MetaClassAttribute(1511992010U)]
+    public class Class0x5a1f2aca : ISequenceAction
+    {
+        [MetaPropertyAttribute("Target", BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink Target { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("ParameterName", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ParameterName { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("FromValue", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float FromValue { get; set; } = 0f;
+
+        [MetaPropertyAttribute("EasingType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte EasingType { get; set; } = 0;
+
+        [MetaPropertyAttribute("ToValue", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float ToValue { get; set; } = 1f;
     }
 
     [MetaClassAttribute("LobbyReadyCheck")]
@@ -15812,7 +16169,7 @@ namespace LeagueToolkit.Meta.Classes
         public byte StatFormula { get; set; } = 0;
 
         [MetaPropertyAttribute("statType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
-        public byte StatType { get; set; } = 12;
+        public byte StatType { get; set; } = 13;
 
         [MetaPropertyAttribute("OutputType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
         public byte OutputType { get; set; } = 0;
@@ -15991,8 +16348,8 @@ namespace LeagueToolkit.Meta.Classes
         public float DetectionRange { get; set; } = 0f;
     }
 
-    [MetaClassAttribute(1536964965U)]
-    public abstract class Class0x5b9c3965 : ISequenceAction
+    [MetaClassAttribute(1537315020U)]
+    public abstract class Class0x5ba190cc : IMetaClass
     {
     }
 
@@ -16022,8 +16379,8 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("mTraits", BinPropertyType.Container, "TftTraitData", BinPropertyType.ObjectLink, BinPropertyType.None)]
         public MetaContainer<MetaObjectLink> Traits { get; set; } = new();
 
-        [MetaPropertyAttribute("VfxResourceResolver", BinPropertyType.ObjectLink, "ResourceResolver", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink VfxResourceResolver { get; set; } = new(0U);
+        [MetaPropertyAttribute("VfxResourceResolver", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash VfxResourceResolver { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("AtomicClipData")]
@@ -16624,6 +16981,12 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("CompanionLoadoutItemListPanelData", BinPropertyType.Embedded, "LoadoutItemListPanelData", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<LoadoutItemListPanelData> CompanionLoadoutItemListPanelData { get; set; } = new(new());
 
+        [MetaPropertyAttribute(512654153U, BinPropertyType.Embedded, "Class0x1e8e7b49", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x1e8e7b49> m512654153 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(576113951U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m576113951 { get; set; } = new(0U);
+
         [MetaPropertyAttribute(787316251U, BinPropertyType.ObjectLink, "ViewController", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink m787316251 { get; set; } = new(0U);
 
@@ -16651,6 +17014,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("StarShardsStoreDialog", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash StarShardsStoreDialog { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1596773611U, BinPropertyType.Embedded, "Class0x420e433d", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x420e433d> m1596773611 { get; set; } = new(new());
+
         [MetaPropertyAttribute("DamageSkinInfoPanel", BinPropertyType.Embedded, "LoadoutDamageSkinInfoPanel", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<LoadoutDamageSkinInfoPanel> DamageSkinInfoPanel { get; set; } = new(new());
 
@@ -16677,6 +17043,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("SoundOnActivate", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string SoundOnActivate { get; set; } = "";
+
+        [MetaPropertyAttribute(2715262076U, BinPropertyType.Embedded, "LoadoutItemListPanelData", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<LoadoutItemListPanelData> m2715262076 { get; set; } = new(new());
 
         [MetaPropertyAttribute(2841566773U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m2841566773 { get; set; } = new(0U);
@@ -16988,13 +17357,6 @@ namespace LeagueToolkit.Meta.Classes
         public int MaxNumberOfUnits { get; set; } = 0;
     }
 
-    [MetaClassAttribute("GetSequenceObjectDynamicMaterialBoolDriver")]
-    public class GetSequenceObjectDynamicMaterialBoolDriver : ILogicBoolDriver
-    {
-        [MetaPropertyAttribute("mKeyName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string KeyName { get; set; } = "";
-    }
-
     [MetaClassAttribute("FloatGet")]
     public class FloatGet : IFloatGet, IScriptValueGet
     {
@@ -17029,19 +17391,6 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("ILogicVector3Driver")]
     public abstract class ILogicVector3Driver : ILogicDriver
     {
-    }
-
-    [MetaClassAttribute("TftTeamPlannerActiveTraitData")]
-    public class TftTeamPlannerActiveTraitData : IMetaClass
-    {
-        [MetaPropertyAttribute("TraitLevelIconTemplates", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
-        public MetaContainer<MetaHash> TraitLevelIconTemplates { get; set; } = new();
-
-        [MetaPropertyAttribute("SelectionOutlineTemplate", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash SelectionOutlineTemplate { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("HighlightOutlineTemplate", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash HighlightOutlineTemplate { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("ContextualConditionCharacterIsCastingRecall")]
@@ -17558,6 +17907,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash UnitPropertyToggle { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(1656383147U)]
+    public class Class0x62ba66ab : IGameModeConfig
+    {
+        [MetaPropertyAttribute(143014222U, BinPropertyType.UnorderedContainer, "Class0xfe44baa3", BinPropertyType.ObjectLink, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaObjectLink> m143014222 { get; set; } = new();
+    }
+
     [MetaClassAttribute("AutoSpellCastInfo")]
     public class AutoSpellCastInfo : IMetaClass
     {
@@ -17837,6 +18193,19 @@ namespace LeagueToolkit.Meta.Classes
         public bool Value { get; set; } = false;
     }
 
+    [MetaClassAttribute(1679704613U)]
+    public class Class0x641e4225 : IMetaClass
+    {
+        [MetaPropertyAttribute("Magnitude", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float Magnitude { get; set; } = 20f;
+
+        [MetaPropertyAttribute("ShakesPerSecond", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float ShakesPerSecond { get; set; } = 6f;
+
+        [MetaPropertyAttribute("FalloffRate", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float FalloffRate { get; set; } = 2f;
+    }
+
     [MetaClassAttribute("ContextualConditionCharacterDistance")]
     public class ContextualConditionCharacterDistance : ICharacterSubcondition
     {
@@ -18111,6 +18480,28 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("Var", BinPropertyType.Struct, "ScriptTableSet", BinPropertyType.None, BinPropertyType.None)]
         public ScriptTableSet Var { get; set; } = null;
+    }
+
+    [MetaClassAttribute(1704287672U)]
+    public class Class0x65955db8 : Class0xa91b85e3
+    {
+        [MetaPropertyAttribute(2836326166U, BinPropertyType.Map, "", BinPropertyType.Hash, BinPropertyType.String)]
+        public Dictionary<MetaHash, string> m2836326166 { get; set; } = new();
+
+        [MetaPropertyAttribute(2955826826U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2955826826 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3554180031U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3554180031 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4033425393U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4033425393 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4128193266U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4128193266 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("keys", BinPropertyType.UnorderedContainer, "OptionTemplateHotkeysKey", BinPropertyType.Embedded, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaEmbedded<OptionTemplateHotkeysKey>> Keys { get; set; } = new();
     }
 
     [MetaClassAttribute("PlaybookAugmentPanelData")]
@@ -18816,6 +19207,19 @@ namespace LeagueToolkit.Meta.Classes
         public uint m4182009753 { get; set; } = 0;
     }
 
+    [MetaClassAttribute(1774165253U)]
+    public class Class0x69bf9d05 : IMetaClass
+    {
+        [MetaPropertyAttribute("Button", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Button { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("type", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
+        public uint Type { get; set; } = 1;
+
+        [MetaPropertyAttribute("Filter", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
+        public uint Filter { get; set; } = 12;
+    }
+
     [MetaClassAttribute("GetGameStartCountdownTime")]
     public class GetGameStartCountdownTime : LevelScriptBlock
     {
@@ -18966,6 +19370,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("StationaryLightChannelAssignments", BinPropertyType.Map, "", BinPropertyType.Hash, BinPropertyType.U8)]
         public Dictionary<MetaHash, byte> StationaryLightChannelAssignments { get; set; } = new();
+    }
+
+    [MetaClassAttribute(1783674327U)]
+    public class Class0x6a50b5d7 : IContextualCondition
+    {
+        [MetaPropertyAttribute(631282293U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m631282293 { get; set; } = 0;
     }
 
     [MetaClassAttribute("TFTCompanionEvolutionViewController")]
@@ -19373,6 +19784,11 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(228757068U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
         public Color m228757068 { get; set; } = new Color(0f, 0f, 0f, 255f);
+    }
+
+    [MetaClassAttribute(1808391410U)]
+    public class Class0x6bc9dcf2 : MissileTriggerSpec
+    {
     }
 
     [MetaClassAttribute("IntegratedValueVector2")]
@@ -20008,6 +20424,12 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(1878569639U)]
     public class Class0x6ff8b2a7 : IMetaClass
     {
+        [MetaPropertyAttribute(1685516020U, BinPropertyType.ObjectLink, "InputEvent2Axis", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m1685516020 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1823917309U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float m1823917309 { get; set; } = 0f;
+
         [MetaPropertyAttribute(2184565910U, BinPropertyType.ObjectLink, "InputControlSet", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink m2184565910 { get; set; } = new(0U);
 
@@ -20126,8 +20548,18 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("TableValueExistsScriptCondition")]
     public class TableValueExistsScriptCondition : IScriptCondition
     {
-        [MetaPropertyAttribute("TableValue", BinPropertyType.Embedded, "ScriptTableGet", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<ScriptTableGet> TableValue { get; set; } = new(new());
+        [MetaPropertyAttribute("TableValue", BinPropertyType.Embedded, "ScriptTableSet", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<ScriptTableSet> TableValue { get; set; } = new(new());
+    }
+
+    [MetaClassAttribute(1890221244U)]
+    public class Class0x70aa7cbc : ISequenceAction
+    {
+        [MetaPropertyAttribute("direction", BinPropertyType.Vector3, "", BinPropertyType.None, BinPropertyType.None)]
+        public Vector3 Direction { get; set; } = new Vector3(1f, 1f, 1f);
+
+        [MetaPropertyAttribute(4180452382U, BinPropertyType.Embedded, "Class0x641e4225", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x641e4225> m4180452382 { get; set; } = new(new());
     }
 
     [MetaClassAttribute("GameCalculationModified")]
@@ -20601,13 +21033,6 @@ namespace LeagueToolkit.Meta.Classes
         public ILogicDriver Driver { get; set; } = null;
     }
 
-    [MetaClassAttribute("GetSequenceObjectDynamicMaterialFloatDriver")]
-    public class GetSequenceObjectDynamicMaterialFloatDriver : ILogicFloatDriver
-    {
-        [MetaPropertyAttribute("mKeyName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string KeyName { get; set; } = "";
-    }
-
     [MetaClassAttribute("SummonerEmote")]
     public class SummonerEmote : IMetaClass
     {
@@ -20741,6 +21166,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("EnabledUnitProperty", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash EnabledUnitProperty { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4219012282U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4219012282 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("ValueColor")]
@@ -20917,6 +21345,18 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(1443964158U, BinPropertyType.Struct, "Class0xfa04801e", BinPropertyType.None, BinPropertyType.None)]
         public Class0xfa04801e m1443964158 { get; set; } = null;
+    }
+
+    [MetaClassAttribute(1975065040U)]
+    public class Class0x75b919d0 : Class0xca92d111
+    {
+    }
+
+    [MetaClassAttribute(1975548711U)]
+    public class Class0x75c07b27 : Class0x760ad40
+    {
+        [MetaPropertyAttribute(2435578347U, BinPropertyType.Embedded, "Class0x912bf9eb", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x912bf9eb> m2435578347 { get; set; } = new(new());
     }
 
     [MetaClassAttribute(1976801851U)]
@@ -22560,6 +23000,13 @@ namespace LeagueToolkit.Meta.Classes
         public string UiName { get; set; } = "";
     }
 
+    [MetaClassAttribute(2091547601U)]
+    public class Class0x7caa7bd1 : Class0x99320e3c
+    {
+        [MetaPropertyAttribute(2661709421U, BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation m2661709421 { get; set; } = null;
+    }
+
     [MetaClassAttribute(2092680156U)]
     public class Class0x7cbbc3dc : Class0x1375d0b
     {
@@ -23083,9 +23530,6 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(1336395391U, BinPropertyType.Embedded, "Class0xe35f9399", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<Class0xe35f9399> m1336395391 { get; set; } = new(new());
 
-        [MetaPropertyAttribute(83925115U, BinPropertyType.ObjectLink, "VfxSystemDefinitionData", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m83925115 { get; set; } = new(0U);
-
         [MetaPropertyAttribute(1624039815U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float m1624039815 { get; set; } = 1f;
 
@@ -23106,9 +23550,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(2954329705U, BinPropertyType.UnorderedContainer, "Class0xf85d936e", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<Class0xf85d936e>> m2954329705 { get; set; } = new();
-
-        [MetaPropertyAttribute(3148965516U, BinPropertyType.ObjectLink, "VfxSystemDefinitionData", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m3148965516 { get; set; } = new(0U);
 
         [MetaPropertyAttribute(3471200470U, BinPropertyType.Embedded, "Class0xe35f9399", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<Class0xe35f9399> m3471200470 { get; set; } = new(new());
@@ -23240,6 +23681,9 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("LoLModesRoundsListData")]
     public class LoLModesRoundsListData : IGameModeConfig
     {
+        [MetaPropertyAttribute(937878842U, BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
+        public uint m937878842 { get; set; } = 0;
+
         [MetaPropertyAttribute("Rounds", BinPropertyType.UnorderedContainer, "LoLModesRoundData", BinPropertyType.ObjectLink, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaObjectLink> Rounds { get; set; } = new();
     }
@@ -23472,6 +23916,9 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(2141884576U)]
     public class Class0x7faa90a0 : Class0x881be5aa
     {
+        [MetaPropertyAttribute(1510824760U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1510824760 { get; set; } = false;
+
         [MetaPropertyAttribute("IdleAnimationName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string IdleAnimationName { get; set; } = "";
 
@@ -23522,6 +23969,9 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(2142189333U)]
     public class Class0x7faf3715 : Class0xba7313a3
     {
+        [MetaPropertyAttribute(1029752247U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1029752247 { get; set; } = "";
+
         [MetaPropertyAttribute("system", BinPropertyType.ObjectLink, "VfxSystemDefinitionData", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink System { get; set; } = new(0U);
 
@@ -23530,6 +23980,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("position", BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
         public Class0x94e82d1f Position { get; set; } = null;
+
+        [MetaPropertyAttribute(2661709421U, BinPropertyType.Struct, "Class0x6d79484d", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x6d79484d m2661709421 { get; set; } = null;
 
         [MetaPropertyAttribute("orientation", BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
         public Class0x94e82d1f Orientation { get; set; } = null;
@@ -23749,6 +24202,16 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("mTurretPosition", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
         public byte TurretPosition { get; set; } = 0;
+    }
+
+    [MetaClassAttribute(134818302U)]
+    public class Class0x80929fe : Class0xbe07ec3f
+    {
+        [MetaPropertyAttribute(977018862U, BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
+        public uint m977018862 { get; set; } = 2;
+
+        [MetaPropertyAttribute("SpellSlot", BinPropertyType.Embedded, "Class0x5f011348", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x5f011348> SpellSlot { get; set; } = new(new());
     }
 
     [MetaClassAttribute(134996006U)]
@@ -24602,6 +25065,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("RewardReadyPip", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash RewardReadyPip { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(2617754139U, BinPropertyType.ObjectLink, "ModalDialogViewController", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m2617754139 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("PassText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash PassText { get; set; } = new(0U);
 
@@ -24625,6 +25091,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("EventHubButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash EventHubButton { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(204913508U, BinPropertyType.ObjectLink, "ModalDialogViewController", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m204913508 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("RewardsHintMessage", BinPropertyType.Struct, "TftHintUiData", BinPropertyType.None, BinPropertyType.None)]
         public TftHintUiData RewardsHintMessage { get; set; } = null;
@@ -24671,6 +25140,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("EncounterTooltip", BinPropertyType.ObjectLink, "TftTooltipData", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink EncounterTooltip { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1761671089U, BinPropertyType.UnorderedContainer, "", BinPropertyType.I32, BinPropertyType.None)]
+        public MetaUnorderedContainer<int> m1761671089 { get; set; } = new();
 
         [MetaPropertyAttribute(1959729873U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string m1959729873 { get; set; } = "";
@@ -25273,6 +25745,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("rarity", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
         public uint Rarity { get; set; } = 0;
 
+        [MetaPropertyAttribute(1706527077U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1706527077 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("TrovesHighlightVfx", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash TrovesHighlightVfx { get; set; } = new(0U);
 
@@ -25293,9 +25768,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("DamageBuffName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string DamageBuffName { get; set; } = "";
-
-        [MetaPropertyAttribute("ceremony", BinPropertyType.Struct, "TftDamageSkinCeremony", BinPropertyType.None, BinPropertyType.None)]
-        public TftDamageSkinCeremony Ceremony { get; set; } = null;
 
         [MetaPropertyAttribute("StandaloneLoadoutsLargeIcon", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string StandaloneLoadoutsLargeIcon { get; set; } = "";
@@ -25485,9 +25957,6 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(2289931405U)]
     public class Class0x887d948d : Class0xca92d111
     {
-        [MetaPropertyAttribute(892009158U, BinPropertyType.UnorderedContainer, "Class0xcdef618d", BinPropertyType.Embedded, BinPropertyType.None)]
-        public MetaUnorderedContainer<MetaEmbedded<Class0xcdef618d>> m892009158 { get; set; } = new();
-
         [MetaPropertyAttribute(1481794665U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
         public byte m1481794665 { get; set; } = 1;
 
@@ -25500,17 +25969,8 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(2021725060U, BinPropertyType.UnorderedContainer, "Class0xc657a95d", BinPropertyType.Struct, BinPropertyType.None)]
         public MetaUnorderedContainer<Class0xc657a95d> m2021725060 { get; set; } = new();
 
-        [MetaPropertyAttribute(2287641258U, BinPropertyType.Embedded, "Class0x58ecf288", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<Class0x58ecf288> m2287641258 { get; set; } = new(new());
-
-        [MetaPropertyAttribute("TooltipTra", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string TooltipTra { get; set; } = "";
-
         [MetaPropertyAttribute("Icon", BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<Class0x562bed30> Icon { get; set; } = new(new());
-
-        [MetaPropertyAttribute(3992612494U, BinPropertyType.UnorderedContainer, "Class0xcdef618d", BinPropertyType.Embedded, BinPropertyType.None)]
-        public MetaUnorderedContainer<MetaEmbedded<Class0xcdef618d>> m3992612494 { get; set; } = new();
     }
 
     [MetaClassAttribute("PlaybookViewController")]
@@ -26059,6 +26519,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("eyeCandy", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool EyeCandy { get; set; } = false;
 
+        [MetaPropertyAttribute(1510824760U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1510824760 { get; set; } = false;
+
         [MetaPropertyAttribute(2644207507U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m2644207507 { get; set; } = false;
 
@@ -26300,13 +26763,6 @@ namespace LeagueToolkit.Meta.Classes
         public Dictionary<MetaHash, BaseEventData> EventDataMap { get; set; } = new();
     }
 
-    [MetaClassAttribute(2371329034U)]
-    public class Class0x8d579c0a : IMetaClass
-    {
-        [MetaPropertyAttribute("Icon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Icon { get; set; } = new(0U);
-    }
-
     [MetaClassAttribute(2374702389U)]
     public class Class0x8d8b1535 : IMetaClass
     {
@@ -26385,6 +26841,16 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("MeterOuterRing", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash MeterOuterRing { get; set; } = new(0U);
+    }
+
+    [MetaClassAttribute(2378198204U)]
+    public class Class0x8dc06cbc : IMetaClass
+    {
+        [MetaPropertyAttribute("EventName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string EventName { get; set; } = "";
+
+        [MetaPropertyAttribute(3235225434U, BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m3235225434 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("SkinnedStandardShadingModel")]
@@ -26873,9 +27339,6 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("filterMin", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
         public uint FilterMin { get; set; } = 1;
 
-        [MetaPropertyAttribute("samplerName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string SamplerName { get; set; } = "";
-
         [MetaPropertyAttribute("filterMag", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
         public uint FilterMag { get; set; } = 1;
 
@@ -26884,6 +27347,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("textureName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string TextureName { get; set; } = "";
+
+        [MetaPropertyAttribute("texturePath", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string TexturePath { get; set; } = "";
 
         [MetaPropertyAttribute("addressW", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
         public uint AddressW { get; set; } = 0;
@@ -26945,6 +27411,26 @@ namespace LeagueToolkit.Meta.Classes
         public uint Operator { get; set; } = 0;
     }
 
+    [MetaClassAttribute(2429357929U)]
+    public class Class0x90cd0f69 : IMetaClass
+    {
+        [MetaPropertyAttribute("ID", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
+        public uint ID { get; set; } = 0;
+
+        [MetaPropertyAttribute("name", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string Name { get; set; } = "";
+    }
+
+    [MetaClassAttribute(2431198374U)]
+    public class Class0x90e924a6 : IMetaClass
+    {
+        [MetaPropertyAttribute(3399971763U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float m3399971763 { get; set; } = 0f;
+
+        [MetaPropertyAttribute(262064384U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m262064384 { get; set; } = 0;
+    }
+
     [MetaClassAttribute(2432116779U)]
     public class Class0x90f7282b : IGameModeConfig
     {
@@ -26982,6 +27468,31 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(3842920271U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string m3842920271 { get; set; } = "";
+    }
+
+    [MetaClassAttribute(2435578347U)]
+    public class Class0x912bf9eb : IMetaClass
+    {
+        [MetaPropertyAttribute(1271670785U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1271670785 { get; set; } = true;
+
+        [MetaPropertyAttribute("eyeCandy", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte EyeCandy { get; set; } = 0;
+
+        [MetaPropertyAttribute(1897180945U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1897180945 { get; set; } = false;
+
+        [MetaPropertyAttribute(2005518555U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2005518555 { get; set; } = "";
+
+        [MetaPropertyAttribute(2348459392U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m2348459392 { get; set; } = 0;
+
+        [MetaPropertyAttribute("quality", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte Quality { get; set; } = 31;
+
+        [MetaPropertyAttribute(3894226638U, BinPropertyType.Map, "IMaterialDef", BinPropertyType.String, BinPropertyType.ObjectLink)]
+        public Dictionary<string, MetaObjectLink> m3894226638 { get; set; } = new();
     }
 
     [MetaClassAttribute("DistanceToPlayerMaterialFloatDriver")]
@@ -27347,6 +27858,19 @@ namespace LeagueToolkit.Meta.Classes
         public float DistanceBetween { get; set; } = 150f;
     }
 
+    [MetaClassAttribute(154868705U)]
+    public class Class0x93b1be1 : IMetaClass
+    {
+        [MetaPropertyAttribute(1123758381U, BinPropertyType.ObjectLink, "SpellObject", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m1123758381 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(226382365U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m226382365 { get; set; } = "";
+
+        [MetaPropertyAttribute(3975333677U, BinPropertyType.ObjectLink, "CharacterRecord", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m3975333677 { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute("ICatalogEntryOwner")]
     public interface ICatalogEntryOwner : IMetaClass
     {
@@ -27447,26 +27971,11 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("BaseLoadable", BinPropertyType.ObjectLink, "UiPropertyLoadable", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink BaseLoadable { get; set; } = new(0U);
 
-        [MetaPropertyAttribute(1197142805U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m1197142805 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(1368249374U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m1368249374 { get; set; } = new(0U);
+        [MetaPropertyAttribute("PlayerTemplate", BinPropertyType.Embedded, "Class0xa9593c80", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xa9593c80> PlayerTemplate { get; set; } = new(new());
 
         [MetaPropertyAttribute("MobileOverrideLoadable", BinPropertyType.ObjectLink, "UiPropertyOverrideLoadable", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink MobileOverrideLoadable { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(1623069143U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m1623069143 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2106922761U, BinPropertyType.Embedded, "Class0x8d579c0a", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<Class0x8d579c0a> m2106922761 { get; set; } = new(new());
-
-        [MetaPropertyAttribute("Cooldown", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Cooldown { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(4204941149U, BinPropertyType.Embedded, "Class0x8d579c0a", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<Class0x8d579c0a> m4204941149 { get; set; } = new(new());
     }
 
     [MetaClassAttribute("DebugPrintToChatBlock")]
@@ -27597,6 +28106,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("ClaimCeremonyVfx", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ClaimCeremonyVfx { get; set; } = new(0U);
+    }
+
+    [MetaClassAttribute(2494348087U)]
+    public class Class0x94acbb37 : Class0x99320e3c
+    {
+        [MetaPropertyAttribute("Location", BinPropertyType.Struct, "ISequenceLocation", BinPropertyType.None, BinPropertyType.None)]
+        public ISequenceLocation Location { get; set; } = null;
     }
 
     [MetaClassAttribute(2498243871U)]
@@ -27763,6 +28279,34 @@ namespace LeagueToolkit.Meta.Classes
         public MetaContainer<MetaObjectLink> StatStones { get; set; } = new();
     }
 
+    [MetaClassAttribute(2525256104U)]
+    public class Class0x968459a8 : ViewController
+    {
+        [MetaPropertyAttribute(412772945U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m412772945 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("Scene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Scene { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(883531295U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m883531295 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("BaseLoadable", BinPropertyType.ObjectLink, "UiPropertyLoadable", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink BaseLoadable { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1368249374U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1368249374 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("MobileOverrideLoadable", BinPropertyType.ObjectLink, "UiPropertyOverrideLoadable", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink MobileOverrideLoadable { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(155036594U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m155036594 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3952396961U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3952396961 { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute(2525815469U)]
     public class Class0x968ce2ad : IMetaClass
     {
@@ -27865,6 +28409,9 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(2542306230U)]
     public class Class0x978883b6 : IMetaClass
     {
+        [MetaPropertyAttribute(2624904762U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2624904762 { get; set; } = "";
+
         [MetaPropertyAttribute(3242403552U, BinPropertyType.Struct, "Class0x702ab00b", BinPropertyType.None, BinPropertyType.None)]
         public Class0x702ab00b m3242403552 { get; set; } = null;
 
@@ -28031,6 +28578,19 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash TooltipRegion { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(2570194492U)]
+    public abstract class Class0x99320e3c : ISequenceAction
+    {
+        [MetaPropertyAttribute("EventName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string EventName { get; set; }
+
+        [MetaPropertyAttribute(3235225434U, BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m3235225434 { get; set; }
+
+        [MetaPropertyAttribute("ForceStopWhenDone", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool ForceStopWhenDone { get; set; }
+    }
+
     [MetaClassAttribute("DirectedTrackingElementViewController")]
     public class DirectedTrackingElementViewController : ViewController
     {
@@ -28060,7 +28620,7 @@ namespace LeagueToolkit.Meta.Classes
         public byte StatFormula { get; set; } = 0;
 
         [MetaPropertyAttribute("statType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
-        public byte StatType { get; set; } = 12;
+        public byte StatType { get; set; } = 13;
 
         [MetaPropertyAttribute("OutputType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
         public byte OutputType { get; set; } = 0;
@@ -28329,8 +28889,14 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("ArenaData", BinPropertyType.UnorderedContainer, "CherryArenaData", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<CherryArenaData>> ArenaData { get; set; } = new();
 
+        [MetaPropertyAttribute(2820676235U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m2820676235 { get; set; } = 0;
+
         [MetaPropertyAttribute("CameraBoundsAsPercentageOfMapBounds", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float CameraBoundsAsPercentageOfMapBounds { get; set; } = 0.6f;
+
+        [MetaPropertyAttribute(3706823013U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m3706823013 { get; set; } = 0;
 
         [MetaPropertyAttribute(3827431536U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3827431536 { get; set; } = new(0U);
@@ -28383,9 +28949,6 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(2594661390U)]
     public class Class0x9aa7640e : Class0xbd0a017e
     {
-        [MetaPropertyAttribute(279686985U, BinPropertyType.Struct, "Class0x59ef46df", BinPropertyType.None, BinPropertyType.None)]
-        public Class0x59ef46df m279686985 { get; set; } = null;
-
         [MetaPropertyAttribute(1030675034U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m1030675034 { get; set; } = new(0U);
 
@@ -29506,6 +30069,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("type", BinPropertyType.U16, "", BinPropertyType.None, BinPropertyType.None)]
         public ushort Type { get; set; } = 3;
 
+        [MetaPropertyAttribute(3483081892U, BinPropertyType.Map, "IScriptValueGet", BinPropertyType.String, BinPropertyType.Struct)]
+        public Dictionary<string, IScriptValueGet> m3483081892 { get; set; } = new();
+
         [MetaPropertyAttribute(3729191384U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string m3729191384 { get; set; } = "";
 
@@ -29689,6 +30255,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(2938156033U, BinPropertyType.UnorderedContainer, "TftArmorySlotData", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<TftArmorySlotData>> m2938156033 { get; set; } = new();
+
+        [MetaPropertyAttribute(2984509916U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2984509916 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("AllowSingleItemSelection", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool AllowSingleItemSelection { get; set; } = true;
@@ -30074,6 +30643,16 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("CustomTableGet")]
     public class CustomTableGet : ScriptTableGet
     {
+    }
+
+    [MetaClassAttribute(2684337862U)]
+    public abstract class Class0x9fffbec6 : Class0xbd0a017e
+    {
+        [MetaPropertyAttribute(429688228U, BinPropertyType.UnorderedContainer, "", BinPropertyType.Hash, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaHash> m429688228 { get; set; }
+
+        [MetaPropertyAttribute("ResourceResolver", BinPropertyType.Struct, "Class0x20194a16", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x20194a16 ResourceResolver { get; set; }
     }
 
     [MetaClassAttribute("IsRangedParametricUpdater")]
@@ -30621,6 +31200,13 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("mChoicesMap", BinPropertyType.Map, "ItemRecommendationChoices", BinPropertyType.String, BinPropertyType.Embedded)]
         public Dictionary<string, MetaEmbedded<ItemRecommendationChoices>> ChoicesMap { get; set; } = new();
+    }
+
+    [MetaClassAttribute(2727427067U)]
+    public abstract class Class0xa2913bfb : ISequenceAction
+    {
+        [MetaPropertyAttribute(2970496286U, BinPropertyType.ObjectLink, "VfxSystemDefinitionData", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m2970496286 { get; set; }
     }
 
     [MetaClassAttribute("CherryTeamFlyoutPanelTeamTemplate")]
@@ -31358,11 +31944,17 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("BaseLoadable", BinPropertyType.ObjectLink, "UiPropertyLoadable", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink BaseLoadable { get; set; } = new(0U);
 
+        [MetaPropertyAttribute("Background", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Background { get; set; } = new(0U);
+
         [MetaPropertyAttribute("MobileOverrideLoadable", BinPropertyType.ObjectLink, "UiPropertyOverrideLoadable", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink MobileOverrideLoadable { get; set; } = new(0U);
 
         [MetaPropertyAttribute("titleIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash TitleIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3429930516U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3429930516 { get; set; } = new(0U);
 
         [MetaPropertyAttribute("TitleText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash TitleText { get; set; } = new(0U);
@@ -31726,16 +32318,6 @@ namespace LeagueToolkit.Meta.Classes
         public float MaximumScale { get; set; } = 1f;
     }
 
-    [MetaClassAttribute(2800477921U)]
-    public class Class0xa6ebe6e1 : IMetaClass
-    {
-        [MetaPropertyAttribute(1243788871U, BinPropertyType.UnorderedContainer, "Class0xb34ac035", BinPropertyType.Embedded, BinPropertyType.None)]
-        public MetaUnorderedContainer<MetaEmbedded<Class0xb34ac035>> m1243788871 { get; set; } = new();
-
-        [MetaPropertyAttribute(2299315512U, BinPropertyType.ObjectLink, "Sequence", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2299315512 { get; set; } = new(0U);
-    }
-
     [MetaClassAttribute("OptionItemFilter_FeatureToggle")]
     public class OptionItemFilter_FeatureToggle : IOptionItemFilter
     {
@@ -32075,6 +32657,11 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash ParentScene { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(2837153251U)]
+    public class Class0xa91b85e3 : IOptionTemplate
+    {
+    }
+
     [MetaClassAttribute("LoadoutSelectViewController")]
     public class LoadoutSelectViewController : ViewController
     {
@@ -32140,6 +32727,40 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("isLocalSpace", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool IsLocalSpace { get; set; } = true;
+    }
+
+    [MetaClassAttribute(2841197696U)]
+    public class Class0xa9593c80 : IMetaClass
+    {
+        [MetaPropertyAttribute(433619078U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m433619078 { get; set; } = "";
+
+        [MetaPropertyAttribute(1289345669U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1289345669 { get; set; } = "";
+
+        [MetaPropertyAttribute("PlayerScene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash PlayerScene { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2330609029U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2330609029 { get; set; } = "";
+
+        [MetaPropertyAttribute(2421792190U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2421792190 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2494124494U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2494124494 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2673277729U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2673277729 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3315126733U, BinPropertyType.Embedded, "Class0x313da04c", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x313da04c> m3315126733 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(4076437500U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4076437500 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4233063576U, BinPropertyType.Embedded, "Class0x313da04c", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x313da04c> m4233063576 { get; set; } = new(new());
     }
 
     [MetaClassAttribute("OptionItemSliderFloat")]
@@ -33205,19 +33826,19 @@ namespace LeagueToolkit.Meta.Classes
         public bool Shuffle { get; set; } = false;
     }
 
+    [MetaClassAttribute(2938431697U)]
+    public class Class0xaf24e8d1 : Class0xbd0a017e
+    {
+        [MetaPropertyAttribute(3716531515U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3716531515 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4192800766U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4192800766 { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute("DragDirection")]
     public class DragDirection : TargetingTypeData
     {
-    }
-
-    [MetaClassAttribute(2938804690U)]
-    public class Class0xaf2a99d2 : IMetaClass
-    {
-        [MetaPropertyAttribute("Sequence", BinPropertyType.ObjectLink, "Class0x4aa8446e", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink Sequence { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(133822313U, BinPropertyType.Map, "IScriptValueGet", BinPropertyType.Hash, BinPropertyType.Struct)]
-        public Dictionary<MetaHash, IScriptValueGet> m133822313 { get; set; } = new();
     }
 
     [MetaClassAttribute("LoadingScreenRatedData")]
@@ -34146,6 +34767,11 @@ namespace LeagueToolkit.Meta.Classes
         public bool UsesListValues { get; set; } = false;
     }
 
+    [MetaClassAttribute(2994990733U)]
+    public class Class0xb283ee8d : Class0x9fffbec6
+    {
+    }
+
     [MetaClassAttribute("MatchHistoryPlayerTemplate")]
     public class MatchHistoryPlayerTemplate : IMetaClass
     {
@@ -34349,8 +34975,8 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(872080380U, BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink m872080380 { get; set; } = new(0U);
 
-        [MetaPropertyAttribute(3544184282U, BinPropertyType.Struct, "Class0x3ff050d9", BinPropertyType.None, BinPropertyType.None)]
-        public Class0x3ff050d9 m3544184282 { get; set; } = null;
+        [MetaPropertyAttribute(3544184282U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3544184282 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("HudItemShopQuickBuyData")]
@@ -34750,6 +35376,13 @@ namespace LeagueToolkit.Meta.Classes
         public bool UseValidParentForChroma { get; set; } = true;
     }
 
+    [MetaClassAttribute(3022840656U)]
+    public class Class0xb42ce350 : ILogicDriver
+    {
+        [MetaPropertyAttribute("Key", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Key { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute("GearData")]
     public class GearData : IMetaClass
     {
@@ -34866,6 +35499,16 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("mOffValue", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float OffValue { get; set; } = 0f;
+    }
+
+    [MetaClassAttribute(3036036933U)]
+    public class Class0xb4f63f45 : Class0x46d8b2a4
+    {
+        [MetaPropertyAttribute(1510824760U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1510824760 { get; set; } = false;
+
+        [MetaPropertyAttribute(2053108111U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2053108111 { get; set; } = "";
     }
 
     [MetaClassAttribute("SwitchIntPairData")]
@@ -35264,6 +35907,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("mSummonerPerkReplacements", BinPropertyType.Embedded, "SummonerSpellPerkReplacementList", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<SummonerSpellPerkReplacementList> SummonerPerkReplacements { get; set; } = new(new());
+    }
+
+    [MetaClassAttribute(3069998951U)]
+    public class Class0xb6fc7767 : Class0x9d021f61
+    {
+        [MetaPropertyAttribute("definition", BinPropertyType.Struct, "Class0xb4f63f45", BinPropertyType.None, BinPropertyType.None)]
+        public Class0xb4f63f45 Definition { get; set; } = null;
     }
 
     [MetaClassAttribute("SeasonalSinglePurchaseDialog")]
@@ -35747,6 +36397,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash ReportOffensiveNameButton { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(3127243262U)]
+    public class Class0xba65f1fe : IMetaClass
+    {
+        [MetaPropertyAttribute(1518465946U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1518465946 { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute("PerkSubStyleBonus")]
     public class PerkSubStyleBonus : IMetaClass
     {
@@ -35760,6 +36417,13 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(3128103843U)]
     public abstract class Class0xba7313a3 : IMetaClass
     {
+    }
+
+    [MetaClassAttribute(3129597620U)]
+    public class Class0xba89deb4 : Class0xa2913bfb
+    {
+        [MetaPropertyAttribute("Location", BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x94e82d1f Location { get; set; } = null;
     }
 
     [MetaClassAttribute("TftCutsceneProxyClip")]
@@ -36498,6 +37162,19 @@ namespace LeagueToolkit.Meta.Classes
         public string m4214014394 { get; set; } = "";
     }
 
+    [MetaClassAttribute(3163444389U)]
+    public class Class0xbc8e54a5 : ISequenceAction
+    {
+        [MetaPropertyAttribute("boneName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string BoneName { get; set; } = "";
+
+        [MetaPropertyAttribute(2534331429U, BinPropertyType.Struct, "Class0x6d79484d", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x6d79484d m2534331429 { get; set; } = null;
+
+        [MetaPropertyAttribute(2661709421U, BinPropertyType.Struct, "Class0x6d79484d", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x6d79484d m2661709421 { get; set; } = null;
+    }
+
     [MetaClassAttribute("ReplayTeamFightViewController")]
     public class ReplayTeamFightViewController : TeamFightViewController
     {
@@ -36723,6 +37400,13 @@ namespace LeagueToolkit.Meta.Classes
         public float MaxDuration { get; set; } = 60f;
     }
 
+    [MetaClassAttribute(198469029U)]
+    public class Class0xbd465a5 : IContextualCondition
+    {
+        [MetaPropertyAttribute(1710938619U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1710938619 { get; set; } = false;
+    }
+
     [MetaClassAttribute(3176656456U)]
     public abstract class Class0xbd57ee48 : IMetaClass
     {
@@ -36809,6 +37493,13 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("InstanceData", BinPropertyType.UnorderedContainer, "BrowserInstanceData", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<BrowserInstanceData>> InstanceData { get; set; } = new();
+    }
+
+    [MetaClassAttribute(3188190271U)]
+    public abstract class Class0xbe07ec3f : Class0x5ba190cc
+    {
+        [MetaPropertyAttribute(4064860553U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m4064860553 { get; set; }
     }
 
     [MetaClassAttribute(3188202796U)]
@@ -37218,6 +37909,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash m3573776406 { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(3208877741U)]
+    public class Class0xbf4396ad : IMetaClass
+    {
+        [MetaPropertyAttribute(1759074816U, BinPropertyType.UnorderedContainer, "", BinPropertyType.String, BinPropertyType.None)]
+        public MetaUnorderedContainer<string> m1759074816 { get; set; } = new();
+    }
+
     [MetaClassAttribute("Location")]
     public class Location : TargetingTypeData
     {
@@ -37258,6 +37956,12 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("BackgroundTopRight", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash BackgroundTopRight { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3403486798U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3403486798 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3405370376U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3405370376 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute(3210495765U)]
@@ -37281,6 +37985,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(4225036029U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
         public byte m4225036029 { get; set; } = 4;
+    }
+
+    [MetaClassAttribute(3211116750U)]
+    public class Class0xbf65c0ce : Class0x83eae5d9, IScriptValueGet
+    {
+        [MetaPropertyAttribute(44595159U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m44595159 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute(3214244164U)]
@@ -38034,6 +38745,11 @@ namespace LeagueToolkit.Meta.Classes
     {
     }
 
+    [MetaClassAttribute(3312304957U)]
+    public interface Class0xc56dc33d : IMetaClass
+    {
+    }
+
     [MetaClassAttribute("HasBuffWithAttributeBoolDriver")]
     public class HasBuffWithAttributeBoolDriver : ILogicBoolDriver
     {
@@ -38327,14 +39043,11 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(526667786U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m526667786 { get; set; } = true;
 
-        [MetaPropertyAttribute(554436282U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m554436282 { get; set; } = false;
-
         [MetaPropertyAttribute(589695043U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m589695043 { get; set; } = false;
 
         [MetaPropertyAttribute(606472662U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m606472662 { get; set; } = true;
+        public bool m606472662 { get; set; } = false;
 
         [MetaPropertyAttribute("TftSocialModeRequestSystem", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool TftSocialModeRequestSystem { get; set; } = false;
@@ -38372,14 +39085,14 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(898784406U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m898784406 { get; set; } = false;
 
+        [MetaPropertyAttribute(904491111U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m904491111 { get; set; } = false;
+
         [MetaPropertyAttribute(915562025U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m915562025 { get; set; } = false;
 
         [MetaPropertyAttribute(949117263U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m949117263 { get; set; } = false;
-
-        [MetaPropertyAttribute(1019480787U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m1019480787 { get; set; } = false;
 
         [MetaPropertyAttribute("AutoItemPurchasingUsesNewRecData", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool AutoItemPurchasingUsesNewRecData { get; set; } = false;
@@ -38417,9 +39130,6 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(1625053204U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m1625053204 { get; set; } = false;
 
-        [MetaPropertyAttribute(1638759374U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m1638759374 { get; set; } = false;
-
         [MetaPropertyAttribute(1650223539U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m1650223539 { get; set; } = false;
 
@@ -38441,8 +39151,8 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("EnableCustomPlayerScoreColoring", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool EnableCustomPlayerScoreColoring { get; set; } = false;
 
-        [MetaPropertyAttribute(119829453U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m119829453 { get; set; } = false;
+        [MetaPropertyAttribute(1930850604U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1930850604 { get; set; } = false;
 
         [MetaPropertyAttribute(1938084602U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m1938084602 { get; set; } = false;
@@ -38474,11 +39184,17 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(2363719683U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m2363719683 { get; set; } = true;
 
+        [MetaPropertyAttribute(2367369705U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m2367369705 { get; set; } = false;
+
         [MetaPropertyAttribute("InGameReportAndMuteModal", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool InGameReportAndMuteModal { get; set; } = false;
 
         [MetaPropertyAttribute("PingWheelClarityExploration", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool PingWheelClarityExploration { get; set; } = false;
+
+        [MetaPropertyAttribute(2571210999U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m2571210999 { get; set; } = false;
 
         [MetaPropertyAttribute(2584053999U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m2584053999 { get; set; } = true;
@@ -38494,9 +39210,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(178322613U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m178322613 { get; set; } = false;
-
-        [MetaPropertyAttribute(2874432229U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m2874432229 { get; set; } = false;
 
         [MetaPropertyAttribute(2935208052U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m2935208052 { get; set; } = true;
@@ -38546,14 +39259,17 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("TftRegularUpdateClock", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool TftRegularUpdateClock { get; set; } = false;
 
-        [MetaPropertyAttribute(3696082190U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m3696082190 { get; set; } = false;
-
         [MetaPropertyAttribute("PhysicalVampStat", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool PhysicalVampStat { get; set; } = false;
 
+        [MetaPropertyAttribute(3741586086U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m3741586086 { get; set; } = false;
+
         [MetaPropertyAttribute("TftUnrestrictedArenaCamera", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool TftUnrestrictedArenaCamera { get; set; } = false;
+
+        [MetaPropertyAttribute(3949614681U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m3949614681 { get; set; } = false;
 
         [MetaPropertyAttribute(3978106352U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool m3978106352 { get; set; } = true;
@@ -38654,6 +39370,22 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(3359552057U)]
     public class Class0xc83eb239 : ILogicBoolDriver
     {
+    }
+
+    [MetaClassAttribute(3359641400U)]
+    public class Class0xc8400f38 : Class0x5307f5e1
+    {
+        [MetaPropertyAttribute(2195119280U, BinPropertyType.UnorderedContainer, "Class0x5ba190cc", BinPropertyType.Struct, BinPropertyType.None)]
+        public MetaUnorderedContainer<Class0x5ba190cc> m2195119280 { get; set; } = new();
+
+        [MetaPropertyAttribute(8780276U, BinPropertyType.ObjectLink, "Class0xbf4396ad", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m8780276 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2310687270U, BinPropertyType.ObjectLink, "InputControlSet", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m2310687270 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3661836808U, BinPropertyType.ObjectLink, "Class0xc8400f38", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m3661836808 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("MissileTriggerSpec")]
@@ -38843,14 +39575,26 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("TabletOverrideLoadable", BinPropertyType.ObjectLink, "UiPropertyOverrideLoadable", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink TabletOverrideLoadable { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(1849730806U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m1849730806 { get; set; } = new Color(0f, 0f, 0f, 255f);
+
+        [MetaPropertyAttribute(1910242938U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m1910242938 { get; set; } = new Color(0f, 0f, 0f, 255f);
+
         [MetaPropertyAttribute(2032135303U, BinPropertyType.Embedded, "Class0xdbe05e33", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<Class0xdbe05e33> m2032135303 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(2200902519U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m2200902519 { get; set; } = new Color(0f, 0f, 0f, 255f);
 
         [MetaPropertyAttribute("ClearButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ClearButton { get; set; } = new(0U);
 
         [MetaPropertyAttribute(3620109377U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3620109377 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4006572818U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m4006572818 { get; set; } = new Color(0f, 0f, 0f, 255f);
 
         [MetaPropertyAttribute(4228653913U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m4228653913 { get; set; } = new(0U);
@@ -38953,6 +39697,16 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("InspectButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash InspectButton { get; set; } = new(0U);
+    }
+
+    [MetaClassAttribute(3392450937U)]
+    public class Class0xca34b179 : Class0xa2913bfb
+    {
+        [MetaPropertyAttribute("TargetPosition", BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x94e82d1f TargetPosition { get; set; } = null;
+
+        [MetaPropertyAttribute(2037678955U, BinPropertyType.Struct, "Class0x94e82d1f", BinPropertyType.None, BinPropertyType.None)]
+        public Class0x94e82d1f m2037678955 { get; set; } = null;
     }
 
     [MetaClassAttribute("RatioConversion")]
@@ -39172,22 +39926,6 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash HitRegion { get; set; }
     }
 
-    [MetaClassAttribute(3421117138U)]
-    public class Class0xcbea1ad2 : ISequenceAction
-    {
-        [MetaPropertyAttribute(644657384U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m644657384 { get; set; } = false;
-
-        [MetaPropertyAttribute(1286087469U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
-        public bool m1286087469 { get; set; } = false;
-
-        [MetaPropertyAttribute(2396161819U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m2396161819 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("TargetObject", BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink TargetObject { get; set; } = new(0U);
-    }
-
     [MetaClassAttribute("DestroyCustomTableBlock")]
     public class DestroyCustomTableBlock : IScriptBlock
     {
@@ -39352,14 +40090,26 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(389219852U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m389219852 { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(413589681U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m413589681 { get; set; } = "";
+
         [MetaPropertyAttribute("Scene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Scene { get; set; } = new(0U);
 
         [MetaPropertyAttribute(787316251U, BinPropertyType.ObjectLink, "ViewController", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink m787316251 { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(789859750U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m789859750 { get; set; } = "";
+
+        [MetaPropertyAttribute(907370124U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m907370124 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("ClearAllButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ClearAllButton { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(950312551U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m950312551 { get; set; } = "";
 
         [MetaPropertyAttribute(964497624U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m964497624 { get; set; } = new(0U);
@@ -39385,6 +40135,12 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("TeamNameText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash TeamNameText { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(2005454900U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2005454900 { get; set; } = "";
+
+        [MetaPropertyAttribute(2039719457U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2039719457 { get; set; } = new(0U);
+
         [MetaPropertyAttribute(2776216252U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m2776216252 { get; set; } = new(0U);
 
@@ -39393,6 +40149,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(3231115219U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3231115219 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3237262271U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3237262271 { get; set; } = new(0U);
 
         [MetaPropertyAttribute(3422827668U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3422827668 { get; set; } = new(0U);
@@ -39809,19 +40568,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("BalanceValue", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash BalanceValue { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("Icon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Icon { get; set; } = new(0U);
-    }
-
-    [MetaClassAttribute("TftTeamPlannerMemberTraitData")]
-    public class TftTeamPlannerMemberTraitData : IMetaClass
-    {
-        [MetaPropertyAttribute("Background", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Background { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("Group", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Group { get; set; } = new(0U);
 
         [MetaPropertyAttribute("Icon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Icon { get; set; } = new(0U);
@@ -40262,6 +41008,12 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute(1326335221U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m1326335221 { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(2079295452U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2079295452 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("TraitIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash TraitIcon { get; set; } = new(0U);
+
         [MetaPropertyAttribute(3395440652U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3395440652 { get; set; } = new(0U);
 
@@ -40364,6 +41116,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("MinDisplayPercentOverride", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float MinDisplayPercentOverride { get; set; } = 0f;
+    }
+
+    [MetaClassAttribute(3493716863U)]
+    public class Class0xd03de37f : IMetaClass
+    {
+        [MetaPropertyAttribute(3983620101U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3983620101 { get; set; } = "";
     }
 
     [MetaClassAttribute("FloatGraphMaterialDriver")]
@@ -40876,7 +41635,7 @@ namespace LeagueToolkit.Meta.Classes
         public byte StatType { get; set; } = 39;
 
         [MetaPropertyAttribute("NewStatType", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
-        public byte NewStatType { get; set; } = 12;
+        public byte NewStatType { get; set; } = 13;
 
         [MetaPropertyAttribute("texturePath", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string TexturePath { get; set; } = "";
@@ -41211,13 +41970,6 @@ namespace LeagueToolkit.Meta.Classes
     {
     }
 
-    [MetaClassAttribute(3559133647U)]
-    public class Class0xd42411cf : Class0x608e61e9
-    {
-        [MetaPropertyAttribute(4217362600U, BinPropertyType.Embedded, "Class0xa6ebe6e1", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<Class0xa6ebe6e1> m4217362600 { get; set; } = new(new());
-    }
-
     [MetaClassAttribute("IScriptPreload")]
     public abstract class IScriptPreload : IMetaClass
     {
@@ -41520,6 +42272,25 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("mSpellLockDeltaTimeCalculation", BinPropertyType.Struct, "IGameCalculation", BinPropertyType.None, BinPropertyType.None)]
         public IGameCalculation SpellLockDeltaTimeCalculation { get; set; } = null;
+    }
+
+    [MetaClassAttribute(3568070356U)]
+    public class Class0xd4ac6ed4 : Class0xab5db4f2
+    {
+        [MetaPropertyAttribute(2640537107U, BinPropertyType.U16, "", BinPropertyType.None, BinPropertyType.None)]
+        public ushort m2640537107 { get; set; } = 360;
+
+        [MetaPropertyAttribute(3009397808U, BinPropertyType.U16, "", BinPropertyType.None, BinPropertyType.None)]
+        public ushort m3009397808 { get; set; } = 0;
+
+        [MetaPropertyAttribute("FillDirection", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte FillDirection { get; set; } = 0;
+
+        [MetaPropertyAttribute(3596258140U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m3596258140 { get; set; } = 0;
+
+        [MetaPropertyAttribute(4082757101U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4082757101 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("FloatTableSet")]
@@ -42891,6 +43662,16 @@ namespace LeagueToolkit.Meta.Classes
         public float m4261067901 { get; set; } = 0f;
     }
 
+    [MetaClassAttribute(230554473U)]
+    public class Class0xdbdfb69 : IMetaClass
+    {
+        [MetaPropertyAttribute("properties", BinPropertyType.Map, "Class0x11b39387", BinPropertyType.String, BinPropertyType.Struct)]
+        public Dictionary<string, Class0x11b39387> Properties { get; set; } = new();
+
+        [MetaPropertyAttribute("length", BinPropertyType.UnorderedContainer, "", BinPropertyType.U32, BinPropertyType.None)]
+        public MetaUnorderedContainer<uint> Length { get; set; } = new();
+    }
+
     [MetaClassAttribute(3688914483U)]
     public class Class0xdbe05e33 : IMetaClass
     {
@@ -42938,6 +43719,13 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("Hash", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Hash { get; set; } = new(0U);
+    }
+
+    [MetaClassAttribute(230728531U)]
+    public class Class0xdc0a353 : IContextualCondition
+    {
+        [MetaPropertyAttribute(3018617529U, BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
+        public byte m3018617529 { get; set; } = 0;
     }
 
     [MetaClassAttribute("ResourceMeterGroupData")]
@@ -43146,9 +43934,6 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(3710911418U)]
     public class Class0xdd3003ba : Class0xbd0a017e
     {
-        [MetaPropertyAttribute(279686985U, BinPropertyType.Struct, "Class0x59ef46df", BinPropertyType.None, BinPropertyType.None)]
-        public Class0x59ef46df m279686985 { get; set; } = null;
-
         [MetaPropertyAttribute(3716531515U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash m3716531515 { get; set; } = new(0U);
 
@@ -43760,6 +44545,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("PositioningIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash PositioningIcon { get; set; } = new(0U);
 
+        [MetaPropertyAttribute("ParRegenText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ParRegenText { get; set; } = new(0U);
+
         [MetaPropertyAttribute("ChampInspectVfx", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ChampInspectVfx { get; set; } = new(0U);
 
@@ -43820,6 +44608,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("SellUnitButtonText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash SellUnitButtonText { get; set; } = new(0U);
 
+        [MetaPropertyAttribute(2436118459U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2436118459 { get; set; } = "";
+
         [MetaPropertyAttribute("RangeText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash RangeText { get; set; } = new(0U);
 
@@ -43831,6 +44622,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("GoldIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash GoldIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2781725891U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2781725891 { get; set; } = "";
 
         [MetaPropertyAttribute("StarLevelOverlays", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
         public MetaContainer<MetaHash> StarLevelOverlays { get; set; } = new();
@@ -43877,6 +44671,37 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute(2105453515U, BinPropertyType.Embedded, "Class0x6fcdd30c", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<Class0x6fcdd30c> m2105453515 { get; set; } = new(new());
+    }
+
+    [MetaClassAttribute(3734224567U)]
+    public class Class0xde93beb7 : ViewController
+    {
+        [MetaPropertyAttribute(479240786U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m479240786 { get; set; } = "";
+
+        [MetaPropertyAttribute("BaseLoadable", BinPropertyType.ObjectLink, "UiPropertyLoadable", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink BaseLoadable { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1207248550U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1207248550 { get; set; } = "";
+
+        [MetaPropertyAttribute(1586061091U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1586061091 { get; set; } = "";
+
+        [MetaPropertyAttribute("ConfirmButtonAdditionalIcons", BinPropertyType.Embedded, "UiElementGroupButtonAdditionalElements", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<UiElementGroupButtonAdditionalElements> ConfirmButtonAdditionalIcons { get; set; } = new(new());
+
+        [MetaPropertyAttribute("BodyText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash BodyText { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("ContentScene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ContentScene { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("ConfirmButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash ConfirmButton { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("TitleText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash TitleText { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("UiElementEffectCircleMaskDesaturateData")]
@@ -44136,6 +44961,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("mSemiLockTrapezoid", BinPropertyType.Embedded, "CameraTrapezoid", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<CameraTrapezoid> SemiLockTrapezoid { get; set; } = new(new());
 
+        [MetaPropertyAttribute(1878002695U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m1878002695 { get; set; } = false;
+
         [MetaPropertyAttribute("mElasticClampTrapezoid", BinPropertyType.Embedded, "CameraTrapezoid", BinPropertyType.None, BinPropertyType.None)]
         public MetaEmbedded<CameraTrapezoid> ElasticClampTrapezoid { get; set; } = new(new());
 
@@ -44188,11 +45016,17 @@ namespace LeagueToolkit.Meta.Classes
         public float ZoomMinDistance { get; set; } = 1000f;
     }
 
-    [MetaClassAttribute("TftTeamPlannerMemberDisplayTrait")]
-    public class TftTeamPlannerMemberDisplayTrait : IMetaClass
+    [MetaClassAttribute(3757762777U)]
+    public class Class0xdffae8d9 : MapGraphicsFeature
     {
-        [MetaPropertyAttribute("styles", BinPropertyType.Map, "TftTeamPlannerMemberTraitData", BinPropertyType.U32, BinPropertyType.Embedded)]
-        public Dictionary<uint, MetaEmbedded<TftTeamPlannerMemberTraitData>> Styles { get; set; } = new();
+        [MetaPropertyAttribute("color", BinPropertyType.Vector4, "", BinPropertyType.None, BinPropertyType.None)]
+        public Vector4 Color { get; set; } = new Vector4(1f, 1f, 1f, 1f);
+
+        [MetaPropertyAttribute("intensity", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float Intensity { get; set; } = 1f;
+
+        [MetaPropertyAttribute("direction", BinPropertyType.Vector3, "", BinPropertyType.None, BinPropertyType.None)]
+        public Vector3 Direction { get; set; } = new Vector3(0f, 0f, 0.5f);
     }
 
     [MetaClassAttribute("TFTTraitContributionData")]
@@ -44531,6 +45365,9 @@ namespace LeagueToolkit.Meta.Classes
         [MetaPropertyAttribute("PhaseIcons", BinPropertyType.Container, "", BinPropertyType.Hash, BinPropertyType.None)]
         public MetaContainer<MetaHash> PhaseIcons { get; set; } = new();
 
+        [MetaPropertyAttribute(2695964962U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2695964962 { get; set; } = new(0U);
+
         [MetaPropertyAttribute("ExpandButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ExpandButton { get; set; } = new(0U);
 
@@ -44685,6 +45522,13 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute(3995518783U, BinPropertyType.Map, "IScriptValueGet", BinPropertyType.Hash, BinPropertyType.Struct)]
         public Dictionary<MetaHash, IScriptValueGet> m3995518783 { get; set; } = new();
+    }
+
+    [MetaClassAttribute(3804458076U)]
+    public class Class0xe2c36c5c : Class0x702ab00b
+    {
+        [MetaPropertyAttribute("items", BinPropertyType.UnorderedContainer, "TftItemData", BinPropertyType.ObjectLink, BinPropertyType.None)]
+        public MetaUnorderedContainer<MetaObjectLink> Items { get; set; } = new();
     }
 
     [MetaClassAttribute("CollectiblesEsportsTeamData")]
@@ -45416,25 +46260,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("mTime", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
         public float Time { get; set; } = 0f;
-    }
-
-    [MetaClassAttribute("TftTeamPlannerTierData")]
-    public class TftTeamPlannerTierData : IMetaClass
-    {
-        [MetaPropertyAttribute(1326335221U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m1326335221 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3395440652U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m3395440652 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3941576905U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m3941576905 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("CostText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash CostText { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("TitleText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash TitleText { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("TftCutsceneAcceleratingMissileClip")]
@@ -46380,6 +47205,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaContainer<MetaObjectLink> AdditionalCharacters { get; set; } = new();
     }
 
+    [MetaClassAttribute(3931773145U)]
+    public class Class0xea5a18d9 : IOptionItem
+    {
+        [MetaPropertyAttribute("template", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Template { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute("SelfAoe")]
     public class SelfAoe : TargetingTypeData
     {
@@ -46775,178 +47607,6 @@ namespace LeagueToolkit.Meta.Classes
         public string SearchTags { get; set; } = "";
     }
 
-    [MetaClassAttribute("TftTeamPlannerViewController")]
-    public class TftTeamPlannerViewController : ViewController
-    {
-        [MetaPropertyAttribute("EmptyActiveTraitTemplate", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash EmptyActiveTraitTemplate { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("MemberGrid", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash MemberGrid { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(411349635U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m411349635 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("Scene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Scene { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(554994496U, BinPropertyType.Map, "", BinPropertyType.U32, BinPropertyType.Hash)]
-        public Dictionary<uint, MetaHash> m554994496 { get; set; } = new();
-
-        [MetaPropertyAttribute(601237879U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m601237879 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(634692556U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m634692556 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ActiveTraitSelectionOutline", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitSelectionOutline { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(787316251U, BinPropertyType.ObjectLink, "ViewController", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m787316251 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ActiveTraitHighlightOutline", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitHighlightOutline { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("TeamMemberData", BinPropertyType.Embedded, "TftTeamPlannerMemberData", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<TftTeamPlannerMemberData> TeamMemberData { get; set; } = new(new());
-
-        [MetaPropertyAttribute("ActiveTraitGrid", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitGrid { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(964497624U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m964497624 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("DismissSound", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string DismissSound { get; set; } = "";
-
-        [MetaPropertyAttribute("BaseLoadable", BinPropertyType.ObjectLink, "UiPropertyLoadable", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink BaseLoadable { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(1087529810U, BinPropertyType.Map, "", BinPropertyType.U32, BinPropertyType.Hash)]
-        public Dictionary<uint, MetaHash> m1087529810 { get; set; } = new();
-
-        [MetaPropertyAttribute("AddToTeamFailureSound", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string AddToTeamFailureSound { get; set; } = "";
-
-        [MetaPropertyAttribute("ActiveTraitDataByStyle", BinPropertyType.Map, "TftTeamPlannerActiveTraitData", BinPropertyType.U32, BinPropertyType.Embedded)]
-        public Dictionary<uint, MetaEmbedded<TftTeamPlannerActiveTraitData>> ActiveTraitDataByStyle { get; set; } = new();
-
-        [MetaPropertyAttribute("ChampionsPerRow", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
-        public byte ChampionsPerRow { get; set; } = 5;
-
-        [MetaPropertyAttribute(1320775346U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m1320775346 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ChampionHoverEffectGlowMod", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
-        public float ChampionHoverEffectGlowMod { get; set; } = 1f;
-
-        [MetaPropertyAttribute("ActiveTraitBackground", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitBackground { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("MobileOverrideLoadable", BinPropertyType.ObjectLink, "UiPropertyOverrideLoadable", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink MobileOverrideLoadable { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ActiveTraitsBG", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitsBG { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("TabletOverrideLoadable", BinPropertyType.ObjectLink, "UiPropertyOverrideLoadable", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink TabletOverrideLoadable { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("SnapshotButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash SnapshotButton { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(1756838779U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string m1756838779 { get; set; } = "";
-
-        [MetaPropertyAttribute("TierData", BinPropertyType.Embedded, "TftTeamPlannerTierData", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<TftTeamPlannerTierData> TierData { get; set; } = new(new());
-
-        [MetaPropertyAttribute("TeamFullErrorDisplayTimeSecs", BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
-        public float TeamFullErrorDisplayTimeSecs { get; set; } = 5f;
-
-        [MetaPropertyAttribute("TraitsPerRow", BinPropertyType.U8, "", BinPropertyType.None, BinPropertyType.None)]
-        public byte TraitsPerRow { get; set; } = 10;
-
-        [MetaPropertyAttribute(2144123935U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string m2144123935 { get; set; } = "";
-
-        [MetaPropertyAttribute("TeamFullScene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash TeamFullScene { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("PaginateTraitsButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash PaginateTraitsButton { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2451073868U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m2451073868 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ChampionListingData", BinPropertyType.Embedded, "TftTeamPlannerChampionListingData", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<TftTeamPlannerChampionListingData> ChampionListingData { get; set; } = new(new());
-
-        [MetaPropertyAttribute("SnapshotTraKey", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string SnapshotTraKey { get; set; } = "";
-
-        [MetaPropertyAttribute("ClearAllTrakey", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string ClearAllTrakey { get; set; } = "";
-
-        [MetaPropertyAttribute(2710656729U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m2710656729 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2776216252U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m2776216252 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2810241565U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string m2810241565 { get; set; } = "";
-
-        [MetaPropertyAttribute("ActiveTraitButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitButton { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ActiveTraitLevelIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitLevelIcon { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ActiveTraitIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitIcon { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("closeButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash CloseButton { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("ActiveTraitGroup", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ActiveTraitGroup { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("OpenMenuSoundPc", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string OpenMenuSoundPc { get; set; } = "";
-
-        [MetaPropertyAttribute(3117274720U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m3117274720 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3132288461U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string m3132288461 { get; set; } = "";
-
-        [MetaPropertyAttribute("ClearButton", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ClearButton { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3422827668U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m3422827668 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3703761930U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string m3703761930 { get; set; } = "";
-
-        [MetaPropertyAttribute("ChampionsViewPane", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash ChampionsViewPane { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3850941106U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
-        public string m3850941106 { get; set; } = "";
-
-        [MetaPropertyAttribute(3943243894U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m3943243894 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("HintText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash HintText { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(4191529067U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m4191529067 { get; set; } = new(0U);
-    }
-
     [MetaClassAttribute("DamageUnitCheat")]
     public class DamageUnitCheat : Cheat
     {
@@ -47028,6 +47688,9 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(3970095770U)]
     public class Class0xeca2da9a : IMetaClass
     {
+        [MetaPropertyAttribute(594309604U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m594309604 { get; set; } = false;
+
         [MetaPropertyAttribute(2354373236U, BinPropertyType.UnorderedContainer, "Class0x2330a302", BinPropertyType.Embedded, BinPropertyType.None)]
         public MetaUnorderedContainer<MetaEmbedded<Class0x2330a302>> m2354373236 { get; set; } = new();
 
@@ -47268,6 +47931,19 @@ namespace LeagueToolkit.Meta.Classes
         public MetaWadEntryLink PathHashToSelf { get; set; }
     }
 
+    [MetaClassAttribute(3981772454U)]
+    public class Class0xed5506a6 : ILogicDriver
+    {
+        [MetaPropertyAttribute(979353360U, BinPropertyType.Struct, "ILogicDriver", BinPropertyType.None, BinPropertyType.None)]
+        public ILogicDriver m979353360 { get; set; } = null;
+
+        [MetaPropertyAttribute(1113289521U, BinPropertyType.Struct, "ILogicDriver", BinPropertyType.None, BinPropertyType.None)]
+        public ILogicDriver m1113289521 { get; set; } = null;
+
+        [MetaPropertyAttribute(3271675795U, BinPropertyType.Struct, "ILogicDriver", BinPropertyType.None, BinPropertyType.None)]
+        public ILogicDriver m3271675795 { get; set; } = null;
+    }
+
     [MetaClassAttribute("CherryCameo")]
     public class CherryCameo : IMetaClass
     {
@@ -47347,6 +48023,13 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute("MultiKillLogic")]
     public class MultiKillLogic : IStatStoneLogicDriver
     {
+    }
+
+    [MetaClassAttribute(249318829U)]
+    public class Class0xedc4dad : Class0xc56dc33d, IScriptValueGet
+    {
+        [MetaPropertyAttribute(44595159U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m44595159 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("FloatTableGet")]
@@ -47569,6 +48252,112 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("mItemCanBePurchased", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
         public bool ItemCanBePurchased { get; set; } = false;
+    }
+
+    [MetaClassAttribute(4002873636U)]
+    public class Class0xee970124 : ViewController
+    {
+        [MetaPropertyAttribute("NotificationIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash NotificationIcon { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(329150893U, BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> m329150893 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(482440651U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m482440651 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(549668985U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m549668985 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("NotificationTitle", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash NotificationTitle { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(631699061U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m631699061 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(853696577U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m853696577 { get; set; } = "";
+
+        [MetaPropertyAttribute("BaseLoadable", BinPropertyType.ObjectLink, "UiPropertyLoadable", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink BaseLoadable { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1183865734U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1183865734 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1367877049U, BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> m1367877049 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(1370246110U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1370246110 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(1849742428U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m1849742428 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2021217447U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2021217447 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2044541358U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m2044541358 { get; set; } = "";
+
+        [MetaPropertyAttribute(2355598105U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2355598105 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("TimeRemainingText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash TimeRemainingText { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(155239434U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m155239434 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("NotificationScene", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash NotificationScene { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2752752845U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2752752845 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(177469047U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m177469047 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(2914121589U, BinPropertyType.F32, "", BinPropertyType.None, BinPropertyType.None)]
+        public float m2914121589 { get; set; } = 5f;
+
+        [MetaPropertyAttribute(2940972611U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m2940972611 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3362843531U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3362843531 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3475683299U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3475683299 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("PipGroup", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash PipGroup { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3730094884U, BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> m3730094884 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(3807943113U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3807943113 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3830391293U, BinPropertyType.Embedded, "Class0xf3a5e4bf", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xf3a5e4bf> m3830391293 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(3873349473U, BinPropertyType.Embedded, "Class0xf3a5e4bf", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0xf3a5e4bf> m3873349473 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(3891990739U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3891990739 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3895022031U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3895022031 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3957900129U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m3957900129 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(4163885110U, BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> m4163885110 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(4200548664U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash m4200548664 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute(250219505U)]
@@ -48087,6 +48876,21 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash m1084583375 { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(252872349U)]
+    public interface Class0xf12869d : IMetaClass
+    {
+    }
+
+    [MetaClassAttribute(4046509628U)]
+    public class Class0xf130d63c : IMetaClass
+    {
+        [MetaPropertyAttribute("TooltipTra", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string TooltipTra { get; set; } = "";
+
+        [MetaPropertyAttribute("Icon", BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> Icon { get; set; } = new(new());
+    }
+
     [MetaClassAttribute("VfxPrimitiveCameraSegmentBeam")]
     public class VfxPrimitiveCameraSegmentBeam : VfxPrimitiveBeamBase
     {
@@ -48493,44 +49297,8 @@ namespace LeagueToolkit.Meta.Classes
     [MetaClassAttribute(4073819432U)]
     public class Class0xf2d18d28 : Class0x6ff8b2a7
     {
-        [MetaPropertyAttribute(297617851U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m297617851 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(347950708U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m347950708 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(398283565U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m398283565 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(45953566U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m45953566 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(62731185U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m62731185 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2436998856U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2436998856 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2453776475U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2453776475 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2487331713U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2487331713 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2504109332U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2504109332 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2537664570U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2537664570 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(2554442189U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m2554442189 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(12398328U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m12398328 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3426005713U, BinPropertyType.ObjectLink, "InputEventBool", BinPropertyType.None, BinPropertyType.None)]
-        public MetaObjectLink m3426005713 { get; set; } = new(0U);
+        [MetaPropertyAttribute(1602492182U, BinPropertyType.ObjectLink, "Class0xc8400f38", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m1602492182 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute(4074581268U)]
@@ -48605,6 +49373,13 @@ namespace LeagueToolkit.Meta.Classes
         public MetaHash PlayerCardSwitcherLayout { get; set; } = new(0U);
     }
 
+    [MetaClassAttribute(4077342763U)]
+    public class Class0xf307502b : ILogicFloatDriver
+    {
+        [MetaPropertyAttribute("Key", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Key { get; set; } = new(0U);
+    }
+
     [MetaClassAttribute(4077377225U)]
     public class Class0xf307d6c9 : Class0x114828a9
     {
@@ -48664,22 +49439,6 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("ItemIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash ItemIcon { get; set; } = new(0U);
-    }
-
-    [MetaClassAttribute("TftTeamPlannerChampionListingData")]
-    public class TftTeamPlannerChampionListingData : IMetaClass
-    {
-        [MetaPropertyAttribute("Button", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash Button { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("FrameIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash FrameIcon { get; set; } = new(0U);
-
-        [MetaPropertyAttribute(3395440652U, BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash m3395440652 { get; set; } = new(0U);
-
-        [MetaPropertyAttribute("PortraitIcon", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
-        public MetaHash PortraitIcon { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("SummonerSpellPerkReplacement")]
@@ -48746,6 +49505,37 @@ namespace LeagueToolkit.Meta.Classes
     {
         [MetaPropertyAttribute("Animation", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string Animation { get; set; } = "";
+    }
+
+    [MetaClassAttribute(4087735487U)]
+    public class Class0xf3a5e4bf : IMetaClass
+    {
+        [MetaPropertyAttribute("NotificationIcon", BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> NotificationIcon { get; set; } = new(new());
+
+        [MetaPropertyAttribute(966903269U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m966903269 { get; set; } = new Color(0f, 0f, 0f, 255f);
+
+        [MetaPropertyAttribute(1891329870U, BinPropertyType.ObjectLink, "VfxSystemDefinitionData", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m1891329870 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("TooltipTra", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string TooltipTra { get; set; } = "";
+
+        [MetaPropertyAttribute(2694716351U, BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> m2694716351 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(3151390670U, BinPropertyType.ObjectLink, "VfxSystemDefinitionData", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m3151390670 { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3364169633U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m3364169633 { get; set; } = "";
+
+        [MetaPropertyAttribute(3441927539U, BinPropertyType.Embedded, "Class0x562bed30", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<Class0x562bed30> m3441927539 { get; set; } = new(new());
+
+        [MetaPropertyAttribute(4002560109U, BinPropertyType.Color, "", BinPropertyType.None, BinPropertyType.None)]
+        public Color m4002560109 { get; set; } = new Color(0f, 0f, 0f, 255f);
     }
 
     [MetaClassAttribute("GlobalStatsUIData")]
@@ -49681,6 +50471,11 @@ namespace LeagueToolkit.Meta.Classes
         public string Name { get; set; } = "";
     }
 
+    [MetaClassAttribute(4143904715U)]
+    public class Class0xf6fef7cb : MissileTriggerSpec
+    {
+    }
+
     [MetaClassAttribute("MapActionFaceCamera")]
     public class MapActionFaceCamera : MapAction
     {
@@ -49739,11 +50534,18 @@ namespace LeagueToolkit.Meta.Classes
         public bool FlipX { get; set; } = false;
     }
 
+    [MetaClassAttribute(4146780709U)]
+    public class Class0xf72ada25 : ModalDialogViewController
+    {
+        [MetaPropertyAttribute(652993773U, BinPropertyType.Embedded, "UiHyperlink", BinPropertyType.None, BinPropertyType.None)]
+        public MetaEmbedded<UiHyperlink> m652993773 { get; set; } = new(new());
+    }
+
     [MetaClassAttribute("StatStoneEventToTrack")]
     public class StatStoneEventToTrack : IMetaClass
     {
         [MetaPropertyAttribute("EventToTrack", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
-        public uint EventToTrack { get; set; } = 396;
+        public uint EventToTrack { get; set; } = 407;
 
         [MetaPropertyAttribute("StatFilters", BinPropertyType.Container, "IStatStoneLogicDriver", BinPropertyType.Struct, BinPropertyType.None)]
         public MetaContainer<IStatStoneLogicDriver> StatFilters { get; set; } = new();
@@ -50285,6 +51087,9 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("RespawnTimerText", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash RespawnTimerText { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3250289129U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m3250289129 { get; set; } = false;
 
         [MetaPropertyAttribute("Frame", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
         public MetaHash Frame { get; set; } = new(0U);
@@ -51140,13 +51945,6 @@ namespace LeagueToolkit.Meta.Classes
         public int Value { get; set; } = 0;
     }
 
-    [MetaClassAttribute(4258145291U)]
-    public class Class0xfdce240b : Class0xfaf91113
-    {
-        [MetaPropertyAttribute(3812860102U, BinPropertyType.Embedded, "Class0xa6ebe6e1", BinPropertyType.None, BinPropertyType.None)]
-        public MetaEmbedded<Class0xa6ebe6e1> m3812860102 { get; set; } = new(new());
-    }
-
     [MetaClassAttribute("VfxPrimitiveCameraUnitQuad")]
     public class VfxPrimitiveCameraUnitQuad : VfxPrimitiveBase
     {
@@ -51304,6 +52102,25 @@ namespace LeagueToolkit.Meta.Classes
         public byte TeamCompareOp { get; set; } = 0;
     }
 
+    [MetaClassAttribute(4265917091U)]
+    public class Class0xfe44baa3 : IMetaClass
+    {
+        [MetaPropertyAttribute("enabled", BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool Enabled { get; set; } = true;
+
+        [MetaPropertyAttribute("SkinID", BinPropertyType.U32, "", BinPropertyType.None, BinPropertyType.None)]
+        public uint SkinID { get; set; } = 0;
+
+        [MetaPropertyAttribute("Character", BinPropertyType.Hash, "", BinPropertyType.None, BinPropertyType.None)]
+        public MetaHash Character { get; set; } = new(0U);
+
+        [MetaPropertyAttribute("name", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string Name { get; set; } = "";
+
+        [MetaPropertyAttribute(2968724833U, BinPropertyType.UnorderedContainer, "", BinPropertyType.U8, BinPropertyType.None)]
+        public MetaUnorderedContainer<byte> m2968724833 { get; set; } = new();
+    }
+
     [MetaClassAttribute("ItemRecommendationContext")]
     public class ItemRecommendationContext : IMetaClass
     {
@@ -51375,6 +52192,11 @@ namespace LeagueToolkit.Meta.Classes
         public Vector3 Direction { get; set; } = new Vector3(1f, 1f, 0f);
     }
 
+    [MetaClassAttribute(4272474415U)]
+    public interface Class0xfea8c92f : IMetaClass
+    {
+    }
+
     [MetaClassAttribute(4272745970U)]
     public class Class0xfeacedf2 : Class0x30aa7360
     {
@@ -51418,6 +52240,16 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("mTriggerName", BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
         public string TriggerName { get; set; } = "";
+    }
+
+    [MetaClassAttribute(4281053102U)]
+    public class Class0xff2bafae : Class0xa2913bfb
+    {
+        [MetaPropertyAttribute(1029752247U, BinPropertyType.String, "", BinPropertyType.None, BinPropertyType.None)]
+        public string m1029752247 { get; set; } = "";
+
+        [MetaPropertyAttribute(2661709421U, BinPropertyType.ObjectLink, "SequenceObjectSelector", BinPropertyType.None, BinPropertyType.None)]
+        public MetaObjectLink m2661709421 { get; set; } = new(0U);
     }
 
     [MetaClassAttribute("FloatTextDisplayOverrides")]
@@ -51657,5 +52489,8 @@ namespace LeagueToolkit.Meta.Classes
 
         [MetaPropertyAttribute("IconMaterial", BinPropertyType.ObjectLink, "StaticMaterialDef", BinPropertyType.None, BinPropertyType.None)]
         public MetaObjectLink IconMaterial { get; set; } = new(0U);
+
+        [MetaPropertyAttribute(3757041430U, BinPropertyType.Bool, "", BinPropertyType.None, BinPropertyType.None)]
+        public bool m3757041430 { get; set; } = false;
     }
 }
