@@ -1,13 +1,13 @@
-﻿using LeagueToolkit.Core.Environment;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using LeagueToolkit.Core.Environment;
 using LeagueToolkit.IO.MapGeometryFile;
 using LeagueToolkit.Meta.Classes;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using System;
-using System.IO;
-using System.Linq;
-using System.Numerics;
 using GltfImage = SharpGLTF.Schema2.Image;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
@@ -45,8 +45,8 @@ internal sealed class StaticMeshHologram : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Emissive_Intensity"
+        StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Emissive_Intensity"
         );
 
         var (baseColorTexture, emissiveTexture) = CreateBaseColorAndEmissiveTexture(
@@ -84,8 +84,8 @@ internal sealed class StaticMeshHologram : IMaterialAdapter
             context.Settings.TextureQuality
         );
 
-        StaticMaterialShaderParamDef bloomColorDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Bloom_Color"
+        StaticMaterialShaderParamDef bloomColorDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Bloom_Color"
         );
 
         Image<Rgba32> diffuseTexture = TextureUtils.GetImage(TextureUtils.Load(diffuseTexturePath));
@@ -150,8 +150,8 @@ internal sealed class StaticMeshHologram : IMaterialAdapter
 
     private static string GetDiffuseTextureName(StaticMaterialDef materialDef)
     {
-        StaticMaterialShaderSamplerDef sampler = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "Diffuse_Texture"
+        StaticMaterialShaderSamplerDef sampler = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.TextureName is "Diffuse_Texture"
         );
 
         return string.IsNullOrEmpty(sampler?.TextureName) switch
@@ -163,8 +163,8 @@ internal sealed class StaticMeshHologram : IMaterialAdapter
 
     private static string GetMaskTextureName(StaticMaterialDef materialDef)
     {
-        StaticMaterialShaderSamplerDef sampler = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "Mask_Texture"
+        StaticMaterialShaderSamplerDef sampler = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.TextureName is "Mask_Texture"
         );
 
         return string.IsNullOrEmpty(sampler?.TextureName) switch

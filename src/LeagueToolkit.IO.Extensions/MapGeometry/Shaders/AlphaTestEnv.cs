@@ -1,13 +1,13 @@
-﻿using LeagueToolkit.Core.Environment;
-using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.Meta.Classes;
-using SharpGLTF.Schema2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using LeagueToolkit.Core.Environment;
+using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.Meta.Classes;
+using SharpGLTF.Schema2;
 using GltfImage = SharpGLTF.Schema2.Image;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
@@ -44,8 +44,8 @@ internal sealed class AlphaTestEnv : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "DiffuseTexture"
+        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.TextureName is "DiffuseTexture"
         );
 
         gltfMaterial.WithChannelTexture(
