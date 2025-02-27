@@ -67,7 +67,7 @@ internal sealed class SinFadeAlpha : IMaterialAdapter
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
             x.Value.TextureName is "Mask_Textures"
         );
-        samplerDef ??= new() { TextureName = DEFAULT_MASK_TEXTURES };
+        samplerDef ??= new() { TexturePath = DEFAULT_MASK_TEXTURES };
 
         StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(x =>
             x.Value.Name is "Emissive_Intensity"
@@ -76,7 +76,7 @@ internal sealed class SinFadeAlpha : IMaterialAdapter
         gltfMaterial.WithChannelTexture(
             "Emissive",
             0,
-            TextureUtils.CreateGltfImage(samplerDef.TextureName, root, textureRegistry, context)
+            TextureUtils.CreateGltfImage(samplerDef.TexturePath, root, textureRegistry, context)
         );
         gltfMaterial.WithChannelColor("Emissive", Vector4.One);
         gltfMaterial.WithChannelFactor("Emissive", "EmissiveStrength", emissiveIntensityDef?.Value.X ?? 1f);

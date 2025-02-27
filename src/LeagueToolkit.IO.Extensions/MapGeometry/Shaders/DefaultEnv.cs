@@ -89,9 +89,9 @@ internal sealed class DefaultEnv : IMaterialAdapter
             texcoordId = 1;
             sampler = new(bakedPaintTexture, mesh.BakedPaintScale, mesh.BakedPaintBias);
         }
-        else if (!string.IsNullOrEmpty(samplerDef.TextureName))
+        else if (!string.IsNullOrEmpty(samplerDef.TexturePath))
         {
-            sampler = new(samplerDef.TextureName, Vector2.One, Vector2.Zero);
+            sampler = new(samplerDef.TexturePath, Vector2.One, Vector2.Zero);
         }
         else
         {
@@ -180,7 +180,7 @@ internal sealed class DefaultEnv : IMaterialAdapter
         // Convert specular glossiness map to roughness
         float glossinessFactor = glossParamDef?.Value.X ?? 1f;
         GltfImage image = CreateRoughnessImage(
-            samplerDef.TextureName,
+            samplerDef.TexturePath,
             glossinessFactor,
             textureRegistry,
             root,
@@ -199,24 +199,24 @@ internal sealed class DefaultEnv : IMaterialAdapter
     }
 
     private static GltfImage CreateRoughnessImage(
-        string textureName,
+        string texturePath,
         float glossinessFactor,
         TextureRegistry textureRegistry,
         ModelRoot root,
         MapGeometryGltfConversionContext context
     )
     {
-        string texturePath = TextureUtils.GetQualityPrefixedTexturePath(
-            Path.Join(context.Settings.GameDataPath, textureName),
+        string prefixedTexturePath = TextureUtils.GetQualityPrefixedTexturePath(
+            Path.Join(context.Settings.GameDataPath, texturePath),
             context.Settings.TextureQuality
         );
 
         // If texture is already loaded, return it
-        if (textureRegistry.TryGetValue(texturePath, out GltfImage existingImage))
+        if (textureRegistry.TryGetValue(prefixedTexturePath, out GltfImage existingImage))
             return existingImage;
 
         // Load texture
-        using Image<Rgba32> image = TextureUtils.GetImage(TextureUtils.Load(texturePath));
+        using Image<Rgba32> image = TextureUtils.GetImage(TextureUtils.Load(prefixedTexturePath));
 
         // Convert specular glossiness to roughness
         image.ProcessPixelRows(x =>
@@ -240,6 +240,6 @@ internal sealed class DefaultEnv : IMaterialAdapter
             }
         });
 
-        return TextureUtils.CreateGltfImage(texturePath, image, root, textureRegistry);
+        return TextureUtils.CreateGltfImage(prefixedTexturePath, image, root, textureRegistry);
     }
 }

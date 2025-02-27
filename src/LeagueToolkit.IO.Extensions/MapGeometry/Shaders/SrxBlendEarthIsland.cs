@@ -58,12 +58,12 @@ internal sealed class SrxBlendEarthIsland : IMaterialAdapter
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
             x.Value.TextureName is "DiffuseTexture"
         );
-        samplerDef ??= new() { TextureName = DEFAULT_DIFFUSE_TEXTURE };
+        samplerDef ??= new() { TexturePath = DEFAULT_DIFFUSE_TEXTURE };
 
         gltfMaterial.WithChannelTexture(
             "BaseColor",
             0,
-            TextureUtils.CreateGltfImage(samplerDef.TextureName, root, textureRegistry, context)
+            TextureUtils.CreateGltfImage(samplerDef.TexturePath, root, textureRegistry, context)
         );
     }
 }

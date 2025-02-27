@@ -71,7 +71,7 @@ internal sealed class EnvGlow : IMaterialAdapter
         gltfMaterial.WithChannelTexture(
             "BaseColor",
             0,
-            TextureUtils.CreateGltfImage(samplerDef.TextureName, root, textureRegistry, context)
+            TextureUtils.CreateGltfImage(samplerDef.TexturePath, root, textureRegistry, context)
         );
     }
 }
