@@ -1,13 +1,13 @@
-﻿using LeagueToolkit.Core.Environment;
-using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.Meta.Classes;
-using SharpGLTF.Schema2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using LeagueToolkit.Core.Environment;
+using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.Meta.Classes;
+using SharpGLTF.Schema2;
 using GltfImage = SharpGLTF.Schema2.Image;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
@@ -49,8 +49,8 @@ internal sealed class SinFadeAlpha : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        StaticMaterialShaderParamDef baseColorDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "BaseColor"
+        StaticMaterialShaderParamDef baseColorDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "BaseColor"
         );
 
         gltfMaterial.WithChannelColor("BaseColor", (baseColorDef?.Value ?? new(0f, 0.95f, 1f, 1f)) with { W = 1f });
@@ -64,13 +64,13 @@ internal sealed class SinFadeAlpha : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "Mask_Textures"
+        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.TextureName is "Mask_Textures"
         );
         samplerDef ??= new() { TextureName = DEFAULT_MASK_TEXTURES };
 
-        StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Emissive_Intensity"
+        StaticMaterialShaderParamDef emissiveIntensityDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Emissive_Intensity"
         );
 
         gltfMaterial.WithChannelTexture(

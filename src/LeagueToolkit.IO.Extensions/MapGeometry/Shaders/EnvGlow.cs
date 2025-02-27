@@ -1,15 +1,15 @@
-﻿using CommunityToolkit.Diagnostics;
-using LeagueToolkit.Core.Environment;
-using LeagueToolkit.Core.Renderer;
-using LeagueToolkit.IO.MapGeometryFile;
-using LeagueToolkit.Meta.Classes;
-using SharpGLTF.Schema2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.Diagnostics;
+using LeagueToolkit.Core.Environment;
+using LeagueToolkit.Core.Renderer;
+using LeagueToolkit.IO.MapGeometryFile;
+using LeagueToolkit.Meta.Classes;
+using SharpGLTF.Schema2;
 using GltfImage = SharpGLTF.Schema2.Image;
 using TextureRegistry = System.Collections.Generic.Dictionary<string, SharpGLTF.Schema2.Image>;
 
@@ -50,15 +50,15 @@ internal sealed class EnvGlow : IMaterialAdapter
         MapGeometryGltfConversionContext context
     )
     {
-        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(
-            x => x.Value.SamplerName is "GlowTexture"
+        StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
+            x.Value.TextureName is "GlowTexture"
         );
 
-        StaticMaterialShaderParamDef colorMultDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Color_Mult"
+        StaticMaterialShaderParamDef colorMultDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Color_Mult"
         );
-        StaticMaterialShaderParamDef alphaMultDef = materialDef.ParamValues.FirstOrDefault(
-            x => x.Value.Name is "Alpha_Mult"
+        StaticMaterialShaderParamDef alphaMultDef = materialDef.ParamValues.FirstOrDefault(x =>
+            x.Value.Name is "Alpha_Mult"
         );
 
         gltfMaterial.WithChannelColor(

@@ -73,7 +73,7 @@ internal sealed class DefaultEnv : IMaterialAdapter
 
         // Resolve diffuse sampler definition, return if not found
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
-            x.Value.SamplerName is "DiffuseTexture"
+            x.Value.TextureName is "DiffuseTexture"
         );
         if (samplerDef is null)
             return;
@@ -156,7 +156,7 @@ internal sealed class DefaultEnv : IMaterialAdapter
     {
         // Find specular glossiness sampler
         StaticMaterialShaderSamplerDef samplerDef = materialDef.SamplerValues.FirstOrDefault(x =>
-            x.Value.SamplerName is "Material"
+            x.Value.TextureName is "Material"
         );
         MaterialChannel channel = gltfMaterial.FindChannel("MetallicRoughness").Value;
 
