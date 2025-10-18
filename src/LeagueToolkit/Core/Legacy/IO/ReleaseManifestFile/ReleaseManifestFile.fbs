@@ -4,7 +4,7 @@ table ReleaseManifestFile
 {
     ID: ulong;
     ParentID: ulong;
-    Size: uint;
+    Size: ulong;
     Name: string;
     LanguageFlags: ulong;
     Unknown5: byte; // Type/Size unknown
