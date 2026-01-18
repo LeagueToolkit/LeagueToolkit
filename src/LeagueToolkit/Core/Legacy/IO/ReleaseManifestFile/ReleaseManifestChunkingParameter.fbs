@@ -3,8 +3,8 @@
 table ReleaseManifestChunkingParameter
 {
     ID: ushort;
-    Unknown1: byte;
-    Unknown2: byte;
-    Unknown3: int;
+    Version: byte;
+    MinChunkSize: int;
+    MaxChunkSize: int;
     MaxUncompressedSize: int;
-}
+}s
