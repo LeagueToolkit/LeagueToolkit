@@ -36,6 +36,11 @@ public sealed class EnvironmentAssetMesh
     private readonly List<EnvironmentAssetMeshPrimitive> _submeshes = [];
 
     /// <summary>
+    /// Unknown Version 18 Int
+    /// </summary>
+    public uint UnknownVersion18Int { get; set; }
+
+    /// <summary>
     /// Gets the path hash of the scene graph that this mesh belongs to
     /// </summary>
     public uint VisibilityControllerPathHash { get; private set; }
@@ -191,6 +196,11 @@ public sealed class EnvironmentAssetMesh
 
         if (version >= 13)
             this.VisibilityFlags = (EnvironmentVisibility)br.ReadByte();
+
+        if (version >= 18)
+        {
+            this.UnknownVersion18Int = br.ReadUInt32();
+        }
 
         if (version >= 15)
         {

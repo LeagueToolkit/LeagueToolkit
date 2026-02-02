@@ -42,7 +42,7 @@ public static class WorldGeometry
         {
             version switch
             {
-                5 => new(br, legacy: true),
+                5 => new(br, 0),
                 _ => new()
             }
         };

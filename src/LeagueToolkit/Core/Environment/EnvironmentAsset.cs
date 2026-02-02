@@ -74,7 +74,7 @@ public sealed class EnvironmentAsset : IDisposable
             throw new InvalidFileSignatureException();
 
         var version = br.ReadInt32();
-        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14 or 15 or 17))
+        if (version is not (5 or 6 or 7 or 9 or 11 or 12 or 13 or 14 or 15 or 17 or 18))
             throw new InvalidFileVersionException();
 
         bool useSeparatePointLights = version < 7 && br.ReadBoolean();
@@ -134,12 +134,12 @@ public sealed class EnvironmentAsset : IDisposable
             int sceneGraphCount = br.ReadInt32();
             for (int i = 0; i < sceneGraphCount; i++)
             {
-                this._sceneGraphs.Add(new(br));
+                this._sceneGraphs.Add(new(br, version));
             }
         }
         else
         {
-            this._sceneGraphs = [new(br, legacy: true)];
+            this._sceneGraphs = [new(br, version)];
         }
 
         if (version >= 13)

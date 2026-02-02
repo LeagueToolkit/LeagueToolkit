@@ -5,6 +5,7 @@
   <PropertyGroup>
     <InformationalVersion>13.8.505.1214</InformationalVersion>
     <Description>Pre-generated C# meta classes</Description>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <!-- project references -->

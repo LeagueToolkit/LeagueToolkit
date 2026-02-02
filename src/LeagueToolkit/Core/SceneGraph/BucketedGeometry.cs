@@ -71,10 +71,16 @@ public class BucketedGeometry
         this._indices = Array.Empty<ushort>();
     }
 
-    internal BucketedGeometry(BinaryReader br, bool legacy = false)
+    internal BucketedGeometry(BinaryReader br, int version)
     {
-        if (legacy is false)
+        if (version >= 15)
+        {
             this.VisibilityControllerPathHash = br.ReadUInt32();
+        }
+        if(version >= 18)
+        {
+            float unkFloat = br.ReadSingle();
+        }
 
         this.MinX = br.ReadSingle();
         this.MinZ = br.ReadSingle();

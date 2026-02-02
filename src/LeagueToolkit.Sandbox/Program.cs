@@ -1,13 +1,4 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Numerics;
-using System.Reflection;
-using System.Threading.Tasks;
-using BCnEncoder.Shared;
+﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -33,6 +24,16 @@ using LeagueToolkit.Utils;
 using SharpGLTF.Schema2;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Numerics;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using LeagueTexture = LeagueToolkit.Core.Renderer.Texture;
 using MetaClass = LeagueToolkit.Meta.Classes;
 using RigResource = LeagueToolkit.Core.Animation.RigResource;
@@ -43,7 +44,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        TestMetaRoslynCodegen(@"X:\lol\meta\15.4.json", "Classes.cs");
+        using FileStream mapgeoStream = File.OpenRead("C:/Users/filip/Downloads/MapGeometry/bloom.mapgeo");
+        using EnvironmentAsset mgeo = new(mapgeoStream);
     }
 
     static void ProfileMetaSerializer()

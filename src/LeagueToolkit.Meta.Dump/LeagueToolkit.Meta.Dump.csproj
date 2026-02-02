@@ -4,11 +4,12 @@
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
     <Description>Extension package that allows generating C# meta classes from a json file</Description>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <!-- package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
   </ItemGroup>
 
   <!-- project references -->
