@@ -15,6 +15,7 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
+    <Version>4.0.0-beta.53</Version>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
