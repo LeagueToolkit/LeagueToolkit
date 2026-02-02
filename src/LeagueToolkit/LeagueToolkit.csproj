@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../CommonNuget.props" />
+  <Import Project="../CommonNuget.props"/>
 
   <!-- project settings -->
   <PropertyGroup>
@@ -15,7 +15,7 @@
 
   <!-- information about the assembly/project/package -->
   <PropertyGroup>
-    <Version>4.0.0-beta.53</Version>
+    <Version>4.1.0-beta.53</Version>
     <Description>Library for Parsing and Editing file formats from League of Legends</Description>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -30,21 +30,21 @@
 
   <!-- package references -->
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0" />
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.4.0"/>
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.4.0"/>
     <PackageReference Include="FlatSharp.Compiler" Version="7.9.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="FlatSharp.Runtime" Version="7.9.0" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="System.IO.Hashing" Version="10.0.2" />
-    <PackageReference Include="ZstdSharp.Port" Version="0.8.7" />
+    <PackageReference Include="FlatSharp.Runtime" Version="7.9.0"/>
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6"/>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12"/>
+    <PackageReference Include="System.IO.Hashing" Version="10.0.2"/>
+    <PackageReference Include="ZstdSharp.Port" Version="0.8.7"/>
   </ItemGroup>
 
   <ItemGroup>
-    <FlatSharpSchema Include="Core\Legacy\IO\ReleaseManifestFile\ReleaseManifest*.fbs" />
+    <FlatSharpSchema Include="Core\Legacy\IO\ReleaseManifestFile\ReleaseManifest*.fbs"/>
   </ItemGroup>
 
   <ItemGroup>
