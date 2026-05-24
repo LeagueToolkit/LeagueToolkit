@@ -93,9 +93,16 @@ public sealed class WadFile : IDisposable
         // Read chunks
         int chunkCount = br.ReadInt32();
         this._chunks = new(chunkCount);
+
+        int entrySize = major >= 2 ? WadChunk.TOC_SIZE_V3 : 24;
+        using var tocOwner = MemoryOwner<byte>.Allocate(chunkCount * entrySize);
+        br.ReadExactly(tocOwner.Span);
+        ReadOnlySpan<byte> tocSpan = tocOwner.Span;
+
         for (int i = 0; i < chunkCount; i++)
         {
-            WadChunk chunk = WadChunk.Read(br, major);
+            ReadOnlySpan<byte> entry = tocSpan.Slice(i * entrySize, entrySize);
+            WadChunk chunk = WadChunk.Read(entry, major);
 
             if (!this._chunks.TryAdd(chunk.PathHash, chunk))
                 ThrowHelper.ThrowInvalidDataException($"Tried to read a chunk which already exists: {chunk.PathHash}");
