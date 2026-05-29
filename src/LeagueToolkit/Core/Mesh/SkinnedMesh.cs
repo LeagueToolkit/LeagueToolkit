@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Exceptions;
@@ -41,7 +41,7 @@ public sealed class SkinnedMesh : IDisposable
     /// <param name="indexBuffer">The index buffer of the <see cref="SkinnedMesh"/></param>
     public SkinnedMesh(IEnumerable<SkinnedMeshRange> ranges, VertexBuffer vertexBuffer, IndexBuffer indexBuffer)
     {
-        this._ranges = ranges.ToArray();
+        this._ranges = ranges as SkinnedMeshRange[] ?? ranges.ToArray();
         this._vertexBuffer = vertexBuffer;
         this._indexBuffer = indexBuffer;
 

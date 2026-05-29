@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
@@ -55,8 +55,8 @@ public sealed class EnvironmentAsset : IDisposable
         this._sceneGraphs = new(sceneGraphs);
         this._planarReflectors = new(planarReflectors);
 
-        this._vertexBuffers = vertexBuffers.ToArray();
-        this._indexBuffers = indexBuffers.ToArray();
+        this._vertexBuffers = vertexBuffers as VertexBuffer[] ?? vertexBuffers.ToArray();
+        this._indexBuffers = indexBuffers as IndexBuffer[] ?? indexBuffers.ToArray();
     }
 
     /// <summary>

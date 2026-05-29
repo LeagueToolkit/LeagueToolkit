@@ -37,6 +37,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="FlatSharp.Runtime" Version="7.9.0"/>
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1"/>
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.6"/>
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12"/>
     <PackageReference Include="System.IO.Hashing" Version="10.0.2"/>

@@ -1,7 +1,8 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using LeagueToolkit.Hashing;
 using System.IO.Compression;
 using System.IO.Hashing;
+using Microsoft.IO;
 
 namespace LeagueToolkit.Core.Wad;
 
@@ -10,6 +11,8 @@ namespace LeagueToolkit.Core.Wad;
 /// </summary>
 public static class WadBuilder
 {
+    private static readonly RecyclableMemoryStreamManager s_memoryManager = new();
+
     /// <summary>
     /// Creates a new <see cref="WadFile"/> by "baking" it using the specified parameters
     /// </summary>
@@ -111,7 +114,7 @@ public static class WadBuilder
         if (chunkCompression is WadChunkCompression.None)
             return fileStream;
 
-        MemoryStream compressedStream = new();
+        MemoryStream compressedStream = s_memoryManager.GetStream();
         using Stream compressionStream = chunkCompression switch
         {
             WadChunkCompression.GZip => new GZipStream(compressedStream, CompressionMode.Compress),

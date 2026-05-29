@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Text;
 using LeagueToolkit.Core.Primitives;
 
@@ -62,13 +62,18 @@ internal static class BinaryReaderColorExtensions
     public static string ReadSizedString(this BinaryReader reader) =>
         Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadInt32()));
 
-    public static string ReadPaddedString(this BinaryReader reader, int length) =>
-        Encoding.UTF8.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
+    public static string ReadPaddedString(this BinaryReader reader, int length)
+    {
+        Span<byte> buffer = length <= 1024 ? stackalloc byte[length] : new byte[length];
+        reader.ReadExact(buffer);
+
+        int nullIndex = buffer.IndexOf((byte)0);
+        return Encoding.UTF8.GetString(nullIndex >= 0 ? buffer[..nullIndex] : buffer);
+    }
 
     public static string ReadNullTerminatedString(this BinaryReader reader)
     {
-        string returnString = "";
-
+        StringBuilder sb = new();
         while (true)
         {
             char c = reader.ReadChar();
@@ -77,9 +82,9 @@ internal static class BinaryReaderColorExtensions
                 break;
             }
 
-            returnString += c;
+            sb.Append(c);
         }
 
-        return returnString;
+        return sb.ToString();
     }
 }
