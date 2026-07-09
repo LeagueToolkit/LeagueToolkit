@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
@@ -217,8 +217,38 @@ public sealed class EnvironmentAsset : IDisposable
         foreach (VertexBufferDescription vertexDeclaration in vertexDeclarations)
             vertexDeclaration.WriteToMapGeometry(bw);
 
-        WriteVertexBuffers(bw);
-        WriteIndexBuffers(bw);
+        // 1. Deduplicate Vertex Buffers
+        List<VertexBuffer> uniqueVertexBuffers = new();
+        int[] vertexBufferMap = new int[this._vertexBuffers.Length];
+        for (int i = 0; i < this._vertexBuffers.Length; i++)
+        {
+            var buffer = this._vertexBuffers[i];
+            int uniqueIndex = uniqueVertexBuffers.FindIndex(b => b.View.Span.SequenceEqual(buffer.View.Span));
+            if (uniqueIndex == -1)
+            {
+                uniqueIndex = uniqueVertexBuffers.Count;
+                uniqueVertexBuffers.Add(buffer);
+            }
+            vertexBufferMap[i] = uniqueIndex;
+        }
+
+        // 2. Deduplicate Index Buffers
+        List<IndexBuffer> uniqueIndexBuffers = new();
+        int[] indexBufferMap = new int[this._indexBuffers.Length];
+        for (int i = 0; i < this._indexBuffers.Length; i++)
+        {
+            var buffer = this._indexBuffers[i];
+            int uniqueIndex = uniqueIndexBuffers.FindIndex(b => b.Buffer.Span.SequenceEqual(buffer.Buffer.Span));
+            if (uniqueIndex == -1)
+            {
+                uniqueIndex = uniqueIndexBuffers.Count;
+                uniqueIndexBuffers.Add(buffer);
+            }
+            indexBufferMap[i] = uniqueIndex;
+        }
+
+        WriteVertexBuffers(bw, uniqueVertexBuffers, vertexBufferMap);
+        WriteIndexBuffers(bw, uniqueIndexBuffers, indexBufferMap);
 
         bw.Write(this._meshes.Count);
         foreach (EnvironmentAssetMesh model in this._meshes)
@@ -266,19 +296,32 @@ public sealed class EnvironmentAsset : IDisposable
         }
     }
 
-    // TODO: Vertex Buffer instancing
-    private void WriteVertexBuffers(BinaryWriter bw)
+    private void WriteVertexBuffers(BinaryWriter bw, List<VertexBuffer> uniqueVertexBuffers, int[] vertexBufferMap)
     {
-        // Get vertex buffer IDs for each mesh
-        List<int[]> bufferIdsOfMeshes = new(this._meshes.Select(GetMeshVertexBufferIds));
+        // Get vertex buffer IDs for each mesh (mapped to unique vertex buffers)
+        List<int[]> bufferIdsOfMeshes = new();
+        foreach (var mesh in this._meshes)
+        {
+            int[] bufferIds = new int[mesh.VerticesView.Buffers.Count];
+            for (int i = 0; i < bufferIds.Length; i++)
+            {
+                int originalId = Array.FindIndex(
+                    this._vertexBuffers,
+                    buffer => buffer.View.Equals(mesh.VerticesView.Buffers[i].View)
+                );
+                if (originalId == -1)
+                    ThrowHelper.ThrowInvalidOperationException($"Failed to find vertex buffer {i} for mesh: {mesh.Name}");
+
+                bufferIds[i] = vertexBufferMap[originalId];
+            }
+            bufferIdsOfMeshes.Add(bufferIds);
+        }
 
         // Set the vertex buffer IDs for each mesh and collect visibility flags for each vertex buffer
-        var visibilityFlagsOfBuffers = new EnvironmentVisibility[this._vertexBuffers.Length];
+        var visibilityFlagsOfBuffers = new EnvironmentVisibility[uniqueVertexBuffers.Count];
         for (int meshId = 0; meshId < bufferIdsOfMeshes.Count; meshId++)
         {
             var mesh = this._meshes[meshId];
-
-            // It would be better to pass this into the mesh writing function
             var currentMeshBufferIds = bufferIdsOfMeshes[meshId];
             mesh._vertexBufferIds = currentMeshBufferIds;
 
@@ -290,12 +333,12 @@ public sealed class EnvironmentAsset : IDisposable
         }
 
         // Write count of buffers
-        bw.Write(this._vertexBuffers.Length);
+        bw.Write(uniqueVertexBuffers.Count);
 
         // Write buffer data
-        for (int i = 0; i < this._vertexBuffers.Length; i++)
+        for (int i = 0; i < uniqueVertexBuffers.Count; i++)
         {
-            var vertexBuffer = this._vertexBuffers[i];
+            var vertexBuffer = uniqueVertexBuffers[i];
 
             bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(vertexBuffer.View.Length);
@@ -303,18 +346,24 @@ public sealed class EnvironmentAsset : IDisposable
         }
     }
 
-    private void WriteIndexBuffers(BinaryWriter bw)
+    private void WriteIndexBuffers(BinaryWriter bw, List<IndexBuffer> uniqueIndexBuffers, int[] indexBufferMap)
     {
-        // Get index buffer id for each mesh
-        List<int> bufferIdOfMeshes = new(this._meshes.Select(GetMeshIndexBufferId));
+        // Get index buffer id for each mesh (mapped to unique index buffers)
+        List<int> bufferIdOfMeshes = new();
+        foreach (var mesh in this._meshes)
+        {
+            int originalId = Array.FindIndex(this._indexBuffers, buffer => buffer.Buffer.Span == mesh.Indices.Buffer.Span);
+            if (originalId == -1)
+                ThrowHelper.ThrowInvalidOperationException($"Failed to find index buffer for mesh: {mesh.Name}");
+
+            bufferIdOfMeshes.Add(indexBufferMap[originalId]);
+        }
 
         // Set the index buffer id for each mesh and collect visibility flags for each buffer
-        var visibilityFlagsOfBuffers = new EnvironmentVisibility[this._indexBuffers.Length];
+        var visibilityFlagsOfBuffers = new EnvironmentVisibility[uniqueIndexBuffers.Count];
         for (int meshId = 0; meshId < bufferIdOfMeshes.Count; meshId++)
         {
             var mesh = this._meshes[meshId];
-
-            // It would be better to pass this into the mesh writing function
             var meshIndexBufferId = bufferIdOfMeshes[meshId];
             mesh._indexBufferId = meshIndexBufferId;
 
@@ -323,44 +372,17 @@ public sealed class EnvironmentAsset : IDisposable
         }
 
         // Write count of buffers
-        bw.Write(this._indexBuffers.Length);
+        bw.Write(uniqueIndexBuffers.Count);
 
         // Write buffer data
-        for (int i = 0; i < this._indexBuffers.Length; i++)
+        for (int i = 0; i < uniqueIndexBuffers.Count; i++)
         {
-            var indexBuffer = this._indexBuffers[i].Buffer;
+            var indexBuffer = uniqueIndexBuffers[i].Buffer;
 
             bw.Write((byte)visibilityFlagsOfBuffers[i]);
             bw.Write(indexBuffer.Length);
             bw.Write(indexBuffer.Span);
         }
-    }
-
-    private int[] GetMeshVertexBufferIds(EnvironmentAssetMesh mesh)
-    {
-        int[] bufferIds = new int[mesh.VerticesView.Buffers.Count];
-        for (int i = 0; i < bufferIds.Length; i++)
-        {
-            int bufferId = Array.FindIndex(
-                this._vertexBuffers,
-                buffer => buffer.View.Equals(mesh.VerticesView.Buffers[i].View)
-            );
-            if (bufferId == -1)
-                ThrowHelper.ThrowInvalidOperationException($"Failed to find vertex buffer {i} for mesh: {mesh.Name}");
-
-            bufferIds[i] = bufferId;
-        }
-
-        return bufferIds;
-    }
-
-    private int GetMeshIndexBufferId(EnvironmentAssetMesh mesh)
-    {
-        return Array.FindIndex(this._indexBuffers, buffer => buffer.Buffer.Span == mesh.Indices.Buffer.Span) switch
-        {
-            -1 => throw new InvalidOperationException($"Failed to find index buffer for mesh: {mesh.Name}"),
-            int bufferId => bufferId
-        };
     }
 
     #region IDisposable
