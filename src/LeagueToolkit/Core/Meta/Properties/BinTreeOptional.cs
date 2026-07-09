@@ -76,6 +76,6 @@ public sealed class BinTreeOptional : BinTreeProperty
         if (other is not BinTreeOptional optional)
             return false;
 
-        return this.Value.Equals(optional.Value);
+        return this.ValueType == optional.ValueType && Equals(this.Value, optional.Value);
     }
 }

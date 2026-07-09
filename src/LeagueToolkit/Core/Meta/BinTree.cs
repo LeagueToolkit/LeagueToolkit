@@ -11,6 +11,17 @@ namespace LeagueToolkit.Core.Meta;
 public sealed class BinTree
 {
     /// <summary>
+    /// Compares this property bin with another property bin.
+    /// </summary>
+    /// <param name="other">The property bin representing the new state</param>
+    /// <returns>The object graph differences between both property bins</returns>
+    public BinTreeDiff Diff(BinTree other)
+    {
+        Guard.IsNotNull(other, nameof(other));
+        return BinTreeDiffer.Diff(this, other);
+    }
+
+    /// <summary>
     /// Gets a value indicating whether the property bin is an override
     /// </summary>
     public bool IsOverride { get; private set; }

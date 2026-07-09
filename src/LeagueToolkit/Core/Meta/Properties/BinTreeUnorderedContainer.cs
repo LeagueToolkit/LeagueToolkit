@@ -31,6 +31,7 @@ public sealed class BinTreeUnorderedContainer : BinTreeContainer
         if (other is not BinTreeUnorderedContainer unorderedContainer)
             return false;
 
-        return this.Elements.SequenceEqual(unorderedContainer.Elements);
+        return this.ElementType == unorderedContainer.ElementType
+            && this.Elements.SequenceEqual(unorderedContainer.Elements);
     }
 }

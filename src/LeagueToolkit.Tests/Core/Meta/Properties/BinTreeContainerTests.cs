@@ -62,6 +62,15 @@ public class BinTreeContainerTests
         }
 
         [Fact]
+        public void Should_Return_False_If_ElementType_Is_Different()
+        {
+            BinTreeContainer container1 = new(0x1, BinPropertyType.U8, Array.Empty<BinTreeU8>());
+            BinTreeContainer container2 = new(0x1, BinPropertyType.U32, Array.Empty<BinTreeU32>());
+
+            Assert.False(container1.Equals(container2));
+        }
+
+        [Fact]
         public void Should_Return_True_If_Other_Has_Same_NameHash_And_Elements()
         {
             BinTreeU8 firstElement = new(0, 1);
@@ -71,6 +80,15 @@ public class BinTreeContainerTests
             BinTreeContainer container2 = new(0x1, BinPropertyType.U8, new[] { firstElement, secondElement });
 
             Assert.True(container1.Equals(container2));
+        }
+
+        [Fact]
+        public void Unordered_Should_Return_False_If_ElementType_Is_Different()
+        {
+            BinTreeUnorderedContainer container1 = new(0x1, BinPropertyType.U8, Array.Empty<BinTreeU8>());
+            BinTreeUnorderedContainer container2 = new(0x1, BinPropertyType.U32, Array.Empty<BinTreeU32>());
+
+            Assert.False(container1.Equals(container2));
         }
     }
 }

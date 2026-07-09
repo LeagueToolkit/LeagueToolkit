@@ -111,7 +111,8 @@ public class BinTreeContainer : BinTreeProperty
         if (other is not BinTreeContainer otherContainer)
             return false;
 
-        return this.Elements.SequenceEqual(otherContainer.Elements);
+        return this.ElementType == otherContainer.ElementType
+            && this.Elements.SequenceEqual(otherContainer.Elements);
     }
 
     private string GetDebuggerDisplay() => string.Format("Container<{0}>", this.ElementType);
