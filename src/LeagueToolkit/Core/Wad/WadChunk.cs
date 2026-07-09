@@ -1,4 +1,6 @@
-﻿namespace LeagueToolkit.Core.Wad;
+﻿using System.Buffers.Binary;
+
+namespace LeagueToolkit.Core.Wad;
 
 /// <summary>
 /// Represents a file entry in a <see cref="WadFile"/>
@@ -47,7 +49,11 @@ public readonly struct WadChunk
     /// </summary>
     public int StartSubChunk { get; }
 
-    private readonly ulong _checksum;
+    /// <summary>
+    /// Gets the chunk checksum
+    /// </summary>
+    /// <remarks>WAD version 1 chunks do not store a checksum and return <c>0</c>.</remarks>
+    public ulong Checksum { get; }
 
     internal WadChunk(
         ulong pathHash,
@@ -72,36 +78,35 @@ public readonly struct WadChunk
         this.SubChunkCount = subChunkCount;
         this.StartSubChunk = startSubChunk;
 
-        this._checksum = checksum;
+        this.Checksum = checksum;
     }
 
-    internal static WadChunk Read(BinaryReader br, byte major)
+    internal void Write(BinaryWriter bw)
     {
-        ulong xxhash = br.ReadUInt64();
+        bw.Write(this.PathHash);
+        bw.Write((uint)this.DataOffset);
+        bw.Write(this.CompressedSize);
+        bw.Write(this.UncompressedSize);
+        bw.Write((byte)this.Compression);
+        bw.Write(this.IsDuplicated);
+        bw.Write((ushort)0);
+        bw.Write(this.Checksum);
+    }
 
-        long dataOffset = br.ReadUInt32();
-        int compressedSize = br.ReadInt32();
-        int uncompressedSize = br.ReadInt32();
+    internal static WadChunk Read(ReadOnlySpan<byte> entry, byte major)
+    {
+        ulong xxhash = BinaryPrimitives.ReadUInt64LittleEndian(entry[..8]);
+        long dataOffset = BinaryPrimitives.ReadUInt32LittleEndian(entry[8..12]);
+        int compressedSize = BinaryPrimitives.ReadInt32LittleEndian(entry[12..16]);
+        int uncompressedSize = BinaryPrimitives.ReadInt32LittleEndian(entry[16..20]);
 
-        byte type_subChunkCount = br.ReadByte();
+        byte type_subChunkCount = entry[20];
         int subChunkCount = type_subChunkCount >> 4;
         WadChunkCompression chunkCompression = (WadChunkCompression)(type_subChunkCount & 0xF);
 
-        bool isDuplicated = br.ReadBoolean();
-        ushort startSubChunk = br.ReadUInt16();
-        ulong checksum = major switch
-        {
-            >= 2 => br.ReadUInt64(),
-            _ => 0
-        };
-
-        //if (this.Type == WadEntryType.FileRedirection)
-        //{
-        //    long currentPosition = br.BaseStream.Position;
-        //    br.BaseStream.Seek(this._dataOffset, SeekOrigin.Begin);
-        //    this.FileRedirection = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
-        //    br.BaseStream.Seek(currentPosition, SeekOrigin.Begin);
-        //}
+        bool isDuplicated = entry[21] != 0;
+        ushort startSubChunk = BinaryPrimitives.ReadUInt16LittleEndian(entry[22..24]);
+        ulong checksum = major >= 2 ? BinaryPrimitives.ReadUInt64LittleEndian(entry[24..32]) : 0;
 
         return new(
             xxhash,
@@ -114,18 +119,6 @@ public readonly struct WadChunk
             startSubChunk,
             checksum
         );
-    }
-
-    internal void Write(BinaryWriter bw)
-    {
-        bw.Write(this.PathHash);
-        bw.Write((uint)this.DataOffset);
-        bw.Write(this.CompressedSize);
-        bw.Write(this.UncompressedSize);
-        bw.Write((byte)this.Compression);
-        bw.Write(this.IsDuplicated);
-        bw.Write((ushort)0);
-        bw.Write(this._checksum);
     }
 }
 
