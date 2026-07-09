@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Hashing;
+using LeagueToolkit.Utils.Extensions;
 using System.Text;
 
 namespace LeagueToolkit.Core.Environment;
@@ -56,7 +57,7 @@ public readonly struct EnvironmentAssetMeshPrimitive
     internal EnvironmentAssetMeshPrimitive(BinaryReader br)
     {
         this.Hash = br.ReadUInt32();
-        this.Material = Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32()));
+        this.Material = br.ReadSizedString(Encoding.ASCII);
         this.StartIndex = br.ReadInt32();
         this.IndexCount = br.ReadInt32();
         this.MinVertex = br.ReadInt32();

@@ -165,7 +165,7 @@ public sealed class EnvironmentAssetMesh
         int version
     )
     {
-        this.Name = version <= 11 ? Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt32())) : CreateName(id);
+        this.Name = version <= 11 ? br.ReadSizedString(Encoding.ASCII) : CreateName(id);
 
         int vertexCount = br.ReadInt32();
         uint vertexDeclarationCount = br.ReadUInt32();

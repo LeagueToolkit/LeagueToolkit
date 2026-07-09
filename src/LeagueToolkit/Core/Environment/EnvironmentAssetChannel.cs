@@ -48,7 +48,7 @@ public struct EnvironmentAssetChannel
     {
         return new()
         {
-            Texture = Encoding.UTF8.GetString(br.ReadBytes(br.ReadInt32())),
+            Texture = br.ReadSizedString(Encoding.UTF8),
             Scale = br.ReadVector2(),
             Bias = br.ReadVector2()
         };

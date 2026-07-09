@@ -25,7 +25,7 @@ internal readonly struct SimpleEnvironmentMaterial
         this.Name = name;
         this.Type = type;
         this.Flags = flags;
-        this.Channels = channels.ToArray();
+        this.Channels = channels as SimpleEnvironmentChannel[] ?? channels.ToArray();
     }
 
     public static SimpleEnvironmentMaterial Read(BinaryReader br)

@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Utils.Exceptions;
+using LeagueToolkit.Utils.Extensions;
 using System.Text;
 
 namespace LeagueToolkit.IO.AiMesh;
@@ -11,7 +12,7 @@ public class AiMeshFile
     /// <summary>
     /// A collection of <see cref="AiMeshCell"/>
     /// </summary>
-    public List<AiMeshCell> Cells { get; private set; }
+    public List<AiMeshCell> Cells { get; private set; } = new();
 
     /// <summary>
     /// Initializes a new <see cref="AiMeshFile"/> with cells
@@ -35,7 +36,7 @@ public class AiMeshFile
     {
         using (BinaryReader br = new BinaryReader(stream))
         {
-            string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+            string magic = br.ReadFixedString(8, Encoding.ASCII);
             if (magic != "r3d2aims")
             {
                 throw new InvalidFileSignatureException();

@@ -59,8 +59,8 @@ public sealed class RigResource
         this.Flags = flags;
         this.Name = name;
         this.AssetName = assetName;
-        this._joints = joints.ToArray();
-        this._influences = influences.ToArray();
+        this._joints = joints as Joint[] ?? joints.ToArray();
+        this._influences = influences as short[] ?? influences.ToArray();
     }
 
     /// <summary>
@@ -167,7 +167,7 @@ public sealed class RigResource
 
     private void ReadLegacy(BinaryReader br)
     {
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+        string magic = br.ReadFixedString(8, Encoding.ASCII);
         if (magic != "r3d2sklt")
             throw new InvalidFileSignatureException();
 
@@ -399,18 +399,23 @@ internal readonly struct RigResourceLegacyJoint
         string name = br.ReadPaddedString(32);
         short parentId = (short)br.ReadInt32();
         float radius = br.ReadSingle();
-        float[,] transform = new float[4, 4];
-        transform[0, 3] = 0;
-        transform[1, 3] = 0;
-        transform[2, 3] = 0;
-        transform[3, 3] = 1;
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-                transform[j, i] = br.ReadSingle();
-            }
-        }
+
+        // Matrix is stored as 3 columns of 4 rows (column-major)
+        // Read directly into fields to avoid allocations
+        float m11 = br.ReadSingle();
+        float m21 = br.ReadSingle();
+        float m31 = br.ReadSingle();
+        float m41 = br.ReadSingle();
+
+        float m12 = br.ReadSingle();
+        float m22 = br.ReadSingle();
+        float m32 = br.ReadSingle();
+        float m42 = br.ReadSingle();
+
+        float m13 = br.ReadSingle();
+        float m23 = br.ReadSingle();
+        float m33 = br.ReadSingle();
+        float m43 = br.ReadSingle();
 
         return new()
         {
@@ -420,22 +425,10 @@ internal readonly struct RigResourceLegacyJoint
             Radius = radius,
             GlobalTransform = new Matrix4x4()
             {
-                M11 = transform[0, 0],
-                M12 = transform[0, 1],
-                M13 = transform[0, 2],
-                M14 = transform[0, 3],
-                M21 = transform[1, 0],
-                M22 = transform[1, 1],
-                M23 = transform[1, 2],
-                M24 = transform[1, 3],
-                M31 = transform[2, 0],
-                M32 = transform[2, 1],
-                M33 = transform[2, 2],
-                M34 = transform[2, 3],
-                M41 = transform[3, 0],
-                M42 = transform[3, 1],
-                M43 = transform[3, 2],
-                M44 = transform[3, 3],
+                M11 = m11, M12 = m12, M13 = m13, M14 = 0,
+                M21 = m21, M22 = m22, M23 = m23, M24 = 0,
+                M31 = m31, M32 = m32, M33 = m33, M34 = 0,
+                M41 = m41, M42 = m42, M43 = m43, M44 = 1,
             }
         };
     }

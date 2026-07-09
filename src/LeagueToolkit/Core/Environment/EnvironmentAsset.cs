@@ -55,8 +55,8 @@ public sealed class EnvironmentAsset : IDisposable
         this._sceneGraphs = new(sceneGraphs);
         this._planarReflectors = new(planarReflectors);
 
-        this._vertexBuffers = vertexBuffers.ToArray();
-        this._indexBuffers = indexBuffers.ToArray();
+        this._vertexBuffers = vertexBuffers as VertexBuffer[] ?? vertexBuffers.ToArray();
+        this._indexBuffers = indexBuffers as IndexBuffer[] ?? indexBuffers.ToArray();
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed class EnvironmentAsset : IDisposable
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
 
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+        string magic = br.ReadFixedString(4, Encoding.ASCII);
         if (magic != "OEGM")
             throw new InvalidFileSignatureException();
 

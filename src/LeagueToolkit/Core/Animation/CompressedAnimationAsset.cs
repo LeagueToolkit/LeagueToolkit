@@ -60,7 +60,7 @@ public sealed class CompressedAnimationAsset : IAnimationAsset
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
 
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+        string magic = br.ReadFixedString(8, Encoding.ASCII);
         uint version = br.ReadUInt32();
 
         if (magic is "r3d2anmd")

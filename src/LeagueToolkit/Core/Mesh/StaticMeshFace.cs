@@ -3,6 +3,8 @@ using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Extensions;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LeagueToolkit.Core.Mesh;
 
@@ -52,20 +54,17 @@ public readonly struct StaticMeshFace
 
     internal static StaticMeshFace ReadBinary(BinaryReader br)
     {
-        // indices are 16-bit internally
-        (ushort, ushort, ushort) indices = ((ushort)br.ReadUInt32(), (ushort)br.ReadUInt32(), (ushort)br.ReadUInt32());
+        Span<byte> buffer = stackalloc byte[12 + 64 + 24]; // 3*uint32 + 64 (material) + 6*float32
+        br.ReadExact(buffer);
 
-        string material = br.ReadPaddedString(64);
+        ReadOnlySpan<uint> indicesBuffer = MemoryMarshal.Cast<byte, uint>(buffer.Slice(0, 12));
+        (ushort, ushort, ushort) indices = ((ushort)indicesBuffer[0], (ushort)indicesBuffer[1], (ushort)indicesBuffer[2]);
 
-        ReadOnlySpan<float> uvs =
-            stackalloc float[] {
-                br.ReadSingle(),
-                br.ReadSingle(),
-                br.ReadSingle(),
-                br.ReadSingle(),
-                br.ReadSingle(),
-                br.ReadSingle()
-            };
+        ReadOnlySpan<byte> materialBuffer = buffer.Slice(12, 64);
+        int nullIndex = materialBuffer.IndexOf((byte)0);
+        string material = Encoding.UTF8.GetString(nullIndex == -1 ? materialBuffer : materialBuffer.Slice(0, nullIndex));
+
+        ReadOnlySpan<float> uvs = MemoryMarshal.Cast<byte, float>(buffer.Slice(12 + 64));
 
         return new(material, indices, (new(uvs[0], uvs[3]), new(uvs[1], uvs[4]), new(uvs[2], uvs[5])));
     }

@@ -32,8 +32,8 @@ public class StaticMesh
 
         this.Name = name;
 
-        this._vertices = vertices.ToArray();
-        this._faces = faces.ToArray();
+        this._vertices = vertices as Vector3[] ?? vertices.ToArray();
+        this._faces = faces as StaticMeshFace[] ?? faces.ToArray();
 
         this.HasVertexColors = false;
     }
@@ -54,9 +54,9 @@ public class StaticMesh
 
         this.HasVertexColors = true;
 
-        this._vertices = vertices.ToArray();
-        this._vertexColors = vertexColors.ToArray();
-        this._faces = faces.ToArray();
+        this._vertices = vertices as Vector3[] ?? vertices.ToArray();
+        this._vertexColors = vertexColors as Color[] ?? vertexColors.ToArray();
+        this._faces = faces as StaticMeshFace[] ?? faces.ToArray();
 
         if (this._vertices.Length != this._vertexColors.Length)
             ThrowHelper.ThrowArgumentException("Vertex colors count must match vertices count");
@@ -66,7 +66,7 @@ public class StaticMesh
     {
         using BinaryReader br = new(stream);
 
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(8));
+        string magic = br.ReadFixedString(8, Encoding.ASCII);
         if (magic is not "r3d2Mesh")
             throw new InvalidFileSignatureException();
 
@@ -98,9 +98,12 @@ public class StaticMesh
         if (hasVertexColors)
         {
             vertexColors = new Color[vertexCount];
+            int formatSize = Color.GetFormatSize(ColorFormat.BgraU8);
+            byte[] colorBuffer = new byte[vertexCount * formatSize];
+            br.BaseStream.ReadExact(colorBuffer);
 
             for (int i = 0; i < vertexCount; i++)
-                vertexColors[i] = br.ReadColor(ColorFormat.BgraU8);
+                vertexColors[i] = Color.Read(colorBuffer.AsSpan(i * formatSize, formatSize), ColorFormat.BgraU8);
         }
 
         Vector3 centralPoint = br.ReadVector3();
@@ -112,13 +115,22 @@ public class StaticMesh
 
         // Read face vertex colors ??
         if (flags.HasFlag(StaticMeshFlags.HasVcp))
+        {
+            int faceColorFormatSize = Color.GetFormatSize(ColorFormat.RgbU8);
+            byte[] faceColorBuffer = new byte[faceCount * 3 * faceColorFormatSize];
+            br.BaseStream.ReadExact(faceColorBuffer);
+
             for (int i = 0; i < faceCount; i++)
+            {
+                int baseIndex = i * 3 * faceColorFormatSize;
                 faces[i] = faces[i] with
                 {
-                    Color0 = br.ReadColor(ColorFormat.RgbU8),
-                    Color1 = br.ReadColor(ColorFormat.RgbU8),
-                    Color2 = br.ReadColor(ColorFormat.RgbU8)
+                    Color0 = Color.Read(faceColorBuffer.AsSpan(baseIndex, faceColorFormatSize), ColorFormat.RgbU8),
+                    Color1 = Color.Read(faceColorBuffer.AsSpan(baseIndex + faceColorFormatSize, faceColorFormatSize), ColorFormat.RgbU8),
+                    Color2 = Color.Read(faceColorBuffer.AsSpan(baseIndex + 2 * faceColorFormatSize, faceColorFormatSize), ColorFormat.RgbU8)
                 };
+            }
+        }
 
         return hasVertexColors switch
         {

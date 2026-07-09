@@ -1,4 +1,5 @@
 ﻿using LeagueToolkit.Utils.Exceptions;
+using LeagueToolkit.Utils.Extensions;
 using System.Text;
 
 namespace LeagueToolkit.IO.MapObjects;
@@ -41,7 +42,7 @@ public class MOBFile
     {
         using BinaryReader br = new(stream);
 
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+        string magic = br.ReadFixedString(4, Encoding.ASCII);
         if (magic != "OPAM")
         {
             throw new InvalidFileSignatureException();

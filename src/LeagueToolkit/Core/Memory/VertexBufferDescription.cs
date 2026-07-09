@@ -41,7 +41,7 @@ namespace LeagueToolkit.Core.Memory
         public VertexBufferDescription(VertexBufferUsage usage, IEnumerable<VertexElement> elements)
         {
             this.Usage = usage;
-            this._elements = elements.ToArray();
+            this._elements = elements as VertexElement[] ?? elements.ToArray();
             this.DescriptionFlags = GetElementFlags(this._elements.Select(elem => elem.Name));
         }
 
@@ -50,7 +50,7 @@ namespace LeagueToolkit.Core.Memory
             VertexBufferUsage usage = (VertexBufferUsage)br.ReadUInt32();
             uint vertexElementCount = br.ReadUInt32();
 
-            return new(usage, ReadElements().ToArray());
+            return new(usage, ReadElements());
 
             IEnumerable<VertexElement> ReadElements()
             {

@@ -15,7 +15,7 @@ public static class SimpleEnvironment
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
 
-        string magic = Encoding.UTF8.GetString(br.ReadBytes(4));
+        string magic = br.ReadFixedString(4, Encoding.UTF8);
         if (magic is not "NVR\0")
             throw new InvalidFileSignatureException();
 

@@ -19,7 +19,7 @@ public static class WorldGeometry
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
 
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+        string magic = br.ReadFixedString(4, Encoding.ASCII);
         if (magic is not "WGEO")
             throw new InvalidFileSignatureException();
 

@@ -59,27 +59,46 @@ internal static class BinaryReaderColorExtensions
         return new(position, radius);
     }
 
-    public static string ReadSizedString(this BinaryReader reader) =>
-        Encoding.UTF8.GetString(reader.ReadBytes(reader.ReadInt32()));
+    public static string ReadSizedString(this BinaryReader reader) => ReadSizedString(reader, Encoding.UTF8);
 
-    public static string ReadPaddedString(this BinaryReader reader, int length) =>
-        Encoding.UTF8.GetString(reader.ReadBytes(length).TakeWhile(b => !b.Equals(0)).ToArray());
+    public static string ReadSizedString(this BinaryReader reader, Encoding encoding)
+    {
+        int length = reader.ReadInt32();
+        if (length <= 0) return string.Empty;
+
+        Span<byte> buffer = length <= 1024 ? stackalloc byte[length] : new byte[length];
+        reader.BaseStream.ReadExact(buffer);
+        return encoding.GetString(buffer);
+    }
+
+    public static string ReadFixedString(this BinaryReader reader, int length, Encoding encoding)
+    {
+        if (length <= 0) return string.Empty;
+
+        Span<byte> buffer = length <= 1024 ? stackalloc byte[length] : new byte[length];
+        reader.BaseStream.ReadExact(buffer);
+        return encoding.GetString(buffer);
+    }
+
+    public static string ReadPaddedString(this BinaryReader reader, int length)
+    {
+        if (length <= 0) return string.Empty;
+
+        Span<byte> buffer = length <= 1024 ? stackalloc byte[length] : new byte[length];
+        reader.BaseStream.ReadExact(buffer);
+        int nullIndex = buffer.IndexOf((byte)0);
+        return Encoding.UTF8.GetString(nullIndex == -1 ? buffer : buffer.Slice(0, nullIndex));
+    }
 
     public static string ReadNullTerminatedString(this BinaryReader reader)
     {
-        string returnString = "";
-
+        var builder = new StringBuilder();
         while (true)
         {
-            char c = reader.ReadChar();
-            if (c == 0)
-            {
-                break;
-            }
-
-            returnString += c;
+            byte b = reader.ReadByte();
+            if (b == 0) break;
+            builder.Append((char)b);
         }
-
-        return returnString;
+        return builder.ToString();
     }
 }

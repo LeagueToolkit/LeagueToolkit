@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Utils.Exceptions;
+using LeagueToolkit.Utils.Extensions;
 using System.Text;
 
 namespace LeagueToolkit.Core.Meta;
@@ -61,7 +62,7 @@ public sealed class BinTree
     {
         using BinaryReader br = new(stream, Encoding.UTF8, true);
 
-        string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+        string magic = br.ReadFixedString(4, Encoding.ASCII);
         if (magic != "PROP" && magic != "PTCH")
             throw new InvalidFileSignatureException();
 
@@ -77,7 +78,7 @@ public sealed class BinTree
             // and set the original file as a dependency
             uint maybeOverrideObjectCount = br.ReadUInt32(); // this seems to be object count of override section
 
-            magic = Encoding.ASCII.GetString(br.ReadBytes(4));
+            magic = br.ReadFixedString(4, Encoding.ASCII);
             if (magic is not "PROP")
                 throw new InvalidFileSignatureException("Expected PROP section after PTCH, got: " + magic);
         }
@@ -91,7 +92,10 @@ public sealed class BinTree
         {
             uint dependencyCount = br.ReadUInt32();
             for (int i = 0; i < dependencyCount; i++)
-                this.Dependencies.Add(Encoding.ASCII.GetString(br.ReadBytes(br.ReadInt16())));
+            {
+                int length = br.ReadInt16();
+                this.Dependencies.Add(br.ReadFixedString(length, Encoding.ASCII));
+            }
         }
 
         // Read object classes

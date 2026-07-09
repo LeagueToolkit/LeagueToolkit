@@ -152,7 +152,7 @@ public sealed class EnvironmentAssetMeshBuilder
         Vector2 bias
     )
     {
-        this._textureOverrides = textureOverrides.ToArray();
+        this._textureOverrides = textureOverrides as EnvironmentAssetMeshTextureOverride[] ?? textureOverrides.ToArray();
         this._bakedPaintScale = scale;
         this._bakedPaintBias = bias;
         return this;
