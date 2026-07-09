@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Hashing;
@@ -115,6 +115,63 @@ public sealed class WadFile : IDisposable
 
             if (this._chunks.TryGetValue(XxHash64Ext.Hash(subchunkTocPath), out WadChunk subchunkTocChunk))
                 this._subchunkTocMemory = LoadChunkDecompressed(subchunkTocChunk);
+        }
+    }
+
+    /// <summary>
+    /// Represents structural information extracted from a WAD file header
+    /// </summary>
+    public record struct WadHeaderInfo(byte Major, byte Minor, int ChunkCount);
+
+    /// <summary>
+    /// Attempts to read the WAD file header to extract metadata without instantiating a full <see cref="WadFile"/>.
+    /// </summary>
+    /// <remarks>
+    /// Cheaper than opening the full file and parsing the chunk table.
+    /// </remarks>
+    /// <param name="path">The path of the WAD file to read</param>
+    /// <param name="headerInfo">When this method returns, contains the parsed header info if successful; otherwise, default values</param>
+    /// <returns><c>true</c> if the header was parsed successfully; otherwise, <c>false</c></returns>
+    public static bool TryReadHeader(string path, out WadHeaderInfo headerInfo)
+    {
+        headerInfo = default;
+        try
+        {
+            using FileStream fs = File.OpenRead(path);
+            using BinaryReader br = new(fs, Encoding.UTF8, true);
+
+            string magic = Encoding.ASCII.GetString(br.ReadBytes(2));
+            if (magic is not "RW")
+                return false;
+
+            byte major = br.ReadByte();
+            byte minor = br.ReadByte();
+            if (major > 3)
+                return false;
+
+            if (major is 2)
+            {
+                br.ReadByte(); // ecdsaLength
+                br.BaseStream.Seek(83 + 8, SeekOrigin.Current); // ECDSA signature + dataChecksum
+            }
+            else if (major is 3)
+            {
+                br.BaseStream.Seek(256 + 8, SeekOrigin.Current); // ECDSA signature + dataChecksum
+            }
+
+            if (major is 1 or 2)
+            {
+                br.ReadUInt16(); // tocStartOffset
+                br.ReadUInt16(); // tocFileEntrySize
+            }
+
+            int chunkCount = br.ReadInt32();
+            headerInfo = new WadHeaderInfo(major, minor, chunkCount);
+            return true;
+        }
+        catch
+        {
+            return false;
         }
     }
 
