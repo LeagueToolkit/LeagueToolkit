@@ -1,4 +1,3 @@
-﻿using BCnEncoder.Shared;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Renderer;
 using LeagueToolkit.IO.MapGeometryFile;
@@ -76,7 +75,7 @@ internal static class TextureUtils
 
     public static Image<Rgba32> GetImage(LeagueTexture texture)
     {
-        ReadOnlyMemory2D<ColorRgba32> biggestMipMap = texture.Mips[0];
+        ReadOnlyMemory2D<Rgba32> biggestMipMap = texture.Mips[0];
         return biggestMipMap.ToImage();
     }
 

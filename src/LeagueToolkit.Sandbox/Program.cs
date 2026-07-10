@@ -1,4 +1,3 @@
-﻿using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Buffers;
@@ -241,7 +240,7 @@ class Program
     {
         LeagueTexture texture = LeagueTexture.Load(File.OpenRead("grasstint_srx_infernal.dds"));
 
-        ReadOnlyMemory2D<ColorRgba32> mipmap = texture.Mips[0];
+        ReadOnlyMemory2D<Rgba32> mipmap = texture.Mips[0];
 
         Image<Rgba32> image = mipmap.ToImage();
 

@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BCnEncoder">
-      <HintPath>..\LeagueToolkit\BCnEncoder.dll</HintPath>
+    <Reference Include="TexSharp">
+      <HintPath>..\LeagueToolkit\TexSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 

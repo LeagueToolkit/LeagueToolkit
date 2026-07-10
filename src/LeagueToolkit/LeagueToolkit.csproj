@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../CommonNuget.props"/>
 
   <!-- project settings -->
@@ -48,14 +48,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="BCnEncoder.dll">
+    <Content Include="TexSharp.dll">
       <Pack>true</Pack>
       <PackagePath>lib\$(TargetFramework)</PackagePath>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="BCnEncoder">
-      <HintPath>BCnEncoder.dll</HintPath>
+    <Reference Include="TexSharp">
+      <HintPath>TexSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 

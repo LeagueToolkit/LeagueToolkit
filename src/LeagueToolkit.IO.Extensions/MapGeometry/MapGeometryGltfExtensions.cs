@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,7 +6,6 @@ using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
-using BCnEncoder.Shared;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.HighPerformance;
 using LeagueToolkit.Core.Environment;
