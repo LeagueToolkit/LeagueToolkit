@@ -13,6 +13,7 @@ internal struct HotFrameEvaluator
 
     public HotFrameEvaluator(int jointCount)
     {
+        this.LastEvaluationTime = -1.0f;
         this.HotFrames = new JointHotFrame[jointCount];
     }
 
@@ -22,6 +23,15 @@ internal struct HotFrameEvaluator
         ReadOnlySpan<CompressedFrame> frames
     )
     {
+        if (AreFrameKeysMissing(frameKeys, frames.Length))
+        {
+            this.HotFrames[jointId] = this.HotFrames[jointId] with
+            {
+                HasRotationFrames = false
+            };
+            return;
+        }
+
         Span<QuaternionHotFrame> hotFrames = stackalloc QuaternionHotFrame[4];
         for (int i = 0; i < 4; i++)
         {
@@ -42,6 +52,7 @@ internal struct HotFrameEvaluator
 
         this.HotFrames[jointId] = this.HotFrames[jointId] with
         {
+            HasRotationFrames = true,
             RotationP0 = hotFrames[0],
             RotationP1 = hotFrames[1],
             RotationP2 = hotFrames[2],
@@ -57,6 +68,15 @@ internal struct HotFrameEvaluator
         Vector3 max
     )
     {
+        if (AreFrameKeysMissing(frameKeys, frames.Length))
+        {
+            this.HotFrames[jointId] = this.HotFrames[jointId] with
+            {
+                HasTranslationFrames = false
+            };
+            return;
+        }
+
         Span<VectorHotFrame> hotFrames = stackalloc VectorHotFrame[4];
         for (int i = 0; i < 4; i++)
         {
@@ -70,6 +90,7 @@ internal struct HotFrameEvaluator
 
         this.HotFrames[jointId] = this.HotFrames[jointId] with
         {
+            HasTranslationFrames = true,
             TranslationP0 = hotFrames[0],
             TranslationP1 = hotFrames[1],
             TranslationP2 = hotFrames[2],
@@ -85,6 +106,15 @@ internal struct HotFrameEvaluator
         Vector3 max
     )
     {
+        if (AreFrameKeysMissing(frameKeys, frames.Length))
+        {
+            this.HotFrames[jointId] = this.HotFrames[jointId] with
+            {
+                HasScaleFrames = false
+            };
+            return;
+        }
+
         Span<VectorHotFrame> hotFrames = stackalloc VectorHotFrame[4];
         for (int i = 0; i < 4; i++)
         {
@@ -98,16 +128,35 @@ internal struct HotFrameEvaluator
 
         this.HotFrames[jointId] = this.HotFrames[jointId] with
         {
+            HasScaleFrames = true,
             ScaleP0 = hotFrames[0],
             ScaleP1 = hotFrames[1],
             ScaleP2 = hotFrames[2],
             ScaleP3 = hotFrames[3]
         };
     }
+
+    private static bool AreFrameKeysMissing(ReadOnlySpan<int> frameKeys, int frameCount)
+    {
+        // Compressed animations use all-bits-set keys for transform channels that have no frames.
+        int missingKey = frameKeys[0];
+        if (missingKey is not -1 && (missingKey != ushort.MaxValue || missingKey < frameCount))
+            return false;
+
+        for (int i = 1; i < frameKeys.Length; i++)
+            if (frameKeys[i] != missingKey)
+                return false;
+
+        return true;
+    }
 }
 
 internal struct JointHotFrame
 {
+    public bool HasRotationFrames { get; init; }
+    public bool HasTranslationFrames { get; init; }
+    public bool HasScaleFrames { get; init; }
+
     public QuaternionHotFrame RotationP0;
     public QuaternionHotFrame RotationP1;
     public QuaternionHotFrame RotationP2;
@@ -126,6 +175,11 @@ internal struct JointHotFrame
     #region Parametrized Catmull Rom
     public Quaternion SampleRotationParametrized(ushort time)
     {
+        if (!this.HasRotationFrames)
+            return Quaternion.Identity;
+        if (this.RotationP1.Time == this.RotationP2.Time)
+            return this.RotationP1.Value;
+
         var (amount, scaleIn, scaleOut) = CurveSampler.CreateCatmullRomKeyframeWeights(
             time,
             this.RotationP0.Time,
@@ -147,6 +201,11 @@ internal struct JointHotFrame
 
     public Vector3 SampleTranslationParametrized(ushort time)
     {
+        if (!this.HasTranslationFrames)
+            return Vector3.Zero;
+        if (this.TranslationP1.Time == this.TranslationP2.Time)
+            return this.TranslationP1.Value;
+
         var (amount, scaleIn, scaleOut) = CurveSampler.CreateCatmullRomKeyframeWeights(
             time,
             this.TranslationP0.Time,
@@ -168,6 +227,11 @@ internal struct JointHotFrame
 
     public Vector3 SampleScaleParametrized(ushort time)
     {
+        if (!this.HasScaleFrames)
+            return Vector3.One;
+        if (this.ScaleP1.Time == this.ScaleP2.Time)
+            return this.ScaleP1.Value;
+
         var (amount, scaleIn, scaleOut) = CurveSampler.CreateCatmullRomKeyframeWeights(
             time,
             this.ScaleP0.Time,
@@ -191,6 +255,11 @@ internal struct JointHotFrame
     #region Uniform Catmull Rom
     public Quaternion SampleRotationUniform(ushort time)
     {
+        if (!this.HasRotationFrames)
+            return Quaternion.Identity;
+        if (this.RotationP1.Time == this.RotationP2.Time)
+            return this.RotationP1.Value;
+
         float t_d = this.RotationP2.Time - this.RotationP1.Time;
         float amount = (time - this.RotationP1.Time) / t_d;
 
@@ -207,6 +276,11 @@ internal struct JointHotFrame
 
     public Vector3 SampleTranslationUniform(ushort time)
     {
+        if (!this.HasTranslationFrames)
+            return Vector3.Zero;
+        if (this.TranslationP1.Time == this.TranslationP2.Time)
+            return this.TranslationP1.Value;
+
         float t_d = this.TranslationP2.Time - this.TranslationP1.Time;
         float amount = (time - this.TranslationP1.Time) / t_d;
 
@@ -223,6 +297,11 @@ internal struct JointHotFrame
 
     public Vector3 SampleScaleUniform(ushort time)
     {
+        if (!this.HasScaleFrames)
+            return Vector3.One;
+        if (this.ScaleP1.Time == this.ScaleP2.Time)
+            return this.ScaleP1.Value;
+
         float t_d = this.ScaleP2.Time - this.ScaleP1.Time;
         float amount = (time - this.ScaleP1.Time) / t_d;
 
