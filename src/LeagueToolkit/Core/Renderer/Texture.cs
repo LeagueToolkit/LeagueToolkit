@@ -63,7 +63,27 @@ namespace LeagueToolkit.Core.Renderer
         public static Texture LoadTex(Stream stream)
         {
             Guard.IsNotNull(stream, nameof(stream));
+            return LoadTexCore(stream, null, null);
+        }
 
+        /// <summary>
+        /// Loads the largest TEX mip that fits within the specified dimensions
+        /// </summary>
+        /// <param name="stream">The <see cref="Stream"/> to read from</param>
+        /// <param name="maxWidth">The maximum mip width</param>
+        /// <param name="maxHeight">The maximum mip height</param>
+        /// <returns>A texture containing the selected mip</returns>
+        public static Texture LoadTex(Stream stream, int maxWidth, int maxHeight)
+        {
+            Guard.IsNotNull(stream, nameof(stream));
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxWidth);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxHeight);
+
+            return LoadTexCore(stream, maxWidth, maxHeight);
+        }
+
+        private static Texture LoadTexCore(Stream stream, int? maxWidth, int? maxHeight)
+        {
             BcDecoder decoder = new();
             using BinaryReader br = new(stream);
 
@@ -90,7 +110,8 @@ namespace LeagueToolkit.Core.Renderer
             // We will be reading them in reverse
             br.BaseStream.Seek(0, SeekOrigin.End);
 
-            Memory2D<ColorRgba32>[] mipMaps = new Memory2D<ColorRgba32>[mipMapCount];
+            bool loadSingleMip = maxWidth.HasValue && maxHeight.HasValue;
+            Memory2D<ColorRgba32>[] mipMaps = new Memory2D<ColorRgba32>[loadSingleMip ? 1 : mipMapCount];
             for (int i = 0; i < mipMapCount; i++)
             {
                 // Calculate dimensions of current mipmap
@@ -99,28 +120,55 @@ namespace LeagueToolkit.Core.Renderer
                 (int widthInBlocks, int heightInBlocks) = CalculateBlockCount(format, currentWidth, currentHeight);
 
                 int mipMapSize = widthInBlocks * heightInBlocks * blockSize;
-                using MemoryOwner<byte> mipMapBufferOwner = MemoryOwner<byte>.Allocate(mipMapSize);
 
-                // Seek to start of mipmap and read it into buffer
+                // Seek to start of mipmap
                 br.BaseStream.Seek(-mipMapSize, SeekOrigin.Current);
-                int bytesRead = br.Read(mipMapBufferOwner.Span);
-                if (bytesRead != mipMapSize)
-                    throw new IOException($"Failed to read mip: {i}, size: {mipMapSize}, bytesRead: {bytesRead}");
+                bool fitsRequestedSize = !loadSingleMip ||
+                    (currentWidth <= maxWidth.Value && currentHeight <= maxHeight.Value) ||
+                    i == mipMapCount - 1;
+                if (!fitsRequestedSize)
+                    continue;
 
                 // Decode buffer and seek back
-                ColorRgba32[] mipMapData = decoder.DecodeRaw(
-                    mipMapBufferOwner.Memory,
-                    currentWidth,
-                    currentHeight,
-                    compressionFormat
-                );
+                ColorRgba32[] mipMapData;
+                if (loadSingleMip)
+                {
+                    byte[] mipMapBuffer = new byte[mipMapSize];
+                    ReadMip(br, mipMapBuffer, i);
+                    mipMapData = decoder.DecodeRaw(mipMapBuffer, currentWidth, currentHeight, compressionFormat);
+                }
+                else
+                {
+                    using MemoryOwner<byte> mipMapBufferOwner = MemoryOwner<byte>.Allocate(mipMapSize);
+                    ReadMip(br, mipMapBufferOwner.Span, i);
+                    mipMapData = decoder.DecodeRaw(
+                        mipMapBufferOwner.Memory,
+                        currentWidth,
+                        currentHeight,
+                        compressionFormat);
+                }
                 br.BaseStream.Seek(-mipMapSize, SeekOrigin.Current);
 
                 // Add mipmap
-                mipMaps[i] = new(mipMapData, currentHeight, currentWidth);
+                mipMaps[loadSingleMip ? 0 : i] = new(mipMapData, currentHeight, currentWidth);
+                if (loadSingleMip)
+                    break;
             }
 
             return new(mipMaps);
+        }
+
+        private static void ReadMip(BinaryReader br, Span<byte> buffer, int mipIndex)
+        {
+            int bytesRead = 0;
+            while (bytesRead < buffer.Length)
+            {
+                int read = br.Read(buffer[bytesRead..]);
+                if (read == 0)
+                    throw new IOException($"Failed to read mip: {mipIndex}, size: {buffer.Length}, bytesRead: {bytesRead}");
+
+                bytesRead += read;
+            }
         }
 
         private static ExtendedTextureFormat MapExtendedTextureFormat(byte format)
