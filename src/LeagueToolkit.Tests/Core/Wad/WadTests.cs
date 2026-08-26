@@ -57,4 +57,69 @@ public class WadTests
                 File.Delete(tempPath);
         }
     }
+
+    [Fact]
+    public void ReadsV3_4SubchunkIndexWithHighByte()
+    {
+        string tempPath = CreateVersionedWad(4, 1, 0x2345);
+        try
+        {
+            using var wad = new WadFile(tempPath);
+            WadChunk chunk = Assert.Single(wad.Chunks).Value;
+
+            Assert.Equal(0x12345, chunk.StartSubChunk);
+            Assert.Equal(2, chunk.SubChunkCount);
+            Assert.False(chunk.IsDuplicated);
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
+
+    [Fact]
+    public void PreservesV3_3DuplicateFlag()
+    {
+        string tempPath = CreateVersionedWad(3, 1, 0x2345);
+        try
+        {
+            using var wad = new WadFile(tempPath);
+            WadChunk chunk = Assert.Single(wad.Chunks).Value;
+
+            Assert.Equal(0x2345, chunk.StartSubChunk);
+            Assert.Equal(2, chunk.SubChunkCount);
+            Assert.True(chunk.IsDuplicated);
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
+
+    private static string CreateVersionedWad(byte minor, byte subChunkIndexHighOrDuplicate, ushort subChunkIndexLow)
+    {
+        string tempPath = Path.GetTempFileName();
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+        {
+            writer.Write(Encoding.ASCII.GetBytes("RW"));
+            writer.Write((byte)3);
+            writer.Write(minor);
+            writer.Write(new byte[256]);
+            writer.Write(0UL);
+            writer.Write(1);
+
+            writer.Write(0x1234567890abcdefUL);
+            writer.Write(304U);
+            writer.Write(0);
+            writer.Write(0);
+            writer.Write((byte)((2 << 4) | (byte)WadChunkCompression.ZstdChunked));
+            writer.Write(subChunkIndexHighOrDuplicate);
+            writer.Write(subChunkIndexLow);
+            writer.Write(0UL);
+        }
+
+        File.WriteAllBytes(tempPath, stream.ToArray());
+        return tempPath;
+    }
 }

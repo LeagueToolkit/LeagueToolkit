@@ -95,7 +95,7 @@ public sealed class WadFile : IDisposable
         this._chunks = new(chunkCount);
         for (int i = 0; i < chunkCount; i++)
         {
-            WadChunk chunk = WadChunk.Read(br, major);
+            WadChunk chunk = WadChunk.Read(br, major, minor);
 
             if (!this._chunks.TryAdd(chunk.PathHash, chunk))
                 ThrowHelper.ThrowInvalidDataException($"Tried to read a chunk which already exists: {chunk.PathHash}");

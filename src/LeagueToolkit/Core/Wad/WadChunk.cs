@@ -75,7 +75,7 @@ public readonly struct WadChunk
         this._checksum = checksum;
     }
 
-    internal static WadChunk Read(BinaryReader br, byte major)
+    internal static WadChunk Read(BinaryReader br, byte major, byte minor)
     {
         ulong xxhash = br.ReadUInt64();
 
@@ -87,8 +87,13 @@ public readonly struct WadChunk
         int subChunkCount = type_subChunkCount >> 4;
         WadChunkCompression chunkCompression = (WadChunkCompression)(type_subChunkCount & 0xF);
 
-        bool isDuplicated = br.ReadBoolean();
-        ushort startSubChunk = br.ReadUInt16();
+        byte subChunkIndexHighOrDuplicate = br.ReadByte();
+        ushort subChunkIndexLow = br.ReadUInt16();
+        bool isV3_4OrLater = major == 3 && minor >= 4;
+        bool isDuplicated = !isV3_4OrLater && subChunkIndexHighOrDuplicate != 0;
+        int startSubChunk = isV3_4OrLater
+            ? subChunkIndexHighOrDuplicate << 16 | subChunkIndexLow
+            : subChunkIndexLow;
         ulong checksum = major switch
         {
             >= 2 => br.ReadUInt64(),
