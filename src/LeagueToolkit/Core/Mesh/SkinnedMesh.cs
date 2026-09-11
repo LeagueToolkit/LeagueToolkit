@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.HighPerformance.Buffers;
+using CommunityToolkit.HighPerformance.Buffers;
 using LeagueToolkit.Core.Memory;
 using LeagueToolkit.Core.Primitives;
 using LeagueToolkit.Utils.Exceptions;
@@ -32,6 +32,12 @@ public sealed class SkinnedMesh : IDisposable
     private readonly VertexBuffer _vertexBuffer;
     private readonly IndexBuffer _indexBuffer;
 
+    /// <summary>Gets the flags of the <see cref="SkinnedMesh"/></summary>
+    public uint Flags { get; }
+
+    /// <summary>Gets the extra data of the <see cref="SkinnedMesh"/> if present</summary>
+    public byte[] ExtraData { get; }
+
     /// <summary>Gets a value indicating whether the <see cref="SkinnedMesh"/> has been disposed of</summary>
     public bool IsDisposed { get; private set; }
 
@@ -40,10 +46,22 @@ public sealed class SkinnedMesh : IDisposable
     /// <param name="vertexBuffer">The vertex buffer of the <see cref="SkinnedMesh"/></param>
     /// <param name="indexBuffer">The index buffer of the <see cref="SkinnedMesh"/></param>
     public SkinnedMesh(IEnumerable<SkinnedMeshRange> ranges, VertexBuffer vertexBuffer, IndexBuffer indexBuffer)
+        : this(ranges, vertexBuffer, indexBuffer, 0, null)
+    {
+    }
+
+    internal SkinnedMesh(
+        IEnumerable<SkinnedMeshRange> ranges,
+        VertexBuffer vertexBuffer,
+        IndexBuffer indexBuffer,
+        uint flags,
+        byte[] extraData)
     {
         this._ranges = ranges.ToArray();
         this._vertexBuffer = vertexBuffer;
         this._indexBuffer = indexBuffer;
+        this.Flags = flags;
+        this.ExtraData = extraData;
 
         this.AABB = Box.FromVertices(vertexBuffer.GetAccessor(ElementName.Position).AsVector3Array());
         this.BoundingSphere = this.AABB.GetBoundingSphere();
@@ -77,6 +95,8 @@ public sealed class SkinnedMesh : IDisposable
 
         int indexCount = 0;
         int vertexCount = 0;
+        uint flags = 0;
+        byte[] extraData = null;
         VertexBufferDescription vertexDeclaration = SkinnedMeshVertex.BASIC;
         Box boundingBox = new();
         Sphere boundingSphere = Sphere.INFINITE;
@@ -99,7 +119,7 @@ public sealed class SkinnedMesh : IDisposable
 
             if (major is 4)
             {
-                uint flags = br.ReadUInt32();
+                flags = br.ReadUInt32();
             }
 
             indexCount = br.ReadInt32();
@@ -123,6 +143,12 @@ public sealed class SkinnedMesh : IDisposable
 
                 boundingBox = br.ReadBox();
                 boundingSphere = br.ReadSphere();
+
+                if ((flags & 1) != 0)
+                {
+                    ushort extraDataLength = br.ReadUInt16();
+                    extraData = br.ReadBytes(extraDataLength);
+                }
             }
         }
 
@@ -138,7 +164,7 @@ public sealed class SkinnedMesh : IDisposable
         var indexBuffer = IndexBuffer.Create(IndexFormat.U16, indexBufferOwner);
         var vertexBuffer = VertexBuffer.Create(vertexDeclaration.Usage, vertexDeclaration.Elements, vertexBufferOwner);
 
-        return new(ranges, vertexBuffer, indexBuffer);
+        return new(ranges, vertexBuffer, indexBuffer, flags, extraData);
     }
 
     /// <summary>
@@ -164,7 +190,7 @@ public sealed class SkinnedMesh : IDisposable
         foreach (SkinnedMeshRange range in this.Ranges)
             range.WriteToSimpleSkin(bw);
 
-        bw.Write((uint)0); // Flags
+        bw.Write(this.Flags);
         bw.Write(this._indexBuffer.Count);
         bw.Write(this._vertexBuffer.VertexCount);
         bw.Write(this._vertexBuffer.VertexStride);
@@ -172,6 +198,12 @@ public sealed class SkinnedMesh : IDisposable
 
         bw.WriteBox(this.AABB);
         bw.WriteSphere(this.BoundingSphere);
+
+        if ((this.Flags & 1) != 0 && this.ExtraData != null)
+        {
+            bw.Write((ushort)this.ExtraData.Length);
+            bw.Write(this.ExtraData);
+        }
 
         bw.Write(this._indexBuffer.Buffer.Span);
         bw.Write(this._vertexBuffer.View.Span);
