@@ -43,9 +43,12 @@ public class BinTreeContainer : BinTreeProperty
     {
         this.ElementType = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
         uint size = br.ReadUInt32();
+        BinUtilities.ValidateSize(br, size, sizeof(uint));
         long contentOffset = br.BaseStream.Position;
 
         uint valueCount = br.ReadUInt32();
+        if (valueCount > int.MaxValue)
+            throw new InvalidDataException($"Invalid BIN container count {valueCount}");
         for (int i = 0; i < valueCount; i++)
             this._elements.Add(ReadPropertyContent(0, this.ElementType, br, useLegacyType));
 

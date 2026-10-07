@@ -2,6 +2,12 @@
 
 internal static class BinUtilities
 {
+    internal static void ValidateSize(BinaryReader reader, uint size, uint minimumSize)
+    {
+        if (size < minimumSize || size > reader.BaseStream.Length - reader.BaseStream.Position)
+            throw new InvalidDataException($"Invalid BIN block size {size} at offset {reader.BaseStream.Position}");
+    }
+
     internal static BinPropertyType UnpackType(BinPropertyType type, bool useLegacyType = false)
     {
         if (useLegacyType is false)

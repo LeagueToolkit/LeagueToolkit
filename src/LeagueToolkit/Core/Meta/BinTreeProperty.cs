@@ -25,10 +25,14 @@ public abstract class BinTreeProperty : IEquatable<BinTreeProperty>
 
     protected BinTreeProperty(uint nameHash) => this.NameHash = nameHash;
 
-    internal static BinTreeProperty Read(BinaryReader br, bool useLegacyType = false)
+    internal static BinTreeProperty Read(BinaryReader br, bool useLegacyType = false, uint classHash = 0)
     {
         uint nameHash = br.ReadUInt32();
         BinPropertyType type = BinUtilities.UnpackType((BinPropertyType)br.ReadByte(), useLegacyType);
+
+        // Current PBE material names use an eight-byte hash with the existing Hash tag.
+        if (!useLegacyType && classHash == 0xff9d3409 && nameHash == 0x8d39bde6 && type == BinPropertyType.Hash)
+            return new BinTreeHash64(br, nameHash);
 
         return ReadPropertyContent(nameHash, type, br, useLegacyType);
     }

@@ -69,7 +69,7 @@ public sealed class BinTreeObject : IEquatable<BinTreeObject>
         IEnumerable<BinTreeProperty> ReadProperties()
         {
             for (int i = 0; i < propertyCount; i++)
-                yield return BinTreeProperty.Read(br, useLegacyType);
+                yield return BinTreeProperty.Read(br, useLegacyType, classHash);
         }
     }
 

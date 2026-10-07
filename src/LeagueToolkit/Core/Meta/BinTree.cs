@@ -113,7 +113,8 @@ public sealed class BinTree
                 this.Objects.Add(treeObject.PathHash, treeObject);
             }
         }
-        catch (InvalidPropertyTypeException)
+        // Only IDs 19-24 identify legacy types; unrelated unknown IDs must not reinterpret valid modern data.
+        catch (InvalidPropertyTypeException exception) when ((byte)exception.PropertyType is >= 19 and <= 24)
         {
             // Oopsie woopsie fucky wucky we hit a "legacy" property bin
             // Reset position to objects start and read in "legacy" mode

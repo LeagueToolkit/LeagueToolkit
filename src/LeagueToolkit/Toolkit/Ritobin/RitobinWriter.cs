@@ -142,6 +142,8 @@ public sealed class RitobinWriter : IDisposable
             this._writer.Write($@"""{stringProperty.Value}""");
         else if (property is BinTreeHash hash)
             WriteBinHashProperty(hash);
+        else if (property is BinTreeHash64 hash64)
+            this._writer.Write($"0x{hash64.Value:x16}");
         else if (property is BinTreeWadChunkLink chunkLink)
             WriteWadChunkLinkProperty(chunkLink);
         else if (property is BinTreeUnorderedContainer unorderedContainer)

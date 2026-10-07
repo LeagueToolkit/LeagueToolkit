@@ -45,12 +45,13 @@ public class BinTreeStruct : BinTreeProperty
             return; // Skip
 
         uint size = br.ReadUInt32();
+        BinUtilities.ValidateSize(br, size, sizeof(ushort));
         long contentOffset = br.BaseStream.Position;
 
         ushort propertyCount = br.ReadUInt16();
         for (int i = 0; i < propertyCount; i++)
         {
-            BinTreeProperty property = Read(br, useLegacyType);
+            BinTreeProperty property = Read(br, useLegacyType, this.ClassHash);
 
             this.Properties.Add(property.NameHash, property);
         }
