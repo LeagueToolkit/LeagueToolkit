@@ -44,6 +44,9 @@ public class WadTests
             file1Stream.CopyTo(ms1);
             Assert.Equal("Hello WAD file 1!", Encoding.UTF8.GetString(ms1.ToArray()));
 
+            using var file1Data = wad.LoadChunkDecompressed(file1Chunk);
+            Assert.Equal(file1Content, file1Data.Span.ToArray());
+
             // Verify second file
             var file2Chunk = wad.FindChunk("assets/text/file2.txt");
             using var file2Stream = wad.OpenChunk(file2Chunk);
