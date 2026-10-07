@@ -256,7 +256,7 @@ public class StaticMesh
         // Write vertex colors
         if (this.HasVertexColors)
             foreach (Color vertexColor in this.VertexColors)
-                bw.WriteColor(vertexColor, ColorFormat.RgbaU8);
+                bw.WriteColor(vertexColor, ColorFormat.BgraU8);
 
         bw.WriteVector3(aabb.GetCentralPoint());
 
