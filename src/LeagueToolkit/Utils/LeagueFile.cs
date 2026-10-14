@@ -17,6 +17,7 @@ public static class LeagueFile
                 when magicData[..4].SequenceEqual("r3d2"u8)
                     && BinaryPrimitives.ReadUInt32LittleEndian(magicData[4..]) is 1
                 => LeagueFileType.WwisePackage,
+            { Length: >= 4 } when magicData[..4].SequenceEqual("GMSH"u8) => LeagueFileType.RenderMeshGmesh,
             { Length: >= 4 } when magicData[1..4].SequenceEqual("PNG"u8) => LeagueFileType.Png,
             { Length: >= 4 } when magicData[..4].SequenceEqual("DDS "u8) => LeagueFileType.TextureDds,
             { Length: >= 4 } when BinaryPrimitives.ReadUInt32LittleEndian(magicData) is 0x00112233
@@ -71,6 +72,8 @@ public static class LeagueFile
             "png" => LeagueFileType.Png,
             "preload" => LeagueFileType.Preload,
             "stringtable" => LeagueFileType.RiotStringTable,
+            "gmesh" => LeagueFileType.RenderMeshGmesh,
+            "tmesh" => LeagueFileType.RenderMeshTmesh,
             "scb" => LeagueFileType.StaticMeshBinary,
             "sco" => LeagueFileType.StaticMeshAscii,
             "skl" => LeagueFileType.Skeleton,
@@ -86,6 +89,8 @@ public static class LeagueFile
     {
         return extensionType switch
         {
+            LeagueFileType.RenderMeshGmesh => "gmesh",
+            LeagueFileType.RenderMeshTmesh => "tmesh",
             LeagueFileType.Animation => "anm",
             LeagueFileType.Jpeg => "jpg",
             LeagueFileType.LightGrid => "dat",
@@ -134,4 +139,6 @@ public enum LeagueFileType
     WwisePackage,
 
     Unknown,
+    RenderMeshGmesh,
+    RenderMeshTmesh,
 }
