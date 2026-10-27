@@ -57,7 +57,83 @@ public sealed class BinTreeObject : IEquatable<BinTreeObject>
 
     internal static BinTreeObject Read(uint classHash, BinaryReader br, bool useLegacyType = false)
     {
+        // Legacy bins were written before the client stored any hash in 8 bytes
+        if (useLegacyType || br is not BinTreeReader reader)
+        {
+            br.ReadUInt32(); // size
+            return ReadContent(classHash, br, useLegacyType);
+        }
+
+        long sizeOffset = br.BaseStream.Position;
         uint size = br.ReadUInt32();
+        long contentOffset = br.BaseStream.Position;
+
+        try
+        {
+            BinTreeObject treeObject = ReadContent(classHash, br, useLegacyType: false);
+            if (br.BaseStream.Position == contentOffset + size)
+                return treeObject;
+
+            // The object did not end at its declared size: some of its hashes may be 8 bytes wide.
+            // If no widths fit, keep what a 4-byte read produced, as before.
+            long readEnd = br.BaseStream.Position;
+            if (ReadWithResolvedHashWidths(classHash, reader, contentOffset, size) is BinTreeObject resolved)
+                return resolved;
+
+            br.BaseStream.Position = readEnd;
+            return treeObject;
+        }
+        catch (Exception exception)
+            when (exception
+                    is InvalidPropertyTypeException
+                        or InvalidDataException
+                        or ArgumentException
+                        or EndOfStreamException
+            )
+        {
+            if (ReadWithResolvedHashWidths(classHash, reader, contentOffset, size) is BinTreeObject resolved)
+                return resolved;
+
+            // Not a width problem; let the caller decide (e.g. retry with the legacy property types)
+            br.BaseStream.Position = sizeOffset;
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Reads the object again with the hash widths <see cref="BinHashWidthResolver"/> finds for it,
+    /// or returns <see langword="null"/> when no widths fit its declared sizes
+    /// </summary>
+    private static BinTreeObject ReadWithResolvedHashWidths(
+        uint classHash,
+        BinTreeReader reader,
+        long contentOffset,
+        uint size
+    )
+    {
+        if (contentOffset + size > reader.BaseStream.Length)
+            return null;
+
+        reader.BaseStream.Position = contentOffset;
+        HashSet<long> wideHashOffsets = BinHashWidthResolver.Resolve(reader.ReadBytes((int)size), contentOffset);
+        if (wideHashOffsets is null || wideHashOffsets.Count is 0)
+            return null;
+
+        reader.WideHashOffsets.UnionWith(wideHashOffsets);
+        try
+        {
+            reader.BaseStream.Position = contentOffset;
+            BinTreeObject treeObject = ReadContent(classHash, reader, useLegacyType: false);
+            return reader.BaseStream.Position == contentOffset + size ? treeObject : null;
+        }
+        finally
+        {
+            reader.WideHashOffsets.Clear();
+        }
+    }
+
+    private static BinTreeObject ReadContent(uint classHash, BinaryReader br, bool useLegacyType)
+    {
         uint pathHash = br.ReadUInt32();
 
         ushort propertyCount = br.ReadUInt16();

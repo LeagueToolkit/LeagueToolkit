@@ -59,7 +59,7 @@ public sealed class BinTree
     /// <param name="stream">The stream to read from</param>
     public BinTree(Stream stream)
     {
-        using BinaryReader br = new(stream, Encoding.UTF8, true);
+        using BinTreeReader br = new(stream, Encoding.UTF8, true);
 
         string magic = Encoding.ASCII.GetString(br.ReadBytes(4));
         if (magic != "PROP" && magic != "PTCH")
